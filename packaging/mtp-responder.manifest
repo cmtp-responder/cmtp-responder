@@ -1,0 +1,27 @@
+<manifest>
+	<define>
+		<domain name="mtp-responder"/>
+		<request>
+			<smack request="media-server" type="rwx"/>
+			<smack request="sound-server" type="rwx"/>
+			<smack request="device::mtp" type="rw"/>
+			<smack request="device::sys_logging" type="w"/>
+			<smack request="device::app_logging" type="w"/>
+			<smack request="system::media" type="rwxat"/>
+			<smack request="system::homedir" type="rwxat"/>
+			<smack request="system::share" type="rwxat"/>
+			<smack request="system::ext_storage" type="rl"/>
+			<smack request="tizen::vconf::public::r" type="rl"/>
+			<smack request="tizen::vconf::platform::rw" type="rw"/>
+			<smack request="tizen::vconf::public::r::platform::rw" type="rl"/>
+			<smack request="tizen::vconf::setting::admin" type="rl"/>
+			<smack request="telephony_framework::api_modem" type="rl"/>
+		</request>
+		<permit>
+			<smack permit="media-server" type="rw"/>
+		</permit>
+	</define>
+	<assign>
+		<filesystem path="/usr/bin/mtp-responder" exec_label="none"/>
+	</assign>
+</manifest>

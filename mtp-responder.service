@@ -1,0 +1,10 @@
+[Unit]
+Description=MTP responder
+
+[Service]
+User=system
+Group=system
+SmackProcessLabel=mtp-responder
+Type=simple
+ExecStart=/usr/bin/mtp-responder
+KillMode=process
