@@ -77,7 +77,7 @@
  * Transport related configuration
  */
 /* Internal Storage */
-#define MTP_STORE_PATH_CHAR		"/opt/usr/media"
+#define MTP_STORE_PATH_CHAR		"/home/owner/content"
 
 /* External Storage */
 #define MTP_EXTERNAL_PATH_CHAR		"/opt/storage/sdcard"

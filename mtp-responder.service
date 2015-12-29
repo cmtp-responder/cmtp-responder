@@ -2,9 +2,8 @@
 Description=MTP responder
 
 [Service]
-User=system
-Group=system
-SmackProcessLabel=mtp-responder
+User=owner
+Group=users
 Type=simple
 ExecStart=/usr/bin/mtp-responder
 KillMode=process
