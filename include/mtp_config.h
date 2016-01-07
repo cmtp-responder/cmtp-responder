@@ -80,7 +80,7 @@
 #define MTP_STORE_PATH_CHAR		"/home/owner/content"
 
 /* External Storage */
-#define MTP_EXTERNAL_PATH_CHAR		"/opt/storage/sdcard"
+#define MTP_EXTERNAL_PATH_CHAR		"/usr/storage/sdcard"
 #define MTP_DEVICE_ICON			"/usr/share/mtp/device_icon.ico"
 
 /* File For WMP extesions */
