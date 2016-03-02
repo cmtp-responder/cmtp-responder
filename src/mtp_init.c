@@ -17,7 +17,6 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/syscall.h>
-#include <privilege-control.h>
 #include <glib.h>
 #include <glib-object.h>
 #include <malloc.h>
