@@ -1078,7 +1078,6 @@ static void __format_store(mtp_handler_t *hdlr)
 {
 	mtp_uint32 store_id = 0;
 	mtp_uint32 fs_fmt = 0;
-	mtp_uint16 ret = 0;
 
 	if (_hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 2)) {
 		_cmd_hdlr_send_response_code(hdlr,
@@ -1089,8 +1088,8 @@ static void __format_store(mtp_handler_t *hdlr)
 	store_id = _hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 0);
 	fs_fmt = _hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 1);
 
-	ret = _hutil_format_storage(store_id, fs_fmt);
-	
+	_hutil_format_storage(store_id, fs_fmt);
+
 	/* although there is remain file, send OK */
 	_cmd_hdlr_send_response_code(hdlr, PTP_RESPONSE_OK);
 }
