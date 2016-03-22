@@ -588,7 +588,7 @@ mtp_bool _util_get_file_attrs(const mtp_char *filename, file_attr_t *attrs)
 	}
 
 	memset(attrs, 0, sizeof(file_attr_t));
-	attrs->fsize = fileinfo.st_size;
+	attrs->fsize = (mtp_uint64)fileinfo.st_size;
 	attrs->ctime = fileinfo.st_ctime;
 	attrs->mtime = fileinfo.st_mtime;
 
@@ -749,7 +749,7 @@ mtp_bool _util_ifind_next(mtp_char *dir_name, DIR *dirp, dir_entry_t *dir_info)
 
 	/* Directory Information */
 	dir_info->attrs.mtime = stat_buf.st_mtime;
-	dir_info->attrs.fsize = stat_buf.st_size;
+	dir_info->attrs.fsize = (mtp_uint64)stat_buf.st_size;
 
 	return TRUE;
 }
@@ -766,7 +766,7 @@ mtp_bool _util_get_filesystem_info(mtp_char *storepath, fs_info_t *fs_info)
 		return FALSE;
 	}
 
-	capacity = used_size = avail_size = buf.f_bsize;
+	capacity = used_size = avail_size = (mtp_uint64)buf.f_bsize;
 	DBG("Block size : %d\n", buf.f_bsize);
 	capacity *= buf.f_blocks;
 	used_size *= (buf.f_blocks - buf.f_bavail);

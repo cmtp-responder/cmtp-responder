@@ -579,7 +579,7 @@ static void __process_object_added_event(mtp_char *fullpath,
 
 	g_strlcpy(dir_info.filename, fullpath, MTP_MAX_PATHNAME_SIZE + 1);
 	dir_info.attrs.mtime = stat_buf.st_mtime;
-	dir_info.attrs.fsize = stat_buf.st_size;
+	dir_info.attrs.fsize = (mtp_uint64)stat_buf.st_size;
 
 	/* Reset the attributes */
 	dir_info.attrs.attribute = MTP_FILE_ATTR_MODE_NONE;
