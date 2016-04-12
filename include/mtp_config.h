@@ -18,6 +18,7 @@
 #define _MTP_CONFIG_H_
 
 #include <stdbool.h>
+#include <tzplatform_config.h>
 
 /* Function Features */
 #define MTP_USE_INFORMATION_REGISTRY		/* for get and set some information value */
@@ -80,7 +81,7 @@
 #define MTP_STORE_PATH_CHAR		"/home/owner/content"
 
 /* External Storage */
-#define MTP_EXTERNAL_PATH_CHAR		"/usr/storage/sdcard"
+#define MTP_EXTERNAL_PATH_CHAR	tzplatform_mkpath(TZ_SYS_MEDIA, "/sdcard")
 #define MTP_DEVICE_ICON			"/usr/share/mtp/device_icon.ico"
 
 /* File For WMP extesions */

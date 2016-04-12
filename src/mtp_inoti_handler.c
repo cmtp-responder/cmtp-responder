@@ -486,7 +486,7 @@ static void __remove_recursive_inoti_watch(mtp_char *path)
 static void __clean_up_inoti(void *data)
 {
 	__remove_recursive_inoti_watch(MTP_STORE_PATH_CHAR);
-	__remove_recursive_inoti_watch(MTP_EXTERNAL_PATH_CHAR);
+	__remove_recursive_inoti_watch((mtp_char *)MTP_EXTERNAL_PATH_CHAR);
 	__destroy_inoti_open_files_list();
 
 	close(g_inoti_fd);

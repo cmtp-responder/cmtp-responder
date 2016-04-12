@@ -5,7 +5,7 @@ ExcludeArch: %arm aarch64
 
 Name:       mtp-responder
 Summary:    Media Transfer Protocol daemon (responder)
-Version:    0.0.5
+Version:    0.0.6
 Release:    1
 Group:      Network & Connectivity/Other
 License:    Apache-2.0
@@ -20,6 +20,7 @@ BuildRequires: pkgconfig(tapi)
 BuildRequires: pkgconfig(capi-content-media-content)
 BuildRequires: pkgconfig(capi-media-metadata-extractor)
 BuildRequires: pkgconfig(capi-system-info)
+Buildrequires: pkgconfig(libtzplatform-config)
 Requires(post): /usr/bin/vconftool
 
 

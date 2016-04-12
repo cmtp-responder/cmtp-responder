@@ -610,7 +610,7 @@ static mtp_bool __add_store_to_device(store_type_t store_type)
 		store_id = MTP_INTERNAL_STORE_ID;
 		break;
 	case MTP_STORAGE_EXTERNAL:
-		storage_path = MTP_EXTERNAL_PATH_CHAR;
+		storage_path = (mtp_char *)MTP_EXTERNAL_PATH_CHAR;
 		store_id = MTP_EXTERNAL_STORE_ID;
 		break;
 	default:
