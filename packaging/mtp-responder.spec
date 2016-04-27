@@ -5,7 +5,7 @@ ExcludeArch: %arm aarch64
 
 Name:       mtp-responder
 Summary:    Media Transfer Protocol daemon (responder)
-Version:    0.0.6
+Version:    0.0.7
 Release:    1
 Group:      Network & Connectivity/Other
 License:    Apache-2.0
@@ -42,6 +42,9 @@ make %{?jobs:-j%jobs}
 %install
 %make_install
 
+mkdir -p %{buildroot}%{_libdir}/udev/rules.d
+cp packaging/99-mtp-responder.rules %{buildroot}%{_libdir}/udev/rules.d/99-mtp-responder.rules
+
 install -D -m 0644 mtp-responder.service %{buildroot}%{_libdir}/systemd/system/mtp-responder.service
 
 %post
@@ -57,5 +60,6 @@ ln -sf %{_libdir}/systemd/system/mtp-responder.service %{_sysconfdir}/systemd/de
 %defattr(-,system,system,-)
 %{_bindir}/mtp-responder
 %{_libdir}/systemd/system/mtp-responder.service
+%{_libdir}/udev/rules.d/99-mtp-responder.rules
 /opt/var/lib/misc/mtp-responder.conf
 #%license LICENSE.APLv2
