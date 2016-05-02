@@ -730,8 +730,10 @@ mtp_bool _util_get_video_meta_from_extractor(const mtp_char *filepath,
 		ERR("METADATA_VIDEO_FPS Fail");
 		goto ERROR_EXIT;
 	}
-	video_data->videometa.video_fps = atoi(temp);
-	MTP_PAL_SAFE_FREE(temp);
+	if (NULL != temp) {
+		video_data->videometa.video_fps = atoi(temp);
+		MTP_PAL_SAFE_FREE(temp);
+	}
 
 	ret = metadata_extractor_get_metadata(metadata, METADATA_VIDEO_HEIGHT,
 			&temp);
