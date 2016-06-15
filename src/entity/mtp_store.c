@@ -90,13 +90,16 @@ void _entity_update_store_info_run_time(store_info_t *info,
 
 mtp_bool _entity_get_store_path_by_id(mtp_uint32 store_id, mtp_char *path)
 {
+	char ext_path[MTP_MAX_PATHNAME_SIZE + 1] = { 0 };
+
 	switch(store_id) {
 	case MTP_INTERNAL_STORE_ID :
 		g_strlcpy(path, MTP_STORE_PATH_CHAR,
 				MTP_MAX_PATHNAME_SIZE + 1);
 		break;
 	case MTP_EXTERNAL_STORE_ID :
-		g_strlcpy(path, MTP_EXTERNAL_PATH_CHAR,
+		_util_get_external_path(ext_path);
+		g_strlcpy(path, ext_path,
 				MTP_MAX_PATHNAME_SIZE + 1);
 		break;
 	default :
@@ -174,14 +177,17 @@ mtp_uint32 _entity_pack_store_info(store_info_t *info, mtp_uchar *buf,
 mtp_uint32 _entity_get_store_id_by_path(const mtp_char *path_name)
 {
 	mtp_uint32 store_id = 0;
+	char ext_path[MTP_MAX_PATHNAME_SIZE + 1] = { 0 };
 
 	retv_if(NULL == path_name, FALSE);
+
+	_util_get_external_path(ext_path);
 
 	if (!strncmp(path_name, MTP_STORE_PATH_CHAR,
 				strlen(MTP_STORE_PATH_CHAR))) {
 		store_id = MTP_INTERNAL_STORE_ID;
-	} else if (!strncmp(path_name, MTP_EXTERNAL_PATH_CHAR,
-				strlen(MTP_EXTERNAL_PATH_CHAR))) {
+	} else if (!strncmp(path_name, ext_path,
+				strlen(ext_path))) {
 		store_id = MTP_EXTERNAL_STORE_ID;
 	}
 
@@ -940,27 +946,30 @@ mtp_uint16 _entity_delete_obj_mtp_store(mtp_store_t *store,
 		DBG("object handle is not PTP_OBJECTHANDLE_ALL. [%ld]\n",
 				obj_handle);
 		obj = _entity_get_object_from_store(store, obj_handle);
-		if (_entity_remove_object_mtp_store(store, obj, PTP_FORMATCODE_NOTUSED,
-					&response, &atleas_one, read_only)) {
-			slist_node_t *temp = NULL;
 
-			temp = _util_delete_node(&(store->obj_list), obj);
-			g_free(temp);
-			_util_delete_file_from_db(obj->file_path);
-			_entity_dealloc_mtp_obj(obj);
-		} else {
-			switch (response) {
-			case PTP_RESPONSE_PARTIAL_DELETION:
-				all_del = FALSE;
-				break;
-			case PTP_RESPONSE_OBJ_WRITEPROTECTED:
-			case PTP_RESPONSE_ACCESSDENIED:
-				all_del = FALSE;
-				break;
-			case PTP_RESPONSE_UNDEFINED:
-			default:
-				/* do nothing */
-				break;
+		if (NULL != obj) {
+			if (_entity_remove_object_mtp_store(store, obj, PTP_FORMATCODE_NOTUSED,
+						&response, &atleas_one, read_only)) {
+				slist_node_t *temp = NULL;
+
+				temp = _util_delete_node(&(store->obj_list), obj);
+				g_free(temp);
+				_util_delete_file_from_db(obj->file_path);
+				_entity_dealloc_mtp_obj(obj);
+			} else {
+				switch (response) {
+				case PTP_RESPONSE_PARTIAL_DELETION:
+					all_del = FALSE;
+					break;
+				case PTP_RESPONSE_OBJ_WRITEPROTECTED:
+				case PTP_RESPONSE_ACCESSDENIED:
+					all_del = FALSE;
+					break;
+				case PTP_RESPONSE_UNDEFINED:
+				default:
+					/* do nothing */
+					break;
+				}
 			}
 		}
 	}
@@ -1202,8 +1211,11 @@ void _entity_list_modified_files(mtp_uint32 minutes)
 		}
 	}
 	if (TRUE == _device_is_store_mounted(MTP_STORAGE_EXTERNAL)) {
+		char ext_path[MTP_MAX_PATHNAME_SIZE + 1] = { 0 };
+		_util_get_external_path(ext_path);
+
 		g_snprintf(command, FIND_CMD_LEN, FIND_CMD,
-				MTP_EXTERNAL_PATH_CHAR, minutes,
+				ext_path, minutes,
 				MTP_FILES_MODIFIED_FILES);
 		DBG("find query is [%s]\n", command);
 		ret = system(command);

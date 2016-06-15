@@ -28,6 +28,7 @@
 #include "mtp_util.h"
 #include "mtp_support.h"
 #include "mtp_fs.h"
+#include <storage/storage.h>
 
 static phone_state_t g_ph_status = { 0 };
 
@@ -290,4 +291,28 @@ void _util_set_local_usbmode_status(const phone_status_t val)
 {
 	g_ph_status.usb_mode_state = val;
 	return;
+}
+
+static bool _util_device_supported_cb(int storage_id, storage_type_e type,
+	storage_state_e state, const char *path, void *user_data)
+{
+	char *ext_path = (char *)user_data;
+	
+	if (type == STORAGE_TYPE_EXTERNAL && path != NULL) {
+		strncpy(ext_path, path, strlen(path));
+		DBG("external storage path : %s", ext_path);
+	}
+
+	return TRUE;
+}
+
+void _util_get_external_path(char *ext_path)
+{
+	int error = STORAGE_ERROR_NONE;
+	error = storage_foreach_device_supported(_util_device_supported_cb, ext_path);
+
+	if (error != STORAGE_ERROR_NONE) {
+		ERR("get external storage path Fail");
+		strncpy(ext_path, MTP_EXTERNAL_PATH_CHAR, strlen(MTP_EXTERNAL_PATH_CHAR));
+	}
 }

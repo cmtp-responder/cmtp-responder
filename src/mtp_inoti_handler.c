@@ -485,8 +485,11 @@ static void __remove_recursive_inoti_watch(mtp_char *path)
 
 static void __clean_up_inoti(void *data)
 {
+	char ext_path[MTP_MAX_PATHNAME_SIZE + 1] = { 0 };
+	_util_get_external_path(ext_path);
+
 	__remove_recursive_inoti_watch(MTP_STORE_PATH_CHAR);
-	__remove_recursive_inoti_watch((mtp_char *)MTP_EXTERNAL_PATH_CHAR);
+	__remove_recursive_inoti_watch((mtp_char *)ext_path);
 	__destroy_inoti_open_files_list();
 
 	close(g_inoti_fd);
@@ -557,8 +560,11 @@ static void __process_object_added_event(mtp_char *fullpath,
 	}
 	parent_obj = _entity_get_object_from_store_by_path(store, parent_path);
 	if (NULL == parent_obj) {
+		char ext_path[MTP_MAX_PATHNAME_SIZE + 1] = { 0 };
+		_util_get_external_path(ext_path);
+
 		if (!g_strcmp0(parent_path, MTP_STORE_PATH_CHAR) ||
-				!g_strcmp0(parent_path, MTP_EXTERNAL_PATH_CHAR))
+				!g_strcmp0(parent_path, ext_path))
 		{
 			DBG("parent is the root folder");
 			h_parent = 0;

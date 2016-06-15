@@ -13,7 +13,7 @@ AUX_SOURCE_DIRECTORY(${CMAKE_SOURCE_DIR}/src/util SRCS)
 
 INCLUDE(FindPkgConfig)
 pkg_check_modules(pkgs REQUIRED glib-2.0 capi-content-media-content
-	capi-media-metadata-extractor vconf dlog tapi capi-system-info libtzplatform-config)
+	capi-media-metadata-extractor vconf dlog tapi capi-system-info storage)
 
 FOREACH(flag ${pkgs_CFLAGS})
 	SET(EXTRA_CFLAGS "${EXTRA_CFLAGS} ${flag}")

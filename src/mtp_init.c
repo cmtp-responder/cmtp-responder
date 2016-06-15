@@ -155,10 +155,12 @@ void _mtp_init(add_rem_store_t sel)
 	}
 	/* External Storage */
 	if (MTP_PHONE_MMC_INSERTED == _util_get_local_mmc_status()) {
-		if (access(MTP_EXTERNAL_PATH_CHAR, F_OK) < 0) {
-			if (FALSE == _util_dir_create(MTP_EXTERNAL_PATH_CHAR, &error)) {
+		char ext_path[MTP_MAX_PATHNAME_SIZE + 1] = { 0 };
+		_util_get_external_path(ext_path);
+		if (access(ext_path, F_OK) < 0) {
+			if (FALSE == _util_dir_create(ext_path, &error)) {
 				ERR("Cannot make directory!! [%s]\n",
-						MTP_EXTERNAL_PATH_CHAR);
+						ext_path);
 				goto MTP_INIT_FAIL;
 			}
 		}

@@ -286,6 +286,9 @@ mtp_err_t _hutil_add_object_entry(obj_info_t *obj_info, mtp_char *file_name,
 							"%s/%s", MTP_STORE_PATH_CHAR,
 							MTP_FILE_NAME_WMPINFO_XML);
 				} else {
+					char ext_path[MTP_MAX_PATHNAME_SIZE + 1] = { 0 };
+					_util_get_external_path(ext_path);
+
 					g_snprintf(wmp_hidden_path,
 							MTP_MAX_PATHNAME_SIZE + 1,
 							"%s/%s/%s", MTP_USER_DIRECTORY,
@@ -293,7 +296,7 @@ mtp_err_t _hutil_add_object_entry(obj_info_t *obj_info, mtp_char *file_name,
 							MTP_FILE_NAME_WMPINFO_XML);
 					g_snprintf(wmp_info_path,
 							MTP_MAX_PATHNAME_SIZE + 1,
-							"%s/%s", MTP_EXTERNAL_PATH_CHAR,
+							"%s/%s", ext_path,
 							MTP_FILE_NAME_WMPINFO_XML);
 				}
 
