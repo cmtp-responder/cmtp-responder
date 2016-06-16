@@ -2,8 +2,6 @@
 Description=MTP responder
 
 [Service]
-User=owner
-Group=users
 Type=simple
 ExecStart=/usr/bin/mtp-responder
 KillMode=process

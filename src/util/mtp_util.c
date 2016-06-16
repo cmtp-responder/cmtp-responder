@@ -297,7 +297,7 @@ static bool _util_device_supported_cb(int storage_id, storage_type_e type,
 	storage_state_e state, const char *path, void *user_data)
 {
 	char *ext_path = (char *)user_data;
-	
+
 	if (type == STORAGE_TYPE_EXTERNAL && path != NULL) {
 		strncpy(ext_path, path, strlen(path));
 		DBG("external storage path : %s", ext_path);
