@@ -2,6 +2,9 @@
 Description=MTP responder
 
 [Service]
+User=owner
+Group=users
+SupplementaryGroups=priv_mediastorage priv_externalstorage
 Type=simple
 ExecStart=/usr/bin/mtp-responder
 KillMode=process

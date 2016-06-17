@@ -5,7 +5,7 @@ ExcludeArch: %arm aarch64
 
 Name:       mtp-responder
 Summary:    Media Transfer Protocol daemon (responder)
-Version:    0.0.10
+Version:    0.0.11
 Release:    1
 Group:      Network & Connectivity/Other
 License:    Apache-2.0
@@ -45,7 +45,7 @@ make %{?jobs:-j%jobs}
 mkdir -p %{buildroot}%{_libdir}/udev/rules.d
 cp packaging/99-mtp-responder.rules %{buildroot}%{_libdir}/udev/rules.d/99-mtp-responder.rules
 
-install -D -m 0644 mtp-responder.service %{buildroot}%{_libdir}/systemd/user/mtp-responder.service
+install -D -m 0644 mtp-responder.service %{buildroot}%{_libdir}/systemd/system/mtp-responder.service
 
 %post
 /usr/bin/vconftool set -t string db/private/mtp/serial_number "" -u 5000 -g 5000 -i -f -s tizen::vconf::platform::rw
@@ -53,13 +53,13 @@ install -D -m 0644 mtp-responder.service %{buildroot}%{_libdir}/systemd/user/mtp
 /usr/bin/vconftool set -t int db/private/mtp/sync_time 0 -u 5000 -g 5000 -i -f -s tizen::vconf::platform::rw
 
 mkdir -p %{_sysconfdir}/systemd/default-extra-dependencies/ignore-units.d/
-ln -sf %{_libdir}/systemd/user/mtp-responder.service %{_sysconfdir}/systemd/default-extra-dependencies/ignore-units.d/
+ln -sf %{_libdir}/systemd/system/mtp-responder.service %{_sysconfdir}/systemd/default-extra-dependencies/ignore-units.d/
 
 %files
 %manifest mtp-responder.manifest
 %defattr(-,root,root,-)
 %{_bindir}/mtp-responder
-%{_libdir}/systemd/user/mtp-responder.service
+%{_libdir}/systemd/system/mtp-responder.service
 %{_libdir}/udev/rules.d/99-mtp-responder.rules
 /opt/var/lib/misc/mtp-responder.conf
 #%license LICENSE.APLv2
