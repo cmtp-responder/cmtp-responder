@@ -293,26 +293,61 @@ void _util_set_local_usbmode_status(const phone_status_t val)
 	return;
 }
 
-static bool _util_device_supported_cb(int storage_id, storage_type_e type,
+static bool _util_device_external_supported_cb(int storage_id, storage_type_e type,
 	storage_state_e state, const char *path, void *user_data)
 {
-	char *ext_path = (char *)user_data;
+	char *storage_path = (char *)user_data;
+
+	DBG("storage id: %d, path: %s", storage_id, path);
 
 	if (type == STORAGE_TYPE_EXTERNAL && path != NULL) {
-		strncpy(ext_path, path, strlen(path));
-		DBG("external storage path : %s", ext_path);
+		strncpy(storage_path, path, strlen(path));
+		DBG("external storage path : %s", storage_path);
 	}
 
 	return TRUE;
 }
 
-void _util_get_external_path(char *ext_path)
+void _util_get_external_path(char *external_path)
 {
 	int error = STORAGE_ERROR_NONE;
-	error = storage_foreach_device_supported(_util_device_supported_cb, ext_path);
+	error = storage_foreach_device_supported(_util_device_external_supported_cb, external_path);
 
 	if (error != STORAGE_ERROR_NONE) {
 		ERR("get external storage path Fail");
-		strncpy(ext_path, MTP_EXTERNAL_PATH_CHAR, strlen(MTP_EXTERNAL_PATH_CHAR));
+		strncpy(external_path, MTP_EXTERNAL_PATH_CHAR, strlen(MTP_EXTERNAL_PATH_CHAR));
+	}
+}
+
+static bool _util_device_internal_supported_cb(int storage_id, storage_type_e type,
+	storage_state_e state, const char *path, void *user_data)
+{
+	char *storage_path = (char *)user_data;
+
+	DBG("storage id: %d, path: %s", storage_id, path);
+
+	if (type == STORAGE_TYPE_INTERNAL && path != NULL) {
+		strncpy(storage_path, path, strlen(path));
+		DBG("internal storage path : %s", storage_path);
+
+		if (storage_get_root_directory(storage_id, &storage_path) != STORAGE_ERROR_NONE) {
+			ERR("get internal storage path Fail");
+			return FALSE;
+		} else {
+			DBG("get internal storage path : %s", storage_path);
+		}
+	}
+
+	return TRUE;
+}
+
+void _util_get_internal_path(char *internal_path)
+{
+	int error = STORAGE_ERROR_NONE;
+	error = storage_foreach_device_supported(_util_device_internal_supported_cb, internal_path);
+
+	if (error != STORAGE_ERROR_NONE) {
+		ERR("get internal storage path Fail");
+		strncpy(internal_path, MTP_STORE_PATH_CHAR, strlen(MTP_STORE_PATH_CHAR));
 	}
 }

@@ -90,16 +90,17 @@ void _entity_update_store_info_run_time(store_info_t *info,
 
 mtp_bool _entity_get_store_path_by_id(mtp_uint32 store_id, mtp_char *path)
 {
-	char ext_path[MTP_MAX_PATHNAME_SIZE + 1] = { 0 };
+	char sto_path[MTP_MAX_PATHNAME_SIZE + 1] = { 0 };
 
 	switch(store_id) {
 	case MTP_INTERNAL_STORE_ID :
-		g_strlcpy(path, MTP_STORE_PATH_CHAR,
+		_util_get_internal_path(sto_path);
+		g_strlcpy(path, sto_path,
 				MTP_MAX_PATHNAME_SIZE + 1);
 		break;
 	case MTP_EXTERNAL_STORE_ID :
-		_util_get_external_path(ext_path);
-		g_strlcpy(path, ext_path,
+		_util_get_external_path(sto_path);
+		g_strlcpy(path, sto_path,
 				MTP_MAX_PATHNAME_SIZE + 1);
 		break;
 	default :
@@ -178,13 +179,15 @@ mtp_uint32 _entity_get_store_id_by_path(const mtp_char *path_name)
 {
 	mtp_uint32 store_id = 0;
 	char ext_path[MTP_MAX_PATHNAME_SIZE + 1] = { 0 };
+	char inter_path[MTP_MAX_PATHNAME_SIZE + 1] = { 0 };
 
 	retv_if(NULL == path_name, FALSE);
 
 	_util_get_external_path(ext_path);
+	_util_get_internal_path(inter_path);
 
-	if (!strncmp(path_name, MTP_STORE_PATH_CHAR,
-				strlen(MTP_STORE_PATH_CHAR))) {
+	if (!strncmp(path_name, inter_path,
+				strlen(inter_path))) {
 		store_id = MTP_INTERNAL_STORE_ID;
 	} else if (!strncmp(path_name, ext_path,
 				strlen(ext_path))) {
@@ -1198,8 +1201,11 @@ void _entity_list_modified_files(mtp_uint32 minutes)
 	mtp_char command[FIND_CMD_LEN] = { 0 };
 
 	if (TRUE == _device_is_store_mounted(MTP_STORAGE_INTERNAL)) {
+		char inter_path[MTP_MAX_PATHNAME_SIZE + 1] = { 0 };
+		_util_get_internal_path(inter_path);
+
 		g_snprintf(command, FIND_CMD_LEN, FIND_CMD,
-				MTP_STORE_PATH_CHAR, minutes,
+				inter_path, minutes,
 				MTP_FILES_MODIFIED_FILES);
 		DBG("find query is [%s]\n", command);
 		ret = system(command);

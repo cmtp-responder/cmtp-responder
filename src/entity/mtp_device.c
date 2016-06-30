@@ -603,16 +603,17 @@ static mtp_bool __add_store_to_device(store_type_t store_type)
 	mtp_char *storage_path = NULL;
 	mtp_uint32 store_id = 0;
 	file_attr_t attrs = { 0, };
-	char ext_path[MTP_MAX_PATHNAME_SIZE + 1] = { 0 };
+	char sto_path[MTP_MAX_PATHNAME_SIZE + 1] = { 0 };
 
 	switch (store_type) {
 	case MTP_STORAGE_INTERNAL:
-		storage_path = MTP_STORE_PATH_CHAR;
+		_util_get_internal_path(sto_path);
+		storage_path = (mtp_char *)sto_path;
 		store_id = MTP_INTERNAL_STORE_ID;
 		break;
 	case MTP_STORAGE_EXTERNAL:
-		_util_get_external_path(ext_path);
-		storage_path = (mtp_char *)ext_path;
+		_util_get_external_path(sto_path);
+		storage_path = (mtp_char *)sto_path;
 		store_id = MTP_EXTERNAL_STORE_ID;
 		break;
 	default:

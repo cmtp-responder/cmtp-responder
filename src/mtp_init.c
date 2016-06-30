@@ -95,6 +95,7 @@ void _mtp_init(add_rem_store_t sel)
 	mtp_bool ret = 0;
 	int vconf_ret = 0;
 	mtp_int32 error = 0;
+	char inter_path[MTP_MAX_PATHNAME_SIZE + 1] = { 0 };
 
 	DBG("Initialization start!");
 
@@ -146,10 +147,11 @@ void _mtp_init(add_rem_store_t sel)
 	}
 
 	/* Internal Storage */
-	if (access(MTP_STORE_PATH_CHAR, F_OK) < 0) {
-		if (FALSE == _util_dir_create(MTP_STORE_PATH_CHAR, &error)) {
+	_util_get_internal_path(inter_path);
+	if (access(inter_path, F_OK) < 0) {
+		if (FALSE == _util_dir_create((const mtp_char *)inter_path, &error)) {
 			ERR("Cannot make directory!! [%s]\n",
-					MTP_STORE_PATH_CHAR);
+					inter_path);
 			goto MTP_INIT_FAIL;
 		}
 	}
@@ -158,7 +160,7 @@ void _mtp_init(add_rem_store_t sel)
 		char ext_path[MTP_MAX_PATHNAME_SIZE + 1] = { 0 };
 		_util_get_external_path(ext_path);
 		if (access(ext_path, F_OK) < 0) {
-			if (FALSE == _util_dir_create(ext_path, &error)) {
+			if (FALSE == _util_dir_create((const mtp_char *)ext_path, &error)) {
 				ERR("Cannot make directory!! [%s]\n",
 						ext_path);
 				goto MTP_INIT_FAIL;
@@ -168,7 +170,7 @@ void _mtp_init(add_rem_store_t sel)
 #ifndef MTP_SUPPORT_HIDE_WMPINFO_XML
 	/* Update WMPInfo.xml for preventing frequent saving */
 	ret = _util_create_path(wmpinfopath, sizeof(wmpinfopath),
-			MTP_STORE_PATH_CHAR, MTP_FILE_NAME_WMPINFO_XML);
+			(const mtp_char *)inter_path, MTP_FILE_NAME_WMPINFO_XML);
 	if (FALSE == ret) {
 		ERR("szWMPInfoPath is too long");
 		goto MTP_INIT_FAIL;
