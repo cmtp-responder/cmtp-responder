@@ -71,10 +71,10 @@ mtp_bool _eh_register_notification_callbacks(void)
 
 	_util_get_usbmode_status(&val);
 	_util_set_local_usbmode_status(val);
-	ret = vconf_notify_key_changed(VCONFKEY_SETAPPL_USB_MODE_INT,
+	ret = vconf_notify_key_changed(VCONFKEY_USB_CUR_MODE,
 			__handle_usb_mode_notification, NULL);
 	if (ret < 0) {
-		ERR("vconf_notify_key_changed(%s) Fail", VCONFKEY_SETAPPL_USB_MODE_INT);
+		ERR("vconf_notify_key_changed(%s) Fail", VCONFKEY_USB_CUR_MODE);
 		return FALSE;
 	}
 
@@ -397,7 +397,7 @@ void _eh_deregister_notification_callbacks(void)
 {
 	vconf_ignore_key_changed(VCONFKEY_SYSMAN_USB_STATUS,
 			__handle_usb_notification);
-	vconf_ignore_key_changed(VCONFKEY_SETAPPL_USB_MODE_INT,
+	vconf_ignore_key_changed(VCONFKEY_USB_CUR_MODE,
 			__handle_usb_mode_notification);
 
 	return;

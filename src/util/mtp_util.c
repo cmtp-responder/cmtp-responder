@@ -273,12 +273,17 @@ void _util_get_usbmode_status(phone_status_t *val)
 	mtp_int32 ret = 0;
 	mtp_int32 state = 0;
 
-	ret = vconf_get_int(VCONFKEY_SETAPPL_USB_MODE_INT,
+	ret = vconf_get_int(VCONFKEY_USB_CUR_MODE,
 			&state);
-	if (ret < 0)
+	if (ret < 0) {
 		*val = MTP_PHONE_USB_MODE_OTHER;
+		return;
+	}
+
+	if (state == SET_USB_NONE)
+		*val = MTP_PHONE_USB_DISCONNECTED;
 	else
-		*val = state;
+		*val = MTP_PHONE_USB_CONNECTED;
 	return;
 }
 
