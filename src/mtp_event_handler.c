@@ -78,13 +78,14 @@ mtp_bool _eh_register_notification_callbacks(void)
 		return FALSE;
 	}
 
+	_util_get_lock_status(&val);
+	_util_set_local_lock_status(val);
 	_util_get_mmc_status(&val);
 	_util_set_local_mmc_status(val);
 
-	DBG("Phone status: USB = [%d] MMC = [%d] USB_MODE = [%d]\n",
+	DBG("Phone status: USB = [%d] MMC = [%d] USB_MODE = [%d] LOCK_STATUS = [%d]\n",
 			_util_get_local_usb_status(), _util_get_local_mmc_status(),
-			_util_get_local_usbmode_status());
-
+			_util_get_local_usbmode_status(), _util_get_local_lock_status());
 	return TRUE;
 }
 
@@ -368,6 +369,38 @@ static void __handle_usb_mode_notification(keynode_t *key, void *data)
 	val = vconf_keynode_get_int(key);
 
 	_util_set_local_usbmode_status(val);
+	return;
+}
+
+void _handle_lock_status_notification(keynode_t *key, void *data)
+{
+	phone_status_t previous_val = MTP_PHONE_LOCK_ON;
+	phone_status_t current_val = MTP_PHONE_LOCK_ON;
+
+	previous_val = _util_get_local_lock_status();
+	_util_get_lock_status(&current_val);
+
+	if (previous_val == current_val) {
+		return;
+	}
+
+	_util_set_local_lock_status(current_val);
+
+	if (MTP_PHONE_LOCK_OFF == current_val) {
+		_device_install_storage(MTP_ADDREM_INTERNAL);
+		__send_events_from_device_to_pc(MTP_INTERNAL_STORE_ID,
+				PTP_EVENTCODE_STOREADDED, 0, 0);
+
+		media_content_connect();
+	} else if (MTP_PHONE_LOCK_ON == current_val) {
+		_device_uninstall_storage(MTP_ADDREM_INTERNAL);
+
+		__send_events_from_device_to_pc(MTP_INTERNAL_STORE_ID,
+				PTP_EVENTCODE_STOREREMOVED, 0, 0);
+
+		media_content_disconnect();
+	}
+
 	return;
 }
 

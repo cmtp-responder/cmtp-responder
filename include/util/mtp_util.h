@@ -76,6 +76,8 @@ typedef enum {
 	MTP_PHONE_MMC_INSERTED,
 	MTP_PHONE_MMC_NONE,
 	MTP_PHONE_USB_MODE_OTHER,
+	MTP_PHONE_LOCK_ON,
+	MTP_PHONE_LOCK_OFF,
 } phone_status_t;
 
 typedef struct {
@@ -141,6 +143,9 @@ void _util_set_local_mmc_status(const phone_status_t val);
 void _util_get_usbmode_status(phone_status_t *val);
 phone_status_t _util_get_local_usbmode_status(void);
 void _util_set_local_usbmode_status(const phone_status_t val);
+void _util_get_lock_status(phone_status_t *val);
+phone_status_t _util_get_local_lock_status(void);
+void _util_set_local_lock_status(const phone_status_t val);
 void _util_get_external_path(char *external_path);
 void _util_get_internal_path(char *internal_path);
 #endif /* _MTP_UTIL_H_ */

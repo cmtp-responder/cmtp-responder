@@ -87,15 +87,20 @@ static void __mtp_exit(void)
 	return;
 }
 
+static gboolean __check_internal_storage (gpointer user_data)
+{
+	_handle_lock_status_notification(NULL, NULL);
+
+	return true;
+}
+
 void _mtp_init(add_rem_store_t sel)
 {
-	mtp_char wmpinfopath[MTP_MAX_PATHNAME_SIZE + 1] = { 0 };
 	mtp_char *device_name = NULL;
 	mtp_char *sync_partner = NULL;
 	mtp_bool ret = 0;
 	int vconf_ret = 0;
 	mtp_int32 error = 0;
-	char inter_path[MTP_MAX_PATHNAME_SIZE + 1] = { 0 };
 
 	DBG("Initialization start!");
 
@@ -147,12 +152,23 @@ void _mtp_init(add_rem_store_t sel)
 	}
 
 	/* Internal Storage */
-	_util_get_internal_path(inter_path);
-	if (access(inter_path, F_OK) < 0) {
-		if (FALSE == _util_dir_create((const mtp_char *)inter_path, &error)) {
-			ERR("Cannot make directory!! [%s]\n",
-					inter_path);
+	if (MTP_PHONE_LOCK_OFF == _util_get_local_lock_status()) {
+		mtp_int32 ret;
+		char inter_path[MTP_MAX_PATHNAME_SIZE + 1] = { 0 };
+
+		ret = media_content_connect();
+		if (MEDIA_CONTENT_ERROR_NONE != ret) {
+			ERR("media_content_connect() Fail(%d)", ret);
 			goto MTP_INIT_FAIL;
+		}
+
+		_util_get_internal_path(inter_path);
+		if (access(inter_path, F_OK) < 0) {
+			if (FALSE == _util_dir_create((const mtp_char *)inter_path, &error)) {
+				ERR("Cannot make directory!! [%s]\n",
+						inter_path);
+				goto MTP_INIT_FAIL;
+			}
 		}
 	}
 	/* External Storage */
@@ -167,15 +183,6 @@ void _mtp_init(add_rem_store_t sel)
 			}
 		}
 	}
-#ifndef MTP_SUPPORT_HIDE_WMPINFO_XML
-	/* Update WMPInfo.xml for preventing frequent saving */
-	ret = _util_create_path(wmpinfopath, sizeof(wmpinfopath),
-			(const mtp_char *)inter_path, MTP_FILE_NAME_WMPINFO_XML);
-	if (FALSE == ret) {
-		ERR("szWMPInfoPath is too long");
-		goto MTP_INIT_FAIL;
-	}
-#endif /*MTP_SUPPORT_HIDE_WMPINFO_XML*/
 
 	/* Set mtpdeviceinfo */
 	_init_mtp_device();
@@ -188,6 +195,15 @@ void _mtp_init(add_rem_store_t sel)
 #ifdef MTP_SUPPORT_OBJECTADDDELETE_EVENT
 	_inoti_init_filesystem_evnts();
 #endif /*MTP_SUPPORT_OBJECTADDDELETE_EVENT*/
+
+	vconf_ret = vconf_notify_key_changed(VCONFKEY_IDLE_LOCK_STATE_READ_ONLY,
+			_handle_lock_status_notification, NULL);
+	if (vconf_ret < 0) {
+		ERR("vconf_notify_key_changed(%s) Fail", VCONFKEY_IDLE_LOCK_STATE_READ_ONLY);
+		goto MTP_INIT_FAIL;
+	}
+
+	g_timeout_add(1000, __check_internal_storage, NULL);
 
 	vconf_ret = vconf_notify_key_changed(VCONFKEY_SYSMAN_MMC_STATUS,
 			_handle_mmc_notification, NULL);
@@ -219,6 +235,9 @@ void _mtp_deinit(void)
 #ifdef MTP_SUPPORT_OBJECTADDDELETE_EVENT
 	_inoti_deinit_filesystem_events();
 #endif /*MTP_SUPPORT_OBJECTADDDELETE_EVENT*/
+
+	vconf_ignore_key_changed(VCONFKEY_IDLE_LOCK_STATE_READ_ONLY,
+			_handle_lock_status_notification);
 
 	vconf_ignore_key_changed(VCONFKEY_SYSMAN_MMC_STATUS,
 			_handle_mmc_notification);
@@ -469,12 +488,6 @@ static inline int _main_init()
 int main(int argc, char *argv[])
 {
 	mtp_int32 ret;
-
-	ret = media_content_connect();
-	if (MEDIA_CONTENT_ERROR_NONE != ret) {
-		ERR("media_content_connect() Fail(%d)", ret);
-		return MTP_ERROR_GENERAL;
-	}
 
 	if (_eh_register_notification_callbacks() == FALSE) {
 		ERR("_eh_register_notification_callbacks() Fail");
