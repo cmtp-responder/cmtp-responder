@@ -5,7 +5,7 @@ ExcludeArch: %arm aarch64
 
 Name:       mtp-responder
 Summary:    Media Transfer Protocol daemon (responder)
-Version:    0.0.11
+Version:    0.0.12
 Release:    1
 Group:      Network & Connectivity/Other
 License:    Apache-2.0
@@ -48,10 +48,6 @@ cp packaging/99-mtp-responder.rules %{buildroot}%{_libdir}/udev/rules.d/99-mtp-r
 install -D -m 0644 mtp-responder.service %{buildroot}%{_libdir}/systemd/system/mtp-responder.service
 
 %post
-/usr/bin/vconftool set -t string db/private/mtp/serial_number "" -u 5000 -g 5000 -i -f -s tizen::vconf::platform::rw
-/usr/bin/vconftool set -t string db/private/mtp/sync_partner "" -u 5000 -g 5000 -i -f -s tizen::vconf::platform::rw
-/usr/bin/vconftool set -t int db/private/mtp/sync_time 0 -u 5000 -g 5000 -i -f -s tizen::vconf::platform::rw
-
 mkdir -p %{_sysconfdir}/systemd/default-extra-dependencies/ignore-units.d/
 ln -sf %{_libdir}/systemd/system/mtp-responder.service %{_sysconfdir}/systemd/default-extra-dependencies/ignore-units.d/
 
