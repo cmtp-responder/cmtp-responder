@@ -98,7 +98,6 @@ void _mtp_init(add_rem_store_t sel)
 {
 	mtp_char *device_name = NULL;
 	mtp_char *sync_partner = NULL;
-	mtp_bool ret = 0;
 	int vconf_ret = 0;
 	mtp_int32 error = 0;
 
