@@ -5,7 +5,7 @@ ExcludeArch: %arm aarch64
 
 Name:       mtp-responder
 Summary:    Media Transfer Protocol daemon (responder)
-Version:    0.0.12
+Version:    0.0.13
 Release:    1
 Group:      Network & Connectivity/Other
 License:    Apache-2.0
@@ -23,6 +23,7 @@ BuildRequires: pkgconfig(capi-system-info)
 Buildrequires: pkgconfig(storage)
 Requires(post): /usr/bin/vconftool
 
+%define upgrade_script_path /usr/share/upgrade/scripts
 
 %description
 This package includes a daemon which processes Media Transper Protocol(MTP) commands as MTP responder role.
@@ -45,6 +46,9 @@ make %{?jobs:-j%jobs}
 mkdir -p %{buildroot}%{_libdir}/udev/rules.d
 cp packaging/99-mtp-responder.rules %{buildroot}%{_libdir}/udev/rules.d/99-mtp-responder.rules
 
+mkdir -p %{buildroot}%{upgrade_script_path}
+cp -f scripts/%{name}-upgrade.sh %{buildroot}%{upgrade_script_path}
+
 install -D -m 0644 mtp-responder.service %{buildroot}%{_libdir}/systemd/system/mtp-responder.service
 
 %post
@@ -58,4 +62,5 @@ ln -sf %{_libdir}/systemd/system/mtp-responder.service %{_sysconfdir}/systemd/de
 %{_libdir}/systemd/system/mtp-responder.service
 %{_libdir}/udev/rules.d/99-mtp-responder.rules
 /opt/var/lib/misc/mtp-responder.conf
+%{upgrade_script_path}/%{name}-upgrade.sh
 #%license LICENSE.APLv2
