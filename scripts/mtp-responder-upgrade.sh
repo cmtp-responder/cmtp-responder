@@ -1,4 +1,5 @@
 #!/bin/sh
+PATH=/bin:/usr/bin:/sbin:/usr/sbin
 
 #----------------------------------------------#
 # mtp-responder patch for upgrade (2.4 -> 3.0) #
