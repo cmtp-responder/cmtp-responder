@@ -768,24 +768,25 @@ ERROR_EXIT:
 
 void _util_flush_db(void)
 {
-	_util_add_file_to_db(NULL);
+	_util_add_file_to_db(NULL, NULL);
 	_util_delete_file_from_db(NULL);
 }
 
-void _util_delete_file_from_db(const mtp_char *filepath)
+void _util_delete_file_from_db(const mtp_char *media_id)
 {
 	int ret;
 
-	ret_if(NULL == filepath);
+	ret_if(NULL == media_id);
 
-	ret = media_info_delete_from_db(filepath);
+	ERR("delete media_id is %s", media_id);
+	ret = media_info_delete_from_db(media_id);
 	if (MEDIA_CONTENT_ERROR_NONE != ret)
 		ERR("media_info_delete_from_db() Fail(%d)", ret);
 
 	return;
 }
 
-void _util_add_file_to_db(const mtp_char *filepath)
+void _util_add_file_to_db(mtp_obj_t *obj, mtp_char *filepath)
 {
 	mtp_int32 ret;
 	media_info_h info = NULL;
@@ -795,6 +796,17 @@ void _util_add_file_to_db(const mtp_char *filepath)
 	ret = media_info_insert_to_db(filepath, &info);
 	if (MEDIA_CONTENT_ERROR_NONE != ret)
 		ERR("media_info_insert_to_db() Fail(%d)", ret);
+
+	if (obj->media_id != NULL) {
+		free(obj->media_id);
+		obj->media_id = NULL;
+	}
+
+	ret = media_info_get_media_id(info, &obj->media_id);
+
+	ERR("add media_id is %s", obj->media_id);
+	if (MEDIA_CONTENT_ERROR_NONE != ret)
+		ERR("media_info_get_media_id() Fail(%d)", ret);
 
 	if (info)
 		media_info_destroy(info);

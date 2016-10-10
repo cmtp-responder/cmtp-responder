@@ -925,7 +925,7 @@ mtp_uint16 _entity_delete_obj_mtp_store(mtp_store_t *store,
 				node = node->link;
 				temp = _util_delete_node(&(store->obj_list), obj);
 				g_free(temp);
-				_util_delete_file_from_db(obj->file_path);
+				_util_delete_file_from_db(obj->media_id);
 				_entity_dealloc_mtp_obj(obj);
 			} else {
 				node = node->link;
@@ -957,7 +957,7 @@ mtp_uint16 _entity_delete_obj_mtp_store(mtp_store_t *store,
 
 				temp = _util_delete_node(&(store->obj_list), obj);
 				g_free(temp);
-				_util_delete_file_from_db(obj->file_path);
+				_util_delete_file_from_db(obj->media_id);
 				_entity_dealloc_mtp_obj(obj);
 			} else {
 				switch (response) {

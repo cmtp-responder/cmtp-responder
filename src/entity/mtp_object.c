@@ -23,6 +23,7 @@
 #include "mtp_support.h"
 #include "mtp_util.h"
 #include "mtp_device.h"
+#include "mtp_media_info.h"
 
 
 extern mtp_bool g_is_full_enum;
@@ -620,7 +621,7 @@ mtp_bool _entity_set_child_object_path(mtp_obj_t *obj, mtp_char *src_path,
 			_entity_dealloc_mtp_obj(child_obj);
 			continue;
 		}
-		_util_delete_file_from_db(child_obj->file_path);
+		_util_delete_file_from_db(child_obj->media_id);
 
 		if (_entity_set_object_file_path(child_obj, dest_child_path,
 					CHAR_TYPE) == FALSE) {
@@ -747,6 +748,9 @@ void _entity_dealloc_mtp_obj(mtp_obj_t *obj)
 		_prop_destroy_obj_propval((obj_prop_val_t *)node->value);
 		g_free(node);
 	}
+
+	if (obj->media_id != NULL)
+		free(obj->media_id);
 
 	g_free(obj->file_path);
 	g_free(obj);
