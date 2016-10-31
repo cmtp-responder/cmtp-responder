@@ -20,6 +20,7 @@
 #include "mtp_list.h"
 #include "ptp_datacodes.h"
 #include "mtp_fs.h"
+#include "mtp_media_info.h"
 
 #define FIXED_LENGTH_MEMBERS_SIZE \
 	(4 * sizeof(mtp_uint16) + 11 * sizeof(mtp_uint32))
@@ -55,7 +56,6 @@ typedef struct {
 	mtp_char *file_path;
 	ptp_array_t child_array;	/* Include all the renferences */
 	slist_t propval_list;	/* Object Properties implemented */
-	mtp_char *media_id; /* Tizen Media Content variable */
 } mtp_obj_t;
 
 mtp_bool _entity_get_file_times(mtp_obj_t *obj, ptp_time_string_t *create_tm,

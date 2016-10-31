@@ -768,25 +768,45 @@ ERROR_EXIT:
 
 void _util_flush_db(void)
 {
-	_util_add_file_to_db(NULL, NULL);
+	_util_add_file_to_db(NULL);
 	_util_delete_file_from_db(NULL);
 }
 
-void _util_delete_file_from_db(const mtp_char *media_id)
+void _util_delete_file_from_db(const mtp_char *filepath)
 {
 	int ret;
+	media_info_h info = NULL;
+	char *media_id = NULL;
+	mtp_char condition[MEDIA_PATH_COND_MAX_LEN + 1];
 
-	ret_if(NULL == media_id);
+	ret_if(NULL == filepath);
 
-	ERR("delete media_id is %s", media_id);
+	g_snprintf(condition, sizeof(condition), "%s\"%s\"", MEDIA_PATH_COND, filepath);
+
+	info = __util_find_media_info(condition);
+	if (info == NULL) {
+		ERR("File entry not found in db");
+		return;
+	}
+
+	ret = media_info_get_media_id(info, &media_id);
+	if (MEDIA_CONTENT_ERROR_NONE != ret)
+		ERR("media_info_get_media_id() Fail(%d)", ret);
+
 	ret = media_info_delete_from_db(media_id);
 	if (MEDIA_CONTENT_ERROR_NONE != ret)
 		ERR("media_info_delete_from_db() Fail(%d)", ret);
 
+	if (media_id)
+		free(media_id);
+
+	if (info)
+		media_info_destroy(info);
+
 	return;
 }
 
-void _util_add_file_to_db(mtp_obj_t *obj, mtp_char *filepath)
+void _util_add_file_to_db(const mtp_char *filepath)
 {
 	mtp_int32 ret;
 	media_info_h info = NULL;
@@ -796,17 +816,6 @@ void _util_add_file_to_db(mtp_obj_t *obj, mtp_char *filepath)
 	ret = media_info_insert_to_db(filepath, &info);
 	if (MEDIA_CONTENT_ERROR_NONE != ret)
 		ERR("media_info_insert_to_db() Fail(%d)", ret);
-
-	if (obj->media_id != NULL) {
-		free(obj->media_id);
-		obj->media_id = NULL;
-	}
-
-	ret = media_info_get_media_id(info, &obj->media_id);
-
-	ERR("add media_id is %s", obj->media_id);
-	if (MEDIA_CONTENT_ERROR_NONE != ret)
-		ERR("media_info_get_media_id() Fail(%d)", ret);
 
 	if (info)
 		media_info_destroy(info);

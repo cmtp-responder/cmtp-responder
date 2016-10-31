@@ -21,7 +21,6 @@
 #include <media_content.h>
 #include "mtp_config.h"
 #include "mtp_datatype.h"
-#include "mtp_object.h"
 
 #define MEDIA_PATH_COND			"MEDIA_PATH="
 #define MEDIA_PATH_COND_LEN		13	/* MEDIA_PATH="" */
@@ -96,8 +95,8 @@ mtp_bool _util_get_audio_meta_from_extractor(const mtp_char *filepath,
 mtp_bool _util_get_video_meta_from_extractor(const mtp_char *filepath,
 		comp_video_meta_t *video_data);
 void _util_flush_db(void);
-void _util_delete_file_from_db(const mtp_char *media_id);
-void _util_add_file_to_db(mtp_obj_t *obj, mtp_char *filepath);
+void _util_delete_file_from_db(const mtp_char *filepath);
+void _util_add_file_to_db(const mtp_char *filepath);
 void _util_scan_folder_contents_in_db(const mtp_char *filepath);
 void _util_free_common_meta(common_meta_t *metadata);
 void _util_free_video_meta(video_meta_t *video);

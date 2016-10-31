@@ -982,9 +982,9 @@ mtp_err_t _hutil_move_object_entry(mtp_uint32 dst_store_id, mtp_uint32 h_parent,
 				return MTP_ERROR_GENERAL;
 			}
 
-			_util_delete_file_from_db(obj->media_id);
+			_util_delete_file_from_db(obj->file_path);
 			_entity_set_object_file_path(obj, dst_fpath, CHAR_TYPE);
-			_util_add_file_to_db(obj, obj->file_path);
+			_util_add_file_to_db(obj->file_path);
 		}
 
 		if (obj->obj_info->h_parent != PTP_OBJECTHANDLE_ROOT) {
@@ -1033,7 +1033,7 @@ mtp_err_t _hutil_move_object_entry(mtp_uint32 dst_store_id, mtp_uint32 h_parent,
 		if (new_obj->obj_info->obj_fmt == PTP_FMT_ASSOCIATION)
 			_util_scan_folder_contents_in_db(new_obj->file_path);
 		else
-			_util_add_file_to_db(new_obj, new_obj->file_path);
+			_util_add_file_to_db(new_obj->file_path);
 
 		return MTP_ERROR_NONE;
 	}
@@ -1114,7 +1114,7 @@ mtp_err_t _hutil_duplicate_object_entry(mtp_uint32 dst_store_id,
 	if (new_obj->obj_info->obj_fmt == PTP_FMT_ASSOCIATION) {
 		_util_scan_folder_contents_in_db(new_obj->file_path);
 	} else {
-		_util_add_file_to_db(new_obj, new_obj->file_path);
+		_util_add_file_to_db(new_obj->file_path);
 	}
 
 	return MTP_ERROR_NONE;
@@ -1236,7 +1236,7 @@ mtp_err_t _hutil_write_file_data(mtp_uint32 store_id, mtp_obj_t *obj,
 	}
 #endif /* MTP_SUPPORT_SET_PROTECTION */
 
-	_util_add_file_to_db(obj, obj->file_path);
+	_util_add_file_to_db(obj->file_path);
 
 #ifndef MTP_USE_RUNTIME_GETOBJECTPROPVALUE
 	if (updatePropertyValuesMtpObject(obj) == FALSE) {
@@ -2044,8 +2044,9 @@ mtp_err_t _hutil_update_object_property(mtp_uint32 obj_handle,
 				_util_scan_folder_contents_in_db(orig_fpath);
 				_util_scan_folder_contents_in_db(dest_fpath);
 			} else {
-				_util_delete_file_from_db(obj->media_id);
-				_util_add_file_to_db(obj, dest_fpath);
+				_util_delete_file_from_db(orig_fpath);
+				_util_add_file_to_db(dest_fpath);
+
 			}
 
 			/* Finally assign new handle and update full path */
