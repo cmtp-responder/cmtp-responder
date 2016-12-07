@@ -1151,7 +1151,7 @@ mtp_err_t _hutil_read_file_data_from_offset(mtp_uint32 obj_handle, off_t offset,
 	}
 
 	result = _util_file_seek(h_file, offset, SEEK_SET);
-	if (result < 0) {
+	if (result == FALSE) {
 		ERR("file seek Fail [%d]\n", errno);
 		_util_file_close(h_file);
 		return MTP_ERROR_GENERAL;
