@@ -43,24 +43,24 @@ make %{?jobs:-j%jobs}
 %install
 %make_install
 
-mkdir -p %{buildroot}%{_libdir}/udev/rules.d
-cp packaging/99-mtp-responder.rules %{buildroot}%{_libdir}/udev/rules.d/99-mtp-responder.rules
+mkdir -p %{buildroot}/%{_prefix}/lib/udev/rules.d
+cp packaging/99-mtp-responder.rules %{buildroot}/%{_prefix}/lib/udev/rules.d/99-mtp-responder.rules
 
 mkdir -p %{buildroot}%{upgrade_script_path}
 cp -f scripts/500.%{name}-upgrade.sh %{buildroot}%{upgrade_script_path}
 
-install -D -m 0644 mtp-responder.service %{buildroot}%{_libdir}/systemd/system/mtp-responder.service
+install -D -m 0644 mtp-responder.service %{buildroot}/%{_unitdir}/systemd/system/mtp-responder.service
 
 %post
 mkdir -p %{_sysconfdir}/systemd/default-extra-dependencies/ignore-units.d/
-ln -sf %{_libdir}/systemd/system/mtp-responder.service %{_sysconfdir}/systemd/default-extra-dependencies/ignore-units.d/
+ln -sf %{_unitdir}/systemd/system/mtp-responder.service %{_sysconfdir}/systemd/default-extra-dependencies/ignore-units.d/
 
 %files
 %manifest mtp-responder.manifest
 %defattr(-,root,root,-)
 %{_bindir}/mtp-responder
-%{_libdir}/systemd/system/mtp-responder.service
-%{_libdir}/udev/rules.d/99-mtp-responder.rules
+%{_unitdir}/systemd/system/mtp-responder.service
+%{_prefix}/lib/udev/rules.d/99-mtp-responder.rules
 /opt/var/lib/misc/mtp-responder.conf
 %{upgrade_script_path}/500.%{name}-upgrade.sh
 #%license LICENSE.APLv2
