@@ -49,17 +49,17 @@ cp packaging/99-mtp-responder.rules %{buildroot}/%{_prefix}/lib/udev/rules.d/99-
 mkdir -p %{buildroot}%{upgrade_script_path}
 cp -f scripts/500.%{name}-upgrade.sh %{buildroot}%{upgrade_script_path}
 
-install -D -m 0644 mtp-responder.service %{buildroot}/%{_unitdir}/systemd/system/mtp-responder.service
+install -D -m 0644 mtp-responder.service %{buildroot}/%{_unitdir}/mtp-responder.service
 
 %post
 mkdir -p %{_sysconfdir}/systemd/default-extra-dependencies/ignore-units.d/
-ln -sf %{_unitdir}/systemd/system/mtp-responder.service %{_sysconfdir}/systemd/default-extra-dependencies/ignore-units.d/
+ln -sf %{_unitdir}/mtp-responder.service %{_sysconfdir}/systemd/default-extra-dependencies/ignore-units.d/
 
 %files
 %manifest mtp-responder.manifest
 %defattr(-,root,root,-)
 %{_bindir}/mtp-responder
-%{_unitdir}/systemd/system/mtp-responder.service
+%{_unitdir}/mtp-responder.service
 %{_prefix}/lib/udev/rules.d/99-mtp-responder.rules
 /opt/var/lib/misc/mtp-responder.conf
 %{upgrade_script_path}/500.%{name}-upgrade.sh
