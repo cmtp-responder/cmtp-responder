@@ -701,7 +701,7 @@ static void __get_object(mtp_handler_t *hdlr)
 	mtp_uint16 resp = PTP_RESPONSE_OK;
 	mtp_uint32 packet_len;
 	mtp_uint32 read_len = 0;
-	mtp_uint32 h_file = INVALID_FILE;
+	FILE* h_file = NULL;
 	mtp_int32 error = 0;
 
 	if (_hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 1) ||
@@ -745,7 +745,7 @@ static void __get_object(mtp_handler_t *hdlr)
 
 	_device_set_phase(DEVICE_PHASE_DATAIN);
 	h_file = _util_file_open(path, MTP_FILE_READ, &error);
-	if (h_file == INVALID_FILE) {
+	if (h_file == NULL) {
 		ERR("_util_file_open() Fail");
 		_device_set_phase(DEVICE_PHASE_NOTREADY);
 		if (EACCES == error) {
@@ -1183,7 +1183,7 @@ static void __get_device_prop_desc(mtp_handler_t *hdlr)
 		}
 	case MTP_PROPERTYCODE_DEVICEICON:
 		{
-			mtp_uint32 h_file;
+			FILE* h_file;
 			mtp_uint32 bytes_read = 0;
 			mtp_uint32 file_size = 0;
 			struct stat buf;
@@ -1197,7 +1197,7 @@ static void __get_device_prop_desc(mtp_handler_t *hdlr)
 			}
 
 			h_file = _util_file_open(MTP_DEVICE_ICON, MTP_FILE_READ, &err);
-			if (h_file == INVALID_FILE) {
+			if (h_file == NULL) {
 				ERR("file handle is not valid");
 				_cmd_hdlr_send_response_code(hdlr,
 						PTP_RESPONSE_GEN_ERROR);
@@ -1380,7 +1380,7 @@ static void __get_device_prop_value(mtp_handler_t *hdlr)
 	case MTP_PROPERTYCODE_DEVICEICON:
 		{
 
-										  mtp_uint32 h_file;
+										  FILE *h_file;
 										  mtp_uint32 read_bytes = 0;
 										  mtp_uint32 file_size = 0;
 										  struct stat buf;
@@ -1390,13 +1390,13 @@ static void __get_device_prop_value(mtp_handler_t *hdlr)
 										  mtp_uint32 ii;
 
 										  h_file = _util_file_open(MTP_DEVICE_ICON, MTP_FILE_READ, &err);
-										  if (h_file == INVALID_FILE) {
+										  if (h_file == NULL) {
 											  ERR("file handle is not valid");
 											  _cmd_hdlr_send_response_code(hdlr,
 													  PTP_RESPONSE_GEN_ERROR);
 											  return;
 										  }
-										  if (fstat(fileno((FILE *)h_file), &buf) != 0) {
+										  if (fstat(fileno(h_file), &buf) != 0) {
 											  _util_file_close(h_file);
 											  _cmd_hdlr_send_response_code(hdlr,
 													  PTP_RESPONSE_GEN_ERROR);
@@ -2022,7 +2022,6 @@ static void __get_object_prop_list(mtp_handler_t *hdlr)
 	slist_node_t *next_node = NULL;
 	mtp_uint32 ii = 0;
 	mtp_uint32 jj = 0;
-	mtp_obj_t **ptr_array = NULL;
 	mtp_obj_t *obj = NULL;
 #endif /*MTP_USE_RUNTIME_GETOBJECTPROPVALUE*/
 
@@ -2085,10 +2084,17 @@ static void __get_object_prop_list(mtp_handler_t *hdlr)
 
 #ifdef MTP_USE_RUNTIME_GETOBJECTPROPVALUE
 	if (resp == PTP_RESPONSE_OK && obj_arr.array_entry) {
-		ptr_array = obj_arr.array_entry;
+		mtp_uint32 *obj_handles = obj_arr.array_entry;
 
 		for (ii = 0; ii < obj_arr.num_ele; ii++) {
-			obj = ptr_array[ii];
+			mtp_store_t *store = NULL;
+
+			store = _device_get_store_containing_obj(obj_handles[ii]);
+			if (store == NULL) {
+				continue;
+			}
+
+			obj = _entity_get_object_from_store(store, obj_handles[ii]);
 			if (NULL == obj || obj->propval_list.nnodes == 0) {
 				continue;
 			}
@@ -2273,7 +2279,7 @@ static void __report_acquired_content(mtp_handler_t *hdlr)
 	mtp_uint32 num_bytes = 0;
 	mtp_uint32 num_lines = 0;
 	mtp_uint32 rem_modified = 0;
-	mtp_uint32 h_file;
+	FILE* h_file;
 	time_t cur_time;
 	time_t l_time;
 	mtp_int32 diff_time;
@@ -2328,7 +2334,7 @@ static void __report_acquired_content(mtp_handler_t *hdlr)
 	}
 
 	h_file = _util_file_open(MTP_FILES_MODIFIED_FILES, MTP_FILE_READ, &err);
-	if (h_file == INVALID_FILE) {
+	if (h_file == NULL) {
 		resp = PTP_RESPONSE_GEN_ERROR;
 		_prop_init_ptparray(&guid_arr, UINT32_TYPE);
 		_prop_append_ele_ptparray(&guid_arr, 0);
@@ -3190,10 +3196,10 @@ void _receive_mq_data_cb(mtp_char *buffer, mtp_int32 buf_len)
 
 		_transport_set_control_event(0);
 		_transport_set_mtp_operation_state(MTP_STATE_ONSERVICE);
-		if (g_mgr->ftemp_st.fhandle != INVALID_FILE) {
+		if (g_mgr->ftemp_st.fhandle != NULL) {
 			DBG("In Cancel Transaction fclose ");
 			_util_file_close(g_mgr->ftemp_st.fhandle);
-			g_mgr->ftemp_st.fhandle = INVALID_FILE;
+			g_mgr->ftemp_st.fhandle = NULL;
 			DBG("In Cancel Transaction, remove ");
 			if (remove(g_mgr->ftemp_st.filepath) < 0) {
 				ERR_SECURE("remove(%s) Fail", g_mgr->ftemp_st.filepath);
@@ -3259,16 +3265,15 @@ static mtp_bool __receive_temp_file_first_packet(mtp_char *data,
 		mtp_int32 data_len)
 {
 	mtp_char *filepath = g_mgr->ftemp_st.filepath;
-	mtp_uint32 *fhandle = &g_mgr->ftemp_st.fhandle;
 	mtp_int32 error = 0;
 	mtp_uint32 *data_sz = &g_mgr->ftemp_st.data_size;
 	mtp_char *buffer = g_mgr->ftemp_st.temp_buff;
 
 	_transport_set_mtp_operation_state(MTP_STATE_DATA_TRANSFER_DL);
 	if (access(filepath, F_OK) == 0) {
-		if (*fhandle != INVALID_FILE) {
-			_util_file_close(*fhandle);
-			*fhandle = INVALID_FILE;	/* initialize */
+		if (g_mgr->ftemp_st.fhandle != NULL) {
+			_util_file_close(g_mgr->ftemp_st.fhandle);
+			g_mgr->ftemp_st.fhandle = NULL;	/* initialize */
 		}
 
 		if (remove(filepath) < 0) {
@@ -3278,8 +3283,8 @@ static mtp_bool __receive_temp_file_first_packet(mtp_char *data,
 		}
 	}
 
-	*fhandle = _util_file_open(filepath, MTP_FILE_WRITE, &error);
-	if (*fhandle == INVALID_FILE) {
+	g_mgr->ftemp_st.fhandle = _util_file_open(filepath, MTP_FILE_WRITE, &error);
+	if (g_mgr->ftemp_st.fhandle == NULL) {
 		ERR("First file handle is invalid!!");
 		__finish_receiving_file_packets(data, data_len);
 		return FALSE;
@@ -3293,14 +3298,14 @@ static mtp_bool __receive_temp_file_first_packet(mtp_char *data,
 
 	/* check whether last data packet */
 	if (*data_sz == g_mgr->ftemp_st.file_size) {
-		if (_util_file_write(*fhandle, &data[sizeof(header_container_t)],
+		if (_util_file_write(g_mgr->ftemp_st.fhandle, &data[sizeof(header_container_t)],
 					data_len - sizeof(header_container_t)) !=
 				data_len - sizeof(header_container_t)) {
 			ERR("fwrite error!");
 		}
 		*data_sz = 0;
-		_util_file_close(*fhandle);
-		*fhandle = INVALID_FILE;	/* initialize */
+		_util_file_close(g_mgr->ftemp_st.fhandle);
+		g_mgr->ftemp_st.fhandle = NULL;	/* initialize */
 		__finish_receiving_file_packets(data, data_len);
 	} else {
 		g_mgr->ftemp_st.data_count++;
@@ -3317,14 +3322,13 @@ static mtp_bool __receive_temp_file_next_packets(mtp_char *data,
 	mtp_uint32 rx_size = _get_rx_pkt_size();
 	mtp_uint32 *data_sz = &g_mgr->ftemp_st.data_size;
 	mtp_char *buffer = g_mgr->ftemp_st.temp_buff;
-	mtp_uint32 *fhandle = &g_mgr->ftemp_st.fhandle;
 
 	g_mgr->ftemp_st.data_count++;
 	g_mgr->ftemp_st.size_remaining += data_len;
 
 	if ((*data_sz + (mtp_uint32)data_len) > g_conf.write_file_size) {
 		/* copy oversized packet to temp file */
-		if (_util_file_write(*fhandle, buffer, *data_sz) != *data_sz)
+		if (_util_file_write(g_mgr->ftemp_st.fhandle, buffer, *data_sz) != *data_sz)
 			ERR("fwrite error writeSize=[%u]\n", *data_sz);
 
 		*data_sz = 0;
@@ -3337,12 +3341,12 @@ static mtp_bool __receive_temp_file_next_packets(mtp_char *data,
 	if (data_len < rx_size ||
 			g_mgr->ftemp_st.size_remaining == g_mgr->ftemp_st.file_size) {
 
-		if (_util_file_write(*fhandle, buffer, *data_sz) != *data_sz) {
+		if (_util_file_write(g_mgr->ftemp_st.fhandle, buffer, *data_sz) != *data_sz) {
 			ERR("fwrite error write size=[%u]\n", *data_sz);
 		}
 		*data_sz = 0;
-		_util_file_close(*fhandle);
-		*fhandle = INVALID_FILE;	/* initialize */
+		_util_file_close(g_mgr->ftemp_st.fhandle);
+		g_mgr->ftemp_st.fhandle = NULL;
 		__finish_receiving_file_packets(data, data_len);
 	}
 	return TRUE;

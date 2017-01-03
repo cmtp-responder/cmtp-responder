@@ -46,7 +46,7 @@
  * @return	This function returns the file handle  on success,
  or INVALID_FILE on failure
  */
-mtp_uint32 _util_file_open(const mtp_char *filename, file_mode_t mode,
+FILE* _util_file_open(const mtp_char *filename, file_mode_t mode,
 		mtp_int32 *error)
 {
 #ifdef __USE_STDIO__
@@ -77,7 +77,7 @@ mtp_uint32 _util_file_open(const mtp_char *filename, file_mode_t mode,
 	default:
 		ERR("Invalid mode : %d\n", mode);
 		*error = EINVAL;
-		return INVALID_FILE;
+		return NULL;
 	}
 
 	fhandle = fopen(filename, fmode);
@@ -85,12 +85,12 @@ mtp_uint32 _util_file_open(const mtp_char *filename, file_mode_t mode,
 		ERR("File open Fail:mode[0x%x], errno [%d]\n", mode, errno);
 		ERR_SECURE("filename[%s]\n", filename);
 		*error = errno;
-		return INVALID_FILE;
+		return NULL;
 	}
 
 	fcntl(fileno(fhandle), F_SETFL, O_NOATIME);
 
-	return (mtp_uint32)fhandle;
+	return fhandle;
 
 #else /* __USE_STDIO__ */
 
@@ -125,7 +125,7 @@ mtp_uint32 _util_file_open(const mtp_char *filename, file_mode_t mode,
 	default:
 		ERR("Invalid mode : %d\n", mode);
 		*error = EINVAL;
-		return INVALID_FILE;
+		return NULL;
 	}
 
 	if (perm)
@@ -137,10 +137,10 @@ mtp_uint32 _util_file_open(const mtp_char *filename, file_mode_t mode,
 		ERR("File open Fail:mode[0x%x], errno [%d]\n", mode, errno);
 		ERR_SECURE("filename[%s]\n", filename);
 		*error = errno;
-		return INVALID_FILE;
+		return NULL;
 	}
 
-	return (mtp_uint32)fhandle;
+	return fhandle;
 #endif /* __USE_STDIO__ */
 }
 
@@ -156,13 +156,13 @@ mtp_uint32 _util_file_open(const mtp_char *filename, file_mode_t mode,
  * @param[out]	preadcount	Will store the actual num bytes read.
  * @return	None
  */
-void _util_file_read(mtp_uint32 fhandle, void *bufptr, mtp_uint32 size,
+void _util_file_read(FILE* fhandle, void *bufptr, mtp_uint32 size,
 		mtp_uint32 *read_count)
 {
 	mtp_uint32 bytes_read = 0;
 
 #ifdef __USE_STDIO__
-	bytes_read = fread_unlocked(bufptr, sizeof(mtp_char), size, (FILE *)fhandle);
+	bytes_read = fread_unlocked(bufptr, sizeof(mtp_char), size, fhandle);
 #else /* __USE_STDIO__ */
 	bytes_read = read(fhandle, bufptr, size);
 #endif /* __USE_STDIO__ */
@@ -180,12 +180,12 @@ void _util_file_read(mtp_uint32 fhandle, void *bufptr, mtp_uint32 size,
  * @return	This function returns num bytes written.
  */
 
-mtp_uint32 _util_file_write(mtp_uint32 fhandle, void *bufptr, mtp_uint32 size)
+mtp_uint32 _util_file_write(FILE* fhandle, void *bufptr, mtp_uint32 size)
 {
 	mtp_uint32 bytes_written = 0;
 
 #ifdef __USE_STDIO__
-	bytes_written = fwrite_unlocked(bufptr, sizeof(mtp_char), size, (FILE *)fhandle);
+	bytes_written = fwrite_unlocked(bufptr, sizeof(mtp_char), size, fhandle);
 #else /* __USE_STDIO__ */
 	mtp_int32 ret = 0;
 
@@ -206,10 +206,10 @@ mtp_uint32 _util_file_write(mtp_uint32 fhandle, void *bufptr, mtp_uint32 size)
  * @param[in]	handle	Specifies the handle of file to close.
  * @return	0 in case of success or EOF on failure.
  */
-mtp_int32 _util_file_close(mtp_uint32 fhandle)
+mtp_int32 _util_file_close(FILE* fhandle)
 {
 #ifdef __USE_STDIO__
-	return fclose((FILE *)fhandle);
+	return fclose(fhandle);
 #else /* __USE_STDIO__ */
 	return close(fhandle);
 #endif /* __USE_STDIO__ */
@@ -223,12 +223,12 @@ mtp_int32 _util_file_close(mtp_uint32 fhandle)
  * @param[in]	whence		Specifies the setting value
  * @return	Returns TRUE in case of success or FALSE on Failure.
  */
-mtp_bool _util_file_seek(mtp_uint32 handle, off_t offset, mtp_int32 whence)
+mtp_bool _util_file_seek(FILE* handle, off_t offset, mtp_int32 whence)
 {
 	mtp_int64 ret_val = 0;
 
 #ifdef __USE_STDIO__
-	ret_val = fseek((FILE *)handle, offset, whence);
+	ret_val = fseek(handle, offset, whence);
 #else /* __USE_STDIO__ */
 	ret_val = lseek(handle, offset, whence);
 	if (ret_val > 0)
@@ -779,9 +779,9 @@ mtp_bool _util_get_filesystem_info(mtp_char *storepath, fs_info_t *fs_info)
 	return TRUE;
 }
 
-void _util_count_num_lines(mtp_uint32 fhandle, mtp_uint32 *num_lines)
+void _util_count_num_lines(FILE* fhandle, mtp_uint32 *num_lines)
 {
-	if (fhandle == INVALID_FILE)
+	if (fhandle == NULL)
 		return;
 
 	mtp_uint32 line_count = 0;
@@ -798,7 +798,7 @@ void _util_count_num_lines(mtp_uint32 fhandle, mtp_uint32 *num_lines)
 
 #ifdef __USE_STDIO__
 	while((read_bytes = getline(&buffer,
-					&line_max_length, (FILE *)fhandle)) != -1) {
+					(size_t *)&line_max_length, fhandle)) != -1) {
 		if (read_bytes > MTP_MAX_PATHNAME_SIZE + 1)
 			continue;
 		line_count++;
@@ -833,7 +833,7 @@ void _util_count_num_lines(mtp_uint32 fhandle, mtp_uint32 *num_lines)
 }
 
 void _util_fill_guid_array(void *guidarray, mtp_uint32 start_index,
-		mtp_uint32 fhandle, mtp_uint32 size)
+		FILE* fhandle, mtp_uint32 size)
 {
 	ptp_array_t *pguidarray = NULL;
 	mtp_uint32 *guidptr = NULL;
@@ -855,7 +855,7 @@ void _util_fill_guid_array(void *guidarray, mtp_uint32 start_index,
 	}
 
 #ifdef __USE_STDIO__
-	while ((len = getline(&buffer, &line_max_length, (FILE *)fhandle)) != -1 &&
+	while ((len = getline(&buffer, (size_t *)&line_max_length, fhandle)) != -1 &&
 			(num_lines - start_index) <= size) {
 		if (len > MTP_MAX_PATHNAME_SIZE + 1)
 			continue;
@@ -877,7 +877,7 @@ void _util_fill_guid_array(void *guidarray, mtp_uint32 start_index,
 	mtp_char file_name[MTP_MAX_PATHNAME_SIZE + 1];
 	mtp_int32 read_bytes;
 
-	while ((read_bytes = read(fHandle, buffer,
+	while ((read_bytes = read(fhandle, buffer,
 					LINUX_MAX_PATHNAME_LENGTH)) > 0 &&
 			(num_lines - start_index) <= size) {
 

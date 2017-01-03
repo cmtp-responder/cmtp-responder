@@ -77,7 +77,7 @@ typedef struct {
 	mtp_uint32 cmd_size;
 	mtp_uint32 data_size;
 	mtp_uint32 data_count;
-	mtp_uint32 fhandle;	/* for temporary mtp file */
+	FILE* fhandle;	/* for temporary mtp file */
 	mtp_char *filepath;
 	mtp_uint32 file_size;
 	mtp_uint32 size_remaining;

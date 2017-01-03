@@ -25,8 +25,6 @@
 #endif
 #ifdef _MTP_USE_OWNTYPES
 
-#define INVALID_FILE		(0)
-
 typedef unsigned char mtp_byte;
 typedef unsigned char mtp_bool;
 typedef unsigned char mtp_uchar;

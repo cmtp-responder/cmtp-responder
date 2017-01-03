@@ -168,10 +168,10 @@ mtp_bool _eh_handle_usb_events(mtp_uint32 type)
 			DBG("USB disconnected but temp file is remaind.\
 					It will be deleted.");
 
-			if (g_mgr->ftemp_st.fhandle != INVALID_FILE) {
+			if (g_mgr->ftemp_st.fhandle != NULL) {
 				DBG("handle is found. At first close file");
 				_util_file_close(g_mgr->ftemp_st.fhandle);
-				g_mgr->ftemp_st.fhandle = INVALID_FILE;
+				g_mgr->ftemp_st.fhandle = NULL;
 			}
 			if (remove(g_mgr->ftemp_st.filepath) < 0) {
 				ERR_SECURE("remove(%s) Fail", g_mgr->ftemp_st.filepath);

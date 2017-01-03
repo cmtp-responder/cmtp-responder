@@ -444,7 +444,7 @@ mtp_uint32 _entity_get_objects_from_store(mtp_store_t *store,
 		if ((fmt == obj->obj_info->obj_fmt) ||
 				(fmt == PTP_FORMATCODE_ALL) ||
 				(fmt == PTP_FORMATCODE_NOTUSED)) {
-			_prop_append_ele_ptparray(obj_arr, (mtp_uint32)obj);
+			_prop_append_ele_ptparray(obj_arr, obj->obj_handle);
 		}
 	}
 	_util_deinit_list_iterator(iter);
@@ -455,8 +455,6 @@ mtp_uint32 _entity_get_objects_from_store_till_depth(mtp_store_t *store,
 		mtp_uint32 obj_handle, mtp_uint32 fmt_code, mtp_uint32 depth,
 		ptp_array_t *obj_arr)
 {
-	mtp_obj_t *obj = NULL;
-
 	retv_if(store == NULL, 0);
 	retv_if(obj_arr == NULL, 0);
 
@@ -468,10 +466,7 @@ mtp_uint32 _entity_get_objects_from_store_till_depth(mtp_store_t *store,
 	}
 
 	if (PTP_OBJECTHANDLE_ROOT != obj_handle) {
-		obj = _entity_get_object_from_store(store, obj_handle);
-		if (obj) {
-			_prop_append_ele_ptparray(obj_arr, (mtp_uint32)obj);
-		}
+		_prop_append_ele_ptparray(obj_arr, obj_handle);
 	}
 	if (depth > 0) {
 		ptp_array_t *child_arr = NULL;

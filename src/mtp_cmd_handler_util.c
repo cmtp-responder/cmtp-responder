@@ -444,10 +444,10 @@ mtp_err_t _hutil_add_object_entry(obj_info_t *obj_info, mtp_char *file_name,
 					obj_info->association_type !=
 					PTP_ASSOCIATIONTYPE_FOLDER) ||
 				is_made_by_mtp) {
-			mtp_uint32 h_abs_file = INVALID_FILE;
+			FILE* h_abs_file = NULL;
 			h_abs_file = _util_file_open(new_f_path,
 					MTP_FILE_WRITE, &error);
-			if (h_abs_file == INVALID_FILE) {
+			if (h_abs_file == NULL) {
 				ERR("create file fail!!");
 				_entity_dealloc_mtp_obj(obj);
 				return MTP_ERROR_GENERAL;
@@ -1124,7 +1124,7 @@ mtp_err_t _hutil_read_file_data_from_offset(mtp_uint32 obj_handle, off_t offset,
 		void *data, mtp_uint32 *data_sz)
 {
 	mtp_obj_t *obj = NULL;
-	mtp_uint32 h_file = INVALID_FILE;
+	FILE* h_file = NULL;
 	mtp_int32 error = 0;
 	mtp_char fname[MTP_MAX_PATHNAME_SIZE + 1];
 	off_t result = 0;
@@ -1145,7 +1145,7 @@ mtp_err_t _hutil_read_file_data_from_offset(mtp_uint32 obj_handle, off_t offset,
 
 	g_strlcpy(fname, obj->file_path, MTP_MAX_PATHNAME_SIZE + 1);
 	h_file = _util_file_open(fname, MTP_FILE_READ, &error);
-	if (h_file == INVALID_FILE) {
+	if (h_file == NULL) {
 		ERR("file open Fail[%s]\n", fname);
 		return MTP_ERROR_GENERAL;
 	}
@@ -1571,7 +1571,7 @@ mtp_err_t _hutil_construct_object_entry_prop_list(mtp_uint32 store_id,
 	mtp_char alb_extn[MTP_MAX_EXTENSION_LENGTH + 1] = { 0 };
 	mtp_char *alb_buf = NULL;
 	mtp_uint32 alb_sz = 0;
-	mtp_uint32 h_temp = INVALID_FILE;
+	FILE* h_temp = NULL;
 	mtp_int32 error = 0;
 #endif /*MTP_SUPPORT_ALBUM_ART*/
 	mtp_char file_name[MTP_MAX_FILENAME_SIZE + 1] = { 0 };
@@ -1887,7 +1887,7 @@ mtp_err_t _hutil_construct_object_entry_prop_list(mtp_uint32 store_id,
 				/* file write */
 				h_temp = _util_file_open(full_path,
 						MTP_FILE_WRITE, &error);
-				if (h_temp != INVALID_FILE) {
+				if (h_temp != NULL) {
 					_util_file_write(h_temp, alb_buf,
 							sizeof(mtp_uchar) *alb_sz);
 					_util_file_close(h_temp);
@@ -2150,7 +2150,7 @@ mtp_err_t _hutil_get_object_prop_list(mtp_uint32 obj_handle, mtp_uint32 format,
 	}
 
 	_util_init_list(&(prop_list->prop_quad_list));
-	_prop_init_ptparray(obj_arr, PTR_TYPE);
+	_prop_init_ptparray(obj_arr, UINT32_TYPE);
 
 	if (store != NULL) {
 		_entity_get_objects_from_store_till_depth(store, obj_handle,
@@ -2164,11 +2164,10 @@ mtp_err_t _hutil_get_object_prop_list(mtp_uint32 obj_handle, mtp_uint32 format,
 	}
 
 	if (obj_arr->num_ele != 0) {
-		mtp_obj_t **ptr_obj;
-		ptr_obj = obj_arr->array_entry;
+		mtp_uint32 *obj_handles = obj_arr->array_entry;
 
 		for (i = 0; i < obj_arr->num_ele; i++) {
-			obj = ptr_obj[i];
+			obj = _entity_get_object_from_store(store, obj_handles[i]);
 			if (!obj)
 				continue;
 

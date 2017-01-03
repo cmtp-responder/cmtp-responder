@@ -66,14 +66,14 @@ void _transport_save_cmd_buffer(mtp_char *buffer, mtp_uint32 size)
 mtp_err_t _transport_rcv_temp_file_data(mtp_byte *buffer, mtp_uint32 size,
 		mtp_uint32 *count)
 {
-	mtp_uint32 h_file = INVALID_FILE;
+	FILE* h_file = NULL;
 	mtp_int32 error = 0;
 	mtp_uint32 data_sz;
 
 
 	h_file = _util_file_open(g_mgr->ftemp_st.filepath,
 			MTP_FILE_READ, &error);
-	if (h_file == INVALID_FILE) {
+	if (h_file == NULL) {
 		DBG_SECURE("_util_file_open(%s) Fail", g_mgr->ftemp_st.filepath);
 		return MTP_ERROR_NONE;
 	}
@@ -133,7 +133,7 @@ mtp_err_t _transport_rcv_temp_file_info(mtp_byte *buf, char *filepath,
 
 	g_strlcpy(g_mgr->ftemp_st.filepath, MTP_TEMP_FILE_DEFAULT,
 			MTP_MAX_PATHNAME_SIZE + 1);
-	g_mgr->ftemp_st.fhandle = INVALID_FILE;
+	g_mgr->ftemp_st.fhandle = NULL;
 	g_mgr->ftemp_st.file_size = 0;
 
 	return MTP_ERROR_NONE;
