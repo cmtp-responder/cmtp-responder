@@ -80,9 +80,8 @@ mtp_err_t _hutil_get_storage_ids(ptp_array_t *store_ids)
 
 	num_elem = _device_get_store_ids(store_ids);
 	num_stores = _device_get_num_stores();
-	if (num_elem == num_stores) {
+	if (num_elem == num_stores)
 		return MTP_ERROR_NONE;
-	}
 
 	ERR("get storage id Fail. num_elem[%d], num_stores[%d]\n",
 			num_elem, num_stores);
@@ -153,9 +152,8 @@ mtp_err_t _hutil_reset_device_entry(mtp_uint32 prop_id)
 			ERR("property reference is NULL");
 			return MTP_ERROR_GENERAL;
 		}
-		for (ii = 0; ii < NUM_DEVICE_PROPERTIES; ii++) {
+		for (ii = 0; ii < NUM_DEVICE_PROPERTIES; ii++)
 			_prop_reset_device_prop_desc(&prop[ii]);
-		}
 	} else {
 		prop = _device_get_device_property(prop_id);
 		if (prop == NULL)
@@ -532,7 +530,7 @@ mtp_err_t _hutil_remove_object_entry(mtp_uint32 obj_handle, mtp_uint32 format)
 		resp = MTP_ERROR_ACCESS_DENIED;
 		break;
 	case PTP_RESPONSE_INVALID_OBJ_HANDLE:
-		resp =MTP_ERROR_INVALID_OBJECTHANDLE;
+		resp = MTP_ERROR_INVALID_OBJECTHANDLE;
 		break;
 	default:
 		break;
@@ -553,9 +551,8 @@ mtp_err_t _hutil_get_object_entry(mtp_uint32 obj_handle, mtp_obj_t **obj_ptr)
 	mtp_obj_t *obj = NULL;
 
 	obj = _device_get_object_with_handle(obj_handle);
-	if (NULL == obj || NULL == obj->obj_info) {
+	if (NULL == obj || NULL == obj->obj_info)
 		return MTP_ERROR_GENERAL;
-	}
 
 	*obj_ptr = obj;
 	return MTP_ERROR_NONE;
@@ -788,9 +785,8 @@ mtp_err_t _hutil_copy_object_entries(mtp_uint32 dst_store_id,
 		mtp_uint32 *ptr32 = child_arr.array_entry;
 
 		child_obj = _entity_get_object_from_store(src, ptr32[ii]);
-		if (child_obj == NULL) {
+		if (child_obj == NULL)
 			continue;
-		}
 
 		ret = _hutil_copy_object_entries(dst_store_id, src_store_id,
 				new_obj->obj_handle, child_obj->obj_handle,
@@ -1097,7 +1093,7 @@ mtp_err_t _hutil_duplicate_object_entry(mtp_uint32 dst_store_id,
 		return MTP_ERROR_STORE_FULL;
 	}
 
-	if((ret = _hutil_copy_object_entries(dst_store_id, src->store_id,
+	if ((ret = _hutil_copy_object_entries(dst_store_id, src->store_id,
 					h_parent, obj_handle, new_handle, FALSE)) != MTP_ERROR_NONE) {
 		return ret;
 	}
@@ -1111,11 +1107,10 @@ mtp_err_t _hutil_duplicate_object_entry(mtp_uint32 dst_store_id,
 		return MTP_ERROR_GENERAL;
 	}
 
-	if (new_obj->obj_info->obj_fmt == PTP_FMT_ASSOCIATION) {
+	if (new_obj->obj_info->obj_fmt == PTP_FMT_ASSOCIATION)
 		_util_scan_folder_contents_in_db(new_obj->file_path);
-	} else {
+	else
 		_util_add_file_to_db(new_obj->file_path);
-	}
 
 	return MTP_ERROR_NONE;
 }
@@ -1290,15 +1285,13 @@ mtp_err_t _hutil_set_protection(mtp_uint32 obj_handle, mtp_uint16 prot_status)
 		return MTP_ERROR_GENERAL;
 	}
 
-	if (MTP_FILE_ATTR_MODE_NONE == attrs.attribute) {
+	if (MTP_FILE_ATTR_MODE_NONE == attrs.attribute)
 		return MTP_ERROR_GENERAL;
-	}
 
-	if (prot_status == PTP_PROTECTIONSTATUS_READONLY) {
+	if (prot_status == PTP_PROTECTIONSTATUS_READONLY)
 		attrs.attribute |= MTP_FILE_ATTR_MODE_READ_ONLY;
-	} else {
+	else
 		attrs.attribute &= ~MTP_FILE_ATTR_MODE_READ_ONLY;
-	}
 
 	if (FALSE == _util_set_file_attrs(fname, attrs.attribute)) {
 		ERR("Failed to set file[%s] attrs\n", fname);
@@ -1452,11 +1445,10 @@ mtp_err_t _hutil_construct_object_entry(mtp_uint32 store_id,
 	mtp_char file_name[MTP_MAX_FILENAME_SIZE + 1] = { 0 };
 
 	if (store_id) {
-		if (!h_parent) {
+		if (!h_parent)
 			h_parent = _device_get_default_parent_handle();
-		} else if (h_parent == 0xFFFFFFFF) {
+		else if (h_parent == 0xFFFFFFFF)
 			h_parent = PTP_OBJECTHANDLE_ROOT;
-		}
 	} else {
 		store_id = _device_get_default_store_id();
 
@@ -1484,9 +1476,8 @@ mtp_err_t _hutil_construct_object_entry(mtp_uint32 store_id,
 		}
 
 		/* Delete and invalidate the old obj_info for send object */
-		if (objdata->obj != NULL) {
+		if (objdata->obj != NULL)
 			_entity_dealloc_mtp_obj(objdata->obj);
-		}
 	}
 
 	store = _device_get_store(store_id);
@@ -1611,9 +1602,8 @@ mtp_err_t _hutil_construct_object_entry_prop_list(mtp_uint32 store_id,
 	}
 
 	obj_info->obj_fmt = format;
-	if (obj_info->obj_fmt == PTP_FMT_ASSOCIATION) {
+	if (obj_info->obj_fmt == PTP_FMT_ASSOCIATION)
 		obj_info->association_type = PTP_ASSOCIATIONTYPE_FOLDER;
-	}
 
 	obj_info->file_size = obj_sz;
 
@@ -1706,9 +1696,9 @@ mtp_err_t _hutil_construct_object_entry_prop_list(mtp_uint32 store_id,
 
 		/* Acquire object information related data. */
 		prop_val = _prop_alloc_obj_propval(prop_desc);
-		if (prop_val == NULL) {
+		if (prop_val == NULL)
 			continue;
-		}
+
 		_prop_set_current_array_val(prop_val, temp, bytes_left);
 		switch (prop_code) {
 		case MTP_OBJ_PROPERTYCODE_WIDTH:
@@ -1920,7 +1910,7 @@ mtp_err_t _hutil_get_object_prop_value(mtp_uint32 obj_handle,
 
 	tobj = _device_get_object_with_handle(obj_handle);
 	if (NULL == tobj) {
-		ERR("requested handle does not exist[0x%x]\n",obj_handle);
+		ERR("requested handle does not exist[0x%x]\n", obj_handle);
 		return MTP_ERROR_INVALID_OBJECTHANDLE;
 	}
 
@@ -2073,9 +2063,8 @@ mtp_err_t _hutil_update_object_property(mtp_uint32 obj_handle,
 		ERR("Propert [0x%x] is GETONLY\n", prop_code);
 	}
 
-	if (prop_sz != NULL) {
+	if (prop_sz != NULL)
 		*prop_sz = p_size;
-	}
 
 	return MTP_ERROR_NONE;
 }
@@ -2200,9 +2189,8 @@ mtp_err_t _hutil_remove_object_reference(mtp_uint32 obj_handle,
 		return MTP_ERROR_NONE;
 	}
 
-	if (_entity_remove_reference_child_array(obj, ref_handle) == FALSE) {
+	if (_entity_remove_reference_child_array(obj, ref_handle) == FALSE)
 		ERR("_entity_remove_reference_child_array Fail");
-	}
 
 	return MTP_ERROR_NONE;
 }
@@ -2257,9 +2245,8 @@ mtp_err_t _hutil_get_object_references(mtp_uint32 obj_handle,
 
 	for (idx = 0; idx < ref_arr.num_ele; idx++) {
 		ref_obj = _device_get_object_with_handle(ref_ptr[idx]);
-		if (ref_obj == NULL) {
+		if (ref_obj == NULL)
 			_entity_remove_reference_child_array(obj, ref_ptr[idx]);
-		}
 	}
 
 	*num_ele = obj->child_array.num_ele;
@@ -2318,9 +2305,8 @@ mtp_err_t _hutil_get_playback_skip(mtp_int32 skip_param)
 		return MTP_ERROR_GENERAL;
 	}
 
-	if (obj_handle == 0x0) {
+	if (obj_handle == 0x0)
 		return MTP_ERROR_NONE;
-	}
 
 	obj = _device_get_object_with_handle(obj_handle);
 	if (obj == NULL || obj->obj_info == NULL) {
@@ -2342,13 +2328,12 @@ mtp_err_t _hutil_get_playback_skip(mtp_int32 skip_param)
 		ref_arr = _entity_get_reference_child_array(par_obj);
 		idx = _prop_find_ele_ptparray(ref_arr, obj_handle);
 		if (idx != ELEMENT_NOT_FOUND) {
-			if (((long long)idx + (long long)skip_param) > UINT_MAX) {
+			if (((long long)idx + (long long)skip_param) > UINT_MAX)
 				new_idx = ref_arr->num_ele - 1;
-			} else if ((idx + skip_param) >= ref_arr->num_ele) {
+			else if ((idx + skip_param) >= ref_arr->num_ele)
 				new_idx = 0;
-			} else {
+			else
 				new_idx = idx + skip_param;
-			}
 
 			if (_prop_get_ele_ptparray(ref_arr, new_idx,
 						(void *)(&new_hobj)) == TRUE) {
@@ -2372,13 +2357,13 @@ mtp_err_t _hutil_get_playback_skip(mtp_int32 skip_param)
 		}
 		memcpy(&idx, dev_prop->current_val.integer, sizeof(mtp_uint32));
 		ref_arr = _entity_get_reference_child_array(obj);
-		if (((long long)idx + (long long)skip_param) > UINT_MAX) {
+		if (((long long)idx + (long long)skip_param) > UINT_MAX)
 			new_idx = ref_arr->num_ele - 1;
-		} else if ((idx + skip_param) >= ref_arr->num_ele) {
+		else if ((idx + skip_param) >= ref_arr->num_ele)
 			new_idx = 0;
-		} else {
+		else
 			new_idx = idx + skip_param;
-		}
+
 		_prop_set_current_integer(dev_prop, new_idx);
 		return MTP_ERROR_NONE;
 	}
@@ -2398,9 +2383,8 @@ mtp_err_t _hutil_format_storage(mtp_uint32 store_id, mtp_uint32 fs_format)
 	}
 
 	error = _entity_format_store(store, fs_format);
-	if (error == PTP_RESPONSE_OK) {
+	if (error == PTP_RESPONSE_OK)
 		return MTP_ERROR_NONE;
-	}
 
 	ERR("Format store Fail");
 	return error;

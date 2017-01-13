@@ -37,9 +37,8 @@ static bool __fill_media_id_cb(media_info_h media, void *user_data)
 
 static void __scan_folder_cb(media_content_error_e err, void *user_data)
 {
-	if (err != MEDIA_CONTENT_ERROR_NONE) {
+	if (err != MEDIA_CONTENT_ERROR_NONE)
 		ERR("Scan folder callback returns error = [%d]\n", err);
-	}
 
 	return;
 }
@@ -115,7 +114,7 @@ mtp_bool _util_get_audio_metadata(const mtp_char *filepath,
 		goto ERROR_EXIT;
 	}
 
-	ret =audio_meta_get_composer(audio, &(audio_data->commonmeta.author));
+	ret = audio_meta_get_composer(audio, &(audio_data->commonmeta.author));
 	if (ret != MEDIA_CONTENT_ERROR_NONE) {
 		ERR("METADATA_AUTHOR Fail");
 		goto ERROR_EXIT;
@@ -366,7 +365,7 @@ static media_info_h __util_find_media_info(mtp_char *condition)
 			ERR("media_info_foreach_media_from_db() Fail");
 			break;
 		}
-	}while (0);
+	} while (0);
 
 	media_filter_destroy(filter);
 
@@ -830,9 +829,8 @@ void _util_scan_folder_contents_in_db(const mtp_char *filepath)
 	ret_if(filepath == NULL);
 
 	ret = media_content_scan_folder(filepath, true, __scan_folder_cb, NULL);
-	if (ret != MEDIA_CONTENT_ERROR_NONE) {
+	if (ret != MEDIA_CONTENT_ERROR_NONE)
 		ERR("media_content_scan_folder Fail : %d\n", ret);
-	}
 
 	return;
 }

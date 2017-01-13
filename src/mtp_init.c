@@ -69,9 +69,9 @@ static void __mtp_exit(void)
 	DBG("## Terminate all threads");
 	if (g_eh_thrd) {
 		_eh_send_event_req_to_eh_thread(EVENT_USB_REMOVED, 0, 0, NULL);
-		if (_util_thread_join(g_eh_thrd, NULL) == FALSE) {
+		if (_util_thread_join(g_eh_thrd, NULL) == FALSE)
 			ERR("_util_thread_join() Fail");
-		}
+
 		g_eh_thrd = 0;
 	}
 
@@ -87,7 +87,7 @@ static void __mtp_exit(void)
 	return;
 }
 
-static gboolean __check_internal_storage (gpointer user_data)
+static gboolean __check_internal_storage(gpointer user_data)
 {
 	_handle_lock_status_notification(NULL, NULL);
 
@@ -322,9 +322,8 @@ static void __read_mtp_conf(void)
 		*token = '\0';
 
 		token = strtok_r(buf, "=", &saveptr);
-		if (token == NULL) {
+		if (token == NULL)
 			continue;
-		}
 
 		if (strcasecmp(token, "mmap_threshold") == 0) {
 			token = strtok_r(NULL, "=", &saveptr);
@@ -421,11 +420,10 @@ void _features_supported_info(void)
 
 	DBG("***********************************************************");
 	DBG("### Extension ###");
-	if (_get_oma_drm_status() == TRUE) {
+	if (_get_oma_drm_status() == TRUE)
 		DBG("### 2. OMADRM		: [ON]");
-	} else {
+	else
 		DBG("### 2. OMADRM		: [OFF]");
-	}
 
 	DBG("***********************************************************");
 	DBG("### Feature ###");

@@ -521,7 +521,7 @@ mtp_int32 _util_remove_dir_children_recursive(const mtp_char *dirname,
 			}
 			if (MTP_ERROR_OBJECT_WRITE_PROTECTED == ret) {
 				DBG("Folder[%s] contains read-only files,hence\
-						folder is not deleted\n",pathname);
+						folder is not deleted\n", pathname);
 				/* Read the next entry */
 				goto DONE;
 			}
@@ -543,7 +543,7 @@ mtp_int32 _util_remove_dir_children_recursive(const mtp_char *dirname,
 							(S_IWGRP & entryinfo.st_mode) ||
 							(S_IWOTH & entryinfo.st_mode))) {
 					ret = MTP_ERROR_OBJECT_WRITE_PROTECTED;
-					DBG("File [%s] is readOnly:Deletion Fail\n",pathname);
+					DBG("File [%s] is readOnly:Deletion Fail\n", pathname);
 					goto DONE;
 				}
 			}
@@ -722,9 +722,8 @@ mtp_bool _util_ifind_next(mtp_char *dir_name, DIR *dirp, dir_entry_t *dir_info)
 	switch (stat_buf.st_mode & S_IFMT) {
 	case S_IFREG:
 		dir_info->type = MTP_FILE_TYPE;
-		if (!(stat_buf.st_mode & (S_IWUSR | S_IWGRP | S_IWOTH))) {
+		if (!(stat_buf.st_mode & (S_IWUSR | S_IWGRP | S_IWOTH)))
 			dir_info->attrs.attribute |= MTP_FILE_ATTR_MODE_READ_ONLY;
-		}
 		break;
 
 	case S_IFDIR:
@@ -797,7 +796,7 @@ void _util_count_num_lines(FILE* fhandle, mtp_uint32 *num_lines)
 	}
 
 #ifdef __USE_STDIO__
-	while((read_bytes = getline(&buffer,
+	while ((read_bytes = getline(&buffer,
 					(size_t *)&line_max_length, fhandle)) != -1) {
 		if (read_bytes > MTP_MAX_PATHNAME_SIZE + 1)
 			continue;
@@ -809,7 +808,7 @@ void _util_count_num_lines(FILE* fhandle, mtp_uint32 *num_lines)
 	mtp_uint32 prev_pos = -1;
 	mtp_uint32 new_pos;
 	mtp_uint32 filename_len = 0;
-	while((read_bytes = read(fhandle, buffer, LINUX_MAX_PATHNAME_LENGTH)) > 0) {
+	while ((read_bytes = read(fhandle, buffer, LINUX_MAX_PATHNAME_LENGTH)) > 0) {
 		for (ii = 0; ii < read_bytes; ii++) {
 			if (buffer[ii] != '\n')
 				continue;
@@ -820,9 +819,9 @@ void _util_count_num_lines(FILE* fhandle, mtp_uint32 *num_lines)
 				continue;
 			line_count++;
 		}
-		if (buffer[read_bytes - 1] != '\n') {
+		if (buffer[read_bytes - 1] != '\n')
 			_util_file_seek(fhandle, prev_pos + 1 - read_bytes, SEEK_CUR);
-		}
+
 		prev_pos = -1;
 	}
 #endif /* __USE_STDIO__ */
@@ -902,9 +901,9 @@ void _util_fill_guid_array(void *guidarray, mtp_uint32 start_index,
 			pguidarray->num_elements += sizeof(mtp_uint32);
 		}
 
-		if (buffer[read_bytes - 1] != '\n') {
+		if (buffer[read_bytes - 1] != '\n')
 			_util_file_seek(fhandle, prev_pos + 1 - read_bytes, SEEK_CUR);
-		}
+
 		prev_pos = -1;
 	}
 #endif /* __USE_STDIO__ */
@@ -935,9 +934,8 @@ void FLOGD(const char *fmt, ...)
 		fp = fopen(MTP_LOG_FILE, "a+");
 	}
 
-	if (fp == NULL) {
+	if (fp == NULL)
 		return;
-	}
 
 	written_bytes += fprintf(fp, "%s ", __FILE__);
 	va_start(ap, fmt);

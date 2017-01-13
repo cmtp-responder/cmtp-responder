@@ -100,11 +100,10 @@ void *_thread_inoti(void *arg)
 			event = (struct inotify_event *)(&buffer[i]);
 			__process_inoti_event(event);
 			temp_idx = i + event->len + INOTI_EVENT_SIZE;
-			if (temp_idx > length) {
+			if (temp_idx > length)
 				break;
-			} else {
+			else
 				i = temp_idx;
-			}
 		}
 	}
 
@@ -124,11 +123,10 @@ void _inoti_add_watch_for_fs_events(mtp_char *path)
 		/* find empty cell */
 		for (i = 0; i < INOTI_FOLDER_COUNT_MAX; i++) {
 			/* If not empty */
-			if (g_inoti_watches[i].wd != 0) {
+			if (g_inoti_watches[i].wd != 0)
 				continue;
-			} else {
+			else
 				break;
-			}
 		}
 
 		if (i == INOTI_FOLDER_COUNT_MAX) {
@@ -319,9 +317,8 @@ void _inoti_deinit_filesystem_events()
 		return;
 	}
 
-	if (_util_thread_join(g_inoti_thrd, 0) == FALSE) {
+	if (_util_thread_join(g_inoti_thrd, 0) == FALSE)
 		ERR("_util_thread_join() Fail");
-	}
 
 	return;
 }
@@ -331,13 +328,11 @@ static void __remove_inoti_watch(mtp_char *path)
 	mtp_int32 i = 0;
 
 	for (i = 0; i < g_cnt_watch_folder; i++) {
-		if (g_inoti_watches[i].forlder_name == NULL) {
+		if (g_inoti_watches[i].forlder_name == NULL)
 			continue;
-		}
 
-		if (g_strcmp0(g_inoti_watches[i].forlder_name, path) != 0) {
+		if (g_strcmp0(g_inoti_watches[i].forlder_name, path) != 0)
 			continue;
-		}
 
 		g_free(g_inoti_watches[i].forlder_name);
 		g_inoti_watches[i].forlder_name = NULL;
@@ -399,17 +394,15 @@ static open_files_info_t *__find_file_in_inoti_open_files_list(mtp_int32 wd,
 
 static void __remove_file_from_inoti_open_files_list(open_files_info_t *node)
 {
-	if (NULL != node->previous) {
+	if (NULL != node->previous)
 		node->previous->next = node->next;
-	}
 
-	if (NULL != node->next) {
+	if (NULL != node->next)
 		node->next->previous = node->previous;
-	}
 
-	if (node == g_open_files_list) {
+	if (node == g_open_files_list)
 		g_open_files_list = node->previous;
-	}
+
 	g_free(node->name);
 	g_free(node);
 
@@ -568,8 +561,7 @@ static void __process_object_added_event(mtp_char *fullpath,
 		_util_get_internal_path(inter_path);
 
 		if (!g_strcmp0(parent_path, inter_path) ||
-				!g_strcmp0(parent_path, ext_path))
-		{
+				!g_strcmp0(parent_path, ext_path)) {
 			DBG("parent is the root folder");
 			h_parent = 0;
 		} else {
@@ -678,9 +670,8 @@ static void __process_object_deleted_event(mtp_char *fullpath,
 		}
 	}
 
-	if (TRUE == isdir) {
+	if (TRUE == isdir)
 		__delete_children_from_store_inoti(store, obj);
-	}
 
 	node = _util_delete_node(&(store->obj_list), obj);
 	g_free(node);
@@ -698,13 +689,12 @@ static void __destroy_inoti_open_files_list()
 
 	ret_if(g_open_files_list == NULL);
 
-	while(g_open_files_list) {
+	while (g_open_files_list) {
 		current = g_open_files_list;
 		g_open_files_list = g_open_files_list->previous;
 
-		if (g_open_files_list) {
+		if (g_open_files_list)
 			g_open_files_list->next = NULL;
-		}
 
 		g_free(current->name);
 		current->wd = 0;

@@ -64,9 +64,8 @@ void _util_conv_byte_order_gen_str(void *str, mtp_int32 size, mtp_int32 elem_sz)
 	ret_if(str == NULL);
 	retm_if(elem_sz <= 1, "elem_sz(%d) is invalid", elem_sz);
 
-	for (idx = 0; idx < f_size; idx += elem_sz) {
+	for (idx = 0; idx < f_size; idx += elem_sz)
 		_util_conv_byte_order(&(l_str[idx]), elem_sz);
-	}
 
 	return;
 }
@@ -145,13 +144,12 @@ void _util_wchar_cpy(mtp_wchar *dest, const mtp_wchar *src)
 	ret_if(src == NULL);
 	ret_if(dest == NULL);
 
-	if (!((int)dest & 0x1) && !((int)src & 0x1)){
+	if (!((int)dest & 0x1) && !((int)src & 0x1)) {
 		/* 2-byte aligned */
 		mtp_wchar *temp = dest;
 
-		while ((*temp++ = *src++) != '\0') {
+		while ((*temp++ = *src++) != '\0')
 			;	/* DO NOTHING  */
-		}
 	} else {
 		/* not-aligned, byte to byte approach - slow */
 		mtp_char *pc1 = (mtp_char *)dest;
@@ -187,14 +185,12 @@ void _util_wchar_ncpy(mtp_wchar *dest, const mtp_wchar *src, unsigned long n)
 	if (!((int)dest & 0x1) && !((int)src & 0x1)) {	/* 2-byte aligned */
 		temp = dest;
 
-		while (n && (*temp++ = *src++)) {
+		while (n && (*temp++ = *src++))
 			n--;
-		}
 
 		if (n) {
-			while (--n) {
+			while (--n)
 				*temp++ = 0;
-			}
 		}
 	} else {		/* not-aligned, byte to byte approach - slow */
 
@@ -228,9 +224,8 @@ size_t _util_wchar_len(const mtp_wchar *s)
 	if (!((int)s & 0x1)) {	/* 2-byte aligned */
 		mtp_wchar *temp = (mtp_wchar *)s;
 
-		while (*temp++) {
+		while (*temp++)
 			/* DO NOTHING */ ;
-		}
 
 		DBG("Length : %d\n", temp - s - 1);
 		return ((size_t)(temp - s - 1));
@@ -238,9 +233,8 @@ size_t _util_wchar_len(const mtp_wchar *s)
 
 		unsigned char *temp = (unsigned char *)s;
 
-		while (*temp || *(temp + 1)) {
+		while (*temp || *(temp + 1))
 			temp += 2;
-		}
 
 		DBG("Length : %d\n", (temp - (unsigned char *)s) / 2);
 		return ((size_t) (temp - (unsigned char *)s) / 2);
@@ -258,9 +252,9 @@ static mtp_char* __util_conv_int_to_hex_str(mtp_int32 int_val, mtp_char *str)
 	*nstr++ = '0';
 	*nstr++ = 'x';
 
-	for (val = int_val; val; val <<= 4) {
+	for (val = int_val; val; val <<= 4)
 		*nstr++ = hex[(val >> (sizeof(int) * 8 - 4)) & 0xF];
-	}
+
 	*nstr = '\0';
 	return str;
 }
@@ -411,7 +405,7 @@ mtp_bool _util_get_file_name(const mtp_char *fullpath, mtp_char *f_name)
 
 	i = strlen(fullpath);
 
-	for (j=0; i >= 0; i--) {
+	for (j = 0; i >= 0; i--) {
 		if (fullpath[i] == '/') {
 			g_strlcpy(f_name, &fullpath[i + 1], j);
 			return TRUE;
@@ -491,8 +485,7 @@ mtp_bool _util_is_path_len_valid(const mtp_char *path)
 		root_path_len = internal_store_len;
 	} else if (!strncmp(path, ext_path, external_store_len)) {
 		root_path_len = external_store_len;
-	}
-	else {
+	} else {
 		ERR("Unknown store's path : %s\n", path);
 		return FALSE;
 	}
@@ -576,9 +569,8 @@ void _util_conv_wstr_to_guid(mtp_wchar *wstr, mtp_uint64 *guid)
 	ret_if(wstr == NULL);
 	ret_if(guid == NULL);
 
-	while (wstr[count] != 0) {
+	while (wstr[count] != 0)
 		count++;
-	}
 
 	memset(guid, 0, sizeof(temp));
 	skip_idx = sizeof(temp) / sizeof(mtp_wchar);
@@ -587,9 +579,9 @@ void _util_conv_wstr_to_guid(mtp_wchar *wstr, mtp_uint64 *guid)
 
 		memset(temp, 0, sizeof(temp));
 		cpy_sz = (count - cur_idx) * sizeof(mtp_wchar);
-		if (cpy_sz > sizeof(temp)) {
+		if (cpy_sz > sizeof(temp))
 			cpy_sz = sizeof(temp);
-		}
+
 		memcpy(temp, &(wstr[cur_idx]), cpy_sz);
 		guid[0] += temp[0];
 		guid[1] += temp[1];
@@ -637,9 +629,8 @@ mtp_bool _util_get_unique_dir_path(const mtp_char *exist_path,
 	while (val < max_value) {
 		/* Including NUL and '_' */
 		g_snprintf(&buf[len], num_bytes + 2, "_%u", val++);
-		if (access(buf, F_OK) < 0) {
+		if (access(buf, F_OK) < 0)
 			goto SUCCESS;
-		}
 	}
 
 	g_free(buf);

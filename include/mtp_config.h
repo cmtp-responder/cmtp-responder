@@ -28,7 +28,7 @@
 /*MtpObject.c, for unknown metadata */
 #define MTP_USE_FILL_EMPTYMETADATA_WITH_UNKNOWN
 
-/*define MTP_USE_VARIABLE_PTP_STRING_MALLOC*/ 	/*allocPtpString in ptpstring.c*/
+/*define MTP_USE_VARIABLE_PTP_STRING_MALLOC*/	/*allocPtpString in ptpstring.c*/
 #define MTP_USE_RUNTIME_GETOBJECTPROPVALUE	/*use runtime get object property list*/
 
 /*keywords has many space. not support*/
@@ -143,7 +143,7 @@
 
 #define MTP_MAX_PACKET_SIZE_SEND_HS	512	/* High speed */
 #define MTP_MAX_PACKET_SIZE_SEND_FS	64	/* Full speed */
-#define MTP_FILESIZE_4GB 		4294967296L
+#define MTP_FILESIZE_4GB			4294967296L
 
 /* approximately 3 times of media files. consider album*/
 #define MTP_MAX_REFDB_ROWCNT		4500

@@ -51,9 +51,9 @@ mtp_int32 _util_get_battery_level(void)
 
 	result = vconf_get_int(VCONFKEY_SYSMAN_BATTERY_CAPACITY,
 			&battery_level);
-	if (result != 0) {
+	if (result != 0)
 		ERR("VCONFKEY_SYSMAN_BATTERY_CAPACITY Fail!");
-	}
+
 	return battery_level;
 }
 
@@ -101,9 +101,8 @@ mtp_bool _util_get_serial(mtp_char *serial, mtp_uint32 len)
 
 	gcry_md_hash_buffer(GCRY_MD_MD5, hash_value, imei_no, strlen(imei_no));
 
-	for (i = 0; i < MD5_HASH_LEN; i++) {
+	for (i = 0; i < MD5_HASH_LEN; i++)
 		g_snprintf(&serial[i*2], 3, "%02X", hash_value[i]);
-	}
 
 	if (vconf_set_str(VCONFKEY_MTP_SERIAL_NUMBER_STR, serial) == -1) {
 		ERR("vconf_set Fail for %s\n",
@@ -209,9 +208,8 @@ void _util_gen_alt_serial(mtp_char *serial, mtp_uint32 len)
 	g_snprintf(serial, len, "%s-%010ld-%011ld", model_name,
 			st.tv_sec, st.tv_usec);
 
-	if (vconf_set_str(VCONFKEY_MTP_SERIAL_NUMBER_STR, serial) == -1) {
+	if (vconf_set_str(VCONFKEY_MTP_SERIAL_NUMBER_STR, serial) == -1)
 		ERR("vconf_set Fail %s\n", VCONFKEY_MTP_SERIAL_NUMBER_STR);
-	}
 
 	return;
 }
@@ -335,11 +333,11 @@ static bool _util_device_external_supported_cb(int storage_id, storage_type_e ty
 {
 	char *storage_path = (char *)user_data;
 
-	DBG("storage id: %d, path: %s", storage_id, path);
+	//DBG("storage id: %d, path: %s", storage_id, path);
 
 	if (type == STORAGE_TYPE_EXTERNAL && path != NULL) {
 		strncpy(storage_path, path, strlen(path));
-		DBG("external storage path : %s", storage_path);
+		//DBG("external storage path : %s", storage_path);
 	}
 
 	return TRUE;
@@ -361,17 +359,17 @@ static bool _util_device_internal_supported_cb(int storage_id, storage_type_e ty
 {
 	char *storage_path = (char *)user_data;
 
-	DBG("storage id: %d, path: %s", storage_id, path);
+	//DBG("storage id: %d, path: %s", storage_id, path);
 
 	if (type == STORAGE_TYPE_INTERNAL && path != NULL) {
 		strncpy(storage_path, path, strlen(path));
-		DBG("internal storage path : %s", storage_path);
+		//DBG("internal storage path : %s", storage_path);
 
 		if (storage_get_root_directory(storage_id, &storage_path) != STORAGE_ERROR_NONE) {
 			ERR("get internal storage path Fail");
 			return FALSE;
 		} else {
-			DBG("get internal storage path : %s", storage_path);
+			//DBG("get internal storage path : %s", storage_path);
 		}
 	}
 

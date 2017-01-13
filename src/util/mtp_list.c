@@ -67,9 +67,8 @@ slist_node_t* _util_delete_node(slist_t *l_ptr, void *data)
 	slist_node_t *nptr = l_ptr->start;
 	slist_node_t *temp = NULL;
 
-	if (nptr->value == data) {
+	if (nptr->value == data)
 		return __util_del_first_node(l_ptr);
-	}
 
 	while (nptr->link) {
 		if (nptr->link->value == data)
@@ -99,9 +98,8 @@ static slist_node_t *__util_del_first_node(slist_t *l_ptr)
 	temp = l_ptr->start;
 	l_ptr->nnodes -= 1;
 	l_ptr->start = temp->link;
-	if (temp == l_ptr->end) {
+	if (temp == l_ptr->end)
 		l_ptr->end = NULL;
-	}
 
 	return temp;
 }

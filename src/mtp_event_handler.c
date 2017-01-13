@@ -261,7 +261,7 @@ static void *__thread_event_handler(void *arg)
 	while (flag) {
 		mtp_int32 status = 0;
 		status = read(g_pipefd[0], &evt, sizeof(mtp_event_t));
-		if(( status== -1) && errno == EINTR) {
+		if ((status == -1) && errno == EINTR) {
 			ERR("read() Fail");
 			continue;
 		}
@@ -380,9 +380,8 @@ void _handle_lock_status_notification(keynode_t *key, void *data)
 	previous_val = _util_get_local_lock_status();
 	_util_get_lock_status(&current_val);
 
-	if (previous_val == current_val) {
+	if (previous_val == current_val)
 		return;
-	}
 
 	_util_set_local_lock_status(current_val);
 
@@ -450,7 +449,7 @@ void _eh_send_event_req_to_eh_thread(event_code_t action, mtp_ulong param1,
 	DBG("action[%d], param1[%ld], param2[%ld]\n", action, param1, param2);
 
 	status = write(g_pipefd[1], &event, sizeof(mtp_event_t));
-	if(status== -1 || errno == EINTR) {
+	if (status == -1 || errno == EINTR) {
 		ERR("Event write over pipe Fail, status = [%d], pipefd = [%d], errno [%d]\n",
 				status, g_pipefd[1], errno);
 	}
@@ -470,7 +469,7 @@ static mtp_bool __send_start_event_to_eh_thread(void)
 	DBG("Action : START MTP OPERATION");
 
 	status = write(g_pipefd[1], &event, sizeof(mtp_event_t));
-	if(status== -1 || errno == EINTR) {
+	if (status == -1 || errno == EINTR) {
 		ERR("Event write over pipe Fail, status= [%d],pipefd = [%d], errno [%d]\n",
 				status, g_pipefd[1], errno);
 		return FALSE;

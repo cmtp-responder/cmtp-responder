@@ -49,11 +49,10 @@ mtp_bool _util_msgq_receive(msgq_id_t mq_id, void *buf, mtp_uint32 size,
 {
 	int ret = 0;
 
-	if (flags == 1) {
+	if (flags == 1)
 		ret = msgrcv(mq_id, buf, size, 0, IPC_NOWAIT);
-	} else {
+	else
 		ret = msgrcv(mq_id, buf, size, 0, 0);
-	}
 
 	if (ret == -1) {
 		ERR("msgrcv() Fail");

@@ -501,9 +501,8 @@ mtp_bool _entity_check_child_obj_path(mtp_obj_t *obj,
 		mtp_uint32 *ptr32 = child_arr.array_entry;
 
 		child_obj = _entity_get_object_from_store(src_store, ptr32[idx]);
-		if (NULL == child_obj) {
+		if (NULL == child_obj)
 			continue;
-		}
 
 		if (_util_is_file_opened(child_obj->file_path) == TRUE) {
 			ERR_SECURE("File [%s] is already opened\n",
@@ -524,9 +523,8 @@ mtp_bool _entity_check_child_obj_path(mtp_obj_t *obj,
 		}
 
 		ptr = strstr(child_obj->file_path, src_path);
-		if (NULL == ptr) {
+		if (NULL == ptr)
 			continue;
-		}
 
 		_util_utf8_to_utf16(dest_chld_wpath,
 				sizeof(dest_chld_wpath) / WCHAR_SIZ, src_path);

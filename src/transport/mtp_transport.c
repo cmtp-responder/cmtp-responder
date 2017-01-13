@@ -421,14 +421,12 @@ void _transport_usb_finalize(void)
 		}
 
 		res = _util_thread_join(g_data_rcv, &th_result);
-		if (res == FALSE) {
+		if (res == FALSE)
 			ERR("_util_thread_join(data_rcv) Fail");
-		}
 	}
 
-	if (_transport_mq_deinit(&g_usb_to_mtp_mqid, &mtp_to_usb_mqid) == FALSE) {
+	if (_transport_mq_deinit(&g_usb_to_mtp_mqid, &mtp_to_usb_mqid) == FALSE)
 		ERR("_transport_mq_deinit() Fail");
-	}
 
 	_transport_deinit_usb_device();
 
@@ -442,7 +440,7 @@ static void *__transport_thread_data_rcv(void *func)
 	mtp_uint32 pkt_len = 0;
 	mtp_int32 flag = 1;
 	mtp_int32 len = 0;
-	_cmd_handler_cb _cmd_handler_func = (_cmd_handler_cb )func;
+	_cmd_handler_cb _cmd_handler_func = (_cmd_handler_cb)func;
 
 	while (flag) {
 		if (_util_msgq_receive(g_usb_to_mtp_mqid, (void *)&pkt,
