@@ -37,9 +37,9 @@ void _hdlr_init_cmd_container(cmd_container_t *cntr)
 mtp_uint32 _hdlr_get_param_cmd_container(cmd_container_t *cntr,
 		mtp_uint32 index)
 {
-	if (index < cntr->no_param) {
+	if (index < cntr->no_param)
 		return cntr->params[index];
-	}
+
 	return 0;
 }
 
@@ -55,9 +55,9 @@ void _hdlr_copy_cmd_container_unknown_params(cmd_container_t *src,
 	dst->no_param =
 		(src->len - sizeof(header_container_t)) / sizeof(mtp_uint32);
 
-	for (ii = 0; ii < dst->no_param; ii++) {
+	for (ii = 0; ii < dst->no_param; ii++)
 		dst->params[ii] = src->params[ii];
-	}
+
 	return;
 }
 
@@ -71,9 +71,8 @@ void _hdlr_copy_cmd_container(cmd_container_t *src, cmd_container_t *dst)
 	dst->len = src->len;
 	dst->no_param = src->no_param;
 
-	for (ii = 0; ii < dst->no_param; ii++) {
+	for (ii = 0; ii < dst->no_param; ii++)
 		dst->params[ii] = src->params[ii];
-	}
 
 	return;
 }

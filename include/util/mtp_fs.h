@@ -67,13 +67,13 @@ typedef struct {
 	mtp_uint64 reserved_size;
 } fs_info_t;
 
-mtp_uint32 _util_file_open(const mtp_char *filename, file_mode_t mode,
+FILE* _util_file_open(const mtp_char *filename, file_mode_t mode,
 		mtp_int32 *error);
-void _util_file_read(mtp_uint32 fhandle, void *bufptr, mtp_uint32 size,
+void _util_file_read(FILE* fhandle, void *bufptr, mtp_uint32 size,
 		mtp_uint32 *read_count);
-mtp_uint32 _util_file_write(mtp_uint32 fhandle, void *bufptr, mtp_uint32 size);
-mtp_int32 _util_file_close(mtp_uint32 fhandle);
-mtp_bool _util_file_seek(mtp_uint32 fhandle, off_t offset, mtp_int32 whence);
+mtp_uint32 _util_file_write(FILE* fhandle, void *bufptr, mtp_uint32 size);
+mtp_int32 _util_file_close(FILE* fhandle);
+mtp_bool _util_file_seek(FILE* fhandle, off_t offset, mtp_int32 whence);
 mtp_bool _util_file_copy(const mtp_char *origpath, const mtp_char *newpath,
 		mtp_int32 *error);
 mtp_bool _util_copy_dir_children_recursive(const mtp_char *origpath,
@@ -89,8 +89,8 @@ mtp_bool _util_ifind_next(char *dir_name, DIR *dirp, dir_entry_t *dir_info);
 mtp_bool _util_ifind_first(char *dir_name, DIR **dirp, dir_entry_t *dir_info);
 mtp_bool _util_is_file_opened(const mtp_char *fullpath);
 mtp_bool _util_get_filesystem_info(mtp_char *storepath, fs_info_t *fs_info);
-void _util_count_num_lines(mtp_uint32 fhandle, mtp_uint32 *num_lines);
-void _util_fill_guid_array(void *guidarray, mtp_uint32 start_index, mtp_uint32 fhandle,
+void _util_count_num_lines(FILE* fhandle, mtp_uint32 *num_lines);
+void _util_fill_guid_array(void *guidarray, mtp_uint32 start_index, FILE* fhandle,
 		mtp_uint32 size);
 void FLOGD(const char *fmt, ...);
 

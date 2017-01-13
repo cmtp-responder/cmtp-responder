@@ -148,8 +148,8 @@ static mtp_bool __create_prop_string(mtp_obj_t *obj, mtp_uint16 propcode,
 static mtp_bool __create_prop_timestring(mtp_obj_t *obj,
 	mtp_uint32 propcode, ptp_time_string_t *value)
 {
-	obj_prop_desc_t *prop  = NULL;
-	obj_prop_val_t *prop_val= NULL;
+	obj_prop_desc_t *prop = NULL;
+	obj_prop_val_t *prop_val = NULL;
 	mtp_uint32 fmt_code = obj->obj_info->obj_fmt;
 
 	retv_if(obj == NULL, FALSE);
@@ -195,7 +195,7 @@ static mtp_bool __update_prop_values_audio(mtp_obj_t *obj)
 {
 	mtp_bool success = TRUE;
 	mtp_int32 converted_rating = 0;
-	comp_audio_meta_t audio_data = {{0}, {0}};
+	comp_audio_meta_t audio_data = {{0}, {0} };
 
 	retv_if(obj == NULL, FALSE);
 	retv_if(obj->obj_info == NULL, FALSE);
@@ -727,9 +727,8 @@ ptp_array_t *_prop_alloc_ptparray(data_type_t type)
 {
 	ptp_array_t *parray;
 	parray = (ptp_array_t *)g_malloc(sizeof(ptp_array_t));
-	if (parray != NULL) {
+	if (parray != NULL)
 		_prop_init_ptparray(parray, type);
-	}
 
 	return (parray);
 }
@@ -799,18 +798,16 @@ mtp_int32 _prop_find_ele_ptparray(ptp_array_t *parray, mtp_uint32 element)
 	case UINT8_TYPE:
 		ptr8 = parray->array_entry;
 		for (ii = 0; ii < parray->num_ele; ii++) {
-			if (ptr8[ii] == (mtp_uchar) element) {
+			if (ptr8[ii] == (mtp_uchar) element)
 				return ii;
-			}
 		}
 		break;
 
 	case UINT16_TYPE:
 		ptr16 = parray->array_entry;
 		for (ii = 0; ii < parray->num_ele; ii++) {
-			if (ptr16[ii] == (mtp_uint16) element) {
+			if (ptr16[ii] == (mtp_uint16) element)
 				return ii;
-			}
 		}
 		break;
 
@@ -818,9 +815,8 @@ mtp_int32 _prop_find_ele_ptparray(ptp_array_t *parray, mtp_uint32 element)
 	case UINT32_TYPE:
 		ptr32 = parray->array_entry;
 		for (ii = 0; ii < parray->num_ele; ii++) {
-			if (ptr32[ii] == (mtp_uint32)element) {
+			if (ptr32[ii] == (mtp_uint32)element)
 				return ii;
-			}
 		}
 		break;
 
@@ -1087,9 +1083,9 @@ void _prop_deinit_ptparray(ptp_array_t *parray)
 {
 	parray->num_ele = 0;
 	parray->arr_size = 0;
-	if (parray->array_entry) {
+	if (parray->array_entry)
 		g_free(parray->array_entry);
-	}
+
 	parray->array_entry = NULL;
 	return;
 }
@@ -1099,9 +1095,9 @@ void _prop_destroy_ptparray(ptp_array_t *parray)
 	if (parray == NULL)
 		return;
 
-	if (parray->array_entry != NULL) {
+	if (parray->array_entry != NULL)
 		g_free(parray->array_entry);
-	}
+
 	parray->arr_size = 0;
 	parray->num_ele = 0;
 	g_free(parray);
@@ -1141,9 +1137,8 @@ static ptp_string_t *__alloc_ptpstring(void)
 	ptp_string_t *pstring = NULL;
 
 	pstring = (ptp_string_t *)g_malloc(sizeof(ptp_string_t));
-	if (pstring != NULL) {
+	if (pstring != NULL)
 		_prop_init_ptpstring(pstring);
-	}
 
 	return (pstring);
 }
@@ -1158,9 +1153,8 @@ static ptp_string_t *__alloc_ptpstring(mtp_uint32 size)
 	alloc_size = ((size_tmp >> 5) + 1) << 5;	/* multiple of 32 */
 
 	pstring = (ptp_string_t *)g_malloc(alloc_size);	/* for margin */
-	if (pstring != NULL) {
+	if (pstring != NULL)
 		_prop_init_ptpstring(pstring);
-	}
 
 	return (pstring);
 }
@@ -1200,17 +1194,15 @@ void _prop_copy_char_to_ptpstring(ptp_string_t *pstring, void *str,
 			pstring->num_chars = 0;
 			return;
 		}
-		for (i = 0; i < MAX_PTP_STRING_CHARS && pchar[i]; i++) {
+		for (i = 0; i < MAX_PTP_STRING_CHARS && pchar[i]; i++)
 			pstring->str[i] = (mtp_wchar)pchar[i];
-		}
 	} else if (cmode == WCHAR_TYPE) {
 		if (pwchar[0] == 0) {
 			pstring->num_chars = 0;
 			return;
 		}
-		for (i = 0; i < MAX_PTP_STRING_CHARS && pwchar[i]; i++) {
+		for (i = 0; i < MAX_PTP_STRING_CHARS && pwchar[i]; i++)
 			pstring->str[i] = pwchar[i];
-		}
 	} else {
 		ERR("Unknown character mode : %d\n", cmode);
 		pstring->num_chars = 0;
@@ -1261,9 +1253,9 @@ void _prop_copy_ptpstring(ptp_string_t *dst, ptp_string_t *src)
 	mtp_uint16 ii;
 
 	dst->num_chars = src->num_chars;
-	for (ii = 0; ii < src->num_chars; ii++) {
+	for (ii = 0; ii < src->num_chars; ii++)
 		dst->str[ii] = src->str[ii];
-	}
+
 	return;
 }
 
@@ -1272,9 +1264,9 @@ void _prop_copy_ptptimestring(ptp_time_string_t *dst, ptp_time_string_t *src)
 	mtp_uint16 ii;
 
 	dst->num_chars = src->num_chars;
-	for (ii = 0; ii < src->num_chars; ii++) {
+	for (ii = 0; ii < src->num_chars; ii++)
 		dst->str[ii] = src->str[ii];
-	}
+
 	return;
 }
 
@@ -1338,9 +1330,8 @@ mtp_uint32 _prop_pack_ptpstring(ptp_string_t *pstring, mtp_uchar *buf,
 		buf[0] = pstring->num_chars;
 
 		bytes_written = _prop_size_ptpstring(pstring);
-		for (ii = 0; ii < (bytes_written - 1); ii++) {
+		for (ii = 0; ii < (bytes_written - 1); ii++)
 			buf[ii + 1] = pchar[ii];
-		}
 	}
 	return bytes_written;
 }
@@ -1386,9 +1377,8 @@ mtp_uint32 _prop_parse_rawstring(ptp_string_t *pstring, mtp_uchar *buf,
 {
 	mtp_uint16 ii;
 
-	if (buf == NULL) {
+	if (buf == NULL)
 		return 0;
-	}
 
 	if (buf[0] == 0) {
 		pstring->num_chars = 0;
@@ -1396,9 +1386,8 @@ mtp_uint32 _prop_parse_rawstring(ptp_string_t *pstring, mtp_uchar *buf,
 	} else {
 		pstring->num_chars = buf[0];
 		ii = (mtp_uint16) ((size - 1) / sizeof(mtp_wchar));
-		if (pstring->num_chars > ii) {
+		if (pstring->num_chars > ii)
 			pstring->num_chars = (mtp_uchar)ii;
-		}
 
 		for (ii = 1; ii <= pstring->num_chars; ii++) {
 #ifdef __BIG_ENDIAN__
@@ -1416,9 +1405,9 @@ mtp_uint32 _prop_parse_rawstring(ptp_string_t *pstring, mtp_uchar *buf,
 
 void _prop_destroy_ptpstring(ptp_string_t *pstring)
 {
-	if (pstring != NULL) {
+	if (pstring != NULL)
 		g_free(pstring);
-	}
+
 	return;
 }
 
@@ -1442,9 +1431,8 @@ mtp_bool _prop_is_valid_integer(prop_info_t *prop_info, mtp_uint64 value)
 		mtp_uint32 ii;
 		for (ii = 0; ii < prop_info->supp_value_list.nnodes;
 				ii++, node = node->link) {
-			if (value == (mtp_uint32) node->value) {
+			if (value == (mtp_uint32) node->value)
 				return TRUE;
-			}
 		}
 
 		/* if it hits here, must be an invalid value */
@@ -1460,12 +1448,10 @@ mtp_bool _prop_is_valid_integer(prop_info_t *prop_info, mtp_uint64 value)
 
 mtp_bool _prop_is_valid_string(prop_info_t *prop_info, ptp_string_t *pstring)
 {
-	if ((prop_info->data_type != PTP_DATATYPE_STRING) || (pstring == NULL)) {
+	if ((prop_info->data_type != PTP_DATATYPE_STRING) || (pstring == NULL))
 		return FALSE;
-	}
 
-	if (prop_info->form_flag == ENUM_FORM)
-	{
+	if (prop_info->form_flag == ENUM_FORM) {
 		slist_node_t *node = NULL;
 		mtp_uint32 ii;
 		ptp_string_t *ele_str = NULL;
@@ -1515,8 +1501,7 @@ mtp_bool _prop_set_default_string(prop_info_t *prop_info, mtp_wchar *val)
 		_prop_copy_char_to_ptpstring(prop_info->default_val.str,
 				val, WCHAR_TYPE);
 		return TRUE;
-	}
-	else {
+	} else {
 		return FALSE;
 	}
 }
@@ -1553,8 +1538,7 @@ mtp_bool _prop_set_default_array(prop_info_t *prop_info, mtp_uchar *parray,
 		return FALSE;
 
 	/* Copies the data into the PTP array */
-	if ((prop_info->default_val.array != NULL) && (num_ele != 0))
-	{
+	if ((prop_info->default_val.array != NULL) && (num_ele != 0)) {
 		mtp_uchar *ptr8 = NULL;
 		mtp_uint16 *ptr16 = NULL;
 		mtp_uint32 *ptr32 = NULL;
@@ -1563,8 +1547,7 @@ mtp_bool _prop_set_default_array(prop_info_t *prop_info, mtp_uchar *parray,
 		_prop_grow_ptparray(prop_info->default_val.array, num_ele);
 
 		if ((prop_info->data_type == PTP_DATATYPE_AUINT8) ||
-				(prop_info->data_type == PTP_DATATYPE_AINT8))
-		{
+				(prop_info->data_type == PTP_DATATYPE_AINT8)) {
 			ptr8 = (mtp_uchar *) parray;
 			for (ii = 0; ii < num_ele; ii++)
 				_prop_append_ele_ptparray(prop_info->default_val.array,
@@ -1599,9 +1582,8 @@ mtp_bool _prop_set_current_integer(device_prop_desc_t *prop, mtp_uint32 val)
 
 		ptr = (mtp_uchar *) &val;
 
-		for (ii = 0; ii < sizeof(mtp_uint32); ii++) {
+		for (ii = 0; ii < sizeof(mtp_uint32); ii++)
 			prop->current_val.integer[ii] = ptr[ii];
-		}
 
 		return TRUE;
 	} else {
@@ -1612,8 +1594,7 @@ mtp_bool _prop_set_current_integer(device_prop_desc_t *prop, mtp_uint32 val)
 
 mtp_bool _prop_set_current_string(device_prop_desc_t *prop, ptp_string_t *str)
 {
-	if (_prop_is_valid_string(&(prop->propinfo), str))
-	{
+	if (_prop_is_valid_string(&(prop->propinfo), str)) {
 		_prop_destroy_ptpstring(prop->current_val.str);
 #ifndef MTP_USE_VARIABLE_PTP_STRING_MALLOC
 		prop->current_val.str = __alloc_ptpstring();
@@ -1623,8 +1604,7 @@ mtp_bool _prop_set_current_string(device_prop_desc_t *prop, ptp_string_t *str)
 		if (prop->current_val.str != NULL) {
 			_prop_copy_ptpstring(prop->current_val.str, str);
 			return TRUE;
-		}
-		else {
+		} else {
 			_prop_destroy_ptpstring(prop->current_val.str);
 			return FALSE;
 		}
@@ -1739,21 +1719,19 @@ mtp_bool _prop_set_current_device_prop(device_prop_desc_t *prop, mtp_uchar *val,
 			PTP_DATATYPE_ARRAY) {
 
 		mtp_uint32 *ptr = (mtp_uint32 *) val;
-		if (size < sizeof(mtp_uint32)) {
+		if (size < sizeof(mtp_uint32))
 			return FALSE;
-		}
-		if (size < sizeof(mtp_uint32) + ptr[0] * prop->propinfo.dts_size) {
+
+		if (size < sizeof(mtp_uint32) + ptr[0] * prop->propinfo.dts_size)
 			return FALSE;
-		}
+
 		return _prop_set_current_array(prop, val);
 
-	}
-	else if ((prop->propinfo.data_type & PTP_DATATYPE_VALUEMASK) ==
+	} else if ((prop->propinfo.data_type & PTP_DATATYPE_VALUEMASK) ==
 			PTP_DATATYPE_VALUE) {
 
-		if (prop->propinfo.dts_size > size) {
+		if (prop->propinfo.dts_size > size)
 			return FALSE;
-		}
 
 		if ((prop->propinfo.data_type == PTP_DATATYPE_INT64) ||
 				(prop->propinfo.data_type == PTP_DATATYPE_UINT64) ||
@@ -1806,7 +1784,7 @@ mtp_bool _prop_set_current_string_val(obj_prop_val_t *pval, ptp_string_t *str)
 		pval->current_val.str = __alloc_ptpstring(str->num_chars);
 #endif /* MTP_USE_VARIABLE_PTP_STRING_MALLOC */
 		if (pval->current_val.str != NULL) {
-			_prop_copy_ptpstring (pval->current_val.str, str);
+			_prop_copy_ptpstring(pval->current_val.str, str);
 			return TRUE;
 		} else
 			return FALSE;
@@ -2271,9 +2249,8 @@ mtp_uint32 _prop_pack_device_prop_desc(device_prop_desc_t *prop,
 	slist_node_t *node = NULL;
 	mtp_uint32 ii;
 
-	if (!buf || size < _prop_size_device_prop_desc(prop)) {
+	if (!buf || size < _prop_size_device_prop_desc(prop))
 		return 0;
-	}
 
 	/* Pack propcode, data_type, & get_set */
 	bytes_to_write = sizeof(mtp_uint16);
@@ -2441,9 +2418,8 @@ mtp_uint32 _prop_pack_curval_device_prop_desc(device_prop_desc_t *prop,
 
 	bytes_to_write = __size_curval_device_prop(prop);
 
-	if ((!bytes_to_write) || (buf == NULL) || (size < bytes_to_write)) {
+	if ((!bytes_to_write) || (buf == NULL) || (size < bytes_to_write))
 		return 0;
-	}
 
 	if (prop->propinfo.data_type == PTP_DATATYPE_STRING) {
 		if (bytes_to_write != _prop_pack_ptpstring(prop->current_val.str,
@@ -2489,7 +2465,7 @@ void _prop_reset_device_prop_desc(device_prop_desc_t *prop)
 		if (NULL == prop->current_val.str)
 			return;
 
-		_prop_copy_ptpstring (prop->current_val.str,
+		_prop_copy_ptpstring(prop->current_val.str,
 				prop->propinfo.default_val.str);
 
 	} else if ((prop->propinfo.data_type & PTP_DATATYPE_ARRAYMASK) ==
@@ -2519,9 +2495,8 @@ obj_prop_val_t * _prop_alloc_obj_propval(obj_prop_desc_t *prop)
 	obj_prop_val_t *pval = NULL;
 	pval = (obj_prop_val_t *)g_malloc(sizeof(obj_prop_val_t));
 
-	if (pval != NULL) {
+	if (pval != NULL)
 		__init_obj_propval(pval, prop);
-	}
 
 	return pval;
 }
@@ -2532,9 +2507,8 @@ static void __init_obj_propval(obj_prop_val_t *pval, obj_prop_desc_t *prop)
 
 	pval->prop = prop;
 
-	for (ii = 0; ii < 16; ii++) {
+	for (ii = 0; ii < 16; ii++)
 		pval->current_val.integer[ii] = 0;
-	}
 
 	if (prop->propinfo.data_type == PTP_DATATYPE_STRING) {
 
@@ -2545,7 +2519,7 @@ static void __init_obj_propval(obj_prop_val_t *pval, obj_prop_desc_t *prop)
 #endif /* MTP_USE_VARIABLE_PTP_STRING_MALLOC */
 		if (NULL == pval->current_val.str)
 			return;
-		_prop_copy_ptpstring (pval->current_val.str,
+		_prop_copy_ptpstring(pval->current_val.str,
 				prop->propinfo.default_val.str);
 	} else if ((prop->propinfo.data_type & PTP_DATATYPE_VALUEMASK) ==
 			PTP_DATATYPE_VALUE) {
@@ -2607,9 +2581,8 @@ obj_prop_val_t *_prop_get_prop_val(mtp_obj_t *obj, mtp_uint32 propcode)
 
 		prop_val = (obj_prop_val_t *)node->value;
 		if (prop_val) {
-			if (prop_val->prop->propinfo.prop_code == propcode) {
+			if (prop_val->prop->propinfo.prop_code == propcode)
 				return prop_val;
-			}
 		}
 	}
 
@@ -2640,9 +2613,8 @@ mtp_uint32 _prop_pack_obj_propval(obj_prop_val_t *pval, mtp_uchar *buf,
 {
 	mtp_uint32 bytes_to_write = _prop_size_obj_propval(pval);
 
-	if ((!bytes_to_write) || (buf == NULL) || (size < bytes_to_write)) {
+	if ((!bytes_to_write) || (buf == NULL) || (size < bytes_to_write))
 		return 0;
-	}
 
 	if (pval->prop->propinfo.data_type == PTP_DATATYPE_STRING) {
 
@@ -2682,11 +2654,10 @@ mtp_uint32 _prop_size_obj_propval(obj_prop_val_t *pval)
 		return size;
 
 	if (pval->prop->propinfo.data_type == PTP_DATATYPE_STRING) {
-		if (pval->current_val.str == NULL) {
+		if (pval->current_val.str == NULL)
 			size = 0;
-		} else {
+		else
 			size = _prop_size_ptpstring(pval->current_val.str);
-		}
 
 	} else if ((pval->prop->propinfo.data_type & PTP_DATATYPE_ARRAYMASK) ==
 			PTP_DATATYPE_ARRAY) {
@@ -2702,9 +2673,8 @@ mtp_uint32 _prop_size_obj_propval(obj_prop_val_t *pval)
 
 void _prop_destroy_obj_propval(obj_prop_val_t *pval)
 {
-	if (pval == NULL) {
+	if (pval == NULL)
 		return;
-	}
 
 	if (pval->prop == NULL) {
 		g_free(pval);
@@ -2745,11 +2715,10 @@ static void __init_obj_prop_desc(obj_prop_desc_t *prop, mtp_uint16 propcode,
 
 	prop->propinfo.form_flag = form_flag;
 
-	if (prop->propinfo.form_flag == BYTE_ARRAY_FORM) {
+	if (prop->propinfo.form_flag == BYTE_ARRAY_FORM)
 		prop->propinfo.data_type = PTP_DATATYPE_AUINT8;
-	} else if (prop->propinfo.form_flag == LONG_STRING_FORM) {
+	else if (prop->propinfo.form_flag == LONG_STRING_FORM)
 		prop->propinfo.data_type = PTP_DATATYPE_AUINT16;
-	}
 
 	prop->group_code = group_code;
 
@@ -2859,9 +2828,9 @@ mtp_uint32 _prop_size_obj_prop_desc(obj_prop_desc_t *prop)
 		break;
 
 	case RANGE_FORM:
-		if (prop->propinfo.data_type != PTP_DATATYPE_STRING) {
+		if (prop->propinfo.data_type != PTP_DATATYPE_STRING)
 			size += 3 * prop->propinfo.dts_size;/* Min,Max,Step */
-		}
+
 		break;
 
 	case ENUM_FORM:
@@ -2913,9 +2882,8 @@ mtp_uint32 _prop_pack_obj_prop_desc(obj_prop_desc_t *prop, mtp_uchar *buf,
 	slist_node_t *node = NULL;
 	mtp_uint16 ii;
 
-	if (!buf || size < _prop_size_obj_prop_desc(prop)) {
+	if (!buf || size < _prop_size_obj_prop_desc(prop))
 		return 0;
-	}
 
 	/* Pack propcode, data_type, & get_set */
 	bytes_to_write = sizeof(mtp_uint16);
@@ -3095,9 +3063,8 @@ mtp_uint32 _prop_pack_default_val_obj_prop_desc(obj_prop_desc_t *prop,
 
 	bytes_to_write = __get_size_default_val_obj_prop_desc(prop);
 
-	if ((!bytes_to_write) || (buf == NULL) || (size < bytes_to_write)) {
+	if ((!bytes_to_write) || (buf == NULL) || (size < bytes_to_write))
 		return 0;
-	}
 
 	if (prop->propinfo.data_type == PTP_DATATYPE_STRING) {
 		if (bytes_to_write !=
@@ -3133,32 +3100,28 @@ obj_prop_desc_t *_prop_get_obj_prop_desc(mtp_uint32 format_code,
 	int num_default_obj_props = 0;
 
 	/*Default*/
-	if (_get_oma_drm_status() == TRUE) {
+	if (_get_oma_drm_status() == TRUE)
 		num_default_obj_props = NUM_OBJECT_PROP_DESC_DEFAULT;
-	} else {
+	else
 		num_default_obj_props = NUM_OBJECT_PROP_DESC_DEFAULT - 1;
-	}
 
 	for (i = 0; i < num_default_obj_props; i++) {
-		if (props_list_default[i].propinfo.prop_code == propcode) {
+		if (props_list_default[i].propinfo.prop_code == propcode)
 			return &(props_list_default[i]);
-		}
 	}
 
 	switch (format_code) {
 	case PTP_FMT_MP3:
 	case PTP_FMT_WAVE:
 		for (i = 0; i < NUM_OBJECT_PROP_DESC_MP3; i++) {
-			if (props_list_mp3[i].propinfo.prop_code == propcode) {
+			if (props_list_mp3[i].propinfo.prop_code == propcode)
 				return &(props_list_mp3[i]);
-			}
 		}
 		break;
 	case MTP_FMT_WMA:
 		for (i = 0; i < NUM_OBJECT_PROP_DESC_WMA; i++) {
-			if (props_list_wma[i].propinfo.prop_code == propcode) {
+			if (props_list_wma[i].propinfo.prop_code == propcode)
 				return &(props_list_wma[i]);
-			}
 		}
 		break;
 	case MTP_FMT_WMV:
@@ -3168,9 +3131,8 @@ obj_prop_desc_t *_prop_get_obj_prop_desc(mtp_uint32 format_code,
 	case PTP_FMT_MPEG:
 	case MTP_FMT_3GP:
 		for (i = 0; i < NUM_OBJECT_PROP_DESC_WMV; i++) {
-			if (props_list_wmv[i].propinfo.prop_code == propcode) {
+			if (props_list_wmv[i].propinfo.prop_code == propcode)
 				return &(props_list_wmv[i]);
-			}
 		}
 		break;
 	case MTP_FMT_ABSTRACT_AUDIO_ALBUM:
@@ -3179,9 +3141,8 @@ obj_prop_desc_t *_prop_get_obj_prop_desc(mtp_uint32 format_code,
 	case PTP_FMT_IMG_BMP:
 	case PTP_FMT_IMG_PNG:
 		for (i = 0; i < NUM_OBJECT_PROP_DESC_ALBUM; i++) {
-			if (props_list_album[i].propinfo.prop_code == propcode) {
+			if (props_list_album[i].propinfo.prop_code == propcode)
 				return &(props_list_album[i]);
-			}
 		}
 		break;
 
@@ -3266,9 +3227,9 @@ mtp_uint32 _prop_size_obj_proplist(obj_proplist_t *prop_list)
 	node = prop_list->prop_quad_list.start;
 	for (ii = 0; ii < prop_list->prop_quad_list.nnodes; ii++) {
 		quad = (prop_quad_t *) node->value;
-		if (quad) {
+		if (quad)
 			size += quad->val_size;
-		}
+
 		node = node->link;
 	}
 	return size;
@@ -3292,9 +3253,8 @@ mtp_uint32 _prop_get_obj_proplist(mtp_obj_t *obj, mtp_uint32 propcode,
 			ii++, node = node->link) {
 		propval = (obj_prop_val_t *)node->value;
 
-		if (NULL == propval) {
+		if (NULL == propval)
 			continue;
-		}
 
 		if (FALSE == __check_object_propcode(propval->prop,
 					propcode, group_code)) {
@@ -3536,9 +3496,8 @@ mtp_uint32 _prop_pack_obj_proplist(obj_proplist_t *prop_list, mtp_uchar *buf,
 	mtp_uint32 ii;
 	slist_node_t *node = NULL;
 
-	if (!buf || size < _prop_size_obj_proplist(prop_list)) {
+	if (!buf || size < _prop_size_obj_proplist(prop_list))
 		return 0;
-	}
 
 	*(mtp_uint32 *) buf = prop_list->prop_quad_list.nnodes;
 #ifdef __BIG_ENDIAN__
@@ -3585,7 +3544,7 @@ mtp_uint32 _prop_pack_obj_proplist(obj_proplist_t *prop_list, mtp_uchar *buf,
 			str = (ptp_string_t *) quad->pval;
 			if (str) {
 				temp += _prop_pack_ptpstring(str, temp,
-						_prop_size_ptpstring (str));
+						_prop_size_ptpstring(str));
 			} else {
 				/* Put in an empty string: NumOfChars = 0; */
 				*temp++ = 0;
@@ -3683,11 +3642,10 @@ mtp_uint32 _prop_get_supp_obj_props(mtp_uint32 format_code,
 	mtp_uint32 num_default_obj_props = 0;
 
 	/*Default*/
-	if (_get_oma_drm_status() == TRUE) {
+	if (_get_oma_drm_status() == TRUE)
 		num_default_obj_props = NUM_OBJECT_PROP_DESC_DEFAULT;
-	} else {
+	else
 		num_default_obj_props = NUM_OBJECT_PROP_DESC_DEFAULT - 1;
-	}
 
 	for (i = 0; i < num_default_obj_props; i++) {
 		_prop_append_ele_ptparray(supp_props,
@@ -4799,31 +4757,26 @@ void _prop_destroy_supp_obj_props(void)
 	mtp_uint32 i = 0;
 	int num_default_obj_prps = 0;
 
-	for (i = 0; i < NUM_OBJECT_PROP_DESC_MP3; i++) {
+	for (i = 0; i < NUM_OBJECT_PROP_DESC_MP3; i++)
 		__destroy_obj_prop_desc(&(props_list_mp3[i]));
-	}
 
-	for (i = 0; i < NUM_OBJECT_PROP_DESC_WMA; i++) {
+	for (i = 0; i < NUM_OBJECT_PROP_DESC_WMA; i++)
 		__destroy_obj_prop_desc(&(props_list_wma[i]));
-	}
 
-	for (i = 0; i < NUM_OBJECT_PROP_DESC_WMV; i++) {
+	for (i = 0; i < NUM_OBJECT_PROP_DESC_WMV; i++)
 		__destroy_obj_prop_desc(&(props_list_wmv[i]));
-	}
 
-	for (i = 0; i < NUM_OBJECT_PROP_DESC_ALBUM; i++) {
+	for (i = 0; i < NUM_OBJECT_PROP_DESC_ALBUM; i++)
 		__destroy_obj_prop_desc(&(props_list_album[i]));
-	}
 
-	if (_get_oma_drm_status() == TRUE) {
+	if (_get_oma_drm_status() == TRUE)
 		num_default_obj_prps = NUM_OBJECT_PROP_DESC_DEFAULT;
-	} else {
+	else
 		num_default_obj_prps = NUM_OBJECT_PROP_DESC_DEFAULT - 1;
-	}
 
-	for (i = 0; i < num_default_obj_prps; i++) {
+	for (i = 0; i < num_default_obj_prps; i++)
 		__destroy_obj_prop_desc(&(props_list_default[i]));
-	}
+
 	return;
 }
 
@@ -4855,9 +4808,8 @@ mtp_uint32 _prop_get_size_interdep_prop(interdep_prop_config_t *prop_config)
 	node = prop_config->propdesc_list.start;
 	for (ii = 0; ii < prop_config->propdesc_list.nnodes; ii++) {
 		prop = node->value;
-		if (prop) {
+		if (prop)
 			size += _prop_size_obj_prop_desc(prop);
-		}
 	}
 	return size;
 }
@@ -4871,9 +4823,8 @@ mtp_uint32 _prop_pack_interdep_prop(interdep_prop_config_t *prop_config,
 	mtp_uint32 ele_size = 0;
 	mtp_int32 ii;
 
-	if (!buf || size < _prop_get_size_interdep_prop(prop_config)) {
+	if (!buf || size < _prop_get_size_interdep_prop(prop_config))
 		return 0;
-	}
 
 	*(mtp_uint32 *) buf = prop_config->propdesc_list.nnodes;
 #ifdef __BIG_ENDIAN__

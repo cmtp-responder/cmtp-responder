@@ -46,15 +46,14 @@ mtp_bool _util_thread_create(pthread_t *tid, const mtp_char *tname,
 
 	error = pthread_create(tid, &attr, thread_func, arg);
 	if (error != 0) {
-		ERR( "[%s] Thread creation Fail errno [%d]\n", tname, errno);
+		ERR("[%s] Thread creation Fail errno [%d]\n", tname, errno);
 		pthread_attr_destroy(&attr);
 		return FALSE;
 	}
 
 	error = pthread_attr_destroy(&attr);
-	if (error != 0) {
+	if (error != 0)
 		ERR("pthread_attr_destroy Fail [%d] errno [%d]\n", error, errno);
-	}
 
 	return TRUE;
 }

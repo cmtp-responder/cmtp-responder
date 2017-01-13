@@ -742,7 +742,7 @@ mtp_bool _device_install_storage(mtp_int32 type)
 			break;
 		mounted = _device_is_store_mounted(MTP_STORAGE_EXTERNAL);
 		if (mounted == FALSE) {
-			if (__add_store_to_device(MTP_STORAGE_EXTERNAL)== FALSE) {
+			if (__add_store_to_device(MTP_STORAGE_EXTERNAL) == FALSE) {
 				ERR("__add_store_to_device() Fail");
 				return FALSE;
 			}

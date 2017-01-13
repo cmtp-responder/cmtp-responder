@@ -84,7 +84,7 @@ enum {
 			_prop_destroy_obj_propval(prop_val);\
 			ERR("_util_add_node() Fail");\
 			return (FALSE);\
-		}\
+		} \
 	} while (0);
 
 #define propvalue_alloc_and_check(prop_val)\

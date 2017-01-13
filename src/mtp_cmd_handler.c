@@ -114,9 +114,8 @@ static void __finish_receiving_file_packets(mtp_char *data, mtp_int32 data_len);
  */
 void _cmd_hdlr_reset_cmd(mtp_handler_t *hdlr)
 {
-	if (hdlr->data4_send_obj.obj != NULL) {
+	if (hdlr->data4_send_obj.obj != NULL)
 		_entity_dealloc_mtp_obj(hdlr->data4_send_obj.obj);
-	}
 
 	memset(hdlr, 0x00, sizeof(mtp_handler_t));
 
@@ -460,8 +459,7 @@ static void __get_storage_ids(mtp_handler_t *hdlr)
 
 	_prop_init_ptparray(&ids, UINT32_TYPE);
 
-	if (_hutil_get_storage_ids(&ids) == MTP_ERROR_NONE)
-	{
+	if (_hutil_get_storage_ids(&ids) == MTP_ERROR_NONE) {
 		_hdlr_init_data_container(&blk, hdlr->usb_cmd.code,
 				hdlr->usb_cmd.tid);
 		num_bytes = _prop_get_size_ptparray(&ids);
@@ -563,11 +561,10 @@ static void __get_num_objects(mtp_handler_t *hdlr)
 		resp = PTP_RESPONSE_GEN_ERROR;
 	}
 
-	if (resp == PTP_RESPONSE_OK) {
+	if (resp == PTP_RESPONSE_OK)
 		_cmd_hdlr_send_response(hdlr, resp, 1, (mtp_uint32 *)&num_obj);
-	} else {
+	else
 		_cmd_hdlr_send_response_code(hdlr, resp);
-	}
 }
 
 static void __get_object_handles(mtp_handler_t *hdlr)
@@ -701,7 +698,7 @@ static void __get_object(mtp_handler_t *hdlr)
 	mtp_uint16 resp = PTP_RESPONSE_OK;
 	mtp_uint32 packet_len;
 	mtp_uint32 read_len = 0;
-	mtp_uint32 h_file = INVALID_FILE;
+	FILE* h_file = NULL;
 	mtp_int32 error = 0;
 
 	if (_hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 1) ||
@@ -745,7 +742,7 @@ static void __get_object(mtp_handler_t *hdlr)
 
 	_device_set_phase(DEVICE_PHASE_DATAIN);
 	h_file = _util_file_open(path, MTP_FILE_READ, &error);
-	if (h_file == INVALID_FILE) {
+	if (h_file == NULL) {
 		ERR("_util_file_open() Fail");
 		_device_set_phase(DEVICE_PHASE_NOTREADY);
 		if (EACCES == error) {
@@ -801,9 +798,8 @@ static void __get_object(mtp_handler_t *hdlr)
 		sent += read_len;
 	}
 
-	if (total_len % ((mtp_uint64)_transport_get_usb_packet_len()) == 0) {
+	if (total_len % ((mtp_uint64)_transport_get_usb_packet_len()) == 0)
 		_transport_send_zlp();
-	}
 
 Done:
 	_util_file_close(h_file);
@@ -825,16 +821,16 @@ static void __send_object_info(mtp_handler_t *hdlr)
 	obj_data_t obdata = { 0 };
 
 	store_id = _hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 0);
-	if (store_id == 0) {
+	if (store_id == 0)
 		store_id = _device_get_default_store_id();
-	}
+
 	h_parent = _hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 1);
 
 	if (_hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 2)) {
 		resp = PTP_RESPONSE_PARAM_NOTSUPPORTED;
-		if (_device_get_phase() != DEVICE_PHASE_NOTREADY) {
+		if (_device_get_phase() != DEVICE_PHASE_NOTREADY)
 			_cmd_hdlr_send_response_code(hdlr, resp);
-		}
+
 		return;
 	}
 
@@ -1183,7 +1179,7 @@ static void __get_device_prop_desc(mtp_handler_t *hdlr)
 		}
 	case MTP_PROPERTYCODE_DEVICEICON:
 		{
-			mtp_uint32 h_file;
+			FILE* h_file;
 			mtp_uint32 bytes_read = 0;
 			mtp_uint32 file_size = 0;
 			struct stat buf;
@@ -1197,7 +1193,7 @@ static void __get_device_prop_desc(mtp_handler_t *hdlr)
 			}
 
 			h_file = _util_file_open(MTP_DEVICE_ICON, MTP_FILE_READ, &err);
-			if (h_file == INVALID_FILE) {
+			if (h_file == NULL) {
 				ERR("file handle is not valid");
 				_cmd_hdlr_send_response_code(hdlr,
 						PTP_RESPONSE_GEN_ERROR);
@@ -1291,7 +1287,7 @@ static void __get_device_prop_value(mtp_handler_t *hdlr)
 	prop_id = _hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 0);
 	_hdlr_init_data_container(&blk, hdlr->usb_cmd.code, hdlr->usb_cmd.tid);
 
-	switch(prop_id) {
+	switch (prop_id) {
 #ifdef MTP_SUPPORT_DEVICEPROP_BATTERYLEVEL
 	case PTP_PROPERTYCODE_BATTERYLEVEL: {
 											mtp_int32 batt = 0;
@@ -1380,7 +1376,7 @@ static void __get_device_prop_value(mtp_handler_t *hdlr)
 	case MTP_PROPERTYCODE_DEVICEICON:
 		{
 
-										  mtp_uint32 h_file;
+										  FILE *h_file;
 										  mtp_uint32 read_bytes = 0;
 										  mtp_uint32 file_size = 0;
 										  struct stat buf;
@@ -1390,13 +1386,13 @@ static void __get_device_prop_value(mtp_handler_t *hdlr)
 										  mtp_uint32 ii;
 
 										  h_file = _util_file_open(MTP_DEVICE_ICON, MTP_FILE_READ, &err);
-										  if (h_file == INVALID_FILE) {
+										  if (h_file == NULL) {
 											  ERR("file handle is not valid");
 											  _cmd_hdlr_send_response_code(hdlr,
 													  PTP_RESPONSE_GEN_ERROR);
 											  return;
 										  }
-										  if (fstat(fileno((FILE *)h_file), &buf) != 0) {
+										  if (fstat(fileno(h_file), &buf) != 0) {
 											  _util_file_close(h_file);
 											  _cmd_hdlr_send_response_code(hdlr,
 													  PTP_RESPONSE_GEN_ERROR);
@@ -1425,9 +1421,8 @@ static void __get_device_prop_value(mtp_handler_t *hdlr)
 
 										  _prop_init_ptparray(&val_arr, UINT8_TYPE);
 										  _prop_grow_ptparray(&val_arr, read_bytes);
-										  for (ii = 0; ii < read_bytes; ii++) {
+										  for (ii = 0; ii < read_bytes; ii++)
 											  _prop_append_ele_ptparray(&val_arr, data[ii]);
-										  }
 
 										  no_bytes = _prop_get_size_ptparray(&val_arr);
 										  ptr = _hdlr_alloc_buf_data_container(&blk, no_bytes, no_bytes);
@@ -1654,7 +1649,7 @@ static void __get_object_references(mtp_handler_t *hdlr)
 	case MTP_ERROR_NONE:
 		resp = PTP_RESPONSE_OK;
 		break;
-	default :
+	default:
 		resp = PTP_RESPONSE_GEN_ERROR;
 	}
 
@@ -1729,9 +1724,8 @@ static void __set_object_references(mtp_handler_t *hdlr)
 	}
 
 	ptr = _hdlr_get_payload_data(&blk);
-	if (ptr == NULL) {
+	if (ptr == NULL)
 		return;
-	}
 
 	memcpy(&num_ref, ptr, sizeof(mtp_uint32));
 #ifdef __BIG_ENDIAN__
@@ -2022,7 +2016,6 @@ static void __get_object_prop_list(mtp_handler_t *hdlr)
 	slist_node_t *next_node = NULL;
 	mtp_uint32 ii = 0;
 	mtp_uint32 jj = 0;
-	mtp_obj_t **ptr_array = NULL;
 	mtp_obj_t *obj = NULL;
 #endif /*MTP_USE_RUNTIME_GETOBJECTPROPVALUE*/
 
@@ -2085,13 +2078,19 @@ static void __get_object_prop_list(mtp_handler_t *hdlr)
 
 #ifdef MTP_USE_RUNTIME_GETOBJECTPROPVALUE
 	if (resp == PTP_RESPONSE_OK && obj_arr.array_entry) {
-		ptr_array = obj_arr.array_entry;
+		mtp_uint32 *obj_handles = obj_arr.array_entry;
 
 		for (ii = 0; ii < obj_arr.num_ele; ii++) {
-			obj = ptr_array[ii];
-			if (NULL == obj || obj->propval_list.nnodes == 0) {
+			mtp_store_t *store = NULL;
+
+			store = _device_get_store_containing_obj(obj_handles[ii]);
+			if (store == NULL)
 				continue;
-			}
+
+			obj = _entity_get_object_from_store(store, obj_handles[ii]);
+			if (NULL == obj || obj->propval_list.nnodes == 0)
+				continue;
+
 			/*Remove all the old property value, and ready to set up new */
 			for (jj = 0, next_node = obj->propval_list.start;
 					jj < obj->propval_list.nnodes; jj++) {
@@ -2273,7 +2272,7 @@ static void __report_acquired_content(mtp_handler_t *hdlr)
 	mtp_uint32 num_bytes = 0;
 	mtp_uint32 num_lines = 0;
 	mtp_uint32 rem_modified = 0;
-	mtp_uint32 h_file;
+	FILE* h_file;
 	time_t cur_time;
 	time_t l_time;
 	mtp_int32 diff_time;
@@ -2295,9 +2294,9 @@ static void __report_acquired_content(mtp_handler_t *hdlr)
 	if (tid == 0) {
 
 		if (access(MTP_FILES_MODIFIED_FILES, F_OK) == 0)
-			if (remove(MTP_FILES_MODIFIED_FILES) < 0) {
+			if (remove(MTP_FILES_MODIFIED_FILES) < 0)
 				ERR("remove(%s) Fail", MTP_FILES_MODIFIED_FILES);
-			}
+
 		resp = PTP_RESPONSE_OK;
 		_prop_grow_ptparray(&guid_arr, 1);
 		_prop_append_ele_ptparray(&guid_arr, 0);
@@ -2328,7 +2327,7 @@ static void __report_acquired_content(mtp_handler_t *hdlr)
 	}
 
 	h_file = _util_file_open(MTP_FILES_MODIFIED_FILES, MTP_FILE_READ, &err);
-	if (h_file == INVALID_FILE) {
+	if (h_file == NULL) {
 		resp = PTP_RESPONSE_GEN_ERROR;
 		_prop_init_ptparray(&guid_arr, UINT32_TYPE);
 		_prop_append_ele_ptparray(&guid_arr, 0);
@@ -2344,7 +2343,7 @@ static void __report_acquired_content(mtp_handler_t *hdlr)
 		max_size : num_lines - start_idx;
 
 	rem_modified = (num_lines - start_idx > max_size) ?
-		(num_lines - start_idx- max_size) : 0;
+		(num_lines - start_idx - max_size) : 0;
 
 	g_has_round_trip = FALSE;
 	_prop_init_ptparray(&guid_arr, UINT32_TYPE);
@@ -2354,9 +2353,9 @@ static void __report_acquired_content(mtp_handler_t *hdlr)
 
 	_util_file_close(h_file);
 	if (rem_modified == 0) {
-		if (remove(MTP_FILES_MODIFIED_FILES) < 0) {
+		if (remove(MTP_FILES_MODIFIED_FILES) < 0)
 			ERR("remove(%s) Fail", MTP_FILES_MODIFIED_FILES);
-		}
+
 		g_mgr->meta_info.mod = 0;
 	}
 
@@ -2370,11 +2369,10 @@ DONE:
 		_device_set_phase(DEVICE_PHASE_DATAIN);
 	}
 
-	if (_hdlr_send_data_container(&blk)) {
+	if (_hdlr_send_data_container(&blk))
 		resp = PTP_RESPONSE_OK;
-	} else {
+	else
 		resp = PTP_RESPONSE_GEN_ERROR;
-	}
 
 	_prop_deinit_ptparray(&guid_arr);
 	g_free(blk.data);
@@ -2397,9 +2395,9 @@ static void __send_playback_skip(mtp_handler_t *hdlr)
 	mtp_uint16 resp = PTP_RESPONSE_INVALIDPARAM;
 
 	skip = (mtp_int32) _hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 0);
-	if (MTP_ERROR_NONE == _hutil_get_playback_skip(skip)) {
+	if (MTP_ERROR_NONE == _hutil_get_playback_skip(skip))
 		resp = PTP_RESPONSE_OK;
-	}
+
 	_cmd_hdlr_send_response_code(hdlr, resp);
 	return;
 }
@@ -2583,11 +2581,10 @@ static void __copy_object(mtp_handler_t *hdlr)
 	}
 	_transport_set_mtp_operation_state(MTP_STATE_ONSERVICE);
 
-	if (resp == PTP_RESPONSE_OK) {
+	if (resp == PTP_RESPONSE_OK)
 		_cmd_hdlr_send_response(hdlr, resp, 1, &new_handle);
-	} else {
+	else
 		_cmd_hdlr_send_response_code(hdlr, resp);
-	}
 
 	return;
 }
@@ -2630,11 +2627,10 @@ static void __reset_device_prop_value(mtp_handler_t *hdlr)
 				prop->current_val.str->str);
 		_device_set_sync_partner(temp);
 
-		if (!g_strcmp0(temp, MTP_DEV_PROPERTY_NULL_SYNCPARTNER)) {
+		if (!g_strcmp0(temp, MTP_DEV_PROPERTY_NULL_SYNCPARTNER))
 			vconf_set_str(VCONFKEY_MTP_SYNC_PARTNER_STR, "");
-		} else {
+		else
 			vconf_set_str(VCONFKEY_MTP_SYNC_PARTNER_STR, temp);
-		}
 	}
 	_cmd_hdlr_send_response_code(hdlr, PTP_RESPONSE_OK);
 
@@ -2745,11 +2741,10 @@ static void __send_object_prop_list(mtp_handler_t *hdlr)
 
 	idx = 0;
 	if (store_id) {
-		if (!h_parent) {
+		if (!h_parent)
 			h_parent = _device_get_default_parent_handle();
-		} else if (h_parent == 0xFFFFFFFF) {
+		else if (h_parent == 0xFFFFFFFF)
 			h_parent = PTP_OBJECTHANDLE_ROOT;
-		}
 	} else {
 		store_id = _device_get_default_store_id();
 		if (!store_id)
@@ -2874,9 +2869,8 @@ static void __send_object_prop_list(mtp_handler_t *hdlr)
 	}
 
 	if (PTP_RESPONSE_OK != resp) {
-		if (hdlr->data4_send_obj.obj) {
+		if (hdlr->data4_send_obj.obj)
 			_entity_dealloc_mtp_obj(hdlr->data4_send_obj.obj);
-		}
 
 		hdlr->data4_send_obj.obj = NULL;
 		hdlr->data4_send_obj.is_valid = FALSE;
@@ -2958,128 +2952,128 @@ mtp_bool _cmd_hdlr_send_response_code(mtp_handler_t *hdlr, mtp_uint16 resp)
 #ifdef MTP_SUPPORT_PRINT_COMMAND
 static void __print_command(mtp_uint16 code)
 {
-	switch(code) {
-	case PTP_OPCODE_GETDEVICEINFO :
+	switch (code) {
+	case PTP_OPCODE_GETDEVICEINFO:
 		DBG("COMMAND ======== GET DEVICE INFO===========");
 		break;
-	case PTP_OPCODE_OPENSESSION :
+	case PTP_OPCODE_OPENSESSION:
 		DBG("COMMAND ======== OPEN SESSION ===========");
 		break;
-	case PTP_OPCODE_CLOSESESSION :
+	case PTP_OPCODE_CLOSESESSION:
 		DBG("COMMAND ======== CLOSE SESSION ===========");
 		break;
-	case PTP_OPCODE_GETSTORAGEIDS :
+	case PTP_OPCODE_GETSTORAGEIDS:
 		DBG("COMMAND ======== GET STORAGE IDS ===========");
 		break;
-	case PTP_OPCODE_GETSTORAGEINFO :
+	case PTP_OPCODE_GETSTORAGEINFO:
 		DBG("COMMAND ======== GET STORAGE INFO ===========");
 		break;
-	case PTP_OPCODE_GETNUMOBJECTS :
+	case PTP_OPCODE_GETNUMOBJECTS:
 		DBG("COMMAND ======== GET NUM OBJECTS ===========");
 		break;
-	case PTP_OPCODE_GETOBJECTHANDLES :
+	case PTP_OPCODE_GETOBJECTHANDLES:
 		DBG("COMMAND ======== GET OBJECT HANDLES ===========");
 		break;
-	case PTP_OPCODE_GETOBJECTINFO :
+	case PTP_OPCODE_GETOBJECTINFO:
 		DBG("COMMAND ======== GET OBJECT INFO ===========");
 		break;
-	case PTP_OPCODE_GETOBJECT :
+	case PTP_OPCODE_GETOBJECT:
 		DBG("COMMAND ======== GET OBJECT ===========");
 		break;
-	case PTP_OPCODE_DELETEOBJECT :
+	case PTP_OPCODE_DELETEOBJECT:
 		DBG("COMMAND ======== DELETE OBJECT ===========");
 		break;
-	case PTP_OPCODE_SENDOBJECTINFO :
+	case PTP_OPCODE_SENDOBJECTINFO:
 		DBG("COMMAND ======== SEND OBJECT INFO ===========");
 		break;
-	case PTP_OPCODE_SENDOBJECT :
+	case PTP_OPCODE_SENDOBJECT:
 		DBG("COMMAND ======== SEND OBJECT ===========");
 		break;
-	case PTP_OPCODE_INITIATECAPTURE :
+	case PTP_OPCODE_INITIATECAPTURE:
 		DBG("COMMAND ======== INITIATE CAPTURE ===========");
 		break;
-	case PTP_OPCODE_FORMATSTORE :
+	case PTP_OPCODE_FORMATSTORE:
 		DBG("COMMAND ======== FORMAT STORE ===========");
 		break;
-	case PTP_OPCODE_RESETDEVICE :
+	case PTP_OPCODE_RESETDEVICE:
 		DBG("COMMAND ======== RESET DEVICE ===========");
 		break;
-	case PTP_OPCODE_SELFTEST :
+	case PTP_OPCODE_SELFTEST:
 		DBG("COMMAND ======== SELF TEST ===========");
 		break;
-	case PTP_OPCODE_SETOBJECTPROTECTION :
+	case PTP_OPCODE_SETOBJECTPROTECTION:
 		DBG("COMMAND ======== SET OBJECT PROTECTION ===========");
 		break;
-	case PTP_OPCODE_POWERDOWN :
+	case PTP_OPCODE_POWERDOWN:
 		DBG("COMMAND ======== POWER DOWN ===========");
 		break;
-	case PTP_OPCODE_GETDEVICEPROPDESC :
+	case PTP_OPCODE_GETDEVICEPROPDESC:
 		DBG("COMMAND ======== GET DEVICE PROP DESC ===========");
 		break;
-	case PTP_OPCODE_GETDEVICEPROPVALUE :
+	case PTP_OPCODE_GETDEVICEPROPVALUE:
 		DBG("COMMAND ======== GET DEVICE PROP VALUE ===========");
 		break;
-	case PTP_OPCODE_SETDEVICEPROPVALUE :
+	case PTP_OPCODE_SETDEVICEPROPVALUE:
 		DBG("COMMAND ======== SET DEVICE PROP VALUE ===========");
 		break;
-	case PTP_OPCODE_RESETDEVICEPROPVALUE :
+	case PTP_OPCODE_RESETDEVICEPROPVALUE:
 		DBG("COMMAND ======== RESET DEVICE PROP VALUE ===========");
 		break;
-	case PTP_OPCODE_TERMINATECAPTURE :
+	case PTP_OPCODE_TERMINATECAPTURE:
 		DBG("COMMAND ======== TERMINATE CAPTURE ===========");
 		break;
-	case PTP_OPCODE_MOVEOBJECT :
+	case PTP_OPCODE_MOVEOBJECT:
 		DBG("COMMAND ======== MOVE OBJECT ===========");
 		break;
-	case PTP_OPCODE_COPYOBJECT :
+	case PTP_OPCODE_COPYOBJECT:
 		DBG("COMMAND ======== COPY OBJECT ===========");
 		break;
-	case PTP_OPCODE_GETPARTIALOBJECT :
+	case PTP_OPCODE_GETPARTIALOBJECT:
 		DBG("COMMAND ======== GET PARTIAL OBJECT ===========");
 		break;
-	case PTP_OPCODE_INITIATEOPENCAPTURE :
+	case PTP_OPCODE_INITIATEOPENCAPTURE:
 		DBG("COMMAND ======== INITIATE OPEN CAPTURE ===========");
 		break;
-	case MTP_OPCODE_WMP_UNDEFINED :
+	case MTP_OPCODE_WMP_UNDEFINED:
 		DBG("COMMAND ======== WMP UNDEFINED ==========");
 		break;
-	case MTP_OPCODE_WMP_REPORTACQUIREDCONTENT :
+	case MTP_OPCODE_WMP_REPORTACQUIREDCONTENT:
 		DBG("COMMAND ======= REPORT ACQUIRED CONTENT =========");
 		break;
-	case MTP_OPCODE_GETOBJECTPROPSUPPORTED :
+	case MTP_OPCODE_GETOBJECTPROPSUPPORTED:
 		DBG("COMMAND ======= GET OBJECT PROP SUPPORTED ========");
 		break;
-	case MTP_OPCODE_GETOBJECTPROPDESC :
+	case MTP_OPCODE_GETOBJECTPROPDESC:
 		DBG("COMMAND ======== GET OBJECT PROP DESC ==========");
 		break;
-	case MTP_OPCODE_GETOBJECTPROPVALUE :
+	case MTP_OPCODE_GETOBJECTPROPVALUE:
 		DBG("COMMAND ======== GET OBJECT PROP VALUE ==========");
 		break;
-	case MTP_OPCODE_SETOBJECTPROPVALUE :
+	case MTP_OPCODE_SETOBJECTPROPVALUE:
 		DBG("COMMAND ======== SET OBJECT PROP VALUE ==========");
 		break;
-	case MTP_OPCODE_GETOBJECTPROPLIST :
+	case MTP_OPCODE_GETOBJECTPROPLIST:
 		DBG("COMMAND ======== GET OBJECT PROP LIST ==========");
 		break;
-	case MTP_OPCODE_SETOBJECTPROPLIST :
+	case MTP_OPCODE_SETOBJECTPROPLIST:
 		DBG("COMMAND ======== SET OBJECT PROP LIST ==========");
 		break;
-	case MTP_OPCODE_GETINTERDEPPROPDESC :
+	case MTP_OPCODE_GETINTERDEPPROPDESC:
 		DBG("COMMAND ======== GET INTERDEP PROP DESC ==========");
 		break;
-	case MTP_OPCODE_SENDOBJECTPROPLIST :
+	case MTP_OPCODE_SENDOBJECTPROPLIST:
 		DBG("COMMAND ======== SEND OBJECT PROP LIST ==========");
 		break;
-	case MTP_OPCODE_GETOBJECTREFERENCES :
+	case MTP_OPCODE_GETOBJECTREFERENCES:
 		DBG("COMMAND ======== GET OBJECT REFERENCES ==========");
 		break;
-	case MTP_OPCODE_SETOBJECTREFERENCES :
+	case MTP_OPCODE_SETOBJECTREFERENCES:
 		DBG("COMMAND ======== SET OBJECT REFERENCES ==========");
 		break;
-	case MTP_OPCODE_PLAYBACK_SKIP :
+	case MTP_OPCODE_PLAYBACK_SKIP:
 		DBG("COMMAND ======== PLAYBACK SKIP ==========");
 		break;
-	default :
+	default:
 		DBG("======== UNKNOWN COMMAND ==========");
 		break;
 	}
@@ -3190,14 +3184,13 @@ void _receive_mq_data_cb(mtp_char *buffer, mtp_int32 buf_len)
 
 		_transport_set_control_event(0);
 		_transport_set_mtp_operation_state(MTP_STATE_ONSERVICE);
-		if (g_mgr->ftemp_st.fhandle != INVALID_FILE) {
+		if (g_mgr->ftemp_st.fhandle != NULL) {
 			DBG("In Cancel Transaction fclose ");
 			_util_file_close(g_mgr->ftemp_st.fhandle);
-			g_mgr->ftemp_st.fhandle = INVALID_FILE;
+			g_mgr->ftemp_st.fhandle = NULL;
 			DBG("In Cancel Transaction, remove ");
-			if (remove(g_mgr->ftemp_st.filepath) < 0) {
+			if (remove(g_mgr->ftemp_st.filepath) < 0)
 				ERR_SECURE("remove(%s) Fail", g_mgr->ftemp_st.filepath);
-			}
 		} else {
 			DBG("g_mgr->ftemp_st.fhandle is not valid, return");
 		}
@@ -3259,16 +3252,15 @@ static mtp_bool __receive_temp_file_first_packet(mtp_char *data,
 		mtp_int32 data_len)
 {
 	mtp_char *filepath = g_mgr->ftemp_st.filepath;
-	mtp_uint32 *fhandle = &g_mgr->ftemp_st.fhandle;
 	mtp_int32 error = 0;
 	mtp_uint32 *data_sz = &g_mgr->ftemp_st.data_size;
 	mtp_char *buffer = g_mgr->ftemp_st.temp_buff;
 
 	_transport_set_mtp_operation_state(MTP_STATE_DATA_TRANSFER_DL);
 	if (access(filepath, F_OK) == 0) {
-		if (*fhandle != INVALID_FILE) {
-			_util_file_close(*fhandle);
-			*fhandle = INVALID_FILE;	/* initialize */
+		if (g_mgr->ftemp_st.fhandle != NULL) {
+			_util_file_close(g_mgr->ftemp_st.fhandle);
+			g_mgr->ftemp_st.fhandle = NULL;	/* initialize */
 		}
 
 		if (remove(filepath) < 0) {
@@ -3278,8 +3270,8 @@ static mtp_bool __receive_temp_file_first_packet(mtp_char *data,
 		}
 	}
 
-	*fhandle = _util_file_open(filepath, MTP_FILE_WRITE, &error);
-	if (*fhandle == INVALID_FILE) {
+	g_mgr->ftemp_st.fhandle = _util_file_open(filepath, MTP_FILE_WRITE, &error);
+	if (g_mgr->ftemp_st.fhandle == NULL) {
 		ERR("First file handle is invalid!!");
 		__finish_receiving_file_packets(data, data_len);
 		return FALSE;
@@ -3293,14 +3285,14 @@ static mtp_bool __receive_temp_file_first_packet(mtp_char *data,
 
 	/* check whether last data packet */
 	if (*data_sz == g_mgr->ftemp_st.file_size) {
-		if (_util_file_write(*fhandle, &data[sizeof(header_container_t)],
+		if (_util_file_write(g_mgr->ftemp_st.fhandle, &data[sizeof(header_container_t)],
 					data_len - sizeof(header_container_t)) !=
 				data_len - sizeof(header_container_t)) {
 			ERR("fwrite error!");
 		}
 		*data_sz = 0;
-		_util_file_close(*fhandle);
-		*fhandle = INVALID_FILE;	/* initialize */
+		_util_file_close(g_mgr->ftemp_st.fhandle);
+		g_mgr->ftemp_st.fhandle = NULL;	/* initialize */
 		__finish_receiving_file_packets(data, data_len);
 	} else {
 		g_mgr->ftemp_st.data_count++;
@@ -3317,14 +3309,13 @@ static mtp_bool __receive_temp_file_next_packets(mtp_char *data,
 	mtp_uint32 rx_size = _get_rx_pkt_size();
 	mtp_uint32 *data_sz = &g_mgr->ftemp_st.data_size;
 	mtp_char *buffer = g_mgr->ftemp_st.temp_buff;
-	mtp_uint32 *fhandle = &g_mgr->ftemp_st.fhandle;
 
 	g_mgr->ftemp_st.data_count++;
 	g_mgr->ftemp_st.size_remaining += data_len;
 
 	if ((*data_sz + (mtp_uint32)data_len) > g_conf.write_file_size) {
 		/* copy oversized packet to temp file */
-		if (_util_file_write(*fhandle, buffer, *data_sz) != *data_sz)
+		if (_util_file_write(g_mgr->ftemp_st.fhandle, buffer, *data_sz) != *data_sz)
 			ERR("fwrite error writeSize=[%u]\n", *data_sz);
 
 		*data_sz = 0;
@@ -3337,12 +3328,12 @@ static mtp_bool __receive_temp_file_next_packets(mtp_char *data,
 	if (data_len < rx_size ||
 			g_mgr->ftemp_st.size_remaining == g_mgr->ftemp_st.file_size) {
 
-		if (_util_file_write(*fhandle, buffer, *data_sz) != *data_sz) {
+		if (_util_file_write(g_mgr->ftemp_st.fhandle, buffer, *data_sz) != *data_sz)
 			ERR("fwrite error write size=[%u]\n", *data_sz);
-		}
+
 		*data_sz = 0;
-		_util_file_close(*fhandle);
-		*fhandle = INVALID_FILE;	/* initialize */
+		_util_file_close(g_mgr->ftemp_st.fhandle);
+		g_mgr->ftemp_st.fhandle = NULL;
 		__finish_receiving_file_packets(data, data_len);
 	}
 	return TRUE;

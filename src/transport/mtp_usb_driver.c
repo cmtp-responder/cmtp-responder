@@ -337,9 +337,8 @@ static void __handle_control_request(mtp_int32 request)
 
 		DBG("USB_PTPREQUEST_RESET");
 		_reset_mtp_device();
-		if (kernel_reset == FALSE) {
+		if (kernel_reset == FALSE)
 			kernel_reset = TRUE;
-		}
 
 		status = ioctl(g_usb_fd, MTP_SEND_RESET_ACK, NULL);
 		if (status < 0) {
@@ -385,11 +384,10 @@ static void __handle_control_request(mtp_int32 request)
 			statusreq_data.code = PTP_RESPONSE_GEN_ERROR;
 		}
 
-		if (statusreq_data.code == PTP_RESPONSE_DEVICEBUSY) {
+		if (statusreq_data.code == PTP_RESPONSE_DEVICEBUSY)
 			sent_busy = TRUE;
-		} else {
+		else
 			sent_busy = FALSE;
-		}
 
 		status = ioctl(g_usb_fd, MTP_SET_SETUP_DATA, &statusreq_data);
 		if (status < 0) {
@@ -431,20 +429,18 @@ mtp_bool _transport_mq_deinit(msgq_id_t *rx_mqid, msgq_id_t *tx_mqid)
 
 	if (*rx_mqid) {
 		res = _util_msgq_deinit(rx_mqid);
-		if (res == FALSE) {
+		if (res == FALSE)
 			ERR("rx_mqid deinit Fail [%d]\n", errno);
-		} else {
+		else
 			*rx_mqid = 0;
-		}
 	}
 
 	if (*tx_mqid) {
 		res = _util_msgq_deinit(tx_mqid);
-		if (res == FALSE) {
+		if (res == FALSE)
 			ERR("tx_mqid deinit fail [%d]\n", errno);
-		} else {
+		else
 			*tx_mqid = 0;
-		}
 	}
 
 	return res;
@@ -464,9 +460,8 @@ mtp_uint32 _transport_get_usb_packet_len(void)
 		}
 	}
 
-	if (usb_speed % MTP_MAX_PACKET_SIZE_SEND_HS) {
+	if (usb_speed % MTP_MAX_PACKET_SIZE_SEND_HS)
 		return MTP_MAX_PACKET_SIZE_SEND_FS;
-	}
 
 	return MTP_MAX_PACKET_SIZE_SEND_HS;
 }

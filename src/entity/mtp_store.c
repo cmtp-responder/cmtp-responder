@@ -92,18 +92,18 @@ mtp_bool _entity_get_store_path_by_id(mtp_uint32 store_id, mtp_char *path)
 {
 	char sto_path[MTP_MAX_PATHNAME_SIZE + 1] = { 0 };
 
-	switch(store_id) {
-	case MTP_INTERNAL_STORE_ID :
+	switch (store_id) {
+	case MTP_INTERNAL_STORE_ID:
 		_util_get_internal_path(sto_path);
 		g_strlcpy(path, sto_path,
 				MTP_MAX_PATHNAME_SIZE + 1);
 		break;
-	case MTP_EXTERNAL_STORE_ID :
+	case MTP_EXTERNAL_STORE_ID:
 		_util_get_external_path(sto_path);
 		g_strlcpy(path, sto_path,
 				MTP_MAX_PATHNAME_SIZE + 1);
 		break;
-	default :
+	default:
 		ERR("No valid match for the store id [0x%x]\n", store_id);
 		return FALSE;
 
@@ -316,9 +316,8 @@ mtp_bool _entity_add_object_to_store(mtp_store_t *store, mtp_obj_t *obj)
 	/* references */
 	if (PTP_OBJECTHANDLE_ROOT != obj->obj_info->h_parent) {
 		par_obj = _entity_get_object_from_store(store, obj->obj_info->h_parent);
-		if (NULL != par_obj) {
+		if (NULL != par_obj)
 			_entity_add_reference_child_array(par_obj, obj->obj_handle);
-		}
 	}
 
 	return TRUE;
@@ -337,7 +336,7 @@ mtp_obj_t *_entity_get_object_from_store(mtp_store_t *store, mtp_uint32 handle)
 		return NULL;
 	}
 
-	while(UTIL_CHECK_LIST_NEXT(iter) == TRUE) {
+	while (UTIL_CHECK_LIST_NEXT(iter) == TRUE) {
 		obj = (mtp_obj_t *)_util_get_list_next(iter);
 
 		if (obj && obj->obj_handle == handle) {
@@ -366,12 +365,11 @@ mtp_obj_t *_entity_get_last_object_from_store(mtp_store_t *store,
 		return NULL;
 	}
 
-	while(UTIL_CHECK_LIST_NEXT(iter) == TRUE) {
+	while (UTIL_CHECK_LIST_NEXT(iter) == TRUE) {
 
 		temp_obj = (mtp_obj_t *)_util_get_list_next(iter);
-		if (temp_obj && temp_obj->obj_handle == handle) {
+		if (temp_obj && temp_obj->obj_handle == handle)
 			obj = temp_obj;
-		}
 	}
 
 	_util_deinit_list_iterator(iter);
@@ -392,7 +390,7 @@ mtp_obj_t *_entity_get_object_from_store_by_path(mtp_store_t *store,
 		return NULL;
 	}
 
-	while(UTIL_CHECK_LIST_NEXT(iter) == TRUE) {
+	while (UTIL_CHECK_LIST_NEXT(iter) == TRUE) {
 		obj = (mtp_obj_t *)_util_get_list_next(iter);
 		if (obj == NULL) {
 			ERR("Object is NULL");
@@ -434,7 +432,7 @@ mtp_uint32 _entity_get_objects_from_store(mtp_store_t *store,
 		return 0;
 	}
 
-	while(UTIL_CHECK_LIST_NEXT(iter) == TRUE) {
+	while (UTIL_CHECK_LIST_NEXT(iter) == TRUE) {
 
 		obj = (mtp_obj_t *)_util_get_list_next(iter);
 		if (obj == NULL) {
@@ -444,7 +442,7 @@ mtp_uint32 _entity_get_objects_from_store(mtp_store_t *store,
 		if ((fmt == obj->obj_info->obj_fmt) ||
 				(fmt == PTP_FORMATCODE_ALL) ||
 				(fmt == PTP_FORMATCODE_NOTUSED)) {
-			_prop_append_ele_ptparray(obj_arr, (mtp_uint32)obj);
+			_prop_append_ele_ptparray(obj_arr, obj->obj_handle);
 		}
 	}
 	_util_deinit_list_iterator(iter);
@@ -455,8 +453,6 @@ mtp_uint32 _entity_get_objects_from_store_till_depth(mtp_store_t *store,
 		mtp_uint32 obj_handle, mtp_uint32 fmt_code, mtp_uint32 depth,
 		ptp_array_t *obj_arr)
 {
-	mtp_obj_t *obj = NULL;
-
 	retv_if(store == NULL, 0);
 	retv_if(obj_arr == NULL, 0);
 
@@ -467,12 +463,9 @@ mtp_uint32 _entity_get_objects_from_store_till_depth(mtp_store_t *store,
 		return obj_arr->num_ele;
 	}
 
-	if (PTP_OBJECTHANDLE_ROOT != obj_handle) {
-		obj = _entity_get_object_from_store(store, obj_handle);
-		if (obj) {
-			_prop_append_ele_ptparray(obj_arr, (mtp_uint32)obj);
-		}
-	}
+	if (PTP_OBJECTHANDLE_ROOT != obj_handle)
+		_prop_append_ele_ptparray(obj_arr, obj_handle);
+
 	if (depth > 0) {
 		ptp_array_t *child_arr = NULL;
 		mtp_uint32 *ptr = NULL;
@@ -515,7 +508,7 @@ mtp_uint32 _entity_get_objects_from_store_by_format(mtp_store_t *store,
 		return 0;
 	}
 
-	while(UTIL_CHECK_LIST_NEXT(iter) == TRUE) {
+	while (UTIL_CHECK_LIST_NEXT(iter) == TRUE) {
 
 		obj = (mtp_obj_t *)_util_get_list_next(iter);
 		if (obj == NULL || obj->obj_info == NULL)
@@ -544,9 +537,8 @@ mtp_uint32 _entity_get_num_object_with_same_format(mtp_store_t *store,
 
 	retv_if(store == NULL, 0);
 
-	if (PTP_FORMATCODE_NOTUSED == format) {
+	if (PTP_FORMATCODE_NOTUSED == format)
 		return store->obj_list.nnodes;
-	}
 
 	iter = (slist_iterator *)_util_init_list_iterator(&(store->obj_list));
 	if (iter == NULL) {
@@ -554,7 +546,7 @@ mtp_uint32 _entity_get_num_object_with_same_format(mtp_store_t *store,
 		return 0;
 	}
 
-	while(UTIL_CHECK_LIST_NEXT(iter) == TRUE) {
+	while (UTIL_CHECK_LIST_NEXT(iter) == TRUE) {
 
 		obj = (mtp_obj_t *)_util_get_list_next(iter);
 		if (obj == NULL || obj->obj_info == NULL)
@@ -586,7 +578,7 @@ mtp_uint32 _entity_get_num_children(mtp_store_t *store, mtp_uint32 h_parent,
 		return 0;
 	}
 
-	while(UTIL_CHECK_LIST_NEXT(iter) == TRUE) {
+	while (UTIL_CHECK_LIST_NEXT(iter) == TRUE) {
 
 		obj = (mtp_obj_t *)_util_get_list_next(iter);
 		if (obj == NULL || obj->obj_info == NULL)
@@ -629,15 +621,14 @@ mtp_uint32 _entity_get_child_handles(mtp_store_t *store, mtp_uint32 h_parent,
 		return 0;
 	}
 
-	while(UTIL_CHECK_LIST_NEXT(iter) == TRUE) {
+	while (UTIL_CHECK_LIST_NEXT(iter) == TRUE) {
 
 		obj = (mtp_obj_t *)_util_get_list_next(iter);
 		if (obj == NULL || obj->obj_info == NULL)
 			continue;
 
-		if (obj->obj_info->h_parent == h_parent) {
+		if (obj->obj_info->h_parent == h_parent)
 			_prop_append_ele_ptparray(child_arr, obj->obj_handle);
-		}
 	}
 
 	_util_deinit_list_iterator(iter);
@@ -659,7 +650,7 @@ mtp_uint32 _entity_get_child_handles_with_same_format(mtp_store_t *store,
 		return 0;
 	}
 
-	while(UTIL_CHECK_LIST_NEXT(iter) == TRUE) {
+	while (UTIL_CHECK_LIST_NEXT(iter) == TRUE) {
 
 		obj = (mtp_obj_t *)_util_get_list_next(iter);
 		if (obj == NULL || obj->obj_info == NULL)
@@ -752,9 +743,9 @@ mtp_bool _entity_remove_object_mtp_store(mtp_store_t *store, mtp_obj_t *obj,
 
 				child_obj = _entity_get_object_from_store(store,
 						ptr32[i]);
-				if (NULL == child_obj) {
+				if (NULL == child_obj)
 					continue;
-				}
+
 				if (_entity_remove_object_mtp_store(store, child_obj,
 							format, response, atleast_one,
 							read_only)) {
@@ -803,7 +794,7 @@ mtp_bool _entity_remove_object_mtp_store(mtp_store_t *store, mtp_obj_t *obj,
 				DBG_SECURE("Folder[%s] contains only read-only files\n",
 						obj->file_path);
 				all_del = FALSE;
-			} else if (num_of_deleted_file < num_of_file){
+			} else if (num_of_deleted_file < num_of_file) {
 				DBG("num of files[%d] is present in folder[%s]\
 						and number of deleted files[%d]\n",
 						num_of_file, obj->file_path,
@@ -872,7 +863,7 @@ mtp_bool _entity_remove_object_mtp_store(mtp_store_t *store, mtp_obj_t *obj,
 						obj->obj_handle);
 			}
 		}
-	} else if(*atleast_one) {
+	} else if (*atleast_one) {
 		*response = PTP_RESPONSE_PARTIAL_DELETION;
 		return FALSE;
 	} else {
@@ -977,9 +968,9 @@ mtp_uint16 _entity_delete_obj_mtp_store(mtp_store_t *store,
 		}
 	}
 
-	if (all_del) {
+	if (all_del)
 		response = PTP_RESPONSE_OK;
-	} else if (atleas_one)
+	else if (atleas_one)
 		response = PTP_RESPONSE_PARTIAL_DELETION;
 
 	return response;
@@ -1148,9 +1139,9 @@ void _entity_store_recursive_enum_folder_objects(mtp_store_t *store,
 	do {
 		if (TRUE == _transport_get_usb_discon_state()) {
 			DBG("USB is disconnected");
-			if (closedir(h_dir) < 0) {
+			if (closedir(h_dir) < 0)
 				ERR("Close directory Fail");
-			}
+
 			return;
 		}
 
@@ -1183,9 +1174,9 @@ NEXT:
 				&entry);
 	} while (status);
 
-	if (closedir(h_dir) < 0) {
+	if (closedir(h_dir) < 0)
 		ERR("close directory fail");
-	}
+
 #ifdef MTP_SUPPORT_OBJECTADDDELETE_EVENT
 	_inoti_add_watch_for_fs_events(folder_name);
 #endif /*MTP_SUPPORT_OBJECTADDDELETE_EVENT*/
