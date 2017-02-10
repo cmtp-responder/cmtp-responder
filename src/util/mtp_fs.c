@@ -923,7 +923,7 @@ void _util_fill_guid_array(void *guidarray, mtp_uint32 start_index,
  */
 void FLOGD(const char *fmt, ...)
 {
-	static int written_bytes = 0;
+	static mtp_int64 written_bytes = 0;
 	FILE *fp = NULL;
 	va_list ap;
 

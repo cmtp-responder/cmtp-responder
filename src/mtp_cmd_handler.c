@@ -737,6 +737,7 @@ static void __get_object(mtp_handler_t *hdlr)
 	if (NULL == ptr) {
 		ERR("_hdlr_alloc_buf_data_container() Fail");
 		_cmd_hdlr_send_response_code(hdlr, PTP_RESPONSE_GEN_ERROR);
+		g_free(blk.data);
 		return;
 	}
 
@@ -748,9 +749,11 @@ static void __get_object(mtp_handler_t *hdlr)
 		if (EACCES == error) {
 			_cmd_hdlr_send_response_code(hdlr,
 					PTP_RESPONSE_ACCESSDENIED);
+			g_free(blk.data);
 			return;
 		}
 		_cmd_hdlr_send_response_code(hdlr, PTP_RESPONSE_GEN_ERROR);
+		g_free(blk.data);
 		return;
 	}
 
@@ -1252,6 +1255,7 @@ static void __get_device_prop_desc(mtp_handler_t *hdlr)
 	if (ptr == NULL) {
 		resp = PTP_RESPONSE_GEN_ERROR;
 		_cmd_hdlr_send_response_code(hdlr, resp);
+		g_free(blk.data);
 		return;
 	}
 
@@ -1299,6 +1303,7 @@ static void __get_device_prop_value(mtp_handler_t *hdlr)
 											if (ptr == NULL) {
 												_cmd_hdlr_send_response_code(hdlr,
 														PTP_RESPONSE_GEN_ERROR);
+												g_free(blk.data);
 												return;
 											}
 											memcpy(ptr, &batt, no_bytes);
@@ -1329,6 +1334,7 @@ static void __get_device_prop_value(mtp_handler_t *hdlr)
 												  if (ptr == NULL) {
 													  _cmd_hdlr_send_response_code(hdlr,
 															  PTP_RESPONSE_GEN_ERROR);
+													  g_free(blk.data);
 													  return;
 												  }
 
@@ -1361,6 +1367,7 @@ static void __get_device_prop_value(mtp_handler_t *hdlr)
 													  if (ptr == NULL) {
 														  _cmd_hdlr_send_response_code(hdlr,
 																  PTP_RESPONSE_GEN_ERROR);
+														  g_free(blk.data);
 														  return;
 													  }
 
@@ -1429,6 +1436,7 @@ static void __get_device_prop_value(mtp_handler_t *hdlr)
 										  if (ptr == NULL) {
 											  _cmd_hdlr_send_response_code(hdlr,
 													  PTP_RESPONSE_GEN_ERROR);
+											  g_free(blk.data);
 											  g_free(data);
 											  _util_file_close(h_file);
 											  _prop_deinit_ptparray(&val_arr);
@@ -1487,6 +1495,7 @@ static void __set_device_prop_value(mtp_handler_t *hdlr)
 	if (FALSE == _hdlr_rcv_data_container(&blk, max_bytes)) {
 		ERR("_hdlr_rcv_data_container() Fail");
 		_cmd_hdlr_send_response_code(hdlr, PTP_RESPONSE_GEN_ERROR);
+		g_free(blk.data);
 		return;
 	}
 
@@ -1724,8 +1733,10 @@ static void __set_object_references(mtp_handler_t *hdlr)
 	}
 
 	ptr = _hdlr_get_payload_data(&blk);
-	if (ptr == NULL)
+	if (ptr == NULL) {
+		g_free(blk.data);
 		return;
+	}
 
 	memcpy(&num_ref, ptr, sizeof(mtp_uint32));
 #ifdef __BIG_ENDIAN__
@@ -2682,6 +2693,7 @@ static void __get_interdep_prop_desc(mtp_handler_t *hdlr)
 				num_bytes, fmt)) {
 		ERR("_hutil_get_interdep_prop_config_list_data() Fail");
 		_cmd_hdlr_send_response_code(hdlr, PTP_RESPONSE_GEN_ERROR);
+		g_free(blk.data);
 		return;
 	}
 
@@ -2791,8 +2803,10 @@ static void __send_object_prop_list(mtp_handler_t *hdlr)
 		}
 
 		data = _hdlr_get_payload_data(&blk);
-		if (data == NULL)
+		if (data == NULL) {
+			g_free(blk.data);
 			return;
+		}
 
 		ret = _hutil_construct_object_entry_prop_list(store_id, h_parent,
 				fmt, f_size, ((hdlr->data4_send_obj.is_valid == TRUE) ?
