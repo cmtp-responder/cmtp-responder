@@ -1902,6 +1902,9 @@ ERROR_EXIT:
 #ifdef MTP_SUPPORT_ALBUM_ART
 	g_free(alb_buf);
 #endif /* MTP_SUPPORT_ALBUM_ART */
+	if (obj_info != NULL)
+		_entity_dealloc_obj_info(obj_info);
+
 	return resp;
 }
 
