@@ -5,7 +5,7 @@ ExcludeArch: %arm aarch64
 
 Name:       mtp-responder
 Summary:    Media Transfer Protocol daemon (responder)
-Version:    0.0.19
+Version:    0.0.22
 Release:    1
 Group:      Network & Connectivity/Other
 License:    Apache-2.0
@@ -57,10 +57,10 @@ ln -sf %{_unitdir}/mtp-responder.service %{_sysconfdir}/systemd/default-extra-de
 
 %files
 %manifest mtp-responder.manifest
+%license LICENSE.APLv2
 %defattr(-,root,root,-)
 %{_bindir}/mtp-responder
 %{_unitdir}/mtp-responder.service
 %{_prefix}/lib/udev/rules.d/99-mtp-responder.rules
 /opt/var/lib/misc/mtp-responder.conf
 %{upgrade_script_path}/500.%{name}-upgrade.sh
-#%license LICENSE.APLv2

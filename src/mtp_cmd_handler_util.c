@@ -1893,12 +1893,18 @@ mtp_err_t _hutil_construct_object_entry_prop_list(mtp_uint32 store_id,
 	g_free(alb_buf);
 #endif /* MTP_SUPPORT_ALBUM_ART */
 	*obj_ptr = obj;
+	if (obj_info != NULL)
+		_entity_dealloc_obj_info(obj_info);
+
 	return MTP_ERROR_NONE;
 
 ERROR_EXIT:
 #ifdef MTP_SUPPORT_ALBUM_ART
 	g_free(alb_buf);
 #endif /* MTP_SUPPORT_ALBUM_ART */
+	if (obj_info != NULL)
+		_entity_dealloc_obj_info(obj_info);
+
 	return resp;
 }
 
