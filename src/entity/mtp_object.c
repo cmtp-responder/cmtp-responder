@@ -507,6 +507,7 @@ mtp_bool _entity_check_child_obj_path(mtp_obj_t *obj,
 		if (_util_is_file_opened(child_obj->file_path) == TRUE) {
 			ERR_SECURE("File [%s] is already opened\n",
 					child_obj->file_path);
+			_prop_deinit_ptparray(&child_arr);
 			return FALSE;
 		}
 

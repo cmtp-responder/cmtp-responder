@@ -419,6 +419,7 @@ void _transport_usb_finalize(void)
 					sizeof(msgq_ptr_t) - sizeof(long), 0)) {
 			ERR("_util_msgq_send() Fail");
 		}
+		g_free(pkt.buffer);
 
 		res = _util_thread_join(g_data_rcv, &th_result);
 		if (res == FALSE)

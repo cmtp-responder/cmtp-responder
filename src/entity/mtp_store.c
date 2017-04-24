@@ -1199,7 +1199,8 @@ void _entity_list_modified_files(mtp_uint32 minutes)
 				inter_path, minutes,
 				MTP_FILES_MODIFIED_FILES);
 		DBG("find query is [%s]\n", command);
-		ret = system(command);
+		ret = _util_system_cmd_wait(command);
+
 		if (WIFSIGNALED(ret) &&
 				(WTERMSIG(ret) == SIGINT ||
 				 WTERMSIG(ret) == SIGQUIT)) {
@@ -1215,7 +1216,8 @@ void _entity_list_modified_files(mtp_uint32 minutes)
 				ext_path, minutes,
 				MTP_FILES_MODIFIED_FILES);
 		DBG("find query is [%s]\n", command);
-		ret = system(command);
+		ret = _util_system_cmd_wait(command);
+
 		if (WIFSIGNALED(ret) &&
 				(WTERMSIG(ret) == SIGINT ||
 				 WTERMSIG(ret) == SIGQUIT)) {

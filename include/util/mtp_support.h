@@ -54,5 +54,6 @@ void _util_get_parent_path(const mtp_char *fullpath, mtp_char *p_path);
 void _util_conv_wstr_to_guid(mtp_wchar *wstr, mtp_uint64 *guid);
 mtp_bool _util_get_unique_dir_path(const mtp_char *exist_path, mtp_char *new_path,
 		mtp_uint32 new_path_buf_len);
+mtp_int32 _util_system_cmd_wait(const mtp_char *cmd);
 
 #endif /* _MTP_SUPPORT_H_ */
