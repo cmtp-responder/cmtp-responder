@@ -676,6 +676,6 @@ mtp_int32 _util_system_cmd_wait(const mtp_char *cmd)
 		} else {
 			return status;
 		}
-	} while(1);
+	} while (1);
 }
 
