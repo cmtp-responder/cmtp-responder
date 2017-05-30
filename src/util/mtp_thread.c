@@ -76,9 +76,14 @@ mtp_bool _util_thread_cancel(pthread_t tid)
 {
 	mtp_int32 res;
 
+	if (tid == 0) {
+		ERR("tid is NULL\n");
+		return FALSE;
+	}
+
 	res = pthread_cancel(tid);
 	if (res != 0) {
-		ERR("pthread_cancel  Fail [%d] errno [%d]\n", tid, errno);
+		ERR("pthread_cancel Fail [%d] errno [%d]\n", tid, errno);
 		return FALSE;
 	}
 
