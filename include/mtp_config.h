@@ -77,7 +77,7 @@
  * Transport related configuration
  */
 /* Internal Storage */
-#define MTP_STORE_PATH_CHAR		"/opt/home/owner/content"
+#define MTP_INTERNAL_PATH_CHAR		"/opt/usr/home/"
 
 /* External Storage */
 #define MTP_EXTERNAL_PATH_CHAR	"/opt/media/SDCardA1"
@@ -87,7 +87,7 @@
 #define MTP_FILES_MODIFIED_FILES	"/tmp/mtp_mod_files.log"
 
 /* Base MTP USER Directory */
-#define MTP_USER_DIRECTORY		"/opt/usr/media/user"
+#define MTP_USER_DIRECTORY		"/opt/usr/home/owner/media"
 
 /* Hidden Root directory */
 #define MTP_HIDDEN_PHONE		".HiddenPhone"

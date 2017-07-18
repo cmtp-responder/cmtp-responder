@@ -21,6 +21,7 @@ BuildRequires: pkgconfig(capi-content-media-content)
 BuildRequires: pkgconfig(capi-media-metadata-extractor)
 BuildRequires: pkgconfig(capi-system-info)
 Buildrequires: pkgconfig(storage)
+BuildRequires: pkgconfig(libsystemd-daemon)
 Requires(post): /usr/bin/vconftool
 
 %define upgrade_script_path /usr/share/upgrade/scripts

@@ -155,9 +155,9 @@ void _mtp_init(add_rem_store_t sel)
 		mtp_int32 ret;
 		char inter_path[MTP_MAX_PATHNAME_SIZE + 1] = { 0 };
 
-		ret = media_content_connect();
-		if (MEDIA_CONTENT_ERROR_NONE != ret) {
-			ERR("media_content_connect() Fail(%d)", ret);
+		ret = _util_media_content_connect();
+		if (FALSE == ret) {
+			ERR("media_content_connect() Fail");
 			goto MTP_INIT_FAIL;
 		}
 
@@ -495,7 +495,7 @@ int main(int argc, char *argv[])
 	if (MTP_ERROR_NONE != ret) {
 		ERR("_main_init() Fail(%d)", ret);
 		_eh_deregister_notification_callbacks();
-		media_content_disconnect();
+		_util_media_content_disconnect();
 		return MTP_ERROR_GENERAL;
 	}
 	DBG("MTP UID = [%u] and GID = [%u]\n", getuid(), getgid());

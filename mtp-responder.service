@@ -2,9 +2,8 @@
 Description=MTP responder
 
 [Service]
-User=owner
-Group=users
-SmackProcessLabel=System
+User=network_fw
+Group=network_fw
 SupplementaryGroups=priv_mediastorage priv_externalstorage
 Type=simple
 ExecStart=/usr/bin/mtp-responder

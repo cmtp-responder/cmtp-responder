@@ -390,14 +390,14 @@ void _handle_lock_status_notification(keynode_t *key, void *data)
 		__send_events_from_device_to_pc(MTP_INTERNAL_STORE_ID,
 				PTP_EVENTCODE_STOREADDED, 0, 0);
 
-		media_content_connect();
+		_util_media_content_connect();
 	} else if (MTP_PHONE_LOCK_ON == current_val) {
 		_device_uninstall_storage(MTP_ADDREM_INTERNAL);
 
 		__send_events_from_device_to_pc(MTP_INTERNAL_STORE_ID,
 				PTP_EVENTCODE_STOREREMOVED, 0, 0);
 
-		media_content_disconnect();
+		_util_media_content_disconnect();
 	}
 
 	return;

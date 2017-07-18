@@ -30,6 +30,11 @@
 #include "mtp_fs.h"
 #include <storage/storage.h>
 #include <sys/stat.h>
+#include <systemd/sd-login.h>
+#include <sys/types.h>
+//#include <grp.h>
+#include <media_content_internal.h>
+#include <pwd.h>
 
 static phone_state_t g_ph_status = { 0 };
 
@@ -346,43 +351,94 @@ static bool _util_device_external_supported_cb(int storage_id, storage_type_e ty
 void _util_get_external_path(char *external_path)
 {
 	int error = STORAGE_ERROR_NONE;
+
 	error = storage_foreach_device_supported(_util_device_external_supported_cb, external_path);
 
 	if (error != STORAGE_ERROR_NONE) {
 		ERR("get external storage path Fail");
-		strncpy(external_path, MTP_EXTERNAL_PATH_CHAR, strlen(MTP_EXTERNAL_PATH_CHAR));
+		if (external_path != NULL)
+			strncpy(external_path, MTP_EXTERNAL_PATH_CHAR, strlen(MTP_EXTERNAL_PATH_CHAR) + 1);
 	}
 }
-
-static bool _util_device_internal_supported_cb(int storage_id, storage_type_e type,
-	storage_state_e state, const char *path, void *user_data)
+uid_t _util_get_active_user()
 {
-	char *storage_path = (char *)user_data;
+	uid_t *active_user_list = NULL;
+	uid_t active_user = 0;
+	int user_cnt = 0;
 
-	//DBG("storage id: %d, path: %s", storage_id, path);
+	user_cnt = sd_get_active_uids(&active_user_list);
 
-	if (type == STORAGE_TYPE_INTERNAL && path != NULL) {
-		strncpy(storage_path, path, strlen(path));
-		//DBG("internal storage path : %s", storage_path);
+	if (user_cnt <= 0) {
+		ERR("Active user not exists : %d", user_cnt);
 
-		if (storage_get_root_directory(storage_id, &storage_path) != STORAGE_ERROR_NONE) {
-			ERR("get internal storage path Fail");
-			return FALSE;
-		} else {
-			//DBG("get internal storage path : %s", storage_path);
-		}
+		if (active_user_list != NULL)
+			free(active_user_list);
+
+		return -1;
+	}
+
+	if (active_user_list == NULL) {
+		ERR("active_user_list is NULL");
+		return -1;
+	}
+
+	active_user = active_user_list[0];
+
+	DBG("Active UID : %d", active_user);
+
+	free(active_user_list);
+
+	if (active_user <= 0) {
+		ERR("UID is not proper value : %d", active_user);
+		return -1;
+	}
+
+	return active_user;
+}
+
+void _util_get_internal_path(char *internal_path)
+{
+	struct passwd *pwd;
+	uid_t active_user = 0;
+	char *active_name = NULL;
+
+	active_user = _util_get_active_user();
+	pwd = getpwuid(active_user);
+	active_name = pwd->pw_name;
+
+	if (active_name == NULL) {
+		ERR("active_name is NULL");
+		strncpy(internal_path, MTP_USER_DIRECTORY, strlen(MTP_USER_DIRECTORY) + 1);
+		return;
+	}
+
+	if (internal_path != NULL) {
+		strncpy(internal_path, MTP_INTERNAL_PATH_CHAR, strlen(MTP_INTERNAL_PATH_CHAR) + 1);
+		strncat(internal_path, active_name, strlen(active_name) + 1);
+		strncat(internal_path, "/media", 7);
+	}
+
+	ERR("internal path is %s", internal_path);
+}
+
+mtp_bool _util_media_content_connect()
+{
+	mtp_int32 ret = 0;
+	uid_t active_user = 0;
+
+	active_user = _util_get_active_user();
+
+	ret = media_content_connect_with_uid(active_user);
+	if (ret != MEDIA_CONTENT_ERROR_NONE) {
+		ERR("media_content_connect() failed : %d", ret);
+		return FALSE;
 	}
 
 	return TRUE;
 }
 
-void _util_get_internal_path(char *internal_path)
+void _util_media_content_disconnect()
 {
-	int error = STORAGE_ERROR_NONE;
-	error = storage_foreach_device_supported(_util_device_internal_supported_cb, internal_path);
-
-	if (error != STORAGE_ERROR_NONE) {
-		ERR("get internal storage path Fail");
-		strncpy(internal_path, MTP_STORE_PATH_CHAR, strlen(MTP_STORE_PATH_CHAR));
-	}
+	media_content_disconnect();
 }
+

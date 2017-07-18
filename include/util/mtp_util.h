@@ -25,6 +25,7 @@
 #define LOG_TAG "MTP-RESPONDER"
 #endif /* LOG_TAG */
 #include <dlog.h>
+#include <media_content.h>
 
 #define FIND_CMD_LEN				300
 #define FIND_CMD	"/usr/bin/find %s \\( -iname '*.jpg' -o -iname '*.gif' " \
@@ -148,4 +149,8 @@ phone_status_t _util_get_local_lock_status(void);
 void _util_set_local_lock_status(const phone_status_t val);
 void _util_get_external_path(char *external_path);
 void _util_get_internal_path(char *internal_path);
+mtp_bool _util_media_content_connect();
+void _util_media_content_disconnect();
+
+
 #endif /* _MTP_UTIL_H_ */
