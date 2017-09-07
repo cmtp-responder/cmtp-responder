@@ -24,8 +24,6 @@ Buildrequires: pkgconfig(storage)
 BuildRequires: pkgconfig(libsystemd-daemon)
 Requires(post): /usr/bin/vconftool
 
-%define upgrade_script_path /usr/share/upgrade/scripts
-
 %description
 This package includes a daemon which processes Media Transper Protocol(MTP) commands as MTP responder role.
 
@@ -47,9 +45,6 @@ make %{?jobs:-j%jobs}
 mkdir -p %{buildroot}/%{_prefix}/lib/udev/rules.d
 cp packaging/99-mtp-responder.rules %{buildroot}/%{_prefix}/lib/udev/rules.d/99-mtp-responder.rules
 
-mkdir -p %{buildroot}%{upgrade_script_path}
-cp -f scripts/500.%{name}-upgrade.sh %{buildroot}%{upgrade_script_path}
-
 install -D -m 0644 mtp-responder.service %{buildroot}/%{_unitdir}/mtp-responder.service
 
 %post
@@ -64,4 +59,3 @@ ln -sf %{_unitdir}/mtp-responder.service %{_sysconfdir}/systemd/default-extra-de
 %{_unitdir}/mtp-responder.service
 %{_prefix}/lib/udev/rules.d/99-mtp-responder.rules
 /opt/var/lib/misc/mtp-responder.conf
-%{upgrade_script_path}/500.%{name}-upgrade.sh
