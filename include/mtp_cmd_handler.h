@@ -73,7 +73,7 @@ typedef struct {
  */
 typedef struct {
 	mtp_char cmd_buf[MTP_MAX_CMD_BLOCK_SIZE];
-	mtp_char header_buf[MTP_USB_HEADER_LENGTH];
+	mtp_char header_buf[MTP_USB_HEADER_LENGTH + 1];
 	mtp_uint32 cmd_size;
 	mtp_uint32 data_size;
 	mtp_uint32 data_count;

@@ -2131,7 +2131,7 @@ static void __set_object_prop_list(mtp_handler_t *hdlr)
 	mtp_uint32 max_bytes = 0;
 	mtp_uint32 h_obj = 0;
 	mtp_uint32 prop_id = 0;
-	mtp_uint32 data_type = 0;
+	mtp_uint16 data_type = 0;
 	mtp_uchar *temp = NULL;
 	mtp_int32 bytes_left = 0;
 	mtp_uint32 prop_val_sz = 0;
@@ -2217,7 +2217,7 @@ static void __set_object_prop_list(mtp_handler_t *hdlr)
 
 		/* Update property*/
 		ret = _hutil_update_object_property(h_obj, prop_id,
-				(mtp_uint16 *)&data_type, temp, bytes_left,
+				&data_type, temp, bytes_left,
 				&prop_val_sz);
 
 		switch (ret) {
