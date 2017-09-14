@@ -738,6 +738,7 @@ mtp_bool _entity_remove_object_mtp_store(mtp_store_t *store, mtp_obj_t *obj,
 							format operation is cancelled.");
 					*response =
 						PTP_RESPONSE_PARTIAL_DELETION;
+					_prop_deinit_ptparray(&child_arr);
 					return FALSE;
 				}
 
@@ -764,13 +765,12 @@ mtp_bool _entity_remove_object_mtp_store(mtp_store_t *store, mtp_obj_t *obj,
 								operation is cancelled.");
 						*response =
 							PTP_RESPONSE_PARTIAL_DELETION;
+						_prop_deinit_ptparray(&child_arr);
 						return FALSE;
 					}
 				}
 
 			}
-			_prop_deinit_ptparray(&child_arr);
-
 		} else {
 			/* Non-Enumerated Folder */
 			mtp_uint32 num_of_deleted_file = 0;
@@ -786,6 +786,7 @@ mtp_bool _entity_remove_object_mtp_store(mtp_store_t *store, mtp_obj_t *obj,
 				if (MTP_ERROR_ACCESS_DENIED == ret)
 					*response =
 						PTP_RESPONSE_ACCESSDENIED;
+				_prop_deinit_ptparray(&child_arr);
 				return FALSE;
 			}
 			if (num_of_file == 0)
@@ -803,6 +804,8 @@ mtp_bool _entity_remove_object_mtp_store(mtp_store_t *store, mtp_obj_t *obj,
 				all_del = FALSE;
 			}
 		}
+		_prop_deinit_ptparray(&child_arr);
+
 		_util_scan_folder_contents_in_db(obj->file_path);
 		if (all_del) {
 			g_snprintf(g_last_deleted,
