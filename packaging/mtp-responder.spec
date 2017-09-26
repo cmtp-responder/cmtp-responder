@@ -36,6 +36,8 @@ cp %{SOURCE1001} .
 
 
 %build
+export CFLAGS="$CFLAGS -Wno-deprecated-declarations"
+
 %cmake .
 
 make %{?jobs:-j%jobs}
