@@ -152,14 +152,7 @@ void _mtp_init(add_rem_store_t sel)
 
 	/* Internal Storage */
 	if (MTP_PHONE_LOCK_OFF == _util_get_local_lock_status()) {
-		mtp_int32 ret;
 		char inter_path[MTP_MAX_PATHNAME_SIZE + 1] = { 0 };
-
-		ret = _util_media_content_connect();
-		if (FALSE == ret) {
-			ERR("media_content_connect() Fail");
-			goto MTP_INIT_FAIL;
-		}
 
 		_util_get_internal_path(inter_path);
 		if (access(inter_path, F_OK) < 0) {
@@ -488,6 +481,12 @@ int main(int argc, char *argv[])
 
 	if (_eh_register_notification_callbacks() == FALSE) {
 		ERR("_eh_register_notification_callbacks() Fail");
+		return MTP_ERROR_GENERAL;
+	}
+
+	ret = _util_media_content_connect();
+	if (true != ret) {
+		ERR("media_content_connect() Fail(%d)", ret);
 		return MTP_ERROR_GENERAL;
 	}
 
