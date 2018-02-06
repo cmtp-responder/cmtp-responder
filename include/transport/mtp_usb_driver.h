@@ -17,11 +17,21 @@
 #ifndef _MTP_USB_DRIVER_H_
 #define _MTP_USB_DRIVER_H_
 
+#include "mtp_config.h"
 #include "mtp_datatype.h"
 #include "mtp_msgq.h"
 
 /* Start of driver related defines */
 #define MTP_DRIVER_PATH			"/dev/usb_mtp_gadget"
+
+/* FunctionFS endpoint paths  */
+#ifndef MTP_FFS_PATH
+#define MTP_FFS_PATH "/dev/usb-funcs/mtp"
+#endif
+#define MTP_EP0_PATH       MTP_FFS_PATH "/ep0"
+#define MTP_EP_IN_PATH     MTP_FFS_PATH "/ep1"
+#define MTP_EP_OUT_PATH    MTP_FFS_PATH "/ep2"
+#define MTP_EP_STATUS_PATH MTP_FFS_PATH "/ep3"
 
 /* These values come from f_mtp_slp.h of kernel source */
 #define MTP_IOCTL_LETTER		'Z'
@@ -44,6 +54,32 @@ typedef struct mtp_max_pkt_size {
 	mtp_uint32 rx;
 } mtp_max_pkt_size_t;
 
+/* Transport driver interface */
+typedef struct mtp_usb_driver {
+	mtp_bool (*transport_init_usb_device)(void);
+	void *(*transport_thread_fake_usb_read)(void *arg);
+	void *(*transport_thread_fake_usb_write)(void *arg);
+	void (*transport_deinit_usb_device)(void);
+	void *(*transport_thread_usb_write)(void *arg);
+	void *(*transport_thread_usb_read)(void *arg);
+	void *(*transport_thread_usb_control)(void *arg);
+	mtp_int32 (*transport_mq_init)(msgq_id_t *rx_ipc, msgq_id_t *tx_ipc);
+	mtp_bool (*transport_mq_deinit)(msgq_id_t *rx_ipc, msgq_id_t *tx_ipc);
+	mtp_uint32 (*transport_get_usb_packet_len)(void);
+	mtp_uint32 (*get_tx_pkt_size)(void);
+	mtp_uint32 (*get_rx_pkt_size)(void);
+} mtp_usb_driver_t;
+
+extern const mtp_usb_driver_t mtp_usb_driver_slp;
+extern const mtp_usb_driver_t mtp_usb_driver_ffs;
+
+typedef enum {
+	MTP_TRANSPORT_SLP = 0,
+	MTP_TRANSPORT_FFS,
+	MTP_TRANSPORT_NUMBER,	/* number of supported transports */
+	MTP_TRANSPORT_UNKNOWN,
+} mtp_transport_type_t;
+
 /* Maximum repeat count for USB error recovery */
 #define MTP_USB_ERROR_MAX_RETRY		5
 
@@ -51,10 +87,12 @@ mtp_bool _transport_init_usb_device(void);
 void _transport_deinit_usb_device(void);
 void *_transport_thread_usb_write(void *arg);
 void *_transport_thread_usb_read(void *arg);
+void *_transport_thread_usb_control(void *arg);
 mtp_int32 _transport_mq_init(msgq_id_t *rx_mqid, msgq_id_t *tx_mqid);
 mtp_bool _transport_mq_deinit(msgq_id_t *rx_mqid, msgq_id_t *tx_mqid);
 mtp_uint32 _transport_get_usb_packet_len(void);
 mtp_uint32 _get_tx_pkt_size(void);
 mtp_uint32 _get_rx_pkt_size(void);
+mtp_transport_type_t _transport_get_type(void);
 
 #endif /* _MTP_USB_DRIVER_H_ */

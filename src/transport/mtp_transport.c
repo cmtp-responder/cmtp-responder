@@ -40,6 +40,7 @@ static mtp_mgr_t *g_mgr = &g_mtp_mgr;
 static mtp_bool g_usb_threads_created = FALSE;
 static pthread_t g_tx_thrd = 0;
 static pthread_t g_rx_thrd = 0;
+static pthread_t g_ctrl_thrd = 0;
 static pthread_t g_data_rcv = 0;
 static msgq_id_t mtp_to_usb_mqid;
 static msgq_id_t g_usb_to_mtp_mqid;
@@ -290,6 +291,7 @@ static mtp_err_t __transport_init_io()
 	mtp_int32 res = 0;
 	thread_func_t usb_write_thread = _transport_thread_usb_write;
 	thread_func_t usb_read_thread = _transport_thread_usb_read;
+	thread_func_t usb_control_thread = _transport_thread_usb_control;
 
 	res = _util_thread_create(&g_tx_thrd, "usb write thread",
 			PTHREAD_CREATE_JOINABLE, usb_write_thread,
@@ -307,6 +309,17 @@ static mtp_err_t __transport_init_io()
 		goto cleanup;
 	}
 
+	if (_transport_get_type() == MTP_TRANSPORT_FFS) {
+		res = _util_thread_create(&g_ctrl_thrd, "usb control thread",
+					  PTHREAD_CREATE_JOINABLE,
+					  usb_control_thread,
+					  NULL);
+		if (FALSE == res) {
+			ERR("CTRL thread creation failed\n");
+			goto cleanup;
+		}
+	}
+
 	g_usb_threads_created = TRUE;
 
 	return MTP_ERROR_NONE;
@@ -314,6 +327,11 @@ static mtp_err_t __transport_init_io()
 cleanup:
 	_util_print_error();
 
+	if (g_ctrl_thrd) {
+		res = _util_thread_cancel(g_ctrl_thrd);
+		DBG("pthread_cancel [%d]\n", res);
+		g_ctrl_thrd = 0;
+	}
 	if (g_rx_thrd) {
 		res = _util_thread_cancel(g_rx_thrd);
 		DBG("pthread_cancel [%d]\n", res);
@@ -336,6 +354,19 @@ static void __transport_deinit_io()
 		return;
 	}
 	errno = 0;
+
+	if (_transport_get_type() == MTP_TRANSPORT_FFS) {
+		if (FALSE == _util_thread_cancel(g_ctrl_thrd)) {
+			ERR("Fail to cancel pthread of g_ctrl_thrd\n");
+		} else {
+			DBG("Succeed to cancel pthread of g_ctrl_thrd\n");
+		}
+
+		if (_util_thread_join(g_ctrl_thrd, 0) == FALSE)
+			ERR("pthread_join of g_ctrl_thrd failed\n");
+
+		g_ctrl_thrd = 0;
+	}
 
 	if (FALSE == _util_thread_cancel(g_rx_thrd))
 		ERR("_util_thread_cancel(rx) Fail");
