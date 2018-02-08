@@ -9,3 +9,5 @@ Type=simple
 ExecStart=/usr/bin/mtp-responder
 KillMode=process
 SmackProcessLabel=System
+USBFunctionDescriptors=/etc/mtp-responder/descs
+USBFunctionStrings=/etc/mtp-responder/strs

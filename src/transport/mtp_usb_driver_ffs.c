@@ -25,6 +25,7 @@
 #include <glib.h>
 #include "mtp_usb_driver.h"
 #include "mtp_device.h"
+#include "mtp_descs_strings.h"
 #include "ptp_datacodes.h"
 #include "mtp_support.h"
 #include "ptp_container.h"
@@ -33,8 +34,7 @@
 #include "mtp_transport.h"
 #include "mtp_event_handler.h"
 #include <sys/prctl.h>
-#include <linux/usb/ch9.h>
-#include <linux/usb/functionfs.h>
+#include <systemd/sd-daemon.h>
 
 /*
  * GLOBAL AND EXTERN VARIABLES
@@ -44,15 +44,6 @@ extern mtp_config_t g_conf;
 /*
  * STATIC VARIABLES AND FUNCTIONS
  */
-#ifndef FUNCTIONFS_DESCRIPTORS_MAGIC_V2
-#define FUNCTIONFS_DESCRIPTORS_MAGIC_V2 3
-enum functionfs_flags {
-	FUNCTIONFS_HAS_FS_DESC = 1,
-	FUNCTIONFS_HAS_HS_DESC = 2,
-	FUNCTIONFS_HAS_SS_DESC = 4,
-	FUNCTIONFS_HAS_MS_OS_DESC = 8,
-};
-#endif
 
 /*PIMA15740-2000 spec*/
 #define USB_PTPREQUEST_CANCELIO   0x64    /* Cancel request */
@@ -61,126 +52,6 @@ enum functionfs_flags {
 #define USB_PTPREQUEST_GETSTATUS  0x67    /* Get Device Status */
 #define USB_PTPREQUEST_CANCELIO_SIZE 6
 #define USB_PTPREQUEST_GETSTATUS_SIZE 12
-
-#define cpu_to_le16(x)  htole16(x)
-#define cpu_to_le32(x)  htole32(x)
-#define le32_to_cpu(x)  le32toh(x)
-#define le16_to_cpu(x)  le16toh(x)
-
-static const struct {
-	struct {
-		__le32 magic;
-		__le32 length;
-		__le32 flags;
-		__le32 fs_count;
-		__le32 hs_count;
-		// __le32 os_count;
-	} header;
-	struct {
-		struct usb_interface_descriptor intf;
-		struct usb_endpoint_descriptor_no_audio bulk_in;
-		struct usb_endpoint_descriptor_no_audio bulk_out;
-		struct usb_endpoint_descriptor_no_audio int_in;
-	} __attribute__((packed)) fs_descs, hs_descs;
-	// struct {} __attribute__((packed)) os_descs;
-} __attribute__((packed)) descriptors = {
-	.header = {
-		.magic = cpu_to_le32(FUNCTIONFS_DESCRIPTORS_MAGIC_V2),
-		.length = cpu_to_le32(sizeof(descriptors)),
-		.flags = FUNCTIONFS_HAS_FS_DESC | FUNCTIONFS_HAS_HS_DESC, // | FUNCTIONFS_HAS_MS_OS_DESC,
-		.fs_count = 4,
-		.hs_count = 4,
-		// .os_count = 0;
-	},
-	.fs_descs = {
-		// drivers/usb/gadget/f_mtp_slp.c:207
-		.intf = {
-			.bLength = sizeof(descriptors.fs_descs.intf),
-			.bDescriptorType = USB_DT_INTERFACE,
-			.bNumEndpoints = 3,
-			.bInterfaceClass = USB_CLASS_STILL_IMAGE,
-			.bInterfaceSubClass = 1,
-			.bInterfaceProtocol = 1,
-			.iInterface = 1,
-		},
-		.bulk_in = {
-			.bLength = USB_DT_ENDPOINT_SIZE,
-			.bDescriptorType = USB_DT_ENDPOINT,
-			.bEndpointAddress = 1 | USB_DIR_IN,
-			.bmAttributes = USB_ENDPOINT_XFER_BULK,
-			.wMaxPacketSize = __constant_cpu_to_le16(64),
-		},
-		.bulk_out = {
-			.bLength = USB_DT_ENDPOINT_SIZE,
-			.bDescriptorType = USB_DT_ENDPOINT,
-			.bEndpointAddress = 2 | USB_DIR_OUT,
-			.bmAttributes = USB_ENDPOINT_XFER_BULK,
-			.wMaxPacketSize = __constant_cpu_to_le16(64),
-		},
-		.int_in = {
-			.bLength = USB_DT_ENDPOINT_SIZE,
-			.bDescriptorType = USB_DT_ENDPOINT,
-			.bEndpointAddress = 3 | USB_DIR_IN,
-			.bmAttributes = USB_ENDPOINT_XFER_INT,
-			.wMaxPacketSize = __constant_cpu_to_le16(64),
-			.bInterval = 6,
-		},
-	},
-	.hs_descs = {
-		.intf = {
-			.bLength = sizeof(descriptors.fs_descs.intf),
-			.bDescriptorType = USB_DT_INTERFACE,
-			.bNumEndpoints = 3,
-			.bInterfaceClass = USB_CLASS_STILL_IMAGE,
-			.bInterfaceSubClass = 1,
-			.bInterfaceProtocol = 1,
-			.iInterface = 1,
-		},
-		.bulk_in = {
-			.bLength = USB_DT_ENDPOINT_SIZE,
-			.bDescriptorType = USB_DT_ENDPOINT,
-			.bEndpointAddress = 1 | USB_DIR_IN,
-			.bmAttributes = USB_ENDPOINT_XFER_BULK,
-			.wMaxPacketSize = __constant_cpu_to_le16(512),
-		},
-		.bulk_out = {
-			.bLength = USB_DT_ENDPOINT_SIZE,
-			.bDescriptorType = USB_DT_ENDPOINT,
-			.bEndpointAddress = 2 | USB_DIR_OUT,
-			.bmAttributes = USB_ENDPOINT_XFER_BULK,
-			.wMaxPacketSize = __constant_cpu_to_le16(512),
-		},
-		.int_in = {
-			.bLength = USB_DT_ENDPOINT_SIZE,
-			.bDescriptorType = USB_DT_ENDPOINT,
-			.bEndpointAddress = 3 | USB_DIR_IN,
-			.bmAttributes = USB_ENDPOINT_XFER_INT,
-			.wMaxPacketSize = __constant_cpu_to_le16(64),
-			.bInterval = 6,
-		},
-	},
-};
-
-#define STR_INTERFACE "Samsung MTP"
-
-static const struct {
-	struct usb_functionfs_strings_head header;
-	struct {
-		__le16 code;
-		const char str1[sizeof(STR_INTERFACE)];
-	} __attribute__((packed)) lang0;
-} __attribute__((packed)) strings = {
-	.header = {
-		.magic = cpu_to_le32(FUNCTIONFS_STRINGS_MAGIC),
-		.length = cpu_to_le32(sizeof(strings)),
-		.str_count = cpu_to_le32(1),
-		.lang_count = cpu_to_le32(1),
-	},
-	.lang0 = {
-		cpu_to_le16(0x0409), /* en-us */
-		STR_INTERFACE,
-	},
-};
 
 static mtp_int32 g_usb_ep0 = -1;       /* read (g_usb_ep0, ...) */
 static mtp_int32 g_usb_ep_in = -1;     /* write (g_usb_ep_in, ...) */
@@ -202,6 +73,15 @@ static void __handle_control_request(mtp_int32 request);
 static mtp_bool __io_init()
 {
 	int ret;
+
+	if (sd_listen_fds(0) >= 4) {
+		g_usb_ep0 = SD_LISTEN_FDS_START;
+		g_usb_ep_in = SD_LISTEN_FDS_START + 1;
+		g_usb_ep_out = SD_LISTEN_FDS_START + 2;
+		g_usb_ep_status = SD_LISTEN_FDS_START + 3;
+
+		return TRUE;
+	}
 
 	g_usb_ep0 = open(MTP_EP0_PATH, O_RDWR);
 	if (g_usb_ep0 < 0)

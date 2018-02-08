@@ -13,7 +13,7 @@ AUX_SOURCE_DIRECTORY(${CMAKE_SOURCE_DIR}/src/util SRCS)
 
 INCLUDE(FindPkgConfig)
 pkg_check_modules(pkgs REQUIRED glib-2.0 capi-content-media-content
-	capi-media-metadata-extractor vconf dlog tapi capi-system-info storage libsystemd-daemon)
+	capi-media-metadata-extractor vconf dlog tapi capi-system-info storage libsystemd-daemon libsystemd)
 
 FOREACH(flag ${pkgs_CFLAGS})
 	SET(EXTRA_CFLAGS "${EXTRA_CFLAGS} ${flag}")
@@ -30,3 +30,13 @@ TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${pkgs_LDFLAGS} pthread rt gcrypt)
 
 INSTALL(TARGETS ${PROJECT_NAME} DESTINATION bin)
 INSTALL(FILES mtp-responder.conf DESTINATION /opt/var/lib/misc)
+
+ADD_EXECUTABLE(extract_descs_strs ${CMAKE_SOURCE_DIR}/src/extract_descs/mtp_extract_descs_strs.c
+	${CMAKE_SOURCE_DIR}/src/transport/mtp_descs_strings.c)
+ADD_CUSTOM_COMMAND(OUTPUT descs strs
+	COMMAND ./extract_descs_strs
+	DEPENDS extract_descs_strs)
+ADD_CUSTOM_TARGET(descs_strs ALL DEPENDS descs strs)
+
+INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/descs DESTINATION /etc/mtp-responder)
+INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/strs DESTINATION /etc/mtp-responder)

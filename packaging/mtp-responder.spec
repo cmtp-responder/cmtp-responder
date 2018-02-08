@@ -22,6 +22,7 @@ BuildRequires: pkgconfig(capi-media-metadata-extractor)
 BuildRequires: pkgconfig(capi-system-info)
 Buildrequires: pkgconfig(storage)
 BuildRequires: pkgconfig(libsystemd-daemon)
+BuildRequires: pkgconfig(libsystemd)
 Requires(post): /usr/bin/vconftool
 
 %define upgrade_script_path /usr/share/upgrade/scripts
@@ -53,6 +54,7 @@ mkdir -p %{buildroot}%{upgrade_script_path}
 cp -f scripts/500.%{name}-upgrade.sh %{buildroot}%{upgrade_script_path}
 
 install -D -m 0644 mtp-responder.service %{buildroot}/%{_unitdir}/mtp-responder.service
+install -D -m 0644 mtp-responder.socket %{buildroot}/%{_unitdir}/mtp-responder.socket
 
 %post
 mkdir -p %{_sysconfdir}/systemd/default-extra-dependencies/ignore-units.d/
@@ -64,6 +66,9 @@ ln -sf %{_unitdir}/mtp-responder.service %{_sysconfdir}/systemd/default-extra-de
 %defattr(-,root,root,-)
 %{_bindir}/mtp-responder
 %{_unitdir}/mtp-responder.service
+%{_unitdir}/mtp-responder.socket
 %{_prefix}/lib/udev/rules.d/99-mtp-responder.rules
 /opt/var/lib/misc/mtp-responder.conf
 %{upgrade_script_path}/500.%{name}-upgrade.sh
+/etc/mtp-responder/descs
+/etc/mtp-responder/strs

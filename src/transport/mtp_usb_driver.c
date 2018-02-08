@@ -15,6 +15,7 @@
  */
 
 #include <unistd.h>
+#include <systemd/sd-daemon.h>
 #include "mtp_usb_driver.h"
 
 static const mtp_usb_driver_t *usb_driver;
@@ -26,7 +27,7 @@ mtp_bool _transport_init_usb_device(void)
 {
 	if (access(MTP_DRIVER_PATH, F_OK) == 0) {
 		usb_driver = &mtp_usb_driver_slp;
-	} else if (access(MTP_EP0_PATH, F_OK) == 0) {
+	} else if (access(MTP_EP0_PATH, F_OK) == 0 || sd_listen_fds(0) >= 4) {
 		usb_driver = &mtp_usb_driver_ffs;
 	} else {
 		ERR("No suport for USB gadgets in kernel");

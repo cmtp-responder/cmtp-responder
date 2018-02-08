@@ -1,0 +1,6 @@
+[Unit]
+Description=MTP responder functionfs socket
+
+[Socket]
+ListenUSBFunction=/dev/usb-funcs/mtp
+Service=mtp-responder.service
