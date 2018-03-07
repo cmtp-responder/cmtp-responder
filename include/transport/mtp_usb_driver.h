@@ -26,7 +26,7 @@
 
 /* FunctionFS endpoint paths  */
 #ifndef MTP_FFS_PATH
-#define MTP_FFS_PATH "/dev/usb-funcs/mtp"
+#define MTP_FFS_PATH "/dev/usb-funcs/mtp/default"
 #endif
 #define MTP_EP0_PATH       MTP_FFS_PATH "/ep0"
 #define MTP_EP_IN_PATH     MTP_FFS_PATH "/ep1"

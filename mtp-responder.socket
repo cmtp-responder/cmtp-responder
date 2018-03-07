@@ -2,5 +2,5 @@
 Description=MTP responder functionfs socket
 
 [Socket]
-ListenUSBFunction=/dev/usb-funcs/mtp
+ListenUSBFunction=/dev/usb-funcs/mtp/default
 Service=mtp-responder.service
