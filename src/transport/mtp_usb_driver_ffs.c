@@ -33,6 +33,7 @@
 #include "mtp_thread.h"
 #include "mtp_transport.h"
 #include "mtp_event_handler.h"
+#include "mtp_init.h"
 #include <sys/prctl.h>
 #include <systemd/sd-daemon.h>
 
@@ -75,6 +76,7 @@ static mtp_bool __io_init()
 	int ret;
 
 	if (sd_listen_fds(0) >= 4) {
+		DBG("socket-activated");
 		g_usb_ep0 = SD_LISTEN_FDS_START;
 		g_usb_ep_in = SD_LISTEN_FDS_START + 1;
 		g_usb_ep_out = SD_LISTEN_FDS_START + 2;
@@ -428,6 +430,15 @@ static void *ffs_transport_thread_usb_control(void *arg)
 			    event.u.setup.wLength);
 			__setup(g_usb_ep0, &event.u.setup);
 			break;
+		case FUNCTIONFS_ENABLE:
+			DBG("ENABLE");
+			_util_set_local_usb_status(MTP_PHONE_USB_CONNECTED);
+			break;
+		case FUNCTIONFS_DISABLE:
+			DBG("DISABLE");
+			_util_set_local_usb_status(MTP_PHONE_USB_DISCONNECTED);
+			_eh_send_event_req_to_eh_thread(EVENT_USB_REMOVED, 0, 0, NULL);
+			break;
 		}
 	} while (status > 0);
 
@@ -463,6 +474,8 @@ static mtp_int32 __handle_usb_read_err(mtp_int32 err,
 				ERR("_transport_init_usb_device Fail");
 				continue;
 			}
+		} else if (err < 0 && errno == ESHUTDOWN) {
+			DBG("ESHUTDOWN");
 		} else {
 			ERR("Unknown error : %d, errno [%d] \n", err, errno);
 			break;
@@ -483,10 +496,11 @@ static void __clean_up_msg_queue(void *mq_id)
 {
 	mtp_int32 len = 0;
 	msgq_ptr_t pkt = { 0 };
-	msgq_id_t l_mqid = *(msgq_id_t *)mq_id;
+	msgq_id_t l_mqid;
 
 	ret_if(mq_id == NULL);
 
+	l_mqid = *(msgq_id_t *)mq_id;
 	_transport_set_control_event(PTP_EVENTCODE_CANCELTRANSACTION);
 	while (TRUE == _util_msgq_receive(l_mqid, (void *)&pkt,
 					  sizeof(msgq_ptr_t) - sizeof(long), 1, &len)) {

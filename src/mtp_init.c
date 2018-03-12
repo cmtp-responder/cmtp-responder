@@ -32,6 +32,7 @@
 #include "mtp_transport.h"
 #include "mtp_util.h"
 #include "mtp_media_info.h"
+#include "mtp_usb_driver.h"
 
 /*
  * GLOBAL AND EXTERN VARIABLES
@@ -488,6 +489,11 @@ static inline int _main_init()
 int main(int argc, char *argv[])
 {
 	mtp_int32 ret;
+
+	if (_transport_select_driver() == FALSE) {
+		ERR("_transport_select_driver fail");
+		return MTP_ERROR_GENERAL;
+	}
 
 	if (_eh_register_notification_callbacks() == FALSE) {
 		ERR("_eh_register_notification_callbacks() Fail");

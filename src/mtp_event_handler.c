@@ -60,22 +60,30 @@ mtp_bool _eh_register_notification_callbacks(void)
 	mtp_int32 ret;
 	phone_status_t val = 0;
 
-	_util_get_usb_status(&val);
-	_util_set_local_usb_status(val);
-	ret = vconf_notify_key_changed(VCONFKEY_SYSMAN_USB_STATUS,
-			__handle_usb_notification, NULL);
-	if (ret < 0) {
-		ERR("vconf_notify_key_changed(%s) Fail", VCONFKEY_SYSMAN_USB_STATUS);
-		return FALSE;
-	}
+	/* For FFS transport we rely on ep0 events */
+	if (_transport_get_type() == MTP_TRANSPORT_FFS) {
+		DBG("Using FFS transport, assuming established connection");
+		_util_set_local_usb_status(MTP_PHONE_USB_DISCONNECTED);
+		_util_set_local_usbmode_status(1);
+	} else {
+		DBG("Using legacy transport, registering vconf notifier");
+		_util_get_usb_status(&val);
+		_util_set_local_usb_status(val);
+		ret = vconf_notify_key_changed(VCONFKEY_SYSMAN_USB_STATUS,
+				__handle_usb_notification, NULL);
+		if (ret < 0) {
+			ERR("vconf_notify_key_changed(%s) Fail", VCONFKEY_SYSMAN_USB_STATUS);
+			return FALSE;
+		}
 
-	_util_get_usbmode_status(&val);
-	_util_set_local_usbmode_status(val);
-	ret = vconf_notify_key_changed(VCONFKEY_USB_CUR_MODE,
-			__handle_usb_mode_notification, NULL);
-	if (ret < 0) {
-		ERR("vconf_notify_key_changed(%s) Fail", VCONFKEY_USB_CUR_MODE);
-		return FALSE;
+		_util_get_usbmode_status(&val);
+		_util_set_local_usbmode_status(val);
+		ret = vconf_notify_key_changed(VCONFKEY_USB_CUR_MODE,
+				__handle_usb_mode_notification, NULL);
+		if (ret < 0) {
+			ERR("vconf_notify_key_changed(%s) Fail", VCONFKEY_USB_CUR_MODE);
+			return FALSE;
+		}
 	}
 
 	_util_get_lock_status(&val);
@@ -106,12 +114,13 @@ mtp_bool _eh_handle_usb_events(mtp_uint32 type)
 			return TRUE;
 		}
 
-		is_usb_inserted = 1;
 		/* check USB connection state */
-		if (MTP_PHONE_USB_DISCONNECTED == _util_get_local_usb_status()) {
+		if (_transport_get_type() != MTP_TRANSPORT_FFS &&
+				MTP_PHONE_USB_DISCONNECTED == _util_get_local_usb_status()) {
 			ERR("USB is disconnected. So just return.");
 			return FALSE;
 		}
+		is_usb_inserted = 1;
 
 		_transport_set_usb_discon_state(FALSE);
 		_transport_set_cancel_initialization(FALSE);

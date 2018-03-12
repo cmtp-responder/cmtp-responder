@@ -83,6 +83,7 @@ typedef enum {
 /* Maximum repeat count for USB error recovery */
 #define MTP_USB_ERROR_MAX_RETRY		5
 
+mtp_bool _transport_select_driver(void);
 mtp_bool _transport_init_usb_device(void);
 void _transport_deinit_usb_device(void);
 void *_transport_thread_usb_write(void *arg);
