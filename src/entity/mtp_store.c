@@ -472,8 +472,13 @@ mtp_uint32 _entity_get_objects_from_store_till_depth(mtp_store_t *store,
 		mtp_uint32 ii = 0;
 
 		child_arr = _prop_alloc_ptparray(UINT32_TYPE);
-		if (child_arr == NULL || child_arr->array_entry == NULL)
+		if (child_arr == NULL) {
 			return 0;
+		}
+		if (child_arr->array_entry == NULL) {
+			_prop_destroy_ptparray(child_arr);
+			return 0;
+		}
 
 		depth--;
 
