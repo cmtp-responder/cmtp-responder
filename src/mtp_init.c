@@ -67,7 +67,7 @@ static void __mtp_exit(void)
 	long cur_time;
 
 	DBG("## Terminate all threads");
-	if (g_eh_thrd) {
+	if (g_eh_thrd && g_eh_thrd != pthread_self()) {
 		_eh_send_event_req_to_eh_thread(EVENT_USB_REMOVED, 0, 0, NULL);
 		if (_util_thread_join(g_eh_thrd, NULL) == FALSE)
 			ERR("_util_thread_join() Fail");
@@ -83,6 +83,9 @@ static void __mtp_exit(void)
 	DBG("## Terminate main loop");
 
 	g_main_loop_quit(g_mainloop);
+
+	if (g_eh_thrd == pthread_self())
+		_util_thread_exit("Event handler stopped itself");
 
 	return;
 }
@@ -504,6 +507,8 @@ int main(int argc, char *argv[])
 
 	_eh_deregister_notification_callbacks();
 	media_content_disconnect();
+
+	DBG("######### MTP TERMINATED #########");
 
 	return MTP_ERROR_NONE;
 }

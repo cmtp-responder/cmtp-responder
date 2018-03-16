@@ -274,9 +274,10 @@ static void *__thread_event_handler(void *arg)
 		}
 	}
 
-	DBG("######### MTP TERMINATED #########");
+	DBG("Event handler terminated");
 	close(g_pipefd[0]);
 	close(g_pipefd[1]);
+	mtp_end_event();
 
 	_util_thread_exit("__thread_event_handler thread is over.");
 	return NULL;
