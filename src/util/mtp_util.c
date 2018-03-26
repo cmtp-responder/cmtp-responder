@@ -35,6 +35,10 @@
 //#include <grp.h>
 #include <media_content_internal.h>
 #include <pwd.h>
+#include <poll.h>
+
+/* time to wait for user session creation, in ms */
+#define WAIT_FOR_USER_TIMEOUT 10000
 
 static phone_state_t g_ph_status = { 0 };
 
@@ -360,13 +364,46 @@ void _util_get_external_path(char *external_path)
 			strncpy(external_path, MTP_EXTERNAL_PATH_CHAR, strlen(MTP_EXTERNAL_PATH_CHAR) + 1);
 	}
 }
+
+int _util_wait_for_user()
+{
+	__attribute__((cleanup(sd_login_monitor_unrefp))) sd_login_monitor *monitor = NULL;
+	int ret;
+	struct pollfd fds;
+
+	ret = sd_login_monitor_new("uid", &monitor);
+	if (ret < 0) {
+		ERR("Failed to allocate login monitor object: %s", strerror(-ret));
+		return ret;
+	}
+
+	fds.fd = sd_login_monitor_get_fd(monitor);
+	fds.events = sd_login_monitor_get_events(monitor);
+
+	ret = poll(&fds, 1, WAIT_FOR_USER_TIMEOUT);
+	if (ret < 0) {
+		ERR("Error polling: %m");
+		return -1;
+	}
+
+	return 0;
+}
+
 uid_t _util_get_active_user()
 {
 	uid_t *active_user_list = NULL;
 	uid_t active_user = 0;
 	int user_cnt = 0;
+	int ret;
 
 	user_cnt = sd_get_active_uids(&active_user_list);
+	if (user_cnt <= 0) {
+		ret = _util_wait_for_user();
+		if (ret < 0)
+			return -1;
+
+		user_cnt = sd_get_active_uids(&active_user_list);
+	}
 
 	if (user_cnt <= 0) {
 		ERR("Active user not exists : %d", user_cnt);
