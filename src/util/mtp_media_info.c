@@ -28,11 +28,14 @@
 
 static bool __fill_media_id_cb(media_info_h media, void *user_data)
 {
+	mtp_int32 ret = MEDIA_CONTENT_ERROR_NONE;
 	media_info_h *media_id = (media_info_h *)user_data;
 	DBG("INTO MEdia id retrieval callback");
-	media_info_clone(media_id, media);
-
-	return FALSE;
+	ret = media_info_clone(media_id, media);
+	if (ret != MEDIA_CONTENT_ERROR_NONE) {
+		return FALSE;
+	}
+	return TRUE;
 }
 
 static void __scan_folder_cb(media_content_error_e err, void *user_data)
