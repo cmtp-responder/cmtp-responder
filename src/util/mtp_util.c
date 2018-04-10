@@ -373,7 +373,9 @@ int _util_wait_for_user()
 
 	ret = sd_login_monitor_new("uid", &monitor);
 	if (ret < 0) {
-		ERR("Failed to allocate login monitor object: %s", strerror(-ret));
+		char buf[256] = {0,};
+		strerror_r(-ret, buf, sizeof(buf));
+		ERR("Failed to allocate login monitor object: [%d]:[%s]", ret, buf);
 		return ret;
 	}
 
