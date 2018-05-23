@@ -5,7 +5,7 @@ ExcludeArch: %arm aarch64
 
 Name:       mtp-responder
 Summary:    Media Transfer Protocol daemon (responder)
-Version:    0.0.25
+Version:    0.0.28
 Release:    1
 Group:      Network & Connectivity/Other
 License:    Apache-2.0
