@@ -304,18 +304,12 @@ void _util_set_local_usbmode_status(const phone_status_t val)
 
 void _util_get_lock_status(phone_status_t *val)
 {
-	mtp_int32 ret = 0;
-
-	struct stat st;
-/*
 	mtp_int32 state = 0;
 
-	ret = vconf_get_int(VCONFKEY_IDLE_LOCK_STATE_READ_ONLY,
+	vconf_get_int(VCONFKEY_IDLE_LOCK_STATE_READ_ONLY,
 			&state);
-*/
-	ret = stat("/opt/usr/home", &st);
 
-	if (ret == -1)
+	if (state)
 		*val = MTP_PHONE_LOCK_ON;
 	else
 		*val = MTP_PHONE_LOCK_OFF;
