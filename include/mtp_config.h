@@ -136,8 +136,8 @@
 #define MTP_UNKNOWN_METADATAW		L"Unknown"
 
 /* strlen(/opt/usr/share/crash/) + MTP path len limit */
-#define MTP_MAX_PATHNAME_SIZE		(21 + 255)	/* except \0 */
-#define MTP_MAX_FILENAME_SIZE		(254)	/* except \0 */
+#define MTP_MAX_PATHNAME_SIZE		(21 + 1024)	/* except \0 */
+#define MTP_MAX_FILENAME_SIZE		(1024)	/* except \0 */
 
 #define MTP_MAX_CMD_BLOCK_SIZE		36	/* Bytes */
 
