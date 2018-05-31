@@ -1595,6 +1595,12 @@ mtp_err_t _hutil_construct_object_entry_prop_list(mtp_uint32 store_id,
 		return MTP_ERROR_STORE_FULL;
 	}
 
+	if (store->store_info.free_space <= obj_sz) {
+		ERR("free space is not enough [%ld bytes]\n",
+				store->store_info.free_space);
+		return MTP_ERROR_STORE_FULL;
+	}
+
 	obj_info = _entity_alloc_object_info();
 	if (obj_info == NULL) {
 		ERR("_entity_alloc_object_info Fail");
