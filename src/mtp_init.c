@@ -331,66 +331,114 @@ static void __read_mtp_conf(void)
 
 		if (strcasecmp(token, "mmap_threshold") == 0) {
 			token = strtok_r(NULL, "=", &saveptr);
+			if (token == NULL)
+				continue;
+
 			g_conf.mmap_threshold = atoi(token);
 
 		} else if (strcasecmp(token, "init_rx_ipc_size") == 0) {
 			token = strtok_r(NULL, "=", &saveptr);
+			if (token == NULL)
+				continue;
+
 			g_conf.init_rx_ipc_size = atoi(token);
 
 		} else if (strcasecmp(token, "init_tx_ipc_size") == 0) {
 			token = strtok_r(NULL, "=", &saveptr);
+			if (token == NULL)
+				continue;
+
 			g_conf.init_tx_ipc_size = atoi(token);
 
 		} else if (strcasecmp(token, "max_rx_ipc_size") == 0) {
 			token = strtok_r(NULL, "=", &saveptr);
+			if (token == NULL)
+				continue;
+
 			g_conf.max_rx_ipc_size = atoi(token);
 
 		} else if (strcasecmp(token, "max_tx_ipc_size") == 0) {
 			token = strtok_r(NULL, "=", &saveptr);
+			if (token == NULL)
+				continue;
+
 			g_conf.max_tx_ipc_size = atoi(token);
 
 		} else if (strcasecmp(token, "read_usb_size") == 0) {
 			token = strtok_r(NULL, "=", &saveptr);
+			if (token == NULL)
+				continue;
+
 			g_conf.read_usb_size = atoi(token);
 
 		} else if (strcasecmp(token, "write_usb_size") == 0) {
 			token = strtok_r(NULL, "=", &saveptr);
+			if (token == NULL)
+				continue;
+
 			g_conf.write_usb_size = atoi(token);
 
 		} else if (strcasecmp(token, "read_file_size") == 0) {
 			token = strtok_r(NULL, "=", &saveptr);
+			if (token == NULL)
+				continue;
+
 			g_conf.read_file_size = atoi(token);
 
 		} else if (strcasecmp(token, "write_file_size") == 0) {
 			token = strtok_r(NULL, "=", &saveptr);
+			if (token == NULL)
+				continue;
+
 			g_conf.write_file_size = atoi(token);
 
 		} else if (strcasecmp(token, "max_io_buf_size") == 0) {
 			token = strtok_r(NULL, "=", &saveptr);
+			if (token == NULL)
+				continue;
+
 			g_conf.max_io_buf_size = atoi(token);
 
 		} else if (strcasecmp(token, "read_file_delay") == 0) {
 			token = strtok_r(NULL, "=", &saveptr);
+			if (token == NULL)
+				continue;
+
 			g_conf.read_file_delay = atoi(token);
 
 		} else if (strcasecmp(token, "support_pthread_sched") == 0) {
 			token = strtok_r(NULL, "=", &saveptr);
+			if (token == NULL)
+				continue;
+
 			g_conf.support_pthread_sched = atoi(token) ? true : false;
 
 		} else if (strcasecmp(token, "inheritsched") == 0) {
 			token = strtok_r(NULL, "=", &saveptr);
+			if (token == NULL)
+				continue;
+
 			g_conf.inheritsched = *token;
 
 		} else if (strcasecmp(token, "schedpolicy") == 0) {
 			token = strtok_r(NULL, "=", &saveptr);
+			if (token == NULL)
+				continue;
+
 			g_conf.schedpolicy = *token;
 
 		} else if (strcasecmp(token, "file_schedparam") == 0) {
 			token = strtok_r(NULL, "=", &saveptr);
+			if (token == NULL)
+				continue;
+
 			g_conf.file_schedparam = atoi(token);
 
 		} else if (strcasecmp(token, "usb_schedparam") == 0) {
 			token = strtok_r(NULL, "=", &saveptr);
+			if (token == NULL)
+				continue;
+
 			g_conf.usb_schedparam = atoi(token);
 
 		} else {

@@ -5,12 +5,12 @@ ExcludeArch: %arm aarch64
 
 Name:       mtp-responder
 Summary:    Media Transfer Protocol daemon (responder)
-Version:    0.0.29
+Version:    0.0.30
 Release:    1
 Group:      Network & Connectivity/Other
 License:    Apache-2.0
 Source0:    %{name}-%{version}.tar.gz
-Source1001: 	%{name}.manifest
+Source1001: %{name}.manifest
 BuildRequires: cmake
 BuildRequires: libgcrypt-devel
 BuildRequires: pkgconfig(glib-2.0)
