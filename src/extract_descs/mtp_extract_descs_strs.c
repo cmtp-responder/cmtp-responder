@@ -31,7 +31,7 @@ static int write_blob(const char *filename, const void *blob, size_t size)
 
 	ret = fwrite(blob, size, 1, fp);
 	if (ret < 0) {
-		fprintf(stderr, "Could not write to %s\n");
+		fprintf(stderr, "Could not write to %s\n", filename);
 		goto out;
 	}
 
