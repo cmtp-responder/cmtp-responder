@@ -778,7 +778,7 @@ void _util_delete_file_from_db(const mtp_char *filepath)
 {
 	int ret;
 	media_info_h info = NULL;
-	char *media_id = NULL;
+	char *path = NULL;
 	mtp_char condition[MEDIA_PATH_COND_MAX_LEN + 1];
 
 	ret_if(NULL == filepath);
@@ -791,16 +791,16 @@ void _util_delete_file_from_db(const mtp_char *filepath)
 		return;
 	}
 
-	ret = media_info_get_media_id(info, &media_id);
+	ret = media_info_get_file_path(info, &path);
 	if (MEDIA_CONTENT_ERROR_NONE != ret)
-		ERR("media_info_get_media_id() Fail(%d)", ret);
+		ERR("media_info_get_file_path() Fail(%d)", ret);
 
-	ret = media_info_delete_from_db(media_id);
+	ret = media_content_scan_file(path);
 	if (MEDIA_CONTENT_ERROR_NONE != ret)
-		ERR("media_info_delete_from_db() Fail(%d)", ret);
+		ERR("media_content_scan_file() Fail(%d)", ret);
 
-	if (media_id)
-		free(media_id);
+	if (path)
+		free(path);
 
 	if (info)
 		media_info_destroy(info);
