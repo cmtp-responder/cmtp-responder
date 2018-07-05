@@ -338,7 +338,7 @@ mtp_err_t _hutil_add_object_entry(obj_info_t *obj_info, mtp_char *file_name,
 		 */
 
 		path_len = strlen(store->root_path) + strlen(MTP_TEMP_FILE) + 2;
-		g_mgr->ftemp_st.filepath = g_realloc(g_mgr->ftemp_st.filepath, path_len);
+		g_mgr->ftemp_st.filepath = (mtp_char*)g_malloc0(path_len);
 		if (g_mgr->ftemp_st.filepath == NULL) {
 			ERR("g_realloc Fail");
 			_entity_dealloc_mtp_obj(obj);
