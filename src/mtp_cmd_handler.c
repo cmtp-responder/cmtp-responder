@@ -3289,8 +3289,7 @@ static mtp_bool __receive_temp_file_first_packet(mtp_char *data,
 	mtp_char buff[LEN], *ptr;
 	mtp_char filename[MTP_MAX_FILENAME_SIZE] = {0};
 	mtp_uint32 i, num, start, range;
-	struct timeval tv;
-	unsigned long time_in_micros;
+	unsigned int seed;
 
 	_transport_set_mtp_operation_state(MTP_STATE_DATA_TRANSFER_DL);
 
@@ -3303,12 +3302,9 @@ static mtp_bool __receive_temp_file_first_packet(mtp_char *data,
 		start = 'A';
 		range = 'Z' - 'A';
 
-		gettimeofday(&tv, NULL);
-		time_in_micros = 1000000 * tv.tv_sec + tv.tv_usec;
-		srand(time_in_micros);
-
+		seed = time(NULL);
 		for (ptr = buff, i = 1; i < LEN; ++ptr, ++i) {
-			num = rand() % range;
+			num = rand_r(&seed) % range;
 			*ptr = num+start;
 		}
 		*ptr = '\0';
