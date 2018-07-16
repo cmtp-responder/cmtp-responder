@@ -100,9 +100,14 @@ mtp_err_t _transport_rcv_temp_file_data(mtp_byte *buffer, mtp_uint32 size,
 	}
 
 	/* delete temp file, it have to be called in receive_data fn */
-	if (remove(g_mgr->ftemp_st.filepath) < 0) {
-		ERR_SECURE("remove(%s) Fail", g_mgr->ftemp_st.filepath);
-		_util_print_error();
+	if (g_mgr->ftemp_st.filepath != NULL) {
+		if (remove(g_mgr->ftemp_st.filepath) < 0) {
+			ERR_SECURE("remove(%s) Fail", g_mgr->ftemp_st.filepath);
+			_util_print_error();
+		}
+
+		g_free(g_mgr->ftemp_st.filepath);
+		g_mgr->ftemp_st.filepath = NULL;
 	}
 
 	g_mgr->ftemp_st.data_size = 0;
@@ -132,8 +137,11 @@ mtp_err_t _transport_rcv_temp_file_info(mtp_byte *buf, char *filepath,
 	g_mgr->ftemp_st.data_size = 0;
 	g_mgr->ftemp_st.data_count = 0;
 
-	g_strlcpy(g_mgr->ftemp_st.filepath, MTP_TEMP_FILE_DEFAULT,
-			MTP_MAX_PATHNAME_SIZE + 1);
+	if (g_mgr->ftemp_st.filepath != NULL) {
+		g_free(g_mgr->ftemp_st.filepath);
+		g_mgr->ftemp_st.filepath = NULL;
+	}
+
 	g_mgr->ftemp_st.fhandle = NULL;
 	g_mgr->ftemp_st.file_size = 0;
 

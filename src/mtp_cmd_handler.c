@@ -42,6 +42,7 @@ extern pthread_mutex_t g_cmd_inoti_mutex;
 extern mtp_config_t g_conf;
 
 mtp_bool g_is_sync_estab = FALSE;
+mtp_bool g_is_send_object = FALSE;
 
 /*
  * STATIC VARIABLES
@@ -52,6 +53,8 @@ static mtp_bool g_has_round_trip = FALSE;
 static mtp_uint16 g_count_open_session = 0;
 static mtp_uint32 g_old_open_session_time = 0;
 #endif/*MTP_USE_SKIP_CONTINUOUS_OPENSESSION*/
+
+#define LEN 20
 
 /*
  * STATIC FUNCTIONS
@@ -289,6 +292,21 @@ static void __process_commands(mtp_handler_t *hdlr, cmd_blk_t *cmd)
 		 */
 		if (_device_get_phase() == DEVICE_PHASE_IDLE) {
 			DBG("DATAOUT COMMAND PHASE!!");
+			if (hdlr->usb_cmd.code == PTP_OPCODE_SENDOBJECT) {
+				mtp_char parent_path[MTP_MAX_PATHNAME_SIZE + 1] = { 0 };
+
+				if (g_mgr->ftemp_st.filepath) {
+					_util_get_parent_path(g_mgr->ftemp_st.filepath, parent_path);
+					DBG("g_mgr->ftemp_st.filepath:[%s], parent_path[%s]\n", g_mgr->ftemp_st.filepath,  parent_path);
+
+					if ((g_strcmp0(parent_path, "/tmp")) != 0)
+						g_is_send_object = TRUE;
+				}
+
+				_eh_send_event_req_to_eh_thread(EVENT_START_DATAOUT,
+					0, 0, NULL);
+			}
+
 			if (hdlr->usb_cmd.code == PTP_OPCODE_SENDOBJECT)
 				_eh_send_event_req_to_eh_thread(EVENT_START_DATAOUT,
 						0, 0, NULL);
@@ -301,6 +319,8 @@ static void __process_commands(mtp_handler_t *hdlr, cmd_blk_t *cmd)
 			break;
 		case PTP_OPCODE_SENDOBJECT:
 			__send_object(hdlr);
+			g_is_send_object = FALSE;
+
 			_eh_send_event_req_to_eh_thread(EVENT_DONE_DATAOUT,
 					0, 0, NULL);
 			break;
@@ -3266,25 +3286,57 @@ static mtp_bool __receive_temp_file_first_packet(mtp_char *data,
 		mtp_int32 data_len)
 {
 	mtp_char *filepath = g_mgr->ftemp_st.filepath;
+	temp_file_struct_t *t = &g_mgr->ftemp_st;
 	mtp_int32 error = 0;
 	mtp_uint32 *data_sz = &g_mgr->ftemp_st.data_size;
 	mtp_char *buffer = g_mgr->ftemp_st.temp_buff;
+	mtp_char buff[LEN], *ptr;
+	mtp_char filename[MTP_MAX_FILENAME_SIZE] = {0};
+	mtp_uint32 i, num, start, range;
+	unsigned int seed;
 
 	_transport_set_mtp_operation_state(MTP_STATE_DATA_TRANSFER_DL);
-	if (access(filepath, F_OK) == 0) {
+	if (!g_is_send_object) {
+		/*create a unique filename for /tmp/.mtptemp.tmp only if
+		 is_send_object = 0. If is_send_object = 0 implies t->filepath
+		 is set in send_object_proplist command to receive the
+		 incoming file */
+		start = 'A';
+		range = 'Z' - 'A';
+
+		seed = time(NULL);
+		for (ptr = buff, i = 1; i < LEN; ++ptr, ++i) {
+			num = rand_r(&seed) % range;
+			*ptr = num+start;
+		}
+		*ptr = '\0';
+
+		g_snprintf(filename, MTP_MAX_FILENAME_SIZE, "%s%s%s", "/tmp/.mtptemp", buff, ".tmp");
+
+		if (t->filepath != NULL) {
+			g_free(t->filepath);
+			t->filepath = NULL;
+		}
+
+		t->filepath = g_strdup(filename);
+	}
+
+	DBG("t->filepath :%s\n", t->filepath);
+
+	if (access(t->filepath, F_OK) == 0) {
 		if (g_mgr->ftemp_st.fhandle != NULL) {
 			_util_file_close(g_mgr->ftemp_st.fhandle);
 			g_mgr->ftemp_st.fhandle = NULL;	/* initialize */
 		}
 
-		if (remove(filepath) < 0) {
-			ERR_SECURE("remove(%s) Fail", filepath);
+		if (remove(t->filepath) < 0) {
+			ERR_SECURE("remove(%s) Fail", t->filepath);
 			__finish_receiving_file_packets(data, data_len);
 			return FALSE;
 		}
 	}
 
-	g_mgr->ftemp_st.fhandle = _util_file_open(filepath, MTP_FILE_WRITE, &error);
+	g_mgr->ftemp_st.fhandle = _util_file_open(t->filepath, MTP_FILE_WRITE, &error);
 	if (g_mgr->ftemp_st.fhandle == NULL) {
 		ERR("First file handle is invalid!!");
 		__finish_receiving_file_packets(data, data_len);

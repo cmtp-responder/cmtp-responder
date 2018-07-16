@@ -138,13 +138,6 @@ void _mtp_init(add_rem_store_t sel)
 		_device_set_sync_partner(MTP_DEV_PROPERTY_SYNCPARTNER);
 	}
 
-
-	g_mgr->ftemp_st.filepath = g_strdup(MTP_TEMP_FILE_DEFAULT);
-	if (g_mgr->ftemp_st.filepath == NULL) {
-		ERR("g_strdup() Fail");
-		goto MTP_INIT_FAIL;
-	}
-
 	if (g_mgr->ftemp_st.temp_buff == NULL) {
 		/* Allocate memory for temporary */
 		g_mgr->ftemp_st.temp_buff = (mtp_char *)g_malloc(g_conf.write_file_size);
