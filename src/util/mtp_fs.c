@@ -26,6 +26,7 @@
 #include <dirent.h>
 #include <glib.h>
 #include <glib/gprintf.h>
+#include <storage.h>
 #include "mtp_fs.h"
 #include "mtp_util.h"
 #include "mtp_support.h"
@@ -753,7 +754,8 @@ mtp_bool _util_ifind_next(mtp_char *dir_name, DIR *dirp, dir_entry_t *dir_info)
 	return TRUE;
 }
 
-mtp_bool _util_get_filesystem_info(mtp_char *storepath, fs_info_t *fs_info)
+mtp_bool _util_get_filesystem_info_ext(mtp_char *storepath,
+	fs_info_t *fs_info)
 {
 	struct statfs buf = { 0 };
 	mtp_uint64 avail_size = 0;
@@ -761,7 +763,7 @@ mtp_bool _util_get_filesystem_info(mtp_char *storepath, fs_info_t *fs_info)
 	mtp_uint64 used_size = 0;
 
 	if (statfs(storepath, &buf) != 0) {
-		ERR("statfs Fail");
+		ERR("statfs is failed\n");
 		return FALSE;
 	}
 
@@ -776,6 +778,45 @@ mtp_bool _util_get_filesystem_info(mtp_char *storepath, fs_info_t *fs_info)
 	fs_info->avail_size = avail_size;
 
 	return TRUE;
+}
+
+mtp_bool _util_get_filesystem_info_int(mtp_char *storepath, fs_info_t *fs_info)
+{
+	struct statvfs s;
+	int ret;
+
+	mtp_uint64 avail_size = 0;
+	mtp_uint64 capacity = 0;
+	mtp_uint64 used_size = 0;
+
+	ret = storage_get_internal_memory_size(&s);
+	if (ret < 0) {
+		ERR("storage_get_internal_memory_size : ret = %d", ret);
+		return FALSE;
+	}
+
+	capacity = (mtp_uint64)s.f_frsize*s.f_blocks;
+	avail_size = (mtp_uint64)s.f_bsize*s.f_bavail;
+	used_size = (capacity - avail_size);
+
+	DBG("total : %llu , avail %llu , used %llu", capacity, avail_size, used_size);
+
+	fs_info->disk_size = capacity;
+	fs_info->reserved_size = used_size;
+	fs_info->avail_size = avail_size;
+
+	return TRUE;
+}
+
+mtp_bool _util_get_filesystem_info(mtp_char *storepath,
+	fs_info_t *fs_info)
+{
+	if (!g_strcmp0(storepath, MTP_EXTERNAL_PATH_CHAR))
+		return _util_get_filesystem_info_ext(storepath, fs_info);
+	else
+		return _util_get_filesystem_info_int(storepath, fs_info);
+
+	return FALSE;
 }
 
 void _util_count_num_lines(FILE* fhandle, mtp_uint32 *num_lines)
