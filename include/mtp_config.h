@@ -115,7 +115,6 @@
 
 /*To determine whether command is for Samsung mobile*/
 #define MTP_SAMSUNG_MOBILE		0x1000
-#define MTP_STORAGE_DESC_INT		"Phone"
 #define MTP_STORAGE_DESC_EXT		"Card"
 
 /*Devices Property*/

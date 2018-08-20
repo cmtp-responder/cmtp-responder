@@ -18,6 +18,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <dirent.h>
+#include <system_info.h>
 #include "mtp_util.h"
 #include "mtp_support.h"
 #include "mtp_device.h"
@@ -206,6 +207,8 @@ mtp_bool _entity_init_mtp_store(mtp_store_t *store, mtp_uint32 store_id,
 	mtp_wchar wtemp[MTP_MAX_REG_STRING + 1] = { 0 };
 	mtp_char serial[MTP_MAX_REG_STRING + 1] = { 0 };
 	mtp_wchar wserial[MTP_MAX_REG_STRING + 1] = { 0 };
+	char *profile = NULL;
+	char *storage_desc = NULL;
 
 	retv_if(store == NULL, FALSE);
 
@@ -223,12 +226,31 @@ mtp_bool _entity_init_mtp_store(mtp_store_t *store, mtp_uint32 store_id,
 	switch (store_id) {
 	case MTP_INTERNAL_STORE_ID:
 		store->is_hidden = FALSE;
+
+		system_info_get_platform_string("http://tizen.org/feature/profile", &profile);
+		if (profile != NULL) {
+			if (g_strcmp0(profile, "mobile") == 0) {
+				storage_desc = g_strdup("Phone");
+			} else if (g_strcmp0(profile, "wearable") == 0) {
+				storage_desc = g_strdup("Watch");
+			}
+		}
+
+		if (storage_desc == NULL)
+			storage_desc = g_strdup("Common");
+
 		_util_utf8_to_utf16(wtemp, sizeof(wtemp) / WCHAR_SIZ,
-				MTP_STORAGE_DESC_INT);
+				storage_desc);
 		__init_store_info_params(&(store->store_info),
 				store->store_info.capacity, PTP_STORAGETYPE_FIXEDRAM,
 				PTP_FILESYSTEMTYPE_HIERARCHICAL, PTP_STORAGEACCESS_RWD,
 				wtemp, wserial);
+
+		if (storage_desc != NULL)
+			g_free(storage_desc);
+
+		if (profile != NULL)
+			g_free(profile);
 		break;
 
 	case MTP_EXTERNAL_STORE_ID:
