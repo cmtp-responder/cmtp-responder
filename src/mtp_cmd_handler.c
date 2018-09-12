@@ -3285,7 +3285,6 @@ void _receive_mq_data_cb(mtp_char *buffer, mtp_int32 buf_len)
 static mtp_bool __receive_temp_file_first_packet(mtp_char *data,
 		mtp_int32 data_len)
 {
-	mtp_char *filepath = g_mgr->ftemp_st.filepath;
 	temp_file_struct_t *t = &g_mgr->ftemp_st;
 	mtp_int32 error = 0;
 	mtp_uint32 *data_sz = &g_mgr->ftemp_st.data_size;
