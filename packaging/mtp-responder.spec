@@ -25,6 +25,10 @@ BuildRequires: pkgconfig(libsystemd-daemon)
 BuildRequires: pkgconfig(libsystemd)
 Requires(post): /usr/bin/vconftool
 
+%if 0%{?gtests:1}
+BuildRequires:  pkgconfig(gmock)
+%endif
+
 %define upgrade_script_path /usr/share/upgrade/scripts
 
 %description
@@ -39,7 +43,19 @@ cp %{SOURCE1001} .
 %build
 export CFLAGS="$CFLAGS -Wno-deprecated-declarations"
 
-%cmake .
+%if 0%{?gcov:1}
+export CFLAGS+=" -fprofile-arcs -ftest-coverage"
+export CXXFLAGS+=" -fprofile-arcs -ftest-coverage"
+export LDFLAGS+=" -lgcov"
+%endif
+
+%cmake . \
+%if 0%{?gtests:1}
+	-DBUILD_GTESTS=%{?gtests:1}%{!?gtests:0} \
+%endif
+%if 0%{?gcov:1}
+	-DBUILD_GCOV=%{?gcov:1}%{!?gcov:0}
+%endif
 
 make %{?jobs:-j%jobs}
 
@@ -72,3 +88,7 @@ ln -sf %{_unitdir}/mtp-responder.service %{_sysconfdir}/systemd/default-extra-de
 %{upgrade_script_path}/500.%{name}-upgrade.sh
 /etc/mtp-responder/descs
 /etc/mtp-responder/strs
+
+%if 0%{?gtests:1}
+%{_bindir}/gtest*
+%endif

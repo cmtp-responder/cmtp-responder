@@ -17,6 +17,10 @@
 #ifndef _MTP_UTIL_H_
 #define _MTP_UTIL_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <errno.h>
 #include "mtp_config.h"
 #include "mtp_datatype.h"
@@ -152,5 +156,8 @@ void _util_get_internal_path(char *internal_path);
 mtp_bool _util_media_content_connect();
 void _util_media_content_disconnect();
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _MTP_UTIL_H_ */

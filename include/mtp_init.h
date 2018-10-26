@@ -17,6 +17,10 @@
 #ifndef __MTPMAIN_H_INCLUDED
 #define __MTPMAIN_H_INCLUDED
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "mtp_store.h"
 
 #define MTP_LOG_FILE			"/var/log/mtp.log"
@@ -26,5 +30,9 @@ void _mtp_init(add_rem_store_t sel);
 void _mtp_deinit(void);
 void _features_supported_info(void);
 void mtp_end_event(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif	/* _MTP_MAIN_H_ */

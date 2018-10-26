@@ -17,6 +17,10 @@
 #ifndef _MTP_FS_H_
 #define _MTP_FS_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <dirent.h>
 #include "mtp_datatype.h"
 #include "mtp_config.h"
@@ -93,5 +97,9 @@ void _util_count_num_lines(FILE* fhandle, mtp_uint32 *num_lines);
 void _util_fill_guid_array(void *guidarray, mtp_uint32 start_index, FILE* fhandle,
 		mtp_uint32 size);
 void FLOGD(const char *fmt, ...);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _MTP_FS_H_ */

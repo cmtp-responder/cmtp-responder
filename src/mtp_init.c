@@ -63,6 +63,7 @@ static void __mtp_exit(void);
  * @param[out]		None.
  * @return		None.
  */
+/* LCOV_EXCL_START */
 static void __mtp_exit(void)
 {
 	long cur_time;
@@ -97,6 +98,7 @@ static gboolean __check_internal_storage(gpointer user_data)
 
 	return true;
 }
+/* LCOV_EXCL_STOP */
 
 void _mtp_init(add_rem_store_t sel)
 {
@@ -150,6 +152,7 @@ void _mtp_init(add_rem_store_t sel)
 	/* Internal Storage */
 	if (MTP_PHONE_LOCK_OFF == _util_get_local_lock_status()) {
 		mtp_int32 ret;
+		/* LCOV_EXCL_START */
 		char inter_path[MTP_MAX_PATHNAME_SIZE + 1] = { 0 };
 
 		ret = _util_media_content_connect();
@@ -166,9 +169,11 @@ void _mtp_init(add_rem_store_t sel)
 				goto MTP_INIT_FAIL;
 			}
 		}
+		/* LCOV_EXCL_STOP */
 	}
 	/* External Storage */
 	if (MTP_PHONE_MMC_INSERTED == _util_get_local_mmc_status()) {
+	/* LCOV_EXCL_START */
 		char ext_path[MTP_MAX_PATHNAME_SIZE + 1] = { 0 };
 		_util_get_external_path(ext_path);
 		if (access(ext_path, F_OK) < 0) {
@@ -178,6 +183,7 @@ void _mtp_init(add_rem_store_t sel)
 				goto MTP_INIT_FAIL;
 			}
 		}
+	/* LCOV_EXCL_STOP */
 	}
 
 	/* Set mtpdeviceinfo */
@@ -300,10 +306,12 @@ static void __read_mtp_conf(void)
 
 	fp = fopen(MTP_CONFIG_FILE_PATH, "r");
 	if (fp == NULL) {
+		/* LCOV_EXCL_START */
 		DBG("Default configuration is used");
 		g_conf.is_init = true;
 
 		__print_mtp_conf();
+		/* LCOV_EXCL_STOP */
 		return;
 	}
 
@@ -320,120 +328,122 @@ static void __read_mtp_conf(void)
 
 		token = strtok_r(buf, "=", &saveptr);
 		if (token == NULL)
-			continue;
+			continue;	//	LCOV_EXCL_LINE
 
 		if (strcasecmp(token, "mmap_threshold") == 0) {
 			token = strtok_r(NULL, "=", &saveptr);
 			if (token == NULL)
-				continue;
+				continue;	//	LCOV_EXCL_LINE
 
 			g_conf.mmap_threshold = atoi(token);
 
 		} else if (strcasecmp(token, "init_rx_ipc_size") == 0) {
 			token = strtok_r(NULL, "=", &saveptr);
 			if (token == NULL)
-				continue;
+				continue;	//	LCOV_EXCL_LINE
 
 			g_conf.init_rx_ipc_size = atoi(token);
 
 		} else if (strcasecmp(token, "init_tx_ipc_size") == 0) {
 			token = strtok_r(NULL, "=", &saveptr);
 			if (token == NULL)
-				continue;
+				continue;	//	LCOV_EXCL_LINE
 
 			g_conf.init_tx_ipc_size = atoi(token);
 
 		} else if (strcasecmp(token, "max_rx_ipc_size") == 0) {
 			token = strtok_r(NULL, "=", &saveptr);
 			if (token == NULL)
-				continue;
+				continue;	//	LCOV_EXCL_LINE
 
 			g_conf.max_rx_ipc_size = atoi(token);
 
 		} else if (strcasecmp(token, "max_tx_ipc_size") == 0) {
 			token = strtok_r(NULL, "=", &saveptr);
 			if (token == NULL)
-				continue;
+				continue;	//	LCOV_EXCL_LINE
 
 			g_conf.max_tx_ipc_size = atoi(token);
 
 		} else if (strcasecmp(token, "read_usb_size") == 0) {
 			token = strtok_r(NULL, "=", &saveptr);
 			if (token == NULL)
-				continue;
+				continue;	//	LCOV_EXCL_LINE
 
 			g_conf.read_usb_size = atoi(token);
 
 		} else if (strcasecmp(token, "write_usb_size") == 0) {
 			token = strtok_r(NULL, "=", &saveptr);
 			if (token == NULL)
-				continue;
+				continue;	//	LCOV_EXCL_LINE
 
 			g_conf.write_usb_size = atoi(token);
 
 		} else if (strcasecmp(token, "read_file_size") == 0) {
+			/* LCOV_EXCL_START */
 			token = strtok_r(NULL, "=", &saveptr);
 			if (token == NULL)
-				continue;
+				continue;	//	LCOV_EXCL_LINE
 
 			g_conf.read_file_size = atoi(token);
 
 		} else if (strcasecmp(token, "write_file_size") == 0) {
 			token = strtok_r(NULL, "=", &saveptr);
 			if (token == NULL)
-				continue;
+				continue;	//	LCOV_EXCL_LINE
 
 			g_conf.write_file_size = atoi(token);
-
+			/* LCOV_EXCL_STOP */
 		} else if (strcasecmp(token, "max_io_buf_size") == 0) {
 			token = strtok_r(NULL, "=", &saveptr);
 			if (token == NULL)
-				continue;
+				continue;	//	LCOV_EXCL_LINE
 
 			g_conf.max_io_buf_size = atoi(token);
 
 		} else if (strcasecmp(token, "read_file_delay") == 0) {
 			token = strtok_r(NULL, "=", &saveptr);
 			if (token == NULL)
-				continue;
+				continue;	//	LCOV_EXCL_LINE
 
 			g_conf.read_file_delay = atoi(token);
 
 		} else if (strcasecmp(token, "support_pthread_sched") == 0) {
+			/* LCOV_EXCL_START */
 			token = strtok_r(NULL, "=", &saveptr);
 			if (token == NULL)
-				continue;
+				continue;	//	LCOV_EXCL_LINE
 
 			g_conf.support_pthread_sched = atoi(token) ? true : false;
 
 		} else if (strcasecmp(token, "inheritsched") == 0) {
 			token = strtok_r(NULL, "=", &saveptr);
 			if (token == NULL)
-				continue;
+				continue;	//	LCOV_EXCL_LINE
 
 			g_conf.inheritsched = *token;
 
 		} else if (strcasecmp(token, "schedpolicy") == 0) {
 			token = strtok_r(NULL, "=", &saveptr);
 			if (token == NULL)
-				continue;
+				continue;	//	LCOV_EXCL_LINE
 
 			g_conf.schedpolicy = *token;
 
 		} else if (strcasecmp(token, "file_schedparam") == 0) {
 			token = strtok_r(NULL, "=", &saveptr);
 			if (token == NULL)
-				continue;
+				continue;	//	LCOV_EXCL_LINE
 
 			g_conf.file_schedparam = atoi(token);
 
 		} else if (strcasecmp(token, "usb_schedparam") == 0) {
 			token = strtok_r(NULL, "=", &saveptr);
 			if (token == NULL)
-				continue;
+				continue;	//	LCOV_EXCL_LINE
 
 			g_conf.usb_schedparam = atoi(token);
-
+		/* LCOV_EXCL_STOP */
 		} else {
 			ERR("Unknown option : %s\n", buf);
 		}
@@ -494,10 +504,12 @@ void _features_supported_info(void)
  * It must not be called in gthr_mtp_event thread.
  * It makes dead lock state if it is called in gthr_mtp_event thread.
  */
+/* LCOV_EXCL_START */
 void mtp_end_event(void)
 {
 	__mtp_exit();
 }
+/* LCOV_EXCL_STOP */
 
 static inline int _main_init()
 {
@@ -527,9 +539,19 @@ static inline int _main_init()
 	return MTP_ERROR_NONE;
 }
 
+#ifndef TIZEN_TEST_GTESTS
 int main(int argc, char *argv[])
 {
 	mtp_int32 ret;
+
+#ifdef TIZEN_TEST_GCOV
+	setenv("GCOV_PREFIX", "/tmp/daemon", 1);
+#endif
+
+#ifdef TIZEN_TEST_GCOV
+	void __gcov_flush(void); // if you use C++, you should declare extern "C" at out of the function.
+	__gcov_flush();
+#endif
 
 	if (_transport_select_driver() == FALSE) {
 		ERR("_transport_select_driver fail");
@@ -559,3 +581,4 @@ int main(int argc, char *argv[])
 
 	return MTP_ERROR_NONE;
 }
+#endif

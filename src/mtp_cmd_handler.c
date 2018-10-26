@@ -129,6 +129,7 @@ void _cmd_hdlr_reset_cmd(mtp_handler_t *hdlr)
 #endif /* MTP_USE_SKIP_CONTINUOUS_OPENSESSION */
 }
 
+/* LCOV_EXCL_START */
 static void __process_commands(mtp_handler_t *hdlr, cmd_blk_t *cmd)
 {
 	mtp_store_t *store = NULL;
@@ -2953,6 +2954,7 @@ void __close_session(mtp_handler_t *hdlr)
 	}
 	return;
 }
+/* LCOV_EXCL_STOP */
 
 mtp_bool _cmd_hdlr_send_response(mtp_handler_t *hdlr, mtp_uint16 resp,
 		mtp_uint32 num_param, mtp_uint32 *params)
@@ -2960,6 +2962,9 @@ mtp_bool _cmd_hdlr_send_response(mtp_handler_t *hdlr, mtp_uint16 resp,
 	mtp_bool ret = FALSE;
 	resp_blk_t blk = { 0 };
 
+	if (hdlr == NULL)
+		return FALSE;
+	/* LCOV_EXCL_START */
 	_hdlr_resp_container_init(&blk, resp, hdlr->usb_cmd.tid);
 
 	ret = _hdlr_add_param_resp_container(&blk, num_param, params);
@@ -2975,6 +2980,7 @@ mtp_bool _cmd_hdlr_send_response(mtp_handler_t *hdlr, mtp_uint16 resp,
 		ERR("[%s], Opcode = [0x%4x] ResponseCode[0x%4x], NumParams[%u]\n",
 				"FAIL", hdlr->usb_cmd.code, resp, num_param);
 	}
+	/* LCOV_EXCL_STOP */
 	return ret;
 }
 
@@ -2983,6 +2989,7 @@ mtp_bool _cmd_hdlr_send_response_code(mtp_handler_t *hdlr, mtp_uint16 resp)
 	return _cmd_hdlr_send_response(hdlr, resp, 0, NULL);
 }
 
+/* LCOV_EXCL_START */
 #ifdef MTP_SUPPORT_PRINT_COMMAND
 static void __print_command(mtp_uint16 code)
 {
@@ -3180,6 +3187,9 @@ void _receive_mq_data_cb(mtp_char *buffer, mtp_int32 buf_len)
 		mtp_word type = 0;
 		mtp_word code = 0;
 		mtp_dword trid = 0;
+
+		if (buffer == NULL)
+			return;
 
 		for (i = 0; i < MAX_MTP_PARAMS; i++) {	/* check size */
 			/* check number of parameter */
@@ -3440,3 +3450,4 @@ static void __finish_receiving_file_packets(mtp_char *data, mtp_int32 data_len)
 
 	return;
 }
+/* LCOV_EXCL_STOP */

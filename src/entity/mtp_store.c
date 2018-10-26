@@ -89,6 +89,7 @@ void _entity_update_store_info_run_time(store_info_t *info,
 	return;
 }
 
+/* LCOV_EXCL_START */
 mtp_bool _entity_get_store_path_by_id(mtp_uint32 store_id, mtp_char *path)
 {
 	char sto_path[MTP_MAX_PATHNAME_SIZE + 1] = { 0 };
@@ -199,6 +200,7 @@ mtp_uint32 _entity_get_store_id_by_path(const mtp_char *path_name)
 
 	return store_id;
 }
+/* LCOV_EXCL_STOP */
 
 mtp_bool _entity_init_mtp_store(mtp_store_t *store, mtp_uint32 store_id,
 		mtp_char *store_path)
@@ -254,6 +256,7 @@ mtp_bool _entity_init_mtp_store(mtp_store_t *store, mtp_uint32 store_id,
 		break;
 
 	case MTP_EXTERNAL_STORE_ID:
+	/* LCOV_EXCL_START */
 		store->is_hidden = FALSE;
 		_util_utf8_to_utf16(wtemp, sizeof(wtemp) / WCHAR_SIZ,
 				MTP_STORAGE_DESC_EXT);
@@ -268,7 +271,7 @@ mtp_bool _entity_init_mtp_store(mtp_store_t *store, mtp_uint32 store_id,
 		ERR("store initialization Fail");
 		return FALSE;
 	}
-
+	/* LCOV_EXCL_STOP */
 	_util_init_list(&(store->obj_list));
 
 	return TRUE;
@@ -289,9 +292,11 @@ mtp_obj_t *_entity_add_file_to_store(mtp_store_t *store, mtp_uint32 h_parent,
 
 	if (_entity_init_mtp_object_params(obj, store->store_id, h_parent,
 				file_path, file_name, file_info) == FALSE) {
+		/* LCOV_EXCL_START */
 		ERR("_entity_init_mtp_object_params Fail");
 		g_free(obj);
 		return NULL;
+		/* LCOV_EXCL_STOP */
 	}
 
 	_entity_add_object_to_store(store, obj);
@@ -313,9 +318,12 @@ mtp_obj_t *_entity_add_folder_to_store(mtp_store_t *store, mtp_uint32 h_parent,
 
 	if (_entity_init_mtp_object_params(obj, store->store_id, h_parent,
 				file_path, file_name, file_info) == FALSE) {
+		/* LCOV_EXCL_START */
 		ERR("_entity_init_mtp_object_params Fail");
 		g_free(obj);
 		return NULL;
+		/* LCOV_EXCL_STOP */
+
 	}
 
 	_entity_add_object_to_store(store, obj);
@@ -372,6 +380,7 @@ mtp_obj_t *_entity_get_object_from_store(mtp_store_t *store, mtp_uint32 handle)
 	return NULL;
 }
 
+/* LCOV_EXCL_START */
 mtp_obj_t *_entity_get_last_object_from_store(mtp_store_t *store,
 		mtp_uint32 handle)
 {
@@ -1069,12 +1078,14 @@ mtp_bool _entity_check_if_B_parent_of_A(mtp_store_t *store,
 	_prop_deinit_ptparray(&child_arr);
 	return FALSE;
 }
+/* LCOV_EXCL_STOP */
 
 mtp_uint32 _entity_generate_next_obj_handle(void)
 {
 	return g_next_obj_handle++;
 }
 
+/* LCOV_EXCL_START */
 mtp_uint16 _entity_format_store(mtp_store_t *store, mtp_uint32 fs_format)
 {
 	mtp_uint16 response;
@@ -1134,6 +1145,7 @@ void _entity_destroy_mtp_store(mtp_store_t *store)
 	_util_init_list(&(store->obj_list));
 	return;
 }
+/* LCOV_EXCL_STOP */
 
 void _entity_store_recursive_enum_folder_objects(mtp_store_t *store,
 		mtp_obj_t *pobj)
@@ -1168,11 +1180,13 @@ void _entity_store_recursive_enum_folder_objects(mtp_store_t *store,
 
 	do {
 		if (TRUE == _transport_get_usb_discon_state()) {
+			/* LCOV_EXCL_START */
 			DBG("USB is disconnected");
 			if (closedir(h_dir) < 0)
 				ERR("Close directory Fail");
 
 			return;
+			/* LCOV_EXCL_STOP */
 		}
 
 		_util_get_file_name(entry.filename, file_name);
@@ -1214,6 +1228,7 @@ NEXT:
 	return;
 }
 
+/* LCOV_EXCL_START */
 void _entity_list_modified_files(mtp_uint32 minutes)
 {
 	if (minutes == 0)
@@ -1272,3 +1287,4 @@ void _entity_copy_store_data(mtp_store_t *dst, mtp_store_t *src)
 
 	return;
 }
+/* LCOV_EXCL_STOP */

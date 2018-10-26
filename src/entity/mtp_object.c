@@ -28,6 +28,7 @@
 extern mtp_bool g_is_full_enum;
 
 
+/* LCOV_EXCL_START */
 mtp_bool _entity_get_file_times(mtp_obj_t *obj, ptp_time_string_t *create_tm,
 		ptp_time_string_t *modify_tm)
 {
@@ -74,6 +75,7 @@ mtp_bool _entity_get_file_times(mtp_obj_t *obj, ptp_time_string_t *create_tm,
 
 	return TRUE;
 }
+/* LCOV_EXCL_STOP */
 
 obj_info_t *_entity_alloc_object_info(void)
 {
@@ -97,6 +99,7 @@ void _entity_init_object_info(obj_info_t *info)
 	memset(info, 0, sizeof(obj_info_t));
 }
 
+/* LCOV_EXCL_START */
 mtp_uint32 _entity_get_object_info_size(mtp_obj_t *obj, ptp_string_t *file_name)
 {
 	int ret;
@@ -122,6 +125,7 @@ mtp_uint32 _entity_get_object_info_size(mtp_obj_t *obj, ptp_string_t *file_name)
 
 	return (size);
 }
+/* LCOV_EXCL_STOP */
 
 void _entity_init_object_info_params(obj_info_t *info, mtp_uint32 store_id,
 		mtp_uint32 parent_handle, mtp_char *file_name, dir_entry_t *dir)
@@ -170,6 +174,7 @@ mtp_uint32 _entity_parse_raw_obj_info(mtp_uchar *buf, mtp_uint32 buf_sz,
 	retv_if(buf == NULL, 0);
 	retvm_if(buf_sz < FIXED_LENGTH_MEMBERS_SIZE, 0, "buf_sz[%d] is less", buf_sz);
 
+	/* LCOV_EXCL_START */
 	/* Copy Obj Props from store_id till file_size */
 	memcpy(&(info->store_id), temp, (sizeof(mtp_uint16) * 2 + sizeof(mtp_uint32) * 2));
 	temp += (sizeof(mtp_uint16) * 2 + sizeof(mtp_uint32) * 2);
@@ -407,6 +412,7 @@ void _entity_dealloc_obj_info(obj_info_t *info)
 	info = NULL;
 	return;
 }
+/* LCOV_EXCL_STOP */
 
 mtp_obj_t *_entity_alloc_mtp_object(void)
 {
@@ -460,6 +466,7 @@ mtp_bool _entity_set_object_file_path(mtp_obj_t *obj, void *file_path,
 	return TRUE;
 }
 
+/* LCOV_EXCL_START */
 mtp_bool _entity_check_child_obj_path(mtp_obj_t *obj,
 		mtp_char *src_path, mtp_char *dest_path)
 {
@@ -621,14 +628,7 @@ mtp_bool _entity_set_child_object_path(mtp_obj_t *obj, mtp_char *src_path,
 		}
 		_util_delete_file_from_db(child_obj->file_path);
 
-		if (_entity_set_object_file_path(child_obj, dest_child_path,
-					CHAR_TYPE) == FALSE) {
-			ERR("Failed to set full path!!");
-			_entity_remove_reference_child_array(obj,
-					child_obj->obj_handle);
-			_entity_dealloc_mtp_obj(child_obj);
-			continue;
-		}
+		_entity_set_object_file_path(child_obj, dest_child_path, CHAR_TYPE);
 
 		if (child_obj->obj_info == NULL) {
 			ERR("obj_info is NULL");
@@ -650,6 +650,7 @@ mtp_bool _entity_set_child_object_path(mtp_obj_t *obj, mtp_char *src_path,
 	_prop_deinit_ptparray(&child_arr);
 	return TRUE;
 }
+/* LCOV_EXCL_STOP */
 
 mtp_bool _entity_add_reference_child_array(mtp_obj_t *obj, mtp_uint32 handle)
 {
@@ -661,6 +662,7 @@ mtp_bool _entity_add_reference_child_array(mtp_obj_t *obj, mtp_uint32 handle)
 	return TRUE;
 }
 
+/* LCOV_EXCL_START */
 ptp_array_t *_entity_get_reference_child_array(mtp_obj_t *obj)
 {
 	return &(obj->child_array);
@@ -752,3 +754,4 @@ void _entity_dealloc_mtp_obj(mtp_obj_t *obj)
 	obj = NULL;
 	return;
 }
+/* LCOV_EXCL_STOP */

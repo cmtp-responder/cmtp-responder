@@ -17,6 +17,10 @@
 #ifndef _MTP_STORE_H_
 #define _MTP_STORE_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "mtp_object.h"
 
 
@@ -123,5 +127,9 @@ void _entity_store_recursive_enum_folder_objects(mtp_store_t *store,
 		mtp_obj_t *pobj);
 void _entity_list_modified_files(mtp_uint32 minutes);
 void _entity_copy_store_data(mtp_store_t *dst, mtp_store_t *src);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _MTP_STORE_H_ */

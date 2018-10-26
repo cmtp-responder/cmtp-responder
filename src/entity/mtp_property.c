@@ -83,6 +83,7 @@ static mtp_uint32 __count_interdep_proplist(obj_interdep_proplist_t *config_list
 /*
  * FUNCTIONS
  */
+/* LCOV_EXCL_START */
 static mtp_bool __check_object_propcode(obj_prop_desc_t *prop,
 		mtp_uint32 propcode, mtp_uint32 group_code)
 {
@@ -581,6 +582,7 @@ static mtp_bool __prop_common_metadata(mtp_obj_t *obj,
 
 	return TRUE;
 }
+/* LCOV_EXCL_STOP */
 
 static void __build_supported_common_props(mtp_uchar *count,
 		obj_prop_desc_t *prop)
@@ -733,6 +735,7 @@ ptp_array_t *_prop_alloc_ptparray(data_type_t type)
 	return (parray);
 }
 
+/* LCOV_EXCL_START */
 mtp_uint32 _prop_get_size_ptparray(ptp_array_t *parray)
 {
 	mtp_uint16 size = 0;
@@ -759,6 +762,7 @@ mtp_uint32 _prop_get_size_ptparray_without_elemsize(ptp_array_t *parray)
 
 	return (size * parray->num_ele);
 }
+/* LCOV_EXCL_STOP */
 
 mtp_bool _prop_grow_ptparray(ptp_array_t *parray, mtp_uint32 new_size)
 {
@@ -774,6 +778,7 @@ mtp_bool _prop_grow_ptparray(ptp_array_t *parray, mtp_uint32 new_size)
 	if (new_size < parray->arr_size)
 		return TRUE;
 
+	/* LCOV_EXCL_START */
 	parray->array_entry =
 		g_realloc(parray->array_entry, size * new_size);
 	if (parray->array_entry == NULL) {
@@ -783,6 +788,7 @@ mtp_bool _prop_grow_ptparray(ptp_array_t *parray, mtp_uint32 new_size)
 	parray->arr_size = new_size;
 
 	return TRUE;
+	/* LCOV_EXCL_STOP */
 }
 
 mtp_int32 _prop_find_ele_ptparray(ptp_array_t *parray, mtp_uint32 element)
@@ -795,6 +801,7 @@ mtp_int32 _prop_find_ele_ptparray(ptp_array_t *parray, mtp_uint32 element)
 	retv_if(parray->array_entry == NULL, ELEMENT_NOT_FOUND);
 
 	switch (parray->type) {
+	/* LCOV_EXCL_START */
 	case UINT8_TYPE:
 		ptr8 = parray->array_entry;
 		for (ii = 0; ii < parray->num_ele; ii++) {
@@ -810,7 +817,7 @@ mtp_int32 _prop_find_ele_ptparray(ptp_array_t *parray, mtp_uint32 element)
 				return ii;
 		}
 		break;
-
+	/* LCOV_EXCL_STOP */
 	case PTR_TYPE:
 	case UINT32_TYPE:
 		ptr32 = parray->array_entry;
@@ -826,6 +833,7 @@ mtp_int32 _prop_find_ele_ptparray(ptp_array_t *parray, mtp_uint32 element)
 	return ELEMENT_NOT_FOUND;
 }
 
+/* LCOV_EXCL_START */
 mtp_bool _prop_get_ele_ptparray(ptp_array_t *parray, mtp_uint32 index, void *ele)
 {
 	mtp_uchar *ptr8 = NULL;
@@ -857,6 +865,7 @@ mtp_bool _prop_get_ele_ptparray(ptp_array_t *parray, mtp_uint32 index, void *ele
 	}
 	return TRUE;
 }
+/* LCOV_EXCL_STOP */
 
 mtp_bool _prop_append_ele_ptparray(ptp_array_t *parray, mtp_uint32 element)
 {
@@ -874,6 +883,7 @@ mtp_bool _prop_append_ele_ptparray(ptp_array_t *parray, mtp_uint32 element)
 	}
 
 	switch (parray->type) {
+	/* LCOV_EXCL_START */
 	case UINT8_TYPE:
 		ptr8 = parray->array_entry;
 		ptr8[parray->num_ele++] = (mtp_uchar)element;
@@ -883,7 +893,7 @@ mtp_bool _prop_append_ele_ptparray(ptp_array_t *parray, mtp_uint32 element)
 		ptr16 = parray->array_entry;
 		ptr16[parray->num_ele++] = (mtp_uint16) element;
 		break;
-
+	/* LCOV_EXCL_STOP */
 	case PTR_TYPE:
 	case UINT32_TYPE:
 		ptr32 = parray->array_entry;
@@ -897,6 +907,7 @@ mtp_bool _prop_append_ele_ptparray(ptp_array_t *parray, mtp_uint32 element)
 	return TRUE;
 }
 
+/* LCOV_EXCL_START */
 mtp_bool _prop_append_ele128_ptparray(ptp_array_t *parray, mtp_uint64 *element)
 {
 	mtp_uchar *ptr = NULL;
@@ -1103,6 +1114,7 @@ void _prop_destroy_ptparray(ptp_array_t *parray)
 	g_free(parray);
 	return;
 }
+/* LCOV_EXCL_STOP */
 
 mtp_uint16 __get_ptp_array_elem_size(data_type_t type)
 {
@@ -1185,6 +1197,7 @@ void _prop_copy_char_to_ptpstring(ptp_string_t *pstring, void *str,
 	pwchar = (mtp_wchar *)str;
 
 	if (str == NULL) {
+		/* LCOV_EXCL_START */
 		pstring->num_chars = 0;
 		return;
 	}
@@ -1207,6 +1220,7 @@ void _prop_copy_char_to_ptpstring(ptp_string_t *pstring, void *str,
 		ERR("Unknown character mode : %d\n", cmode);
 		pstring->num_chars = 0;
 		return;
+		/* LCOV_EXCL_STOP */
 	}
 
 	if (i == MAX_PTP_STRING_CHARS)
@@ -1219,6 +1233,7 @@ void _prop_copy_char_to_ptpstring(ptp_string_t *pstring, void *str,
 	return;
 }
 
+/* LCOV_EXCL_START */
 void _prop_copy_time_to_ptptimestring(ptp_time_string_t *pstring,
 		system_time_t *sys_time)
 {
@@ -1247,6 +1262,7 @@ void _prop_copy_time_to_ptptimestring(ptp_time_string_t *pstring,
 	}
 	return;
 }
+/* LCOV_EXCL_STOP */
 
 void _prop_copy_ptpstring(ptp_string_t *dst, ptp_string_t *src)
 {
@@ -1259,6 +1275,7 @@ void _prop_copy_ptpstring(ptp_string_t *dst, ptp_string_t *src)
 	return;
 }
 
+/* LCOV_EXCL_START */
 void _prop_copy_ptptimestring(ptp_time_string_t *dst, ptp_time_string_t *src)
 {
 	mtp_uint16 ii;
@@ -1283,6 +1300,7 @@ mtp_bool _prop_is_equal_ptpstring(ptp_string_t *dst, ptp_string_t *src)
 	}
 	return TRUE;
 }
+/* LCOV_EXCL_STOP */
 
 mtp_uint32 _prop_size_ptpstring(ptp_string_t *pstring)
 {
@@ -1292,6 +1310,7 @@ mtp_uint32 _prop_size_ptpstring(ptp_string_t *pstring)
 	return (pstring->num_chars * sizeof(mtp_wchar) + 1);
 }
 
+/* LCOV_EXCL_START */
 mtp_uint32 _prop_size_ptptimestring(ptp_time_string_t *pstring)
 {
 	if (pstring == NULL)
@@ -1402,6 +1421,7 @@ mtp_uint32 _prop_parse_rawstring(ptp_string_t *pstring, mtp_uchar *buf,
 		return _prop_size_ptpstring(pstring);
 	}
 }
+/* LCOV_EXCL_STOP */
 
 void _prop_destroy_ptpstring(ptp_string_t *pstring)
 {
@@ -1427,12 +1447,14 @@ mtp_bool _prop_is_valid_integer(prop_info_t *prop_info, mtp_uint64 value)
 			return FALSE;
 		}
 	} else if (prop_info->form_flag == ENUM_FORM) {
+		/* LCOV_EXCL_START */
 		slist_node_t *node = prop_info->supp_value_list.start;
 		mtp_uint32 ii;
 		for (ii = 0; ii < prop_info->supp_value_list.nnodes;
 				ii++, node = node->link) {
 			if (value == (mtp_uint32) node->value)
 				return TRUE;
+		/* LCOV_EXCL_STOP */
 		}
 
 		/* if it hits here, must be an invalid value */
@@ -1452,6 +1474,7 @@ mtp_bool _prop_is_valid_string(prop_info_t *prop_info, ptp_string_t *pstring)
 		return FALSE;
 
 	if (prop_info->form_flag == ENUM_FORM) {
+		/* LCOV_EXCL_START */
 		slist_node_t *node = NULL;
 		mtp_uint32 ii;
 		ptp_string_t *ele_str = NULL;
@@ -1478,6 +1501,7 @@ mtp_bool _prop_is_valid_string(prop_info_t *prop_info, ptp_string_t *pstring)
 			ERR("invalid data time format");
 			return FALSE;
 		}
+		/* LCOV_EXCL_STOP */
 		return TRUE;
 	} else if (prop_info->form_flag == REGULAR_EXPRESSION_FORM) {
 		return TRUE;
@@ -1538,6 +1562,7 @@ mtp_bool _prop_set_default_array(prop_info_t *prop_info, mtp_uchar *parray,
 		return FALSE;
 
 	/* Copies the data into the PTP array */
+	/* LCOV_EXCL_START */
 	if ((prop_info->default_val.array != NULL) && (num_ele != 0)) {
 		mtp_uchar *ptr8 = NULL;
 		mtp_uint16 *ptr16 = NULL;
@@ -1571,6 +1596,7 @@ mtp_bool _prop_set_default_array(prop_info_t *prop_info, mtp_uchar *parray,
 		}
 		return TRUE;
 	}
+	/* LCOV_EXCL_STOP */
 	return FALSE;
 }
 
@@ -1614,6 +1640,7 @@ mtp_bool _prop_set_current_string(device_prop_desc_t *prop, ptp_string_t *str)
 	}
 }
 
+/* LCOV_EXCL_START */
 mtp_bool _prop_set_current_array(device_prop_desc_t *prop, mtp_uchar *arr)
 {
 	mtp_uint32 num_ele = 0;
@@ -1908,6 +1935,7 @@ mtp_bool _prop_set_current_array_val(obj_prop_val_t *pval, mtp_uchar *arr,
 	}
 	return FALSE;
 }
+/* LCOV_EXCL_STOP */
 
 #ifdef __BIG_ENDIAN__
 mtp_bool _prop_set_current_array_val_usbrawdata(obj_prop_val_t *pval,
@@ -2156,6 +2184,7 @@ void _prop_init_device_property_desc(device_prop_desc_t *prop,
 	return;
 }
 
+/* LCOV_EXCL_START */
 mtp_uint32 _prop_size_device_prop_desc(device_prop_desc_t *prop)
 {
 	/* size :PropCode,Datatype,Getset,formflag */
@@ -2700,6 +2729,7 @@ void _prop_destroy_obj_propval(obj_prop_val_t *pval)
 
 	return;
 }
+/* LCOV_EXCL_STOP */
 
 static void __init_obj_prop_desc(obj_prop_desc_t *prop, mtp_uint16 propcode,
 		mtp_uint16 data_type, mtp_uchar get_set, mtp_uchar form_flag,
@@ -2778,6 +2808,7 @@ static void __init_obj_prop_desc(obj_prop_desc_t *prop, mtp_uint16 propcode,
 	return;
 }
 
+/* LCOV_EXCL_START */
 static mtp_uint32 __get_size_default_val_obj_prop_desc(obj_prop_desc_t *prop)
 {
 	mtp_uint32 size = 0;
@@ -3092,6 +3123,7 @@ mtp_uint32 _prop_pack_default_val_obj_prop_desc(obj_prop_desc_t *prop,
 
 	return bytes_to_write;
 }
+/* LCOV_EXCL_STOP */
 
 obj_prop_desc_t *_prop_get_obj_prop_desc(mtp_uint32 format_code,
 		mtp_uint32 propcode)
@@ -3111,6 +3143,7 @@ obj_prop_desc_t *_prop_get_obj_prop_desc(mtp_uint32 format_code,
 	}
 
 	switch (format_code) {
+	/* LCOV_EXCL_START */
 	case PTP_FMT_MP3:
 	case PTP_FMT_WAVE:
 		for (i = 0; i < NUM_OBJECT_PROP_DESC_MP3; i++) {
@@ -3149,12 +3182,14 @@ obj_prop_desc_t *_prop_get_obj_prop_desc(mtp_uint32 format_code,
 	default:
 		break;
 	}
+	/* LCOV_EXCL_STOP */
 
 	ERR("No matched property[0x%x], format[0x%x]!!\n", propcode,
 			format_code);
 	return NULL;
 }
 
+/* LCOV_EXCL_START */
 static void __destroy_obj_prop_desc(obj_prop_desc_t *prop)
 {
 	slist_node_t *node = NULL;
@@ -3592,6 +3627,7 @@ void _prop_destroy_obj_proplist(obj_proplist_t *prop_list)
 	}
 	return;
 }
+/* LCOV_EXCL_STOP */
 
 mtp_bool _prop_add_supp_integer_val(prop_info_t *prop_info, mtp_uint32 value)
 {
@@ -3653,6 +3689,7 @@ mtp_uint32 _prop_get_supp_obj_props(mtp_uint32 format_code,
 	}
 
 	switch (format_code) {
+	/* LCOV_EXCL_START */
 	case PTP_FMT_MP3:
 	case PTP_FMT_WAVE:
 		for (i = 0; i < NUM_OBJECT_PROP_DESC_MP3; i++) {
@@ -3690,6 +3727,7 @@ mtp_uint32 _prop_get_supp_obj_props(mtp_uint32 format_code,
 	default:
 		break;
 	}
+	/* LCOV_EXCL_STOP */
 	DBG("getsupp_props : format [0x%x], supported list [%d]\n",
 			format_code, supp_props->num_ele);
 	return supp_props->num_ele;
@@ -4752,6 +4790,7 @@ mtp_bool _prop_build_supp_props_album(void)
 	return TRUE;
 }
 
+/* LCOV_EXCL_ST */
 void _prop_destroy_supp_obj_props(void)
 {
 	mtp_uint32 i = 0;
@@ -4865,6 +4904,7 @@ static mtp_uint32 __count_interdep_proplist(obj_interdep_proplist_t *config_list
 	}
 	return count;
 }
+/* LCOV_EXCL_STOP */
 
 mtp_uint32 _prop_get_size_interdep_proplist(obj_interdep_proplist_t *config_list,
 		mtp_uint32 format_code)
@@ -4877,12 +4917,14 @@ mtp_uint32 _prop_get_size_interdep_proplist(obj_interdep_proplist_t *config_list
 	node = config_list->plist.start;
 
 	for (ii = 0; ii < config_list->plist.nnodes; ii++) {
+		/* LCOV_EXCL_START */
 		prop_config = node->value;
 		if ((prop_config->format_code == format_code) ||
 				(prop_config->format_code == PTP_FORMATCODE_NOTUSED)) {
 
 			size += _prop_get_size_interdep_prop(prop_config);
 		}
+		/* LCOV_EXCL_STOP */
 	}
 	return size;
 }
@@ -4901,6 +4943,7 @@ mtp_uint32 _prop_pack_interdep_proplist(obj_interdep_proplist_t *config_list,
 		return 0;
 	}
 
+	/* LCOV_EXCL_START */
 	*(mtp_uint32 *)buf = __count_interdep_proplist(config_list,
 			format_code);
 #ifdef __BIG_ENDIAN__
@@ -4924,6 +4967,7 @@ mtp_uint32 _prop_pack_interdep_proplist(obj_interdep_proplist_t *config_list,
 
 	return (mtp_uint32)(temp - buf);
 }
+/* LCOV_EXCL_STOP */
 
 mtp_bool _get_oma_drm_status(void)
 {

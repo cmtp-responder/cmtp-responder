@@ -55,6 +55,7 @@ static mtp_bool __send_start_event_to_eh_thread(void);
 /*
  * FUNCTIONS
  */
+/* LCOV_EXCL_START */
 mtp_bool _eh_register_notification_callbacks(void)
 {
 	mtp_int32 ret;
@@ -487,3 +488,4 @@ static mtp_bool __send_start_event_to_eh_thread(void)
 
 	return TRUE;
 }
+/* LCOV_EXCL_STOP */

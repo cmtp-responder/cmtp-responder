@@ -17,6 +17,10 @@
 #ifndef _MTP_DEVICE_H_
 #define _MTP_DEVICE_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "mtp_store.h"
 #include "mtp_property.h"
 
@@ -53,7 +57,6 @@
 #define MTP_STANDARD_VERSION		0x64
 #define MTP_VENDOR_EXTN_ID		0x06
 #define MTP_VENDOR_EXTN_VERSION		0x64
-
 
 /* This enumeration specifies the type of store. */
 typedef enum {
@@ -268,5 +271,10 @@ void _device_set_device_name(mtp_char *dev_name);
 mtp_char *_device_get_device_name(void);
 mtp_char *_device_get_sync_partner(void);
 void _device_set_sync_partner(mtp_char *sync_ptr);
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _MTP_DEVICE_H_ */

@@ -11,6 +11,10 @@ AUX_SOURCE_DIRECTORY(${CMAKE_SOURCE_DIR}/src/entity SRCS)
 AUX_SOURCE_DIRECTORY(${CMAKE_SOURCE_DIR}/src/transport SRCS)
 AUX_SOURCE_DIRECTORY(${CMAKE_SOURCE_DIR}/src/util SRCS)
 
+IF(BUILD_GCOV)
+	ADD_DEFINITIONS("-DTIZEN_TEST_GCOV")
+ENDIF(BUILD_GCOV)
+
 INCLUDE(FindPkgConfig)
 pkg_check_modules(pkgs REQUIRED glib-2.0 capi-content-media-content
 	capi-media-metadata-extractor vconf dlog tapi capi-system-info storage libsystemd-daemon libsystemd)
@@ -20,7 +24,7 @@ FOREACH(flag ${pkgs_CFLAGS})
 ENDFOREACH(flag)
 
 SET(EXTRA_CFLAGS "${EXTRA_CFLAGS} -Wall -Werror-implicit-function-declaration")
-SET(EXTRA_CFLAGS "${EXTRA_CFLAGS} -fexceptions -fvisibility=hidden")
+SET(EXTRA_CFLAGS "${EXTRA_CFLAGS} -fexceptions -fvisibility=hidden -fprofile-arcs -ftest-coverage")
 
 SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${EXTRA_CFLAGS} -fPIE")
 SET(CMAKE_EXE_LINKER_FLAGS " -Wl,--as-needed -pie -Wl,--hash-style=both,-z,relroi ")
@@ -40,3 +44,7 @@ ADD_CUSTOM_TARGET(descs_strs ALL DEPENDS descs strs)
 
 INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/descs DESTINATION /etc/mtp-responder)
 INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/strs DESTINATION /etc/mtp-responder)
+
+IF(BUILD_GTESTS)
+	ADD_SUBDIRECTORY(unittest)
+ENDIF(BUILD_GTESTS)

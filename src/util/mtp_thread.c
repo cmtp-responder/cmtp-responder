@@ -30,7 +30,7 @@ mtp_bool _util_thread_create(pthread_t *tid, const mtp_char *tname,
 
 	error = pthread_attr_init(&attr);
 	if (error != 0) {
-		ERR("pthread_attr_init Fail [%d], errno [%d]\n", error, errno);
+		ERR("pthread_attr_init Fail [%d], errno [%d]\n", error, errno);	//	LCOV_EXCL_LINE
 		return FALSE;
 	}
 
@@ -38,22 +38,26 @@ mtp_bool _util_thread_create(pthread_t *tid, const mtp_char *tname,
 		error = pthread_attr_setdetachstate(&attr,
 				PTHREAD_CREATE_JOINABLE);
 		if (error != 0) {
+			/* LCOV_EXCL_START */
 			ERR("pthread_attr_setdetachstate Fail [%d], errno [%d]\n", error, errno);
 			pthread_attr_destroy(&attr);
 			return FALSE;
+			/* LCOV_EXCL_STOP */
 		}
 	}
 
 	error = pthread_create(tid, &attr, thread_func, arg);
 	if (error != 0) {
+		/* LCOV_EXCL_START */
 		ERR("Thread creation Fail [%d], errno [%d]\n", error, errno);
 		pthread_attr_destroy(&attr);
 		return FALSE;
+		/* LCOV_EXCL_STOP */
 	}
 
 	error = pthread_attr_destroy(&attr);
 	if (error != 0)
-		ERR("pthread_attr_destroy Fail [%d] errno [%d]\n", error, errno);
+		ERR("pthread_attr_destroy Fail [%d] errno [%d]\n", error, errno);	//	LCOV_EXCL_LINE
 
 	return TRUE;
 }
@@ -65,8 +69,8 @@ mtp_bool _util_thread_join(pthread_t tid, void **data)
 	res = pthread_join(tid, data);
 	if (res != 0) {
 		ERR("pthread_join Fail res = [%d] for thread [%u] errno [%d]\n",
-				res, tid, errno);
-		return FALSE;
+				res, tid, errno);	//	LCOV_EXCL_LINE
+		return FALSE;	//	LCOV_EXCL_LINE
 	}
 
 	return TRUE;
@@ -90,8 +94,10 @@ mtp_bool _util_thread_cancel(pthread_t tid)
 	return TRUE;
 }
 
+/* LCOV_EXCL_START */
 void _util_thread_exit(void *val_ptr)
 {
 	pthread_exit(val_ptr);
 	return;
 }
+/* LCOV_EXCL_STOP */

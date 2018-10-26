@@ -71,6 +71,7 @@ static void __handle_control_request(mtp_int32 request);
  * FUNCTIONS
  */
 
+/* LCOV_EXCL_START */
 static mtp_bool __io_init()
 {
 	int ret;
@@ -662,6 +663,7 @@ static mtp_uint32 ffs_transport_get_usb_packet_len(void)
 
 	return MTP_MAX_PACKET_SIZE_SEND_HS;
 }
+/* LCOV_EXCL_STOP */
 
 
 const mtp_usb_driver_t mtp_usb_driver_ffs = {

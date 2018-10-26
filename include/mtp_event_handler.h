@@ -17,6 +17,10 @@
 #ifndef _MTP_EVENT_HANDLER_H_
 #define _MTP_EVENT_HANDLER_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <vconf.h>
 #include "mtp_datatype.h"
 #include "mtp_util.h"
@@ -61,5 +65,9 @@ void _handle_mmc_notification(keynode_t *key, void *data);
 void _handle_lock_status_notification(keynode_t *key, void *data);
 void _eh_send_event_req_to_eh_thread(event_code_t action, mtp_ulong param1,
 		mtp_ulong param2, void *param3);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif	/* _MTP_EVENT_HANDLER_H_ */

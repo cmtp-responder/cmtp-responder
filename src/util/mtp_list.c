@@ -41,8 +41,8 @@ mtp_bool _util_add_node(slist_t *l_ptr, void *data)
 
 	node = (slist_node_t *)g_malloc(sizeof(slist_node_t));
 	if (node == NULL) {
-		ERR("g_malloc() Fail");
-		return FALSE;
+		ERR("g_malloc() Fail");	//	LCOV_EXCL_LINE
+		return FALSE;	//	LCOV_EXCL_LINE
 	}
 
 	node->value = data;
@@ -58,6 +58,7 @@ mtp_bool _util_add_node(slist_t *l_ptr, void *data)
 	return TRUE;
 }
 
+/* LCOV_EXCL_START */
 slist_node_t* _util_delete_node(slist_t *l_ptr, void *data)
 {
 	retv_if(data == NULL, NULL);
@@ -103,6 +104,7 @@ static slist_node_t *__util_del_first_node(slist_t *l_ptr)
 
 	return temp;
 }
+/* LCOV_EXCL_STOP */
 
 /* This API will send NULL if list does not have elements */
 slist_iterator* _util_init_list_iterator(slist_t *l_ptr)
@@ -114,8 +116,8 @@ slist_iterator* _util_init_list_iterator(slist_t *l_ptr)
 
 	temp = (slist_iterator *)g_malloc(sizeof(slist_iterator));
 	if (temp == NULL) {
-		ERR("g_malloc() Fail");
-		return NULL;
+		ERR("g_malloc() Fail");	//	LCOV_EXCL_LINE
+		return NULL;	//	LCOV_EXCL_LINE
 	}
 
 	temp->node_ptr = l_ptr->start;
@@ -136,12 +138,14 @@ void* _util_get_list_next(slist_iterator *iter)
 	return temp->value;
 }
 
+/* LCOV_EXCL_START */
 slist_node_t* _util_get_first_node(slist_t *l_ptr)
 {
 	retv_if(l_ptr == NULL, NULL);
 
 	return l_ptr->start;
 }
+/* LCOV_EXCL_STOP */
 
 void _util_deinit_list_iterator(slist_iterator *iter)
 {

@@ -17,6 +17,10 @@
 #ifndef _MTP_USB_DRIVER_H_
 #define _MTP_USB_DRIVER_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "mtp_config.h"
 #include "mtp_datatype.h"
 #include "mtp_msgq.h"
@@ -95,5 +99,9 @@ mtp_uint32 _transport_get_usb_packet_len(void);
 mtp_uint32 _get_tx_pkt_size(void);
 mtp_uint32 _get_rx_pkt_size(void);
 mtp_transport_type_t _transport_get_type(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _MTP_USB_DRIVER_H_ */

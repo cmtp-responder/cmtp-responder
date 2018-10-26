@@ -22,6 +22,7 @@
 /*
  * FUNCTIONS
  */
+/* LCOV_EXCL_START */
 mtp_bool _util_msgq_init(msgq_id_t *mq_id, mtp_uint32 flags)
 {
 	*mq_id = msgget(IPC_PRIVATE, 0666 | IPC_CREAT);
@@ -121,3 +122,4 @@ mtp_bool _util_rcv_msg_from_mq(msgq_id_t mq_id, unsigned char **pkt,
 
 	return TRUE;
 }
+/* LCOV_EXCL_STOP */

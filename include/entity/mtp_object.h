@@ -17,6 +17,10 @@
 #ifndef _MTP_OBJECT_H_
 #define _MTP_OBJECT_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "mtp_list.h"
 #include "ptp_datacodes.h"
 #include "mtp_fs.h"
@@ -35,6 +39,7 @@
  * obj_info_t structure : Contains object metadata related information
  * Size = 26 Bytes
  */
+
 typedef struct {
 	mtp_uint32 store_id;		/* The storage the object resides */
 	mtp_uint16 obj_fmt;		/* object format code */
@@ -92,5 +97,9 @@ mtp_bool _entity_set_reference_child_array(mtp_obj_t *obj, mtp_uchar *buf,
 void _entity_copy_mtp_object(mtp_obj_t *dst, mtp_obj_t *src);
 mtp_bool _entity_remove_reference_child_array(mtp_obj_t *obj, mtp_uint32 handle);
 void _entity_dealloc_mtp_obj(mtp_obj_t *obj);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _MTP_OBJECT_H_ */

@@ -17,6 +17,10 @@
 #ifndef _MTP_LIST_H_
 #define _MTP_LIST_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "mtp_datatype.h"
 #include "mtp_util.h"
 
@@ -42,5 +46,9 @@ slist_iterator *_util_init_list_iterator(slist_t *l_ptr);
 void *_util_get_list_next(slist_iterator *iter);
 slist_node_t *_util_get_first_node(slist_t *l_ptr);
 void _util_deinit_list_iterator(slist_iterator *iter);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _MTP_LIST_H_ */

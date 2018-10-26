@@ -17,6 +17,10 @@
 #ifndef _MTP_SUPPORT_H_
 #define	_MTP_SUPPORT_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "mtp_datatype.h"
 #include "mtp_config.h"
 
@@ -55,5 +59,9 @@ void _util_conv_wstr_to_guid(mtp_wchar *wstr, mtp_uint64 *guid);
 mtp_bool _util_get_unique_dir_path(const mtp_char *exist_path, mtp_char *new_path,
 		mtp_uint32 new_path_buf_len);
 mtp_int32 _util_system_cmd_wait(const mtp_char *cmd);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _MTP_SUPPORT_H_ */

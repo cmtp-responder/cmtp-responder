@@ -17,6 +17,10 @@
 #ifndef _MTP_CMD_HANDLER_H_
 #define _MTP_CMD_HANDLER_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "mtp_object.h"
 #include "mtp_device.h"
 #include "ptp_container.h"
@@ -96,5 +100,9 @@ mtp_bool _cmd_hdlr_send_response(mtp_handler_t *hdlr, mtp_uint16 resp,
 		mtp_uint32 num_param, mtp_uint32 *params);
 mtp_bool _cmd_hdlr_send_response_code(mtp_handler_t *hdlr, mtp_uint16 resp);
 void _receive_mq_data_cb(mtp_char *buffer, mtp_int32 buf_len);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _MTP_CMD_HANDLER_H_ */

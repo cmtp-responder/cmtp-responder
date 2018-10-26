@@ -23,6 +23,7 @@ static const mtp_usb_driver_t *usb_driver;
 /*
  * FUNCTIONS
  */
+/* LCOV_EXCL_START */
 mtp_bool _transport_select_driver(void)
 {
 	if (access(MTP_DRIVER_PATH, F_OK) == 0) {
@@ -115,3 +116,4 @@ mtp_transport_type_t _transport_get_type(void)
 
 	return MTP_TRANSPORT_UNKNOWN;
 }
+/* LCOV_EXCL_STOP */

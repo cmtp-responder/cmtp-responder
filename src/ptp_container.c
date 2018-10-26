@@ -43,6 +43,7 @@ mtp_uint32 _hdlr_get_param_cmd_container(cmd_container_t *cntr,
 	return 0;
 }
 
+/* LCOV_EXCL_START */
 void _hdlr_copy_cmd_container_unknown_params(cmd_container_t *src,
 		cmd_container_t *dst)
 {
@@ -60,6 +61,7 @@ void _hdlr_copy_cmd_container_unknown_params(cmd_container_t *src,
 
 	return;
 }
+/* LCOV_EXCL_STOP */
 
 void _hdlr_copy_cmd_container(cmd_container_t *src, cmd_container_t *dst)
 {
@@ -108,6 +110,7 @@ mtp_bool _hdlr_validate_cmd_container(mtp_uchar *blk, mtp_uint32 size)
 	if (size < sizeof(header_container_t) || size > sizeof(cmd_container_t))
 		return FALSE;
 
+	/* LCOV_EXCL_START */
 	cmd_container_t *ptr = NULL;
 
 	ptr = (cmd_container_t *)blk;
@@ -119,6 +122,7 @@ mtp_bool _hdlr_validate_cmd_container(mtp_uchar *blk, mtp_uint32 size)
 	}
 
 	return TRUE;
+	/* LCOV_EXCL_STOP */
 }
 
 void _hdlr_init_data_container(data_container_t *dst, mtp_uint16 code,
@@ -165,6 +169,7 @@ mtp_uchar *_hdlr_alloc_buf_data_container(data_container_t *dst,
 	return (dst->data + sizeof(header_container_t));
 }
 
+/* LCOV_EXCL_START */
 mtp_bool _hdlr_send_data_container(data_container_t *dst)
 {
 	mtp_uint32 sent;
@@ -187,6 +192,7 @@ mtp_bool _hdlr_send_bulk_data(mtp_uchar *dst, mtp_uint32 len)
 
 	return TRUE;
 }
+/* LCOV_EXCL_STOP */
 
 mtp_bool _hdlr_rcv_data_container(data_container_t *dst, mtp_uint32 size)
 {
@@ -237,6 +243,7 @@ mtp_bool _hdlr_rcv_data_container(data_container_t *dst, mtp_uint32 size)
 	return TRUE;
 }
 
+/* LCOV_EXCL_START */
 mtp_bool _hdlr_rcv_file_in_data_container(data_container_t *dst,
 		mtp_char *filepath, mtp_uint32 path_len)
 {
@@ -289,6 +296,7 @@ mtp_bool _hdlr_rcv_file_in_data_container(data_container_t *dst,
 
 	return TRUE;
 }
+/* LCOV_EXCL_STOP */
 
 mtp_uint32 _hdlr_get_payload_size(data_container_t *dst)
 {
@@ -323,6 +331,7 @@ void _hdlr_resp_container_init(cmd_container_t *dst, mtp_uint16 resp_code,
 	return;
 }
 
+/* LCOV_EXCL_START */
 mtp_bool _hdlr_send_resp_container(cmd_container_t *dst)
 {
 	mtp_uint32 sent = 0;
@@ -345,6 +354,7 @@ mtp_bool _hdlr_send_resp_container(cmd_container_t *dst)
 
 	return TRUE;
 }
+/* LCOV_EXCL_STOP */
 
 void _hdlr_init_event_container(cmd_container_t *dst, mtp_uint16 code,
 		mtp_uint32 tid, mtp_uint32 param1, mtp_uint32 param2)
@@ -376,6 +386,8 @@ void _hdlr_init_event_container_with_param(cmd_container_t *dst,
 #endif /* __BIG_ENDIAN__ */
 	return;
 }
+
+/* LCOV_EXCL_START */
 mtp_bool _hdlr_send_event_container(cmd_container_t *dst)
 {
 	mtp_uint32 sent = 0;
@@ -385,6 +397,7 @@ mtp_bool _hdlr_send_event_container(cmd_container_t *dst)
 	return (retval == MTP_ERROR_NONE && sent == dst->len) ?
 		TRUE : FALSE;
 }
+/* LCOV_EXCL_STOP */
 
 void _hdlr_conv_cmd_container_byte_order(cmd_container_t *dst)
 {

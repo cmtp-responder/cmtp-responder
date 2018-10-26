@@ -17,6 +17,10 @@
 #ifndef _MTP_INOTI_HANDLER_H_
 #define _MTP_INOTI_HANDLER_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "mtp_config.h"
 #ifdef MTP_SUPPORT_OBJECTADDDELETE_EVENT
 #include <sys/inotify.h>
@@ -44,5 +48,9 @@ void _inoti_add_watch_for_fs_events(mtp_char *path);
 mtp_bool _inoti_init_filesystem_evnts();
 void _inoti_deinit_filesystem_events();
 #endif /* MTP_SUPPORT_OBJECTADDDELETE_EVENT */
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _MTP_INOTI_HANDLER_H_ */

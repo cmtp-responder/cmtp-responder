@@ -52,6 +52,7 @@ static void __receive_signal(mtp_int32 n, siginfo_t *info, void *unused);
 /*
  * FUNCTIONS
  */
+/* LCOV_EXCL_START */
 static mtp_bool slp_transport_init_usb_device(void)
 {
 	mtp_int32 status = 0;
@@ -466,7 +467,7 @@ static mtp_uint32 slp_transport_get_usb_packet_len(void)
 
 	return MTP_MAX_PACKET_SIZE_SEND_HS;
 }
-
+/* LCOV_EXCL_STOP */
 
 const mtp_usb_driver_t mtp_usb_driver_slp = {
 	.transport_init_usb_device = slp_transport_init_usb_device,

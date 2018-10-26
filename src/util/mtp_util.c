@@ -43,6 +43,7 @@
 static phone_state_t g_ph_status = { 0 };
 
 
+/* LCOV_EXCL_START */
 void _util_print_error()
 {
 	/*In glibc-2.7, the longest error message string is 50 characters
@@ -52,6 +53,7 @@ void _util_print_error()
 	strerror_r(errno, buff, sizeof(buff));
 	ERR("Error: [%d]:[%s]\n", errno, buff);
 }
+/* LCOV_EXCL_STOP */
 
 mtp_int32 _util_get_battery_level(void)
 {
@@ -91,6 +93,7 @@ mtp_bool _util_get_serial(mtp_char *serial, mtp_uint32 len)
 		g_free(serial_no);
 		return TRUE;
 	}
+/* LCOV_EXCL_START */
 	g_free(serial_no);
 
 	handle = tel_init(NULL);
@@ -123,6 +126,7 @@ mtp_bool _util_get_serial(mtp_char *serial, mtp_uint32 len)
 	g_free(imei_no);
 	return TRUE;
 }
+/* LCOV_EXCL_STOP */
 
 void _util_get_vendor_ext_desc(mtp_char *vendor_ext_desc, mtp_uint32 len)
 {
@@ -136,9 +140,9 @@ void _util_get_vendor_ext_desc(mtp_char *vendor_ext_desc, mtp_uint32 len)
 		"http://tizen.org/feature/platform.version", &version);
 
 	if (ret != SYSTEM_INFO_ERROR_NONE) {
-		ERR("system_info_get_value_string Fail : 0x%X\n", ret);
-		g_strlcpy(vendor_ext_desc, MTP_VENDOR_EXTENSIONDESC_CHAR, len);
-		return;
+		ERR("system_info_get_value_string Fail : 0x%X\n", ret);	//	LCOV_EXCL_LINE
+		g_strlcpy(vendor_ext_desc, MTP_VENDOR_EXTENSIONDESC_CHAR, len);	//	LCOV_EXCL_LINE
+		return;	//	LCOV_EXCL_LINE
 	}
 	g_snprintf(vendor_ext_desc, len, "%stizen.org:%s; ",
 			MTP_VENDOR_EXTENSIONDESC_CHAR, version);
@@ -158,9 +162,9 @@ void _util_get_model_name(mtp_char *model_name, mtp_uint32 len)
 		"http://tizen.org/system/model_name", &model);
 
 	if (ret != SYSTEM_INFO_ERROR_NONE) {
-		ERR("system_info_get_value_string Fail : 0x%X\n", ret);
-		g_strlcpy(model_name, MTP_DEFAULT_MODEL_NAME, len);
-		return;
+		ERR("system_info_get_value_string Fail : 0x%X\n", ret);	//	LCOV_EXCL_LINE
+		g_strlcpy(model_name, MTP_DEFAULT_MODEL_NAME, len);	//	LCOV_EXCL_LINE
+		return;	//	LCOV_EXCL_LINE
 	}
 	g_strlcpy(model_name, model, len);
 	g_free(model);
@@ -180,18 +184,18 @@ void _util_get_device_version(mtp_char *device_version, mtp_uint32 len)
 		"http://tizen.org/feature/platform.version", &version);
 
 	if (ret != SYSTEM_INFO_ERROR_NONE) {
-		ERR("system_info_get_value_string Fail : 0x%X\n", ret);
-		g_strlcpy(device_version, MTP_DEFAULT_DEVICE_VERSION, len);
-		return;
+		ERR("system_info_get_value_string Fail : 0x%X\n", ret);	//	LCOV_EXCL_LINE
+		g_strlcpy(device_version, MTP_DEFAULT_DEVICE_VERSION, len);	//	LCOV_EXCL_LINE
+		return;	//	LCOV_EXCL_LINE
 	}
 
 	ret = system_info_get_platform_string(
 		"http://tizen.org/system/build.string", &build_info);
 
 	if (ret != SYSTEM_INFO_ERROR_NONE) {
-		ERR("system_info_get_value_string Fail : 0x%X\n", ret);
-		g_strlcpy(device_version, MTP_DEFAULT_DEVICE_VERSION, len);
-		g_free(version);
+		ERR("system_info_get_value_string Fail : 0x%X\n", ret);	//	LCOV_EXCL_LINE
+		g_strlcpy(device_version, MTP_DEFAULT_DEVICE_VERSION, len);	//	LCOV_EXCL_LINE
+		g_free(version);	//	LCOV_EXCL_LINE
 		return;
 	}
 	g_snprintf(device_version, len, "TIZEN %s (%s)", version, build_info);
@@ -200,6 +204,7 @@ void _util_get_device_version(mtp_char *device_version, mtp_uint32 len)
 	return;
 }
 
+/* LCOV_EXCL_START */
 void _util_gen_alt_serial(mtp_char *serial, mtp_uint32 len)
 {
 	struct timeval st;
@@ -264,12 +269,14 @@ void _util_get_mmc_status(phone_status_t *val)
 	*val = MTP_PHONE_MMC_INSERTED;
 	return;
 }
+/* LCOV_EXCL_STOP */
 
 phone_status_t _util_get_local_mmc_status(void)
 {
 	return g_ph_status.mmc_state;
 }
 
+/* LCOV_EXCL_START */
 void _util_set_local_mmc_status(const phone_status_t val)
 {
 	g_ph_status.mmc_state = val;
@@ -319,12 +326,14 @@ void _util_get_lock_status(phone_status_t *val)
 		*val = MTP_PHONE_LOCK_OFF;
 	return;
 }
+/* LCOV_EXCL_STOP */
 
 phone_status_t _util_get_local_lock_status(void)
 {
 	return g_ph_status.lock_state;
 }
 
+/* LCOV_EXCL_START */
 void _util_set_local_lock_status(const phone_status_t val)
 {
 	g_ph_status.lock_state = val;
@@ -346,6 +355,7 @@ static bool _util_device_external_supported_cb(int storage_id, storage_type_e ty
 
 	return TRUE;
 }
+/* LCOV_EXCL_STOP */
 
 void _util_get_external_path(char *external_path)
 {
@@ -354,6 +364,7 @@ void _util_get_external_path(char *external_path)
 	error = storage_foreach_device_supported(_util_device_external_supported_cb, external_path);
 
 	if (error != STORAGE_ERROR_NONE) {
+/* LCOV_EXCL_START */
 		ERR("get external storage path Fail");
 		if (external_path != NULL) {
 			strncpy(external_path, MTP_EXTERNAL_PATH_CHAR, sizeof(MTP_EXTERNAL_PATH_CHAR));
@@ -387,6 +398,7 @@ int _util_wait_for_user()
 
 	return 0;
 }
+/* LCOV_EXCL_STOP */
 
 uid_t _util_get_active_user()
 {
@@ -397,20 +409,24 @@ uid_t _util_get_active_user()
 
 	user_cnt = sd_get_active_uids(&active_user_list);
 	if (user_cnt <= 0) {
+		/* LCOV_EXCL_START */
 		ret = _util_wait_for_user();
 		if (ret < 0)
 			return -1;
 
 		user_cnt = sd_get_active_uids(&active_user_list);
+		/* LCOV_EXCL_STOP */
 	}
 
 	if (user_cnt <= 0) {
+		/* LCOV_EXCL_START */
 		ERR("Active user not exists : %d", user_cnt);
 
 		if (active_user_list != NULL)
 			free(active_user_list);
 
 		return -1;
+		/* LCOV_EXCL_STOP */
 	}
 
 	if (active_user_list == NULL) {
@@ -443,10 +459,12 @@ void _util_get_internal_path(char *internal_path)
 	active_name = pwd->pw_name;
 
 	if (active_name == NULL) {
+		/* LCOV_EXCL_START */
 		ERR("active_name is NULL");
 		strncpy(internal_path, MTP_USER_DIRECTORY, sizeof(MTP_USER_DIRECTORY));
 		internal_path[sizeof(MTP_USER_DIRECTORY) - 1] = 0;
 		return;
+		/* LCOV_EXCL_STOP */
 	}
 
 	if (internal_path != NULL) {
@@ -459,6 +477,7 @@ void _util_get_internal_path(char *internal_path)
 	ERR("internal path is %s", internal_path);
 }
 
+/* LCOV_EXCL_START */
 mtp_bool _util_media_content_connect()
 {
 	mtp_int32 ret = 0;
@@ -479,4 +498,4 @@ void _util_media_content_disconnect()
 {
 	media_content_disconnect();
 }
-
+/* LCOV_EXCL_STOP */

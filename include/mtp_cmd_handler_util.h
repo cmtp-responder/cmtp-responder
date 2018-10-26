@@ -17,6 +17,10 @@
 #ifndef _MTP_CMD_HANDLER_UTIL_H_
 #define	_MTP_CMD_HANDLER_UTIL_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "mtp_device.h"
 
 typedef struct {
@@ -111,5 +115,9 @@ mtp_err_t _hutil_get_interdep_prop_config_list_data(void *data,
 mtp_err_t _hutil_get_playback_skip(mtp_int32 skip_param);
 mtp_err_t _hutil_format_storage(mtp_uint32 store_id, mtp_uint32 fs_format);
 mtp_uint32 _hutil_get_storage_info_size(store_info_t *store_info);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _MTP_CMD_HANDLER_UTIL_H_ */

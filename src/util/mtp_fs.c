@@ -60,6 +60,7 @@ FILE* _util_file_open(const mtp_char *filename, file_mode_t mode,
 		break;
 
 	case MTP_FILE_WRITE:
+/* LCOV_EXCL_START */
 		fmode = "w";
 		break;
 
@@ -80,6 +81,7 @@ FILE* _util_file_open(const mtp_char *filename, file_mode_t mode,
 		*error = EINVAL;
 		return NULL;
 	}
+/* LCOV_EXCL_STOP */
 
 	fhandle = fopen(filename, fmode);
 	if (fhandle == NULL) {
@@ -89,6 +91,7 @@ FILE* _util_file_open(const mtp_char *filename, file_mode_t mode,
 		return NULL;
 	}
 
+	/* LCOV_EXCL_START*/
 	fcntl(fileno(fhandle), F_SETFL, O_NOATIME);
 
 	return fhandle;
@@ -569,6 +572,7 @@ DONE:
 	closedir(dir);
 	return ret;
 }
+/* LCOV_EXCL_STOP */
 
 /*
  * mtp_bool _util_get_file_attrs(const mtp_char *filename, file_attr_t *attrs)
@@ -596,6 +600,7 @@ mtp_bool _util_get_file_attrs(const mtp_char *filename, file_attr_t *attrs)
 	/*Reset attribute mode */
 	attrs->attribute = MTP_FILE_ATTR_MODE_NONE;
 	if (S_ISREG(fileinfo.st_mode)) {
+		/* LCOV_EXCL_START */
 		attrs->attribute |= MTP_FILE_ATTR_MODE_REG;
 		if (!((S_IWUSR & fileinfo.st_mode) ||
 					(S_IWGRP & fileinfo.st_mode) ||
@@ -636,6 +641,7 @@ mtp_bool _util_set_file_attrs(const mtp_char *filename, mtp_dword attrib)
 	}
 	return TRUE;
 }
+/* LCOV_EXCL_STOP */
 
 /*
  * mtp_bool _util_ifind_first(mtp_char *dirname, DIR **dirp,
@@ -657,6 +663,7 @@ mtp_bool _util_ifind_first(mtp_char *dirname, DIR **dirp, dir_entry_t *dir_info)
 
 	dir = opendir(dirname);
 	if (NULL == dir) {
+		/* LCOV_EXCL_START */
 		ERR("opendir(%s) Fail", dirname);
 		_util_print_error();
 
@@ -668,6 +675,7 @@ mtp_bool _util_ifind_first(mtp_char *dirname, DIR **dirp, dir_entry_t *dir_info)
 		_util_print_error();
 		closedir(dir);
 		return FALSE;
+		/* LCOV_EXCL_STOP */
 	}
 
 	*dirp = dir;
@@ -737,6 +745,7 @@ mtp_bool _util_ifind_next(mtp_char *dir_name, DIR *dirp, dir_entry_t *dir_info)
 	case S_IFIFO:
 	case S_IFLNK:
 	case S_IFSOCK:
+	/* LCOV_EXCL_START */
 		dir_info->attrs.attribute |= MTP_FILE_ATTR_MODE_SYSTEM;
 		break;
 
@@ -745,6 +754,7 @@ mtp_bool _util_ifind_next(mtp_char *dir_name, DIR *dirp, dir_entry_t *dir_info)
 		ERR_SECURE("%s has unknown type. mode[0x%x]\n",
 				dir_info->filename, stat_buf.st_mode);
 		break;
+		/* LCOV_EXCL_STOP */
 	}
 
 	/* Directory Information */
@@ -754,6 +764,7 @@ mtp_bool _util_ifind_next(mtp_char *dir_name, DIR *dirp, dir_entry_t *dir_info)
 	return TRUE;
 }
 
+/* LCOV_EXCL_START */
 mtp_bool _util_get_filesystem_info_ext(mtp_char *storepath,
 	fs_info_t *fs_info)
 {
@@ -779,6 +790,7 @@ mtp_bool _util_get_filesystem_info_ext(mtp_char *storepath,
 
 	return TRUE;
 }
+/* LCOV_EXCL_STOP */
 
 mtp_bool _util_get_filesystem_info_int(mtp_char *storepath, fs_info_t *fs_info)
 {
@@ -819,6 +831,7 @@ mtp_bool _util_get_filesystem_info(mtp_char *storepath,
 	return FALSE;
 }
 
+/* LCOV_EXCL_START */
 void _util_count_num_lines(FILE* fhandle, mtp_uint32 *num_lines)
 {
 	if (fhandle == NULL)
@@ -986,3 +999,4 @@ void FLOGD(const char *fmt, ...)
 	fclose(fp);
 	return;
 }
+/* LCOV_EXCL_STOP */

@@ -17,6 +17,10 @@
 #ifndef _PTP_CONTAINER_H_
 #define _PTP_CONTAINER_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "mtp_datatype.h"
 
 #define MAX_MTP_PARAMS			5
@@ -99,5 +103,9 @@ void _hdlr_init_event_container_with_param(cmd_container_t *dst,
 mtp_bool _hdlr_send_event_container(cmd_container_t *dst);
 void _hdlr_conv_cmd_container_byte_order(cmd_container_t *dst);
 void _hdlr_conv_data_container_byte_order(data_container_t *dst);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif	/* _PTP_CONTAINER_H_ */

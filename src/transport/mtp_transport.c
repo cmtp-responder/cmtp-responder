@@ -56,6 +56,7 @@ static void __transport_deinit_io();
 /*
  * FUNCTIONS
  */
+/* LCOV_EXCL_START */
 void _transport_save_cmd_buffer(mtp_char *buffer, mtp_uint32 size)
 {
 	memcpy(g_mgr->ftemp_st.cmd_buf, buffer, size);
@@ -63,6 +64,7 @@ void _transport_save_cmd_buffer(mtp_char *buffer, mtp_uint32 size)
 	g_mgr->ftemp_st.data_count = 0;
 	return;
 }
+/* LCOV_EXCL_STOP */
 
 mtp_err_t _transport_rcv_temp_file_data(mtp_byte *buffer, mtp_uint32 size,
 		mtp_uint32 *count)
@@ -80,6 +82,7 @@ mtp_err_t _transport_rcv_temp_file_data(mtp_byte *buffer, mtp_uint32 size,
 	}
 
 	/*copy header */
+	/* LCOV_EXCL_START */
 	memcpy(buffer, g_mgr->ftemp_st.header_buf,
 			sizeof(header_container_t));
 
@@ -514,6 +517,7 @@ static void *__transport_thread_data_rcv(void *func)
 	_util_thread_exit("__transport_thread_data_rcv is over");
 	return NULL;
 }
+/* LCOV_EXCL_STOP */
 
 void _transport_init_status_info(void)
 {
@@ -521,6 +525,7 @@ void _transport_init_status_info(void)
 	return;
 }
 
+/* LCOV_EXCL_START */
 mtp_int32 _transport_get_control_event(void)
 {
 	mtp_uint32 event_code;
@@ -543,6 +548,7 @@ mtp_state_t _transport_get_mtp_operation_state(void)
 {
 	return g_status.mtp_op_state;
 }
+/* LCOV_EXCL_STOP */
 
 void _transport_set_mtp_operation_state(mtp_state_t state)
 {
@@ -550,17 +556,20 @@ void _transport_set_mtp_operation_state(mtp_state_t state)
 	return;
 }
 
+/* LCOV_EXCL_START */
 void _transport_set_usb_discon_state(mtp_bool is_usb_discon)
 {
 	g_status.is_usb_discon = is_usb_discon;
 	return;
 }
+/* LCOV_EXCL_STOP */
 
 mtp_bool _transport_get_usb_discon_state(void)
 {
 	return g_status.is_usb_discon;
 }
 
+/* LCOV_EXCL_START */
 void _transport_set_cancel_initialization(mtp_bool value)
 {
 	g_status.cancel_intialization = value;
@@ -570,3 +579,4 @@ mtp_bool _transport_get_cancel_initialization(void)
 {
 	return g_status.cancel_intialization;
 }
+/* LCOV_EXCL_STOP */

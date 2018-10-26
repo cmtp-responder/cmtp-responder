@@ -17,6 +17,10 @@
 #ifndef _MTP_PROPERTY_H_
 #define _MTP_PROPERTY_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "mtp_list.h"
 #include "mtp_object.h"
 
@@ -314,5 +318,9 @@ mtp_uint32 _prop_get_size_interdep_proplist(obj_interdep_proplist_t *config_list
 mtp_uint32 _prop_pack_interdep_proplist(obj_interdep_proplist_t *config_list,
 		mtp_uint32 format_code, mtp_uchar *buf, mtp_uint32 size);
 mtp_bool _get_oma_drm_status(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _MTP_PROPERTY_H_ */

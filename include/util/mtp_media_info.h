@@ -17,6 +17,10 @@
 #ifndef _MTP_MEDIA_INFO_H_
 #define _MTP_MEDIA_INFO_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <glib.h>
 #include <media_content.h>
 #include "mtp_config.h"
@@ -101,5 +105,9 @@ void _util_scan_folder_contents_in_db(const mtp_char *filepath);
 void _util_free_common_meta(common_meta_t *metadata);
 void _util_free_video_meta(video_meta_t *video);
 void _util_free_image_meta(image_meta_t *image);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _MTP_MEDIA_INFO_H_ */

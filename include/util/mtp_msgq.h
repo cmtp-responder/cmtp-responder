@@ -17,6 +17,10 @@
 #ifndef _MTP_MSGQ_H_
 #define _MTP_MSGQ_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "mtp_datatype.h"
 #include "mtp_util.h"
 
@@ -38,5 +42,9 @@ mtp_bool _util_msgq_deinit(msgq_id_t *msgq_id);
 mtp_bool _util_msgq_set_size(msgq_id_t mq_id, mtp_uint32 nbytes);
 mtp_bool _util_rcv_msg_from_mq(msgq_id_t mq_id, unsigned char **pkt,
 		mtp_uint32 *pkt_len, msg_type_t *mtype);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif/*_MTP_MSGQ_H_*/

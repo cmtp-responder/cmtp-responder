@@ -30,6 +30,7 @@ static mtp_char *__util_conv_int_to_hex_str(mtp_int32 int_val, mtp_char *str);
 /*
  * FUNCTIONS
  */
+/* LCOV_EXCL_START */
 void _util_conv_byte_order(void *data, mtp_int32 size)
 {
 	mtp_int32 idx;
@@ -70,6 +71,7 @@ void _util_conv_byte_order_gen_str(void *str, mtp_int32 size, mtp_int32 elem_sz)
 
 	return;
 }
+/* LCOV_EXCL_STOP */
 
 /*
  * If items_written is greater than or equal to dest_size,
@@ -89,11 +91,13 @@ mtp_int32 _util_utf16_to_utf8(char *dest, mtp_int32 dest_size,
 
 	utf8 = g_utf16_to_utf8(utf16, -1, &items_read, &items_written, &error);
 	if (utf8 == NULL) {
+		/* LCOV_EXCL_START */
 		ERR("%s\n", error->message);
 		g_error_free(error);
 
 		dest[0] = '\0';
 		items_written = 0;
+		/* LCOV_EXCL_STOP */
 	} else {
 		g_strlcpy(dest, (char *)utf8, dest_size);
 		g_free(utf8);
@@ -119,12 +123,14 @@ mtp_int32 _util_utf8_to_utf16(mtp_wchar *dest, mtp_int32 dest_items,
 
 	utf16 = g_utf8_to_utf16(src, -1, &items_read, &items_written, &error);
 	if (utf16 == NULL) {
+		/* LCOV_EXCL_START */
 		ERR("%s\n", error->message);
 		g_error_free(error);
 		error = NULL;
 
 		dest[0] = (mtp_wchar)'\0';
 		items_written = 0;
+		/* LCOV_EXCL_STOP */
 	} else {
 		_util_wchar_ncpy(dest, utf16, dest_items);
 		g_free(utf16);
@@ -140,6 +146,7 @@ mtp_int32 _util_utf8_to_utf16(mtp_wchar *dest, mtp_int32 dest_items,
  * @param[out]	dest	Destination buffer
  * @return	None
  */
+/* LCOV_EXCL_START */
 void _util_wchar_cpy(mtp_wchar *dest, const mtp_wchar *src)
 {
 	ret_if(src == NULL);
@@ -167,6 +174,7 @@ void _util_wchar_cpy(mtp_wchar *dest, const mtp_wchar *src)
 
 	return;
 }
+/* LCOV_EXCL_STOP */
 
 /*
  * Copies a unicode string a given numbers of character.
@@ -198,6 +206,7 @@ void _util_wchar_ncpy(mtp_wchar *dest, const mtp_wchar *src, unsigned long n)
 		pc1 = (char *)dest;
 		pc2 = (char *)src;
 
+		/* LCOV_EXCL_START */
 		while (n && (*pc2 || *(pc2 + 1))) {
 			--n;
 			*pc1++ = *pc2++;
@@ -332,6 +341,7 @@ mtp_err_t _util_wchar_swprintf(mtp_wchar *mtp_wstr, mtp_int32 size,
 
 	return MTP_ERROR_NONE;
 }
+/* LCOV_EXCL_STOP */
 
 mtp_uint16 _util_get_fmtcode(const mtp_char *extn)
 {
@@ -423,6 +433,7 @@ mtp_bool _util_get_file_name(const mtp_char *fullpath, mtp_char *f_name)
  * @param[out]	f_name	gets filled with filename w/o extension
  * @return	True or False based on success or failure
  */
+/* LCOV_EXCL_START */
 mtp_bool _util_get_file_name_wo_extn(const mtp_char *fullpath, mtp_char *f_name)
 {
 	mtp_char *fname_ptr;
@@ -451,6 +462,7 @@ mtp_bool _util_get_file_name_wo_extn(const mtp_char *fullpath, mtp_char *f_name)
 	g_strlcpy(f_name, fname_ptr, ((mtp_uint32)(extn_ptr - fname_ptr) + 1));
 	return TRUE;
 }
+/* LCOV_EXCL_STOP */
 
 mtp_bool _util_is_path_len_valid(const mtp_char *path)
 {
@@ -517,6 +529,7 @@ mtp_bool _util_create_path(mtp_char *path, mtp_uint32 size, const mtp_char *dir,
 
 	len = strlen(filename);
 	if (len > MTP_MAX_FILENAME_SIZE) {
+	/* LCOV_EXCL_START */
 		ERR("filename is too long :[%u] > [%u]\n", len,
 				MTP_MAX_FILENAME_SIZE);
 		return FALSE;
@@ -678,4 +691,4 @@ mtp_int32 _util_system_cmd_wait(const mtp_char *cmd)
 		}
 	} while (1);
 }
-
+/* LCOV_EXCL_STOP */

@@ -17,6 +17,10 @@
 #ifndef _MTP_THREAD_H_
 #define _MTP_THREAD_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <pthread.h>
 #include "mtp_datatype.h"
 #include "mtp_util.h"
@@ -56,5 +60,9 @@ mtp_bool _util_thread_create(pthread_t *tid, const mtp_char *tname,
 mtp_bool _util_thread_join(pthread_t tid, void **data);
 mtp_bool _util_thread_cancel(pthread_t tid);
 void _util_thread_exit(void *val_ptr);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /*_MTP_THREAD_H_*/

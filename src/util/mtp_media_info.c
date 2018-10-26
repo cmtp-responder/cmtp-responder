@@ -26,6 +26,7 @@
 #include "mtp_support.h"
 #include "mtp_fs.h"
 
+/* LCOV_EXCL_START */
 static bool __fill_media_id_cb(media_info_h media, void *user_data)
 {
 	mtp_int32 ret = MEDIA_CONTENT_ERROR_NONE;
@@ -855,3 +856,4 @@ void _util_free_video_meta(video_meta_t *video)
 	MTP_PAL_SAFE_FREE(video->track);
 	return;
 }
+/* LCOV_EXCL_STOP */

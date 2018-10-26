@@ -59,6 +59,7 @@ mtp_err_t _hutil_get_storage_entry(mtp_uint32 store_id, store_info_t *info)
 		ERR("Not able to retrieve store");
 		return MTP_ERROR_GENERAL;
 	}
+	/* LCOV_EXCL_START */
 	_entity_update_store_info_run_time(&(store->store_info),
 			store->root_path);
 
@@ -71,6 +72,7 @@ mtp_err_t _hutil_get_storage_entry(mtp_uint32 store_id, store_info_t *info)
 	info->store_type = store->store_info.store_type;
 	info->free_space_in_objs = store->store_info.free_space_in_objs;
 	return MTP_ERROR_NONE;
+	/* LCOV_EXCL_STOP */
 }
 
 mtp_err_t _hutil_get_storage_ids(ptp_array_t *store_ids)
@@ -124,7 +126,7 @@ mtp_err_t _hutil_set_device_property(mtp_uint32 prop_id, void *data,
 	prop = _device_get_device_property(prop_id);
 	if (prop == NULL)
 		return MTP_ERROR_GENERAL;
-
+/* LCOV_EXCL_START */
 	if (prop->propinfo.get_set == PTP_PROPGETSET_GETONLY)
 		return MTP_ERROR_ACCESS_DENIED;
 
@@ -132,6 +134,7 @@ mtp_err_t _hutil_set_device_property(mtp_uint32 prop_id, void *data,
 		return MTP_ERROR_INVALID_OBJ_PROP_VALUE;
 
 	return MTP_ERROR_NONE;
+/* LCOV_EXCL_STOP */
 }
 
 /*
@@ -146,7 +149,7 @@ mtp_err_t _hutil_reset_device_entry(mtp_uint32 prop_id)
 	mtp_uint16 ii = 0;
 
 	if (prop_id == 0xFFFFFFFF) {
-
+		/* LCOV_EXCL_START */
 		prop = _device_get_ref_prop_list();
 		if (prop == NULL) {
 			ERR("property reference is NULL");
@@ -154,6 +157,7 @@ mtp_err_t _hutil_reset_device_entry(mtp_uint32 prop_id)
 		}
 		for (ii = 0; ii < NUM_DEVICE_PROPERTIES; ii++)
 			_prop_reset_device_prop_desc(&prop[ii]);
+		/* LCOV_EXCL_STOP */
 	} else {
 		prop = _device_get_device_property(prop_id);
 		if (prop == NULL)
@@ -187,7 +191,11 @@ mtp_err_t _hutil_add_object_entry(obj_info_t *obj_info, mtp_char *file_name,
 	mtp_bool is_made_by_mtp = FALSE;
 	mtp_wchar w_file_name[MTP_MAX_FILENAME_SIZE + 1] = { 0 };
 
+	if (obj_info == NULL)
+		return MTP_ERROR_INVALID_PARAM;
+
 	if (obj_info->h_parent != PTP_OBJECTHANDLE_ROOT) {
+		/* LCOV_EXCL_START */
 		par_obj = _device_get_object_with_handle(obj_info->h_parent);
 		if (par_obj == NULL) {
 			ERR("parent is not existed.");
@@ -202,6 +210,7 @@ mtp_err_t _hutil_add_object_entry(obj_info_t *obj_info, mtp_char *file_name,
 			_entity_dealloc_obj_info(obj_info);
 			return MTP_ERROR_INVALID_PARENT;
 		}
+		/* LCOV_EXCL_STOP */
 	}
 
 	store = _device_get_store(obj_info->store_id);
@@ -240,6 +249,11 @@ mtp_err_t _hutil_add_object_entry(obj_info_t *obj_info, mtp_char *file_name,
 		obj_info->protcn_status = PTP_PROTECTIONSTATUS_NOPROTECTION;
 	}
 
+	if (file_name == NULL) {
+		_entity_dealloc_obj_info(obj_info);
+		_entity_dealloc_mtp_obj(obj);
+		return MTP_ERROR_INVALID_PARAM;
+	}
 	if (strlen(file_name) == 0) {
 		/* Generate a filename in 8.3 format for this object */
 		g_snprintf(utf8_temp, MTP_MAX_PATHNAME_SIZE + 1,
@@ -263,6 +277,7 @@ mtp_err_t _hutil_add_object_entry(obj_info_t *obj_info, mtp_char *file_name,
 
 			if (_util_create_path(new_f_path, sizeof(new_f_path),
 						store->root_path, utf8_temp) == FALSE) {
+				/* LCOV_EXCL_START */
 				_entity_dealloc_mtp_obj(obj);
 				return MTP_ERROR_GENERAL;
 			}
@@ -330,7 +345,7 @@ mtp_err_t _hutil_add_object_entry(obj_info_t *obj_info, mtp_char *file_name,
 				return MTP_ERROR_GENERAL;
 			}
 		}
-
+		/* LCOV_EXCL_STOP */
 		/*
 		 * g_mgr->ftemp_st.filepath was allocated g_strdup("/tmp/.mtptemp.tmp");
 		 * So if we need to change the path we need to allocate sufficient memory
@@ -357,6 +372,7 @@ mtp_err_t _hutil_add_object_entry(obj_info_t *obj_info, mtp_char *file_name,
 
 #ifdef MTP_SUPPORT_ALBUM_ART
 		if (access(new_f_path, F_OK) == 0) {
+			/* LCOV_EXCL_START */
 			file_exist = TRUE;
 			/* if file is album, overwrite it. */
 			mtp_char alb_buf[MTP_MAX_PATHNAME_SIZE + 1] = { 0 };
@@ -385,6 +401,7 @@ mtp_err_t _hutil_add_object_entry(obj_info_t *obj_info, mtp_char *file_name,
 								alb_ext);
 				}
 			}
+			/* LCOV_EXCL_STOP */
 		}
 #endif /*MTP_SUPPORT_ALBUM_ART*/
 
@@ -399,6 +416,12 @@ mtp_err_t _hutil_add_object_entry(obj_info_t *obj_info, mtp_char *file_name,
 			obj_info->obj_fmt > MTP_FMT_UNDEFINED_COLLECTION &&
 			obj_info->obj_fmt < MTP_FMT_UNDEFINED_DOC;
 #endif /*MTP_USE_SELFMAKE_ABSTRACTION*/
+	/* LCOV_EXCL_START */
+		if (new_obj == NULL) {
+			_entity_dealloc_obj_info(obj_info);
+			_entity_dealloc_mtp_obj(obj);
+			return MTP_ERROR_INVALID_PARAM;
+		}
 		if (obj_info->obj_fmt == PTP_FMT_ASSOCIATION ||
 				is_made_by_mtp) {
 			*new_obj = _device_get_object_with_path(new_f_path);
@@ -418,7 +441,7 @@ mtp_err_t _hutil_add_object_entry(obj_info_t *obj_info, mtp_char *file_name,
 		_util_wchar_swprintf(temp_wfname,
 				MTP_MAX_PATHNAME_SIZE + 1, "COPY%d_%s", i, w_file_name);
 	}
-
+	/* LCOV_EXCL_STOP */
 	/* Save the full path to this object */
 	_entity_set_object_file_path(obj, new_f_path, CHAR_TYPE);
 
@@ -434,6 +457,7 @@ mtp_err_t _hutil_add_object_entry(obj_info_t *obj_info, mtp_char *file_name,
 
 	if (obj_info->obj_fmt == PTP_FMT_ASSOCIATION || is_made_by_mtp) {
 		/* Create the new object */
+		/* LCOV_EXCL_START */
 		DBG("[normal] create association file/folder[%s][0x%x]\n",
 				new_f_path, obj_info->association_type);
 
@@ -470,6 +494,7 @@ mtp_err_t _hutil_add_object_entry(obj_info_t *obj_info, mtp_char *file_name,
 			_entity_dealloc_mtp_obj(obj);
 			return MTP_ERROR_STORE_FULL;
 		}
+		/* LCOV_EXCL_STOP */
 	} else {
 		/* Reserve space for the object: Object itself, and probably
 		 * some Filesystem-specific overhead
@@ -554,6 +579,9 @@ mtp_err_t _hutil_get_object_entry(mtp_uint32 obj_handle, mtp_obj_t **obj_ptr)
 	if (NULL == obj || NULL == obj->obj_info)
 		return MTP_ERROR_GENERAL;
 
+	if (obj_ptr == NULL)
+		return MTP_ERROR_INVALID_PARAM;
+
 	*obj_ptr = obj;
 	return MTP_ERROR_NONE;
 }
@@ -586,6 +614,7 @@ mtp_err_t _hutil_copy_object_entries(mtp_uint32 dst_store_id,
 		return MTP_ERROR_GENERAL;
 	}
 
+	/* LCOV_EXCL_START */
 	if (h_parent > 0)	{
 		if (keep_handle) {
 			/* two sam handle can occurs in folder copy case
@@ -828,6 +857,7 @@ mtp_err_t _hutil_copy_object_entries(mtp_uint32 dst_store_id,
 
 	return MTP_ERROR_NONE;
 }
+/* LCOV_EXCL_STOP */
 
 mtp_err_t _hutil_move_object_entry(mtp_uint32 dst_store_id, mtp_uint32 h_parent,
 		mtp_uint32 obj_handle)
@@ -847,6 +877,7 @@ mtp_err_t _hutil_move_object_entry(mtp_uint32 dst_store_id, mtp_uint32 h_parent,
 		ERR("object is [%p]\n", obj);
 		return MTP_ERROR_INVALID_OBJECTHANDLE;
 	}
+	/* LCOV_EXCL_START */
 	if (NULL == obj->obj_info) {
 		ERR("obj_info is [%p]\n", obj->obj_info);
 		return MTP_ERROR_GENERAL;
@@ -1032,6 +1063,7 @@ mtp_err_t _hutil_move_object_entry(mtp_uint32 dst_store_id, mtp_uint32 h_parent,
 			_util_add_file_to_db(new_obj->file_path);
 
 		return MTP_ERROR_NONE;
+		/* LCOV_EXCL_STOP */
 	}
 	return MTP_ERROR_GENERAL;
 }
@@ -1053,6 +1085,7 @@ mtp_err_t _hutil_duplicate_object_entry(mtp_uint32 dst_store_id,
 		return MTP_ERROR_INVALID_OBJECTHANDLE;
 	}
 
+	/* LCOV_EXCL_START */
 	src = _device_get_store_containing_obj(obj_handle);
 	if (NULL == src) {
 		ERR("Source store not found");
@@ -1114,6 +1147,7 @@ mtp_err_t _hutil_duplicate_object_entry(mtp_uint32 dst_store_id,
 
 	return MTP_ERROR_NONE;
 }
+/* LCOV_EXCL_STOP */
 
 mtp_err_t _hutil_read_file_data_from_offset(mtp_uint32 obj_handle, off_t offset,
 		void *data, mtp_uint32 *data_sz)
@@ -1131,6 +1165,7 @@ mtp_err_t _hutil_read_file_data_from_offset(mtp_uint32 obj_handle, off_t offset,
 		return MTP_ERROR_INVALID_OBJECTHANDLE;
 	}
 
+	/* LCOV_EXCL_START */
 	if (obj->obj_info->protcn_status ==
 			MTP_PROTECTIONSTATUS_NONTRANSFERABLE_DATA) {
 
@@ -1163,6 +1198,7 @@ mtp_err_t _hutil_read_file_data_from_offset(mtp_uint32 obj_handle, off_t offset,
 	}
 
 	_util_file_close(h_file);
+	/* LCOV_EXCL_STOP */
 	return MTP_ERROR_NONE;
 }
 
@@ -1178,7 +1214,7 @@ mtp_err_t _hutil_write_file_data(mtp_uint32 store_id, mtp_obj_t *obj,
 
 	retv_if(obj == NULL, MTP_ERROR_INVALID_PARAM);
 	retv_if(obj->obj_info == NULL, MTP_ERROR_INVALID_PARAM);
-
+	/* LCOV_EXCL_START */
 	store = _device_get_store(store_id);
 	if (store == NULL) {
 		ERR("destination store is not valid");
@@ -1242,7 +1278,7 @@ mtp_err_t _hutil_write_file_data(mtp_uint32 store_id, mtp_obj_t *obj,
 #endif /*MTP_USE_RUNTIME_GETOBJECTPROPVALUE*/
 
 	_entity_add_object_to_store(store, obj);
-
+	/* LCOV_EXCL_STOP */
 	return MTP_ERROR_NONE;
 }
 
@@ -1319,6 +1355,7 @@ mtp_err_t _hutil_get_num_objects(mtp_uint32 store_id, mtp_uint32 h_parent,
 		}
 	}
 
+	/* LCOV_EXCL_START */
 	if (!h_parent) {
 		if (!format) {
 			*num_obj = _device_get_num_objects(store_id);
@@ -1373,6 +1410,7 @@ mtp_err_t _hutil_get_num_objects(mtp_uint32 store_id, mtp_uint32 h_parent,
 	*num_obj = _entity_get_num_children(store, h_parent, format);
 	return MTP_ERROR_NONE;
 }
+/* LCOV_EXCL_STOP */
 
 mtp_err_t _hutil_get_object_handles(mtp_uint32 store_id, mtp_uint32 format,
 		mtp_uint32 h_parent, ptp_array_t *handle_arr)
@@ -1390,17 +1428,17 @@ mtp_err_t _hutil_get_object_handles(mtp_uint32 store_id, mtp_uint32 format,
 	}
 
 	if (store_id == PTP_STORAGEID_ALL && h_parent == PTP_OBJECTHANDLE_ROOT) {
-		for (i = 0; i < _device_get_num_stores(); i++) {
-			store = _device_get_store_at_index(i);
-			_entity_get_objects_from_store_by_format(store, format, handle_arr);
+		for (i = 0; i < _device_get_num_stores(); i++) {	//	LCOV_EXCL_LINE
+			store = _device_get_store_at_index(i);	//	LCOV_EXCL_LINE
+			_entity_get_objects_from_store_by_format(store, format, handle_arr);	//	LCOV_EXCL_LINE
 		}
 		return MTP_ERROR_NONE;
 
 	} else if (store_id == PTP_STORAGEID_ALL && h_parent == PTP_OBJECTHANDLE_ALL) {
 		h_parent = PTP_OBJECTHANDLE_ROOT;
-		for (i = 0; i < _device_get_num_stores(); i++) {
-			store = _device_get_store_at_index(i);
-			_entity_get_child_handles_with_same_format(store, h_parent, format, handle_arr);
+		for (i = 0; i < _device_get_num_stores(); i++) {	//	LCOV_EXCL_LINE
+			store = _device_get_store_at_index(i);	//	LCOV_EXCL_LINE
+			_entity_get_child_handles_with_same_format(store, h_parent, format, handle_arr);	//	LCOV_EXCL_LINE
 		}
 		return MTP_ERROR_NONE;
 
@@ -1411,6 +1449,7 @@ mtp_err_t _hutil_get_object_handles(mtp_uint32 store_id, mtp_uint32 format,
 			return MTP_ERROR_INVALID_STORE;
 		}
 
+		/* LCOV_EXCL_START */
 		_entity_get_objects_from_store_by_format(store, format, handle_arr);
 		return MTP_ERROR_NONE;
 
@@ -1433,6 +1472,7 @@ mtp_err_t _hutil_get_object_handles(mtp_uint32 store_id, mtp_uint32 format,
 
 	_entity_get_child_handles_with_same_format(store, h_parent, format, handle_arr);
 	return MTP_ERROR_NONE;
+	/* LCOV_EXCL_STOP */
 }
 
 mtp_err_t _hutil_construct_object_entry(mtp_uint32 store_id,
@@ -1568,6 +1608,7 @@ mtp_err_t _hutil_construct_object_entry_prop_list(mtp_uint32 store_id,
 	mtp_char file_name[MTP_MAX_FILENAME_SIZE + 1] = { 0 };
 
 	if (obj_data != NULL && obj_data->obj != NULL) {
+		/* LCOV_EXCL_START */
 		store = _device_get_store(obj_data->store_id);
 		if (store != NULL) {
 			DBG("check free size instead of re-calculation");
@@ -1575,6 +1616,7 @@ mtp_err_t _hutil_construct_object_entry_prop_list(mtp_uint32 store_id,
 					(store->root_path));
 		}
 		_entity_dealloc_mtp_obj(obj_data->obj);
+		/* LCOV_EXCL_STOP */
 	}
 
 	store = _device_get_store(store_id);
@@ -1583,6 +1625,7 @@ mtp_err_t _hutil_construct_object_entry_prop_list(mtp_uint32 store_id,
 		return MTP_ERROR_INVALID_STORE;
 	}
 
+	/* LCOV_EXCL_START */
 	if (store->store_info.access == PTP_STORAGEACCESS_R) {
 		ERR("Only read access allowed on store");
 		return MTP_ERROR_STORE_READ_ONLY;
@@ -1908,7 +1951,7 @@ ERROR_EXIT:
 #endif /* MTP_SUPPORT_ALBUM_ART */
 	if (obj_info != NULL)
 		_entity_dealloc_obj_info(obj_info);
-
+	/* LCOV_EXCL_STOP */
 	return resp;
 }
 
@@ -1924,6 +1967,7 @@ mtp_err_t _hutil_get_object_prop_value(mtp_uint32 obj_handle,
 		return MTP_ERROR_INVALID_OBJECTHANDLE;
 	}
 
+	/* LCOV_EXCL_START */
 	tprop = _prop_get_prop_val(tobj, prop_code);
 	if (tprop != NULL) {
 		memcpy(prop_val, tprop, sizeof(obj_prop_val_t));
@@ -1933,6 +1977,7 @@ mtp_err_t _hutil_get_object_prop_value(mtp_uint32 obj_handle,
 
 	ERR("can not get the prop value for propcode [0x%x]\n", prop_code);
 	return MTP_ERROR_GENERAL;
+	/* LCOV_EXCL_STOP */
 }
 
 mtp_err_t _hutil_update_object_property(mtp_uint32 obj_handle,
@@ -1958,6 +2003,7 @@ mtp_err_t _hutil_update_object_property(mtp_uint32 obj_handle,
 		return MTP_ERROR_INVALID_OBJECTHANDLE;
 	}
 
+	/* LCOV_EXCL_START */
 	obj_info = obj->obj_info;
 	/* Avoid to rename file/folder during file operating by phone side. */
 	if (_util_is_file_opened(obj->file_path) == TRUE) {
@@ -2075,7 +2121,7 @@ mtp_err_t _hutil_update_object_property(mtp_uint32 obj_handle,
 
 	if (prop_sz != NULL)
 		*prop_sz = p_size;
-
+	/* LCOV_EXCL_STOP */
 	return MTP_ERROR_NONE;
 }
 
@@ -2122,11 +2168,13 @@ mtp_err_t _hutil_get_object_prop_list(mtp_uint32 obj_handle, mtp_uint32 format,
 	if ((obj_handle != PTP_OBJECTHANDLE_UNDEFINED) &&
 			(obj_handle != PTP_OBJECTHANDLE_ALL)) {
 		/* Is this object handle valid? */
+		/* LCOV_EXCL_START */
 		store = _device_get_store_containing_obj(obj_handle);
 		if (store == NULL) {
 			ERR("invalid object handle");
 			return MTP_ERROR_INVALID_OBJECTHANDLE;
 		}
+		/* LCOV_EXCL_STOP */
 	}
 
 	if (prop_code == PTP_PROPERTY_UNDEFINED) {
@@ -2139,6 +2187,7 @@ mtp_err_t _hutil_get_object_prop_list(mtp_uint32 obj_handle, mtp_uint32 format,
 		}
 	}
 
+	/* LCOV_EXCL_START */
 	if (!(obj_handle == PTP_OBJECTHANDLE_ALL ||
 				obj_handle == PTP_OBJECTHANDLE_UNDEFINED) &&
 			!(format == PTP_FORMATCODE_NOTUSED ||
@@ -2147,6 +2196,9 @@ mtp_err_t _hutil_get_object_prop_list(mtp_uint32 obj_handle, mtp_uint32 format,
 				return nospecification by format");
 		return MTP_ERROR_NO_SPEC_BY_FORMAT;
 	}
+
+	if (prop_list == NULL)
+		return MTP_ERROR_INVALID_PARAM;
 
 	_util_init_list(&(prop_list->prop_quad_list));
 	_prop_init_ptparray(obj_arr, UINT32_TYPE);
@@ -2179,6 +2231,7 @@ mtp_err_t _hutil_get_object_prop_list(mtp_uint32 obj_handle, mtp_uint32 format,
 				return MTP_ERROR_GENERAL;
 			}
 		}
+	/* LCOV_EXCL_STOP */
 	}
 
 #ifndef MTP_USE_RUNTIME_GETOBJECTPROPVALUE
@@ -2239,6 +2292,7 @@ mtp_err_t _hutil_get_object_references(mtp_uint32 obj_handle,
 		return MTP_ERROR_INVALID_OBJECTHANDLE;
 	}
 
+	/* LCOV_EXCL_START */
 	if (parray == NULL) {
 		*num_ele = 0;
 		return MTP_ERROR_GENERAL;
@@ -2267,6 +2321,7 @@ mtp_err_t _hutil_get_object_references(mtp_uint32 obj_handle,
 	}
 
 	_prop_deinit_ptparray(&ref_arr);
+	/* LCOV_EXCL_STOP */
 	return MTP_ERROR_NONE;
 }
 
@@ -2310,6 +2365,7 @@ mtp_err_t _hutil_get_playback_skip(mtp_int32 skip_param)
 
 	retv_if(skip_param == 0, MTP_ERROR_INVALID_PARAM);
 
+/* LCOV_EXCL_START */
 	if (_device_get_playback_obj(&obj_handle) == FALSE) {
 		ERR("_device_get_playback_obj Fail");
 		return MTP_ERROR_GENERAL;
@@ -2380,6 +2436,7 @@ mtp_err_t _hutil_get_playback_skip(mtp_int32 skip_param)
 
 	return MTP_ERROR_GENERAL;
 }
+/* LCOV_EXCL_STOP */
 
 mtp_err_t _hutil_format_storage(mtp_uint32 store_id, mtp_uint32 fs_format)
 {

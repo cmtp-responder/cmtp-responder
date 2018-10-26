@@ -17,6 +17,10 @@
 #ifndef _MTP_TRANSPORT_H_
 #define _MTP_TRANSPORT_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "mtp_datatype.h"
 #include "mtp_util.h"
 
@@ -53,5 +57,9 @@ void _transport_set_usb_discon_state(mtp_bool is_usb_discon);
 mtp_bool _transport_get_usb_discon_state(void);
 void _transport_set_cancel_initialization(mtp_bool value);
 mtp_bool _transport_get_cancel_initialization(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _MTP_TRANSPORT_H_ */

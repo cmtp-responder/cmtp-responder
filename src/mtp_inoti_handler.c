@@ -90,6 +90,7 @@ void *_thread_inoti(void *arg)
 		errno = 0;
 		i = 0;
 		length = read(g_inoti_fd, buffer, sizeof(buffer));
+		/* LCOV_EXCL_START */
 		if (length < 0) {
 			ERR("read() Fail");
 			_util_print_error();
@@ -111,6 +112,7 @@ void *_thread_inoti(void *arg)
 	pthread_cleanup_pop(1);
 
 	return NULL;
+	/* LCOV_EXCL_STOP */
 }
 
 void _inoti_add_watch_for_fs_events(mtp_char *path)
@@ -121,6 +123,7 @@ void _inoti_add_watch_for_fs_events(mtp_char *path)
 
 	if (g_cnt_watch_folder == INOTI_FOLDER_COUNT_MAX) {
 		/* find empty cell */
+		/* LCOV_EXCL_START */
 		for (i = 0; i < INOTI_FOLDER_COUNT_MAX; i++) {
 			/* If not empty */
 			if (g_inoti_watches[i].wd != 0)
@@ -141,6 +144,7 @@ void _inoti_add_watch_for_fs_events(mtp_char *path)
 				IN_DELETE | IN_MOVED_FROM |
 				IN_MOVED_TO);
 		return;
+		/* LCOV_EXCL_STOP */
 	}
 
 	DBG("g_watch_folders[%d] add watch : %s\n", g_cnt_watch_folder, path);
@@ -169,6 +173,7 @@ mtp_bool _inoti_init_filesystem_evnts()
 	ret = _util_thread_create(&g_inoti_thrd, "File system inotify thread\n",
 			PTHREAD_CREATE_JOINABLE, _thread_inoti, NULL);
 	if (FALSE == ret) {
+		/* LCOV_EXCL_START */
 		ERR("_util_thread_create() Fail");
 		_util_print_error();
 		close(g_inoti_fd);
@@ -309,6 +314,7 @@ static mtp_bool __process_inoti_event(struct inotify_event *event)
 
 	return TRUE;
 }
+/* LCOV_EXCL_STOP */
 
 void _inoti_deinit_filesystem_events()
 {
@@ -323,6 +329,7 @@ void _inoti_deinit_filesystem_events()
 	return;
 }
 
+/* LCOV_EXCL_START */
 static void __remove_inoti_watch(mtp_char *path)
 {
 	mtp_int32 i = 0;
@@ -453,6 +460,7 @@ static mtp_bool __get_inoti_event_full_path(mtp_int32 wd, mtp_char *event_name,
 
 	return TRUE;
 }
+/* LCOV_EXCL_STOP */
 
 static void __remove_recursive_inoti_watch(mtp_char *path)
 {
@@ -492,6 +500,7 @@ static void __clean_up_inoti(void *data)
 	return;
 }
 
+/* LCOV_EXCL_START */
 static void __delete_children_from_store_inoti(mtp_store_t *store,
 		mtp_obj_t *obj)
 {
@@ -682,6 +691,7 @@ static void __process_object_deleted_event(mtp_char *fullpath,
 
 	return;
 }
+/* LCOV_EXCL_STOP */
 
 static void __destroy_inoti_open_files_list()
 {
@@ -689,6 +699,7 @@ static void __destroy_inoti_open_files_list()
 
 	ret_if(g_open_files_list == NULL);
 
+	/* LCOV_EXCL_START */
 	while (g_open_files_list) {
 		current = g_open_files_list;
 		g_open_files_list = g_open_files_list->previous;
@@ -705,5 +716,6 @@ static void __destroy_inoti_open_files_list()
 
 	g_open_files_list = NULL;
 	return;
+	/* LCOV_EXCL_STOP */
 }
 #endif /*MTP_SUPPORT_OBJECTADDDELETE_EVENT*/

@@ -405,6 +405,7 @@ void _init_mtp_device(void)
 	return;
 }
 
+/* LCOV_EXCL_START */
 mtp_uint32 _get_device_info_size(void)
 {
 	mtp_uint32 size = 0;
@@ -580,6 +581,7 @@ void _reset_mtp_device(void)
 	g_device.phase = DEVICE_PHASE_IDLE;
 	return;
 }
+/* LCOV_EXCL_STOP */
 
 device_prop_desc_t *_device_get_device_property(mtp_uint32 prop_code)
 {
@@ -658,6 +660,7 @@ static mtp_bool __add_store_to_device(store_type_t store_type)
  * @param[in]	store_type	Store type
  * @return	TRUE if success, otherwise FALSE.
  */
+/* LCOV_EXCL_START */
 static mtp_bool __remove_store_from_device(store_type_t store_type)
 {
 	mtp_int32 ii = 0;
@@ -699,6 +702,7 @@ mtp_bool _device_is_store_mounted(mtp_int32 store_type)
 
 	return g_device.is_mounted[store_type];
 }
+/* LCOV_EXCL_STOP */
 
 mtp_bool _device_install_storage(mtp_int32 type)
 {
@@ -713,18 +717,22 @@ mtp_bool _device_install_storage(mtp_int32 type)
 
 		lock_status = _util_get_local_lock_status();
 		if (lock_status == MTP_PHONE_LOCK_OFF) {
+			/* LCOV_EXCL_START */
 			int_status = _device_is_store_mounted(MTP_STORAGE_INTERNAL);
 			if (int_status == FALSE)
 				__add_store_to_device(MTP_STORAGE_INTERNAL);
+			/* LCOV_EXCL_STOP */
 		}
 
 		mounted = _util_get_local_mmc_status();
 		if (mounted == MTP_PHONE_MMC_INSERTED) {
 
+			/* LCOV_EXCL_START */
 			ext_status =
 				_device_is_store_mounted(MTP_STORAGE_EXTERNAL);
 			if (ext_status == FALSE)
 				__add_store_to_device(MTP_STORAGE_EXTERNAL);
+			/* LCOV_EXCL_STOP */
 		}
 		break;
 
@@ -740,6 +748,7 @@ mtp_bool _device_install_storage(mtp_int32 type)
 		DBG(" case MTP_ADDREM_EXTERNAL:");
 		if (MTP_PHONE_MMC_INSERTED != _util_get_local_mmc_status())
 			break;
+		/* LCOV_EXCL_START */
 		mounted = _device_is_store_mounted(MTP_STORAGE_EXTERNAL);
 		if (mounted == FALSE) {
 			if (__add_store_to_device(MTP_STORAGE_EXTERNAL) == FALSE) {
@@ -747,6 +756,7 @@ mtp_bool _device_install_storage(mtp_int32 type)
 				return FALSE;
 			}
 		}
+		/* LCOV_EXCL_STOP */
 		break;
 
 	case MTP_ADDREM_ALL:
@@ -763,6 +773,7 @@ mtp_bool _device_install_storage(mtp_int32 type)
 	return TRUE;
 }
 
+/* LCOV_EXCL_START */
 mtp_bool _device_uninstall_storage(mtp_int32 type)
 {
 	switch (type) {
@@ -833,6 +844,7 @@ static mtp_err_t __clear_store_data(mtp_uint32 store_id)
 	}
 	return MTP_ERROR_GENERAL;
 }
+/* LCOV_EXCL_STOP */
 
 mtp_store_t *_device_get_store(mtp_uint32 store_id)
 {
@@ -880,6 +892,7 @@ mtp_uint32 _device_get_num_objects(mtp_uint32 store_id)
 	return num_objs;
 }
 
+/* LCOV_EXCL_START */
 mtp_uint32 _device_get_num_objects_with_format(mtp_uint32 store_id,
 		mtp_uint32 format)
 {
@@ -900,6 +913,7 @@ mtp_uint32 _device_get_num_objects_with_format(mtp_uint32 store_id,
 
 	return num_objs;
 }
+/* LCOV_EXCL_STOP */
 
 mtp_obj_t *_device_get_object_with_handle(mtp_uint32 obj_handle)
 {
@@ -918,6 +932,7 @@ mtp_obj_t *_device_get_object_with_handle(mtp_uint32 obj_handle)
 	return obj;
 }
 
+/* LCOV_EXCL_START */
 mtp_obj_t* _device_get_object_with_path(mtp_char *full_path)
 {
 	mtp_int32 i = 0;
@@ -935,6 +950,7 @@ mtp_obj_t* _device_get_object_with_path(mtp_char *full_path)
 	}
 	return obj;
 }
+/* LCOV_EXCL_STOP */
 
 mtp_uint16 _device_delete_object(mtp_uint32 obj_handle, mtp_uint32 fmt)
 {
@@ -949,6 +965,7 @@ mtp_uint16 _device_delete_object(mtp_uint32 obj_handle, mtp_uint32 fmt)
 		if (store == NULL) {
 			response = PTP_RESPONSE_INVALID_OBJ_HANDLE;
 		} else {
+		/* LCOV_EXCL_START */
 			response = _entity_delete_obj_mtp_store(store,
 					obj_handle, fmt, TRUE);
 		}
@@ -984,6 +1001,7 @@ mtp_uint16 _device_delete_object(mtp_uint32 obj_handle, mtp_uint32 fmt)
 		response = PTP_RESPONSE_PARTIAL_DELETION;
 
 	return response;
+	/* LCOV_EXCL_STOP */
 }
 
 mtp_store_t *_device_get_store_containing_obj(mtp_uint32 obj_handle)
@@ -1011,6 +1029,7 @@ mtp_store_t *_device_get_store_at_index(mtp_uint32 index)
 	return &(g_device.store_list[index]);
 }
 
+/* LCOV_EXCL_START */
 device_prop_desc_t *_device_get_ref_prop_list(void)
 {
 	return g_device.device_prop_list;
@@ -1047,6 +1066,7 @@ mtp_bool _device_set_playback_obj(mtp_uint32 playback_obj)
 	_hdlr_send_event_container(&event);
 	return TRUE;
 }
+/* LCOV_EXCL_STOP */
 
 void _device_get_serial(mtp_char *serial_no, mtp_uint32 len)
 {
@@ -1057,6 +1077,7 @@ void _device_get_serial(mtp_char *serial_no, mtp_uint32 len)
 	return;
 }
 
+/* LCOV_EXCL_START */
 void _device_set_phase(device_phase_t phase)
 {
 	DBG("Devie phase is set [%d]\n", phase);
@@ -1068,6 +1089,7 @@ device_phase_t _device_get_phase(void)
 {
 	return g_device.phase;
 }
+/* LCOV_EXCL_STOP */
 
 mtp_uint32 _device_get_default_store_id(void)
 {
@@ -1084,10 +1106,12 @@ mtp_uint32 _device_get_num_stores(void)
 	return g_device.num_stores;
 }
 
+/* LCOV_EXCL_START */
 device_status_t _device_get_status(void)
 {
 	return g_device.status;
 }
+/* LCOV_EXCL_STOP */
 
 mtp_char *_device_get_device_name(void)
 {
