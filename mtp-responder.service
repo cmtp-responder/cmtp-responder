@@ -1,5 +1,6 @@
 [Unit]
 Description=MTP responder
+StartLimitIntervalSec=0
 
 [Service]
 User=network_fw
@@ -11,3 +12,5 @@ KillMode=process
 SmackProcessLabel=System
 USBFunctionDescriptors=/etc/mtp-responder/descs
 USBFunctionStrings=/etc/mtp-responder/strs
+RestartSec=3
+Restart=on-failure
