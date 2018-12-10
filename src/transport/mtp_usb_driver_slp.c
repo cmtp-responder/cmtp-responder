@@ -330,7 +330,7 @@ static void __handle_control_request(mtp_int32 request)
 
 		memcpy(&(cancelreq_data.io_code), buffer, sizeof(mtp_word));
 		memcpy(&(cancelreq_data.tid), &buffer[2], sizeof(mtp_dword));
-		DBG("cancel io code [%d], transaction id [%ld]\n",
+		DBG("cancel io code [%d], transaction id [%du]\n",
 		    cancelreq_data.io_code, cancelreq_data.tid);
 		break;
 

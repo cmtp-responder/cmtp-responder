@@ -311,7 +311,7 @@ static int __setup(int ep0, struct usb_ctrlrequest *ctrl)
 		DBG(__FILE__ "(%s):%d: USB_PTPREQUEST_%s",
 		    __func__, __LINE__, requests[ctrl->bRequest-0x64]);
 		if (wValue != 0 || wIndex != 0 || wLength != 6) {
-			DBG("Invalid request parameters: wValue:%d wIndex:%d wLength:%d\n");
+			DBG("Invalid request parameters: wValue:%hu wIndex:%hu wLength:%hu\n", wIndex, wValue, wLength);
 			rc = -EINVAL;
 			goto stall;
 		}
@@ -353,7 +353,7 @@ stall:
 
 	if (status != -1 || errno != EL2HLT) {
 		ERR(__FILE__"(%s):%d:stall error\n",
-		    __func__, __LINE__, ctrl->bRequestType, ctrl->bRequest);
+		    __func__, __LINE__);
 		rc = errno;
 	}
 	return rc;

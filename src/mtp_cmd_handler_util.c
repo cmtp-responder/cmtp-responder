@@ -221,7 +221,7 @@ mtp_err_t _hutil_add_object_entry(obj_info_t *obj_info, mtp_char *file_name,
 	}
 
 	if (store->store_info.free_space < obj_info->file_size) {
-		ERR("free space is not enough [%ld] bytes, object size[%ld]\n",
+		ERR("free space is not enough [%llu] bytes, object size[%llu]\n",
 				store->store_info.free_space, obj_info->file_size);
 		_entity_dealloc_obj_info(obj_info);
 		return MTP_ERROR_STORE_FULL;
@@ -407,7 +407,7 @@ mtp_err_t _hutil_add_object_entry(obj_info_t *obj_info, mtp_char *file_name,
 
 		if (file_exist == FALSE) {
 			DBG_SECURE("Found a unique file name for the incoming object\
-					[%s]\n", temp_wfname);
+					[0x%p]\n", temp_wfname);
 			break;
 		}
 
@@ -1534,7 +1534,7 @@ mtp_err_t _hutil_construct_object_entry(mtp_uint32 store_id,
 	if ((store->store_info.free_space) == 0 ||
 			(store->store_info.free_space >
 			 store->store_info.capacity)) {
-		ERR("free space is not enough [%ld:%ld]\n",
+		ERR("free space is not enough [%llu:%llu]\n",
 				store->store_info.free_space,
 				store->store_info.capacity);
 		return MTP_ERROR_STORE_FULL;
@@ -1633,13 +1633,13 @@ mtp_err_t _hutil_construct_object_entry_prop_list(mtp_uint32 store_id,
 
 	if ((store->store_info.free_space) == 0 ||
 			(store->store_info.free_space > store->store_info.capacity)) {
-		ERR("free space is not enough [%ld bytes]\n",
+		ERR("free space is not enough [%llu bytes]\n",
 				store->store_info.free_space);
 		return MTP_ERROR_STORE_FULL;
 	}
 
 	if (store->store_info.free_space <= obj_sz) {
-		ERR("free space is not enough [%ld bytes]\n",
+		ERR("free space is not enough [%llu bytes]\n",
 				store->store_info.free_space);
 		return MTP_ERROR_STORE_FULL;
 	}

@@ -976,7 +976,7 @@ mtp_uint16 _entity_delete_obj_mtp_store(mtp_store_t *store,
 
 		}
 	} else {
-		DBG("object handle is not PTP_OBJECTHANDLE_ALL. [%ld]\n",
+		DBG("object handle is not PTP_OBJECTHANDLE_ALL. [%u]\n",
 				obj_handle);
 		obj = _entity_get_object_from_store(store, obj_handle);
 

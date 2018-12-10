@@ -30,7 +30,7 @@ typedef void *(*thread_func_t) (void *pArg);
 #define UTIL_LOCK_MUTEX(mut)\
 	do {\
 		int lock_ret = 0;\
-		DBG("Thread [%d] trying to lock the Mutex \n", syscall(__NR_gettid));\
+		DBG("Thread [%ld] trying to lock the Mutex \n", syscall(__NR_gettid));\
 		lock_ret = pthread_mutex_lock(mut);\
 		if (lock_ret != 0) {\
 			if (lock_ret == EDEADLK) {\
@@ -39,7 +39,7 @@ typedef void *(*thread_func_t) (void *pArg);
 				ERR("Error locking mutex. Error = %d \n", lock_ret);\
 			} \
 		} else {\
-			DBG("Mutex locked by thread [%d] \n", syscall(__NR_gettid));\
+			DBG("Mutex locked by thread [%ld] \n", syscall(__NR_gettid));\
 		} \
 	} while (0);\
 
@@ -51,7 +51,7 @@ typedef void *(*thread_func_t) (void *pArg);
 		if (unlock_ret != 0) {\
 			ERR("Error unlocking mutex. Error = %d \n", unlock_ret);\
 		} else {\
-			DBG("Mutex unlocked by thread [%d] \n", syscall(__NR_gettid));\
+			DBG("Mutex unlocked by thread [%ld] \n", syscall(__NR_gettid));\
 		} \
 	} while (0);\
 

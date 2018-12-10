@@ -289,7 +289,7 @@ mtp_bool _hdlr_rcv_file_in_data_container(data_container_t *dst,
 		ERR("HEADER FAILURE");
 		ERR("HEADER length[%d], Type[%d], Code[%d], tid[%d]\n",
 				dst->len, dst->type, dst->code, dst->tid);
-		ERR("EXPECTED length[%d], Type[%d], Code[%d], tid[%d]\n",
+		ERR("EXPECTED length[%llu], Type[%d], Code[%d], tid[%d]\n",
 				bytes_rcvd, CONTAINER_DATA_BLK, exp_code, exp_tid);
 		return FALSE;
 	}

@@ -501,7 +501,7 @@ mtp_bool _entity_check_child_obj_path(mtp_obj_t *obj,
 	_prop_init_ptparray(&child_arr, UINT32_TYPE);
 	_entity_get_child_handles(src_store, obj->obj_handle, &child_arr);
 
-	DBG("obj_handle[%d], src_path[%s], dest_path[%s], num elements[%ld]\n",
+	DBG("obj_handle[%d], src_path[%s], dest_path[%s], num elements[%u]\n",
 			obj->obj_handle, src_path, dest_path, child_arr.num_ele);
 
 	for (idx = 0; idx < child_arr.num_ele; idx++) {
@@ -597,7 +597,7 @@ mtp_bool _entity_set_child_object_path(mtp_obj_t *obj, mtp_char *src_path,
 
 	_prop_init_ptparray(&child_arr, UINT32_TYPE);
 	_entity_get_child_handles(src_store, obj->obj_handle, &child_arr);
-	DBG("Object handle[%ld], src_path[%s], dest_path[%s], Numchild[%ld]\n",
+	DBG("Object handle[%u], src_path[%s], dest_path[%s], Numchild[%u]\n",
 			obj->obj_handle, src_path, dest_path, child_arr.num_ele);
 
 	for (idx = 0; idx < child_arr.num_ele; idx++) {
@@ -605,7 +605,7 @@ mtp_bool _entity_set_child_object_path(mtp_obj_t *obj, mtp_char *src_path,
 		child_obj = _entity_get_object_from_store(src_store, child_handle_arr[idx]);
 		if (NULL == child_obj)
 			continue;
-		DBG_SECURE("obj_handle[%ld], full path[%s]\n", child_obj->obj_handle,
+		DBG_SECURE("obj_handle[%u], full path[%s]\n", child_obj->obj_handle,
 				child_obj->file_path);
 		g_strlcpy(temp_child_path, child_obj->file_path,
 				sizeof(temp_child_path));

@@ -3216,7 +3216,7 @@ void _receive_mq_data_cb(mtp_char *buffer, mtp_int32 buf_len)
 		code = tmp->code;
 		trid = tmp->tid;
 
-		DBG("len[%ld], type[0x%x], code [0x%x], trid[0x%x]\n",
+		DBG("len[%lu], type[0x%x], code [0x%x], trid[0x%lu]\n",
 				len, type, code, trid);
 
 		if (_hdlr_validate_cmd_container((mtp_byte *)tmp, len)
@@ -3285,7 +3285,7 @@ void _receive_mq_data_cb(mtp_char *buffer, mtp_int32 buf_len)
 		/* ignore other case */
 		ERR("MTP device phase[%d], unknown device PHASE\n",
 				_device_get_phase());
-		ERR("PhaseUnknown-> pData[0x%x], length=[%d]", buffer, buf_len);
+		ERR("PhaseUnknown-> pData[0x%p], length=[%d]", buffer, buf_len);
 		_device_set_phase(DEVICE_PHASE_IDLE);
 		_transport_set_mtp_operation_state(MTP_STATE_ONSERVICE);
 	}

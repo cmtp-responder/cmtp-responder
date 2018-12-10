@@ -513,7 +513,7 @@ static void *__transport_thread_data_rcv(void *func)
 		}
 	}
 
-	ERR("thread_data_rcv[%u] exiting\n", g_data_rcv);
+	ERR("thread_data_rcv[%lu] exiting\n", g_data_rcv);
 	_util_thread_exit("__transport_thread_data_rcv is over");
 	return NULL;
 }
