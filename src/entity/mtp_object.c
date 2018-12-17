@@ -483,12 +483,12 @@ mtp_bool _entity_check_child_obj_path(mtp_obj_t *obj,
 	retv_if(obj == NULL, FALSE);
 
 	if (strlen(dest_path) > MTP_MAX_PATHNAME_SIZE - 1) {
-		ERR("dest_path is too long[%d]\n", strlen(dest_path));
+		ERR("dest_path is too long[%zu]\n", strlen(dest_path));
 		return FALSE;
 	}
 
 	if (strlen(src_path) > MTP_MAX_PATHNAME_SIZE - 1) {
-		ERR("src_path is too long[%d]\n", strlen(src_path));
+		ERR("src_path is too long[%zu]\n", strlen(src_path));
 		return FALSE;
 	}
 
@@ -524,7 +524,7 @@ mtp_bool _entity_check_child_obj_path(mtp_obj_t *obj,
 				sizeof(temp_chld_wpath) / WCHAR_SIZ, temp_chld_path);
 		if (_util_wchar_len(temp_chld_wpath) >
 				MTP_MAX_PATHNAME_SIZE - 1) {
-			ERR("Child Object Full Path is too long[%d]\n",
+			ERR("Child Object Full Path is too long[%zu]\n",
 					strlen(child_obj->file_path));
 			_prop_deinit_ptparray(&child_arr);
 			return FALSE;
@@ -542,7 +542,7 @@ mtp_bool _entity_check_child_obj_path(mtp_obj_t *obj,
 			g_strlcpy(dest_chld_path, dest_path,
 					MTP_MAX_PATHNAME_SIZE + 1);
 		} else {
-			ERR("dest_chld_wpath is too long[%d]\n",
+			ERR("dest_chld_wpath is too long[%zu]\n",
 					strlen(dest_path));
 			_prop_deinit_ptparray(&child_arr);
 			return FALSE;
@@ -554,7 +554,7 @@ mtp_bool _entity_check_child_obj_path(mtp_obj_t *obj,
 			g_strlcat(dest_chld_path, ptr,
 					MTP_MAX_PATHNAME_SIZE + 1);
 		} else {
-			ERR("dest_chld_path + ptr is too long[%d]\n",
+			ERR("dest_chld_path + ptr is too long[%zu]\n",
 					(strlen(ptr) + strlen(ptr)));
 			_prop_deinit_ptparray(&child_arr);
 			return FALSE;

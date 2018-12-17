@@ -237,7 +237,7 @@ size_t _util_wchar_len(const mtp_wchar *s)
 		while (*temp++)
 			/* DO NOTHING */ ;
 
-		DBG("Length : %d\n", temp - s - 1);
+		DBG("Length : %zd\n", temp - s - 1);
 		return ((size_t)(temp - s - 1));
 	} else {		/* not-aligned, byte to byte approach - slow */
 
@@ -246,7 +246,7 @@ size_t _util_wchar_len(const mtp_wchar *s)
 		while (*temp || *(temp + 1))
 			temp += 2;
 
-		DBG("Length : %d\n", (temp - (unsigned char *)s) / 2);
+		DBG("Length : %zd\n", (temp - (unsigned char *)s) / 2);
 		return ((size_t) (temp - (unsigned char *)s) / 2);
 	}
 }

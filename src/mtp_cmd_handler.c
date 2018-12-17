@@ -2201,7 +2201,7 @@ static void __set_object_prop_list(mtp_handler_t *hdlr)
 		_cmd_hdlr_send_response(hdlr, resp, 1, &i);
 		g_free(blk.data);
 
-		ERR("invalid object format, bytes_left [%d]:[%u]\n", bytes_left,
+		ERR("invalid object format, bytes_left [%d]:[%zu]\n", bytes_left,
 				sizeof(mtp_uint32));
 		return;
 	}
