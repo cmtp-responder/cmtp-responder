@@ -120,7 +120,7 @@ mtp_bool _util_get_audio_metadata(const mtp_char *filepath,
 
 	ret = audio_meta_get_composer(audio, &(audio_data->commonmeta.author));
 	if (ret != MEDIA_CONTENT_ERROR_NONE) {
-		ERR("METADATA_AUTHOR Fail");
+		ERR("METADATA_COMPOSER Fail");
 		goto ERROR_EXIT;
 	}
 
@@ -257,7 +257,7 @@ mtp_bool _util_get_video_metadata(mtp_char *filepath,
 
 	ret = video_meta_get_composer(video, &(video_data->commonmeta.author));
 	if (ret != MEDIA_CONTENT_ERROR_NONE) {
-		ERR("METADATA_AUTHOR Fail");
+		ERR("METADATA_COMPOSER Fail");
 		goto ERROR_EXIT;
 	}
 
@@ -480,10 +480,10 @@ mtp_bool _util_get_audio_meta_from_extractor(const mtp_char *filepath,
 		MTP_PAL_SAFE_FREE(temp);
 	}
 
-	ret = metadata_extractor_get_metadata(metadata, METADATA_AUTHOR,
+	ret = metadata_extractor_get_metadata(metadata, METADATA_COMPOSER,
 			&(audio_data->commonmeta.author));
 	if (ret != METADATA_EXTRACTOR_ERROR_NONE) {
-		ERR("METADATA_AUTHOR Fail");
+		ERR("METADATA_COMPOSER Fail");
 		goto ERROR_EXIT;
 	}
 
@@ -629,10 +629,10 @@ mtp_bool _util_get_video_meta_from_extractor(const mtp_char *filepath,
 		MTP_PAL_SAFE_FREE(temp);
 	}
 
-	ret = metadata_extractor_get_metadata(metadata, METADATA_AUTHOR,
+	ret = metadata_extractor_get_metadata(metadata, METADATA_COMPOSER,
 			&(video_data->commonmeta.author));
 	if (ret != METADATA_EXTRACTOR_ERROR_NONE) {
-		ERR("METADATA_AUTHOR Fail");
+		ERR("METADATA_COMPOSER Fail");
 		goto ERROR_EXIT;
 	}
 
