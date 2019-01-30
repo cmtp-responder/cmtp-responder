@@ -749,7 +749,7 @@ mtp_err_t _hutil_copy_object_entries(mtp_uint32 dst_store_id,
 	 */
 	if (FALSE == keep_handle) {
 		if (FALSE == _util_copy_dir_children_recursive(obj->file_path,
-					new_obj->file_path, &error)) {
+					new_obj->file_path, dst_store_id, &error)) {
 			ERR_SECURE("Recursive copy Fail  [%s]->[%s]",
 					obj->file_path, new_obj->file_path);
 			ret = MTP_ERROR_GENERAL;
@@ -803,7 +803,7 @@ mtp_err_t _hutil_copy_object_entries(mtp_uint32 dst_store_id,
 	 */
 	if (!((child_arr.num_ele > 0) ||
 				_util_copy_dir_children_recursive(obj->file_path,
-					new_obj->file_path, &error))) {
+					new_obj->file_path, dst_store_id, &error))) {
 		ERR_SECURE("Recursive copy Fail [%d], [%s]->[%s]",
 				child_arr.num_ele,
 				obj->file_path, new_obj->file_path);
