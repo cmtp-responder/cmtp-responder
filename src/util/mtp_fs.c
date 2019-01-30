@@ -31,6 +31,7 @@
 #include "mtp_util.h"
 #include "mtp_support.h"
 #include "ptp_datacodes.h"
+#include "mtp_device.h"
 
 /*
  * FUNCTIONS
@@ -335,7 +336,7 @@ mtp_bool _util_file_copy(const mtp_char *origpath, const mtp_char *newpath,
 }
 
 mtp_bool _util_copy_dir_children_recursive(const mtp_char *origpath,
-		const mtp_char *newpath, mtp_int32 *error)
+		const mtp_char *newpath, mtp_uint32 store_id, mtp_int32 *error)
 {
 	DIR *dir = NULL;
 	struct dirent entry = { 0 };
@@ -376,18 +377,66 @@ mtp_bool _util_copy_dir_children_recursive(const mtp_char *origpath,
 			return FALSE;
 		}
 
+		/* Create new mtp object */
+		mtp_store_t *store = _device_get_store(store_id);
+		if (store == NULL) {
+			ERR("store is NULL");
+			closedir(dir);
+			return FALSE;
+		}
+
+		mtp_obj_t *orig_obj = _entity_get_object_from_store_by_path(store, old_pathname);
+		if (orig_obj == NULL) {
+			ERR("orig_obj is NULL");
+			closedir(dir);
+			return FALSE;
+		}
+
+		mtp_obj_t *parent_obj = _entity_get_object_from_store_by_path(store, newpath);
+		if (parent_obj == NULL) {
+			ERR("orig_obj is NULL");
+			closedir(dir);
+			return FALSE;
+		}
+
+		mtp_obj_t *new_obj = _entity_alloc_mtp_object();
+		if (new_obj == NULL) {
+			ERR("_entity_alloc_mtp_object Fail");
+			closedir(dir);
+			return FALSE;
+		}
+
+		memset(new_obj, 0, sizeof(mtp_obj_t));
+
+		new_obj->child_array.type = UINT32_TYPE;
+		_entity_copy_mtp_object(new_obj, orig_obj);
+		if (new_obj->obj_info == NULL) {
+			_entity_dealloc_mtp_obj(new_obj);
+			closedir(dir);
+			return FALSE;
+		}
+
+		_entity_set_object_file_path(new_obj, new_pathname, CHAR_TYPE);
+		new_obj->obj_handle = _entity_generate_next_obj_handle();
+		new_obj->obj_info->h_parent = parent_obj->obj_handle;
+
 		if (S_ISDIR(entryinfo.st_mode)) {
 			if (FALSE == _util_dir_create(new_pathname, error)) {
 				/* dir already exists
 				   merge the contents */
 				if (EEXIST != *error) {
 					ERR("directory[%s] create Fail errno [%d]\n", new_pathname, errno);
+					_entity_dealloc_mtp_obj(new_obj);
 					closedir(dir);
 					return FALSE;
 				}
 			}
+
+			/* The directory is created. Add object to mtp store */
+			_entity_add_object_to_store(store, new_obj);
+
 			if (FALSE == _util_copy_dir_children_recursive(old_pathname,
-						new_pathname, error)) {
+						new_pathname, store_id, error)) {
 				ERR("Recursive Copy of Children Fail\
 						[%s]->[%s], errno [%d]\n", old_pathname, new_pathname, errno);
 				closedir(dir);
@@ -402,6 +451,7 @@ mtp_bool _util_copy_dir_children_recursive(const mtp_char *origpath,
 				   on destination */
 				if (EACCES == *error)
 					goto DONE;
+				_entity_dealloc_mtp_obj(new_obj);
 				closedir(dir);
 				return FALSE;
 			}
@@ -416,11 +466,14 @@ mtp_bool _util_copy_dir_children_recursive(const mtp_char *origpath,
 						MTP_FILE_ATTR_MODE_READ_ONLY);
 				if (!ret) {
 					ERR("Failed to set directory attributes errno [%d]\n", errno);
+					_entity_dealloc_mtp_obj(new_obj);
 					closedir(dir);
 					return FALSE;
 				}
 			}
 #endif /* MTP_SUPPORT_SET_PROTECTION */
+			/* The file is created. Add object to mtp store */
+			_entity_add_object_to_store(store, new_obj);
 		}
 DONE:
 		retval = readdir_r(dir, &entry, &entryptr);
