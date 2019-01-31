@@ -93,7 +93,9 @@ static void __mtp_exit(void)
 
 static gboolean __check_internal_storage(gpointer user_data)
 {
+	UTIL_LOCK_MUTEX(&g_cmd_inoti_mutex);
 	_handle_lock_status_notification(NULL, NULL);
+	UTIL_UNLOCK_MUTEX(&g_cmd_inoti_mutex);
 
 	return true;
 }
