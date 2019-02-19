@@ -11,10 +11,6 @@ AUX_SOURCE_DIRECTORY(${CMAKE_SOURCE_DIR}/src/entity SRCS)
 AUX_SOURCE_DIRECTORY(${CMAKE_SOURCE_DIR}/src/transport SRCS)
 AUX_SOURCE_DIRECTORY(${CMAKE_SOURCE_DIR}/src/util SRCS)
 
-IF(BUILD_GCOV)
-	ADD_DEFINITIONS("-DTIZEN_TEST_GCOV")
-ENDIF(BUILD_GCOV)
-
 INCLUDE(FindPkgConfig)
 pkg_check_modules(pkgs REQUIRED glib-2.0 capi-content-media-content
 	capi-media-metadata-extractor vconf dlog tapi capi-system-info storage libsystemd-daemon libsystemd)

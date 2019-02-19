@@ -546,15 +546,6 @@ int main(int argc, char *argv[])
 {
 	mtp_int32 ret;
 
-#ifdef TIZEN_TEST_GCOV
-	setenv("GCOV_PREFIX", "/tmp/daemon", 1);
-#endif
-
-#ifdef TIZEN_TEST_GCOV
-	void __gcov_flush(void); // if you use C++, you should declare extern "C" at out of the function.
-	__gcov_flush();
-#endif
-
 	if (_transport_select_driver() == FALSE) {
 		ERR("_transport_select_driver fail");
 		return MTP_ERROR_GENERAL;

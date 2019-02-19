@@ -34,10 +34,6 @@ using ::testing::InitGoogleTest;
 using ::testing::Test;
 using ::testing::TestCase;
 
-#ifdef TIZEN_TEST_GCOV
-extern "C" void __gcov_flush(void);
-#endif
-
 TEST(MtpResponder_t, mtp_init_p0)
 {
 	int ret = 0;
@@ -599,16 +595,9 @@ TEST(MtpResponder_t, hdlr_conv_data_container_byte_order_p)
 
 int main(int argc, char **argv)
 {
-#ifdef TIZEN_TEST_GCOV
-	setenv("GCOV_PREFIX", "/tmp", 1);
-#endif
-
 	InitGoogleTest(&argc, argv);
 	int ret = RUN_ALL_TESTS();
 
-#ifdef TIZEN_TEST_GCOV
-	__gcov_flush();
-#endif
 	return ret;
 }
 
