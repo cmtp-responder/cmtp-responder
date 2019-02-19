@@ -24,7 +24,6 @@
 #include "mtp_util.h"
 #include "mtp_support.h"
 #include "mtp_fs.h"
-#include <storage/storage.h>
 #include <sys/stat.h>
 #include <systemd/sd-login.h>
 #include <sys/types.h>
@@ -133,37 +132,11 @@ void _util_set_local_usbmode_status(const phone_status_t val)
 
 /* LCOV_EXCL_STOP */
 
-static bool _util_device_external_supported_cb(int storage_id, storage_type_e type,
-	storage_state_e state, const char *path, void *user_data)
-{
-	char *storage_path = (char *)user_data;
-
-	//DBG("storage id: %d, path: %s", storage_id, path);
-
-	if (type == STORAGE_TYPE_EXTERNAL && path != NULL) {
-		strncpy(storage_path, path, strlen(path)+1);
-		storage_path[strlen(path)] = 0;
-		//DBG("external storage path : %s", storage_path);
-	}
-
-	return TRUE;
-}
-/* LCOV_EXCL_STOP */
-
 void _util_get_external_path(char *external_path)
 {
-	int error = STORAGE_ERROR_NONE;
-
-	error = storage_foreach_device_supported(_util_device_external_supported_cb, external_path);
-
-	if (error != STORAGE_ERROR_NONE) {
 /* LCOV_EXCL_START */
-		ERR("get external storage path Fail");
-		if (external_path != NULL) {
-			strncpy(external_path, MTP_EXTERNAL_PATH_CHAR, sizeof(MTP_EXTERNAL_PATH_CHAR));
-			external_path[sizeof(MTP_EXTERNAL_PATH_CHAR) - 1] = 0;
-		}
-	}
+	strncpy(external_path, MTP_EXTERNAL_PATH_CHAR, sizeof(MTP_EXTERNAL_PATH_CHAR));
+	external_path[sizeof(MTP_EXTERNAL_PATH_CHAR) - 1] = 0;
 }
 
 int _util_wait_for_user()
