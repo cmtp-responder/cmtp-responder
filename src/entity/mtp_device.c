@@ -639,14 +639,12 @@ mtp_bool _device_install_storage(mtp_int32 type)
 	mtp_int32 int_status = TRUE;
 	mtp_int32 ext_status = TRUE;
 	mtp_bool mounted;
-	mtp_bool lock_status;
 
 	switch (type) {
 	case MTP_ADDREM_AUTO:
 		DBG(" case MTP_ADDREM_AUTO:");
 
-		lock_status = _util_get_local_lock_status();
-		if (lock_status == MTP_PHONE_LOCK_OFF) {
+		{
 			/* LCOV_EXCL_START */
 			int_status = _device_is_store_mounted(MTP_STORAGE_INTERNAL);
 			if (int_status == FALSE)
@@ -668,8 +666,6 @@ mtp_bool _device_install_storage(mtp_int32 type)
 
 	case MTP_ADDREM_INTERNAL:
 		DBG("case MTP_ADDREM_INTERNAL:");
-		if (MTP_PHONE_LOCK_OFF != _util_get_local_lock_status())
-			break;
 		if (FALSE == _device_is_store_mounted(MTP_STORAGE_INTERNAL))
 			__add_store_to_device(MTP_STORAGE_INTERNAL);
 		break;

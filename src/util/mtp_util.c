@@ -158,32 +158,7 @@ void _util_set_local_usbmode_status(const phone_status_t val)
 	return;
 }
 
-void _util_get_lock_status(phone_status_t *val)
-{
-	mtp_int32 state = 0;
-
-	vconf_get_int(VCONFKEY_IDLE_LOCK_STATE_READ_ONLY,
-			&state);
-
-	if (state)
-		*val = MTP_PHONE_LOCK_ON;
-	else
-		*val = MTP_PHONE_LOCK_OFF;
-	return;
-}
 /* LCOV_EXCL_STOP */
-
-phone_status_t _util_get_local_lock_status(void)
-{
-	return g_ph_status.lock_state;
-}
-
-/* LCOV_EXCL_START */
-void _util_set_local_lock_status(const phone_status_t val)
-{
-	g_ph_status.lock_state = val;
-	return;
-}
 
 static bool _util_device_external_supported_cb(int storage_id, storage_type_e type,
 	storage_state_e state, const char *path, void *user_data)

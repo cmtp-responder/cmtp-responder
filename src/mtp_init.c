@@ -138,7 +138,7 @@ void _mtp_init(add_rem_store_t sel)
 	}
 
 	/* Internal Storage */
-	if (MTP_PHONE_LOCK_OFF == _util_get_local_lock_status()) {
+	{
 		mtp_int32 ret;
 		/* LCOV_EXCL_START */
 		char inter_path[MTP_MAX_PATHNAME_SIZE + 1] = { 0 };
@@ -186,13 +186,6 @@ void _mtp_init(add_rem_store_t sel)
 	_inoti_init_filesystem_evnts();
 #endif /*MTP_SUPPORT_OBJECTADDDELETE_EVENT*/
 
-	vconf_ret = vconf_notify_key_changed(VCONFKEY_IDLE_LOCK_STATE_READ_ONLY,
-			_handle_lock_status_notification, NULL);
-	if (vconf_ret < 0) {
-		ERR("vconf_notify_key_changed(%s) Fail", VCONFKEY_IDLE_LOCK_STATE_READ_ONLY);
-		goto MTP_INIT_FAIL;
-	}
-
 	g_timeout_add(1000, __check_internal_storage, NULL);
 
 	vconf_ret = vconf_notify_key_changed(VCONFKEY_SYSMAN_MMC_STATUS,
@@ -225,9 +218,6 @@ void _mtp_deinit(void)
 #ifdef MTP_SUPPORT_OBJECTADDDELETE_EVENT
 	_inoti_deinit_filesystem_events();
 #endif /*MTP_SUPPORT_OBJECTADDDELETE_EVENT*/
-
-	vconf_ignore_key_changed(VCONFKEY_IDLE_LOCK_STATE_READ_ONLY,
-			_handle_lock_status_notification);
 
 	vconf_ignore_key_changed(VCONFKEY_SYSMAN_MMC_STATUS,
 			_handle_mmc_notification);
