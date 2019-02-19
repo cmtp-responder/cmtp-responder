@@ -281,61 +281,6 @@ mtp_err_t _hutil_add_object_entry(obj_info_t *obj_info, mtp_char *file_name,
 				_entity_dealloc_mtp_obj(obj);
 				return MTP_ERROR_GENERAL;
 			}
-#ifdef MTP_SUPPORT_HIDE_WMPINFO_XML
-			/* WMPInfo.xml and DevLogo.fil.*/
-			/* find WMPInfo.xml and add file mtp store */
-			{
-				mtp_char wmp_info_path[MTP_MAX_PATHNAME_SIZE + 1] = { 0 };
-				mtp_char wmp_hidden_path[MTP_MAX_PATHNAME_SIZE + 1] = { 0 };
-
-				if (obj_info->store_id == MTP_INTERNAL_STORE_ID) {
-					char inter_path[MTP_MAX_PATHNAME_SIZE + 1] = { 0 };
-					_util_get_internal_path(inter_path);
-
-					g_snprintf(wmp_hidden_path,
-							MTP_MAX_PATHNAME_SIZE + 1,
-							"%s/%s/%s", MTP_USER_DIRECTORY,
-							MTP_HIDDEN_PHONE,
-							MTP_FILE_NAME_WMPINFO_XML);
-					g_snprintf(wmp_info_path,
-							MTP_MAX_PATHNAME_SIZE + 1,
-							"%s/%s", inter_path,
-							MTP_FILE_NAME_WMPINFO_XML);
-				} else {
-					char ext_path[MTP_MAX_PATHNAME_SIZE + 1] = { 0 };
-					_util_get_external_path(ext_path);
-
-					g_snprintf(wmp_hidden_path,
-							MTP_MAX_PATHNAME_SIZE + 1,
-							"%s/%s/%s", MTP_USER_DIRECTORY,
-							MTP_HIDDEN_CARD,
-							MTP_FILE_NAME_WMPINFO_XML);
-					g_snprintf(wmp_info_path,
-							MTP_MAX_PATHNAME_SIZE + 1,
-							"%s/%s", ext_path,
-							MTP_FILE_NAME_WMPINFO_XML);
-				}
-
-				if (!strcasecmp(wmp_info_path, new_f_path)) {
-					DBG("substitute file[%s]-->[%s]\n",
-							wmp_info_path, wmp_hidden_path);
-
-					g_strlcpy(new_f_path, wmp_hidden_path,
-							sizeof(new_f_path));
-
-					if (obj_info->store_id ==
-							MTP_INTERNAL_STORE_ID) {
-						obj->obj_handle =
-							MTP_MAX_INT_OBJECT_NUM -
-							MTPSTORE_WMPINFO_PHONE;
-					} else {
-						obj->obj_handle =
-							MTP_MAX_INT_OBJECT_NUM -
-							MTPSTORE_WMPINFO_CARD;
-					}
-				}
-			}
-#endif /*MTP_SUPPORT_HIDE_WMPINFO_XML*/
 		} else {
 			_util_utf16_to_utf8(utf8_temp, sizeof(utf8_temp),
 					temp_wfname);

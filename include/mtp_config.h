@@ -39,7 +39,6 @@
 #define MTP_SUPPORT_ALBUM_ART		/* album art image file */
 
 /*support get wmpinfo.xml from hidden file list */
-/*#define MTP_SUPPORT_HIDE_WMPINFO_XML*/
 
 /*support mtp command GetInterdependentPropDesc (0x9807) */
 /*#define MTP_SUPPORT_INTERDEPENDENTPROP*/
