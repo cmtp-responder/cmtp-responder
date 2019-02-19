@@ -239,26 +239,6 @@ static mtp_bool __init_device_props()
 	}
 
 	g_device.device_prop_list = g_device_props;
-#ifdef MTP_SUPPORT_DEVICEPROP_BATTERYLEVEL
-	/*
-	 * Battery level from 0 to 100, with step of 10,
-	 * won't change after a reset
-	 */
-	dev_prop = &(g_device.device_prop_list[i]);
-	_prop_init_device_property_desc(dev_prop, PTP_PROPERTYCODE_BATTERYLEVEL,
-			PTP_DATATYPE_UINT8, PTP_PROPGETSET_GETONLY, RANGE_FORM);
-	{
-		mtp_int32 batt_level = 0;
-
-		batt_level = _util_get_battery_level();
-		_prop_set_range_integer(&(dev_prop->propinfo), 0, 100, 5);
-		_prop_set_current_integer(dev_prop, batt_level);
-		default_val = 100;
-		_prop_set_default_integer(&(dev_prop->propinfo),
-				(mtp_uchar *)&default_val);
-	}
-	i++;
-#endif /*MTP_SUPPORT_DEVICEPROP_BATTERYLEVEL*/
 
 	/* Synchronization Partner */
 	dev_prop = &(g_device.device_prop_list[i]);

@@ -53,19 +53,6 @@ void _util_print_error()
 }
 /* LCOV_EXCL_STOP */
 
-mtp_int32 _util_get_battery_level(void)
-{
-	mtp_int32 result = 0;
-	mtp_int32 battery_level = 100;
-
-	result = vconf_get_int(VCONFKEY_SYSMAN_BATTERY_CAPACITY,
-			&battery_level);
-	if (result != 0)
-		ERR("VCONFKEY_SYSMAN_BATTERY_CAPACITY Fail!");
-
-	return battery_level;
-}
-
 mtp_bool _util_get_serial(mtp_char *serial, mtp_uint32 len)
 {
 	mtp_uint16 i = 0;

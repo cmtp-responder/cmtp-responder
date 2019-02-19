@@ -46,9 +46,6 @@
 #define MTP_SUPPORT_ALBUM_ART		/* album art image file */
 /*#define MTP_SUPPORT_DELETE_MEDIA_ALBUM_FILE*/
 
-/*support battery level using mtp_pal_phone_get_status(MTP_PAL_BATTLEVEL) */
-#define MTP_SUPPORT_DEVICEPROP_BATTERYLEVEL
-
 /*support get wmpinfo.xml from hidden file list */
 /*#define MTP_SUPPORT_HIDE_WMPINFO_XML*/
 

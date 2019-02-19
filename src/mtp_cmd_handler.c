@@ -1142,23 +1142,6 @@ static void __get_device_prop_desc(mtp_handler_t *hdlr)
 
 	prop_id = _hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 0);
 	switch (prop_id) {
-#ifdef MTP_SUPPORT_DEVICEPROP_BATTERYLEVEL
-	case PTP_PROPERTYCODE_BATTERYLEVEL:
-		{
-			mtp_int32 batt = 0;
-
-			prop_ptr = _device_get_device_property(prop_id);
-			if (NULL == prop_ptr) {
-				ERR("prop_ptr is NULL!");
-				break;
-			}
-
-			batt = _util_get_battery_level();
-			if (FALSE == _prop_set_current_integer(prop_ptr, batt))
-				ERR("_util_get_battery_level() Fail");
-			break;
-		}
-#endif /* MTP_SUPPORT_DEVICEPROP_BATTERYLEVEL */
 
 	case MTP_PROPERTYCODE_DEVICEFRIENDLYNAME:
 		{
@@ -1313,27 +1296,6 @@ static void __get_device_prop_value(mtp_handler_t *hdlr)
 	_hdlr_init_data_container(&blk, hdlr->usb_cmd.code, hdlr->usb_cmd.tid);
 
 	switch (prop_id) {
-#ifdef MTP_SUPPORT_DEVICEPROP_BATTERYLEVEL
-	case PTP_PROPERTYCODE_BATTERYLEVEL: {
-											mtp_int32 batt = 0;
-
-											batt = _util_get_battery_level();
-											no_bytes = sizeof(batt);
-
-											ptr = _hdlr_alloc_buf_data_container(&blk, no_bytes, no_bytes);
-											if (ptr == NULL) {
-												_cmd_hdlr_send_response_code(hdlr,
-														PTP_RESPONSE_GEN_ERROR);
-												g_free(blk.data);
-												return;
-											}
-											memcpy(ptr, &batt, no_bytes);
-#ifdef __BIG_ENDIAN__
-											_util_conv_byte_order(ptr, no_bytes);
-#endif /*__BIG_ENDIAN__*/
-											break;
-										}
-#endif /* MTP_SUPPORT_DEVICEPROP_BATTERYLEVEL */
 
 	case MTP_PROPERTYCODE_DEVICEFRIENDLYNAME:
 		{
