@@ -48,8 +48,6 @@ static mtp_bool __process_event_request(mtp_event_t *evt);
 static void *__thread_event_handler(void *arg);
 static mtp_bool __send_events_from_device_to_pc(mtp_dword store_id,
 		mtp_uint16 ptp_event, mtp_uint32 param1, mtp_uint32 param2);
-static void __handle_usb_notification(keynode_t *key, void *data);
-static void __handle_usb_mode_notification(keynode_t *key, void *data);
 static mtp_bool __send_start_event_to_eh_thread(void);
 
 /*
@@ -58,35 +56,11 @@ static mtp_bool __send_start_event_to_eh_thread(void);
 /* LCOV_EXCL_START */
 mtp_bool _eh_register_notification_callbacks(void)
 {
-	mtp_int32 ret;
 	phone_status_t val = 0;
 
-	/* For FFS transport we rely on ep0 events */
-	if (_transport_get_type() == MTP_TRANSPORT_FFS) {
-		DBG("Using FFS transport, assuming established connection");
-		_util_set_local_usb_status(MTP_PHONE_USB_DISCONNECTED);
-		_util_set_local_usbmode_status(1);
-	} else {
-		DBG("Using legacy transport, registering vconf notifier");
-		_util_get_usb_status(&val);
-		_util_set_local_usb_status(val);
-		ret = vconf_notify_key_changed(VCONFKEY_SYSMAN_USB_STATUS,
-				__handle_usb_notification, NULL);
-		if (ret < 0) {
-			ERR("vconf_notify_key_changed(%s) Fail", VCONFKEY_SYSMAN_USB_STATUS);
-			return FALSE;
-		}
-
-		_util_get_usbmode_status(&val);
-		_util_set_local_usbmode_status(val);
-		ret = vconf_notify_key_changed(VCONFKEY_USB_CUR_MODE,
-				__handle_usb_mode_notification, NULL);
-		if (ret < 0) {
-			ERR("vconf_notify_key_changed(%s) Fail", VCONFKEY_USB_CUR_MODE);
-			return FALSE;
-		}
-	}
-
+	DBG("Using FFS transport, assuming established connection");
+	_util_set_local_usb_status(MTP_PHONE_USB_DISCONNECTED);
+	_util_set_local_usbmode_status(1);
 	_util_get_lock_status(&val);
 	_util_set_local_lock_status(val);
 	_util_get_mmc_status(&val);
@@ -116,11 +90,6 @@ mtp_bool _eh_handle_usb_events(mtp_uint32 type)
 		}
 
 		/* check USB connection state */
-		if (_transport_get_type() != MTP_TRANSPORT_FFS &&
-				MTP_PHONE_USB_DISCONNECTED == _util_get_local_usb_status()) {
-			ERR("USB is disconnected. So just return.");
-			return FALSE;
-		}
 		is_usb_inserted = 1;
 
 		_transport_set_usb_discon_state(FALSE);
@@ -345,44 +314,6 @@ static mtp_bool __send_events_from_device_to_pc(mtp_dword store_id,
 	return _hdlr_send_event_container(&event);
 }
 
-static void __handle_usb_notification(keynode_t *key, void *data)
-{
-	phone_status_t val = MTP_PHONE_USB_DISCONNECTED;
-	mtp_int32 intval = VCONFKEY_SYSMAN_USB_DISCONNECTED;
-
-	ret_if(key == NULL);
-
-	intval = vconf_keynode_get_int(key);
-	if (-1 == intval) {
-		ERR("vconf_keynode_get_int() Fail");
-		return;
-	}
-
-	if (VCONFKEY_SYSMAN_USB_DISCONNECTED == intval) {
-		DBG("USB Disconnected");
-		_util_set_local_usb_status(val);
-		mtp_end_event();
-		return;
-	}
-
-	val = MTP_PHONE_USB_CONNECTED;
-	_util_set_local_usb_status(val);
-	DBG("USB Connected. Just return.");
-	return;
-}
-
-static void __handle_usb_mode_notification(keynode_t *key, void *data)
-{
-	phone_status_t val = MTP_PHONE_USB_MODE_OTHER;
-
-	ret_if(key == NULL);
-
-	val = vconf_keynode_get_int(key);
-
-	_util_set_local_usbmode_status(val);
-	return;
-}
-
 void _handle_lock_status_notification(keynode_t *key, void *data)
 {
 	phone_status_t previous_val = MTP_PHONE_LOCK_ON;
@@ -432,16 +363,6 @@ void _handle_mmc_notification(keynode_t *key, void *data)
 		__send_events_from_device_to_pc(MTP_EXTERNAL_STORE_ID,
 				PTP_EVENTCODE_STOREREMOVED, 0, 0);
 	}
-
-	return;
-}
-
-void _eh_deregister_notification_callbacks(void)
-{
-	vconf_ignore_key_changed(VCONFKEY_SYSMAN_USB_STATUS,
-			__handle_usb_notification);
-	vconf_ignore_key_changed(VCONFKEY_USB_CUR_MODE,
-			__handle_usb_mode_notification);
 
 	return;
 }

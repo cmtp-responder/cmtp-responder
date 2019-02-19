@@ -74,15 +74,7 @@ typedef struct mtp_usb_driver {
 	mtp_uint32 (*get_rx_pkt_size)(void);
 } mtp_usb_driver_t;
 
-extern const mtp_usb_driver_t mtp_usb_driver_slp;
 extern const mtp_usb_driver_t mtp_usb_driver_ffs;
-
-typedef enum {
-	MTP_TRANSPORT_SLP = 0,
-	MTP_TRANSPORT_FFS,
-	MTP_TRANSPORT_NUMBER,	/* number of supported transports */
-	MTP_TRANSPORT_UNKNOWN,
-} mtp_transport_type_t;
 
 /* Maximum repeat count for USB error recovery */
 #define MTP_USB_ERROR_MAX_RETRY		5
@@ -98,7 +90,6 @@ mtp_bool _transport_mq_deinit(msgq_id_t *rx_mqid, msgq_id_t *tx_mqid);
 mtp_uint32 _transport_get_usb_packet_len(void);
 mtp_uint32 _get_tx_pkt_size(void);
 mtp_uint32 _get_rx_pkt_size(void);
-mtp_transport_type_t _transport_get_type(void);
 
 #ifdef __cplusplus
 }

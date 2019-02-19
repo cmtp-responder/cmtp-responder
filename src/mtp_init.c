@@ -559,7 +559,6 @@ int main(int argc, char *argv[])
 	ret = _main_init();
 	if (MTP_ERROR_NONE != ret) {
 		ERR("_main_init() Fail(%d)", ret);
-		_eh_deregister_notification_callbacks();
 		_util_media_content_disconnect();
 		return MTP_ERROR_GENERAL;
 	}
@@ -567,7 +566,6 @@ int main(int argc, char *argv[])
 
 	g_main_loop_run(g_mainloop);
 
-	_eh_deregister_notification_callbacks();
 	media_content_disconnect();
 
 	DBG("######### MTP TERMINATED #########");

@@ -26,12 +26,6 @@ static const mtp_usb_driver_t *usb_driver;
 /* LCOV_EXCL_START */
 mtp_bool _transport_select_driver(void)
 {
-	if (access(MTP_DRIVER_PATH, F_OK) == 0) {
-		usb_driver = &mtp_usb_driver_slp;
-		DBG("SLP driver selected");
-		return TRUE;
-	}
-
 	if (access(MTP_EP0_PATH, F_OK) == 0 || sd_listen_fds(0) >= 4) {
 		usb_driver = &mtp_usb_driver_ffs;
 		DBG("FFS driver selected");
@@ -106,14 +100,4 @@ mtp_uint32 _transport_get_usb_packet_len(void)
 	return usb_driver->transport_get_usb_packet_len();
 }
 
-mtp_transport_type_t _transport_get_type(void)
-{
-	if (usb_driver == &mtp_usb_driver_slp)
-		return MTP_TRANSPORT_SLP;
-
-	if (usb_driver == &mtp_usb_driver_ffs)
-		return MTP_TRANSPORT_FFS;
-
-	return MTP_TRANSPORT_UNKNOWN;
-}
 /* LCOV_EXCL_STOP */

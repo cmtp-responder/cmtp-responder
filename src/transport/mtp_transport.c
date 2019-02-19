@@ -320,15 +320,13 @@ static mtp_err_t __transport_init_io()
 		goto cleanup;
 	}
 
-	if (_transport_get_type() == MTP_TRANSPORT_FFS) {
-		res = _util_thread_create(&g_ctrl_thrd, "usb control thread",
-					  PTHREAD_CREATE_JOINABLE,
-					  usb_control_thread,
-					  NULL);
-		if (FALSE == res) {
-			ERR("CTRL thread creation failed\n");
-			goto cleanup;
-		}
+	res = _util_thread_create(&g_ctrl_thrd, "usb control thread",
+				  PTHREAD_CREATE_JOINABLE,
+				  usb_control_thread,
+				  NULL);
+	if (FALSE == res) {
+		ERR("CTRL thread creation failed\n");
+		goto cleanup;
 	}
 
 	g_usb_threads_created = TRUE;
@@ -366,18 +364,16 @@ static void __transport_deinit_io()
 	}
 	errno = 0;
 
-	if (_transport_get_type() == MTP_TRANSPORT_FFS) {
-		if (FALSE == _util_thread_cancel(g_ctrl_thrd)) {
-			ERR("Fail to cancel pthread of g_ctrl_thrd\n");
-		} else {
-			DBG("Succeed to cancel pthread of g_ctrl_thrd\n");
-		}
-
-		if (_util_thread_join(g_ctrl_thrd, 0) == FALSE)
-			ERR("pthread_join of g_ctrl_thrd failed\n");
-
-		g_ctrl_thrd = 0;
+	if (FALSE == _util_thread_cancel(g_ctrl_thrd)) {
+		ERR("Fail to cancel pthread of g_ctrl_thrd\n");
+	} else {
+		DBG("Succeed to cancel pthread of g_ctrl_thrd\n");
 	}
+
+	if (_util_thread_join(g_ctrl_thrd, 0) == FALSE)
+		ERR("pthread_join of g_ctrl_thrd failed\n");
+
+	g_ctrl_thrd = 0;
 
 	if (FALSE == _util_thread_cancel(g_rx_thrd))
 		ERR("_util_thread_cancel(rx) Fail");

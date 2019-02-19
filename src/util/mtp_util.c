@@ -228,21 +228,6 @@ void _util_gen_alt_serial(mtp_char *serial, mtp_uint32 len)
 	return;
 }
 
-void _util_get_usb_status(phone_status_t *val)
-{
-	mtp_int32 ret = 0;
-	mtp_int32 state = 0;
-
-	ret = vconf_get_int(VCONFKEY_SYSMAN_USB_STATUS, &state);
-	if (ret == -1 || state == VCONFKEY_SYSMAN_USB_DISCONNECTED) {
-		*val = MTP_PHONE_USB_DISCONNECTED;
-		return;
-	}
-
-	*val = MTP_PHONE_USB_CONNECTED;
-	return;
-}
-
 phone_status_t _util_get_local_usb_status(void)
 {
 	return g_ph_status.usb_state;
@@ -280,25 +265,6 @@ phone_status_t _util_get_local_mmc_status(void)
 void _util_set_local_mmc_status(const phone_status_t val)
 {
 	g_ph_status.mmc_state = val;
-	return;
-}
-
-void _util_get_usbmode_status(phone_status_t *val)
-{
-	mtp_int32 ret = 0;
-	mtp_int32 state = 0;
-
-	ret = vconf_get_int(VCONFKEY_USB_CUR_MODE,
-			&state);
-	if (ret < 0) {
-		*val = MTP_PHONE_USB_MODE_OTHER;
-		return;
-	}
-
-	if (state == SET_USB_NONE)
-		*val = MTP_PHONE_USB_DISCONNECTED;
-	else
-		*val = MTP_PHONE_USB_CONNECTED;
 	return;
 }
 
