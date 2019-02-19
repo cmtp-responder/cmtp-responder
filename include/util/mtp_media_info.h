@@ -22,7 +22,6 @@ extern "C" {
 #endif
 
 #include <glib.h>
-#include <media_content.h>
 #include "mtp_config.h"
 #include "mtp_datatype.h"
 
@@ -94,10 +93,6 @@ mtp_bool _util_get_audio_metadata(const mtp_char *filepath,
 mtp_bool _util_get_video_metadata(mtp_char *filepath,
 		comp_video_meta_t *video_data);
 mtp_bool _util_get_image_ht_wt(const mtp_char *filepath, image_meta_t *image_data);
-mtp_bool _util_get_audio_meta_from_extractor(const mtp_char *filepath,
-		comp_audio_meta_t *audio_data);
-mtp_bool _util_get_video_meta_from_extractor(const mtp_char *filepath,
-		comp_video_meta_t *video_data);
 void _util_flush_db(void);
 void _util_delete_file_from_db(const mtp_char *filepath);
 void _util_add_file_to_db(const mtp_char *filepath);

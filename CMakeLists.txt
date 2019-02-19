@@ -15,8 +15,7 @@ string(LENGTH "${CMAKE_SOURCE_DIR}/" SRC_PATH_LEN)
 add_definitions("-DSRC_PATH_LEN=${SRC_PATH_LEN}")
 
 INCLUDE(FindPkgConfig)
-pkg_check_modules(pkgs REQUIRED glib-2.0 capi-content-media-content
-	capi-media-metadata-extractor libsystemd)
+pkg_check_modules(pkgs REQUIRED glib-2.0 capi-content-media-content libsystemd)
 
 FOREACH(flag ${pkgs_CFLAGS})
 	SET(EXTRA_CFLAGS "${EXTRA_CFLAGS} ${flag}")
@@ -29,7 +28,7 @@ SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${EXTRA_CFLAGS} -fPIE")
 SET(CMAKE_EXE_LINKER_FLAGS " -Wl,--as-needed -pie -Wl,--hash-style=both")
 
 ADD_EXECUTABLE(${PROJECT_NAME} ${SRCS})
-TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${pkgs_LDFLAGS} pthread rt)
+TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${pkgs_LDFLAGS} icuuc icui18n pthread rt)
 
 INSTALL(TARGETS ${PROJECT_NAME} DESTINATION bin)
 INSTALL(FILES mtp-responder.conf DESTINATION /opt/var/lib/misc)
