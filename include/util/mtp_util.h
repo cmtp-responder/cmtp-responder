@@ -29,6 +29,7 @@ extern "C" {
 #include <media_content.h>
 
 #define ACTIVE_USER	0
+#define HASH_VALUE { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf }
 #define FIND_CMD_LEN				300
 #define FIND_CMD	"/usr/bin/find %s \\( -iname '*.jpg' -o -iname '*.gif' " \
 	"-o -iname '*.exif' -o -iname '*.png' " \
