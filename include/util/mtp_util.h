@@ -89,7 +89,6 @@ typedef enum {
 } phone_status_t;
 
 typedef struct {
-	phone_status_t mmc_state;
 	phone_status_t usb_state;
 	phone_status_t usb_mode_state;
 } phone_state_t;
@@ -141,9 +140,6 @@ void _util_get_vendor_ext_desc(mtp_char *vendor_ext_desc, mtp_uint32 len);
 void _util_get_device_version(mtp_char *device_version, mtp_uint32 len);
 phone_status_t _util_get_local_usb_status(void);
 void _util_set_local_usb_status(const phone_status_t val);
-void _util_get_mmc_status(phone_status_t *val);
-phone_status_t _util_get_local_mmc_status(void);
-void _util_set_local_mmc_status(const phone_status_t val);
 phone_status_t _util_get_local_usbmode_status(void);
 void _util_set_local_usbmode_status(const phone_status_t val);
 void _util_get_external_path(char *external_path);

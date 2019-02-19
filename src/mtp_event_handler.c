@@ -56,16 +56,12 @@ static mtp_bool __send_start_event_to_eh_thread(void);
 /* LCOV_EXCL_START */
 mtp_bool _eh_register_notification_callbacks(void)
 {
-	phone_status_t val = 0;
-
 	DBG("Using FFS transport, assuming established connection");
 	_util_set_local_usb_status(MTP_PHONE_USB_DISCONNECTED);
 	_util_set_local_usbmode_status(1);
-	_util_get_mmc_status(&val);
-	_util_set_local_mmc_status(val);
 
 	DBG("Phone status: USB = [%d] MMC = [%d] USB_MODE = [%d] LOCK_STATUS = [%d]\n",
-			_util_get_local_usb_status(), _util_get_local_mmc_status(),
+			_util_get_local_usb_status(), MTP_PHONE_MMC_INSERTED,
 			_util_get_local_usbmode_status(), MTP_PHONE_LOCK_OFF);
 	return TRUE;
 }
@@ -325,22 +321,9 @@ void _handle_lock_status_notification(keynode_t *key, void *data)
 
 void _handle_mmc_notification(keynode_t *key, void *data)
 {
-	phone_status_t val = MTP_PHONE_MMC_NONE;
-
-	_util_get_mmc_status(&val);
-	_util_set_local_mmc_status(val);
-
-	if (MTP_PHONE_MMC_INSERTED == val) {
-		_device_install_storage(MTP_ADDREM_EXTERNAL);
-		__send_events_from_device_to_pc(MTP_EXTERNAL_STORE_ID,
-				PTP_EVENTCODE_STOREADDED, 0, 0);
-
-	} else if (MTP_PHONE_MMC_NONE == val) {
-		_device_uninstall_storage(MTP_ADDREM_EXTERNAL);
-
-		__send_events_from_device_to_pc(MTP_EXTERNAL_STORE_ID,
-				PTP_EVENTCODE_STOREREMOVED, 0, 0);
-	}
+	_device_install_storage(MTP_ADDREM_EXTERNAL);
+	__send_events_from_device_to_pc(MTP_EXTERNAL_STORE_ID,
+			PTP_EVENTCODE_STOREADDED, 0, 0);
 
 	return;
 }

@@ -89,6 +89,7 @@ static gboolean __check_internal_storage(gpointer user_data)
 {
 	UTIL_LOCK_MUTEX(&g_cmd_inoti_mutex);
 	_handle_lock_status_notification(NULL, NULL);
+	_handle_mmc_notification(NULL, NULL);
 	UTIL_UNLOCK_MUTEX(&g_cmd_inoti_mutex);
 
 	return true;
@@ -98,7 +99,6 @@ static gboolean __check_internal_storage(gpointer user_data)
 void _mtp_init(add_rem_store_t sel)
 {
 	mtp_char *sync_partner = NULL;
-	int vconf_ret = 0;
 	mtp_int32 error = 0;
 
 	DBG("Initialization start!");
@@ -160,7 +160,7 @@ void _mtp_init(add_rem_store_t sel)
 		/* LCOV_EXCL_STOP */
 	}
 	/* External Storage */
-	if (MTP_PHONE_MMC_INSERTED == _util_get_local_mmc_status()) {
+	{
 	/* LCOV_EXCL_START */
 		char ext_path[MTP_MAX_PATHNAME_SIZE + 1] = { 0 };
 		_util_get_external_path(ext_path);
@@ -188,13 +188,6 @@ void _mtp_init(add_rem_store_t sel)
 
 	g_timeout_add(1000, __check_internal_storage, NULL);
 
-	vconf_ret = vconf_notify_key_changed(VCONFKEY_SYSMAN_MMC_STATUS,
-			_handle_mmc_notification, NULL);
-	if (vconf_ret < 0) {
-		ERR("vconf_notify_key_changed(%s) Fail", VCONFKEY_SYSMAN_MMC_STATUS);
-		goto MTP_INIT_FAIL;
-	}
-
 	return;
 
 MTP_INIT_FAIL:
@@ -218,9 +211,6 @@ void _mtp_deinit(void)
 #ifdef MTP_SUPPORT_OBJECTADDDELETE_EVENT
 	_inoti_deinit_filesystem_events();
 #endif /*MTP_SUPPORT_OBJECTADDDELETE_EVENT*/
-
-	vconf_ignore_key_changed(VCONFKEY_SYSMAN_MMC_STATUS,
-			_handle_mmc_notification);
 
 	return;
 }

@@ -118,35 +118,9 @@ void _util_set_local_usb_status(const phone_status_t val)
 	return;
 }
 
-void _util_get_mmc_status(phone_status_t *val)
-{
-	mtp_int32 ret = 0;
-	mtp_int32 state = 0;
-
-	ret = vconf_get_int(VCONFKEY_SYSMAN_MMC_STATUS, &state);
-	if (ret == -1 || state !=
-			VCONFKEY_SYSMAN_MMC_MOUNTED) {
-		*val = MTP_PHONE_MMC_NONE;
-		return;
-	}
-
-	*val = MTP_PHONE_MMC_INSERTED;
-	return;
-}
 /* LCOV_EXCL_STOP */
 
-phone_status_t _util_get_local_mmc_status(void)
-{
-	return g_ph_status.mmc_state;
-}
-
 /* LCOV_EXCL_START */
-void _util_set_local_mmc_status(const phone_status_t val)
-{
-	g_ph_status.mmc_state = val;
-	return;
-}
-
 phone_status_t _util_get_local_usbmode_status(void)
 {
 	return g_ph_status.usb_mode_state;

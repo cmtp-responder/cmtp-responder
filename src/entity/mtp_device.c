@@ -652,8 +652,7 @@ mtp_bool _device_install_storage(mtp_int32 type)
 			/* LCOV_EXCL_STOP */
 		}
 
-		mounted = _util_get_local_mmc_status();
-		if (mounted == MTP_PHONE_MMC_INSERTED) {
+		{
 
 			/* LCOV_EXCL_START */
 			ext_status =
@@ -672,8 +671,6 @@ mtp_bool _device_install_storage(mtp_int32 type)
 
 	case MTP_ADDREM_EXTERNAL:
 		DBG(" case MTP_ADDREM_EXTERNAL:");
-		if (MTP_PHONE_MMC_INSERTED != _util_get_local_mmc_status())
-			break;
 		/* LCOV_EXCL_START */
 		mounted = _device_is_store_mounted(MTP_STORAGE_EXTERNAL);
 		if (mounted == FALSE) {
