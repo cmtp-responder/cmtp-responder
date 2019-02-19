@@ -31,6 +31,7 @@ extern "C" {
 #include <dlog.h>
 #include <media_content.h>
 
+#define ACTIVE_USER	0
 #define FIND_CMD_LEN				300
 #define FIND_CMD	"/usr/bin/find %s \\( -iname '*.jpg' -o -iname '*.gif' " \
 	"-o -iname '*.exif' -o -iname '*.png' " \

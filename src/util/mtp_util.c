@@ -400,61 +400,12 @@ int _util_wait_for_user()
 }
 /* LCOV_EXCL_STOP */
 
-uid_t _util_get_active_user()
-{
-	uid_t *active_user_list = NULL;
-	uid_t active_user = 0;
-	int user_cnt = 0;
-	int ret;
-
-	user_cnt = sd_get_active_uids(&active_user_list);
-	if (user_cnt <= 0) {
-		/* LCOV_EXCL_START */
-		ret = _util_wait_for_user();
-		if (ret < 0)
-			return -1;
-
-		user_cnt = sd_get_active_uids(&active_user_list);
-		/* LCOV_EXCL_STOP */
-	}
-
-	if (user_cnt <= 0) {
-		/* LCOV_EXCL_START */
-		ERR("Active user not exists : %d", user_cnt);
-
-		if (active_user_list != NULL)
-			free(active_user_list);
-
-		return -1;
-		/* LCOV_EXCL_STOP */
-	}
-
-	if (active_user_list == NULL) {
-		ERR("active_user_list is NULL");
-		return -1;
-	}
-
-	active_user = active_user_list[0];
-
-	DBG("Active UID : %d", active_user);
-
-	free(active_user_list);
-
-	if (active_user <= 0) {
-		ERR("UID is not proper value : %d", active_user);
-		return -1;
-	}
-
-	return active_user;
-}
-
 void _util_get_internal_path(char *internal_path)
 {
 	struct passwd *pwd;
-	uid_t active_user = 0;
+	uid_t active_user = ACTIVE_USER;
 	char *active_name = NULL;
 
-	active_user = _util_get_active_user();
 	pwd = getpwuid(active_user);
 	active_name = pwd->pw_name;
 
@@ -481,9 +432,7 @@ void _util_get_internal_path(char *internal_path)
 mtp_bool _util_media_content_connect()
 {
 	mtp_int32 ret = 0;
-	uid_t active_user = 0;
-
-	active_user = _util_get_active_user();
+	uid_t active_user = ACTIVE_USER;
 
 	ret = media_content_connect_with_uid(active_user);
 	if (ret != MEDIA_CONTENT_ERROR_NONE) {
