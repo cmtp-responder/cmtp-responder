@@ -36,8 +36,6 @@
 /* cancel transactio, device reset, mainly used in mtpmain.c */
 #define MTP_SUPPORT_CONTROL_REQUEST
 
-#define MTP_SUPPORT_ALBUM_ART		/* album art image file */
-
 /*support get wmpinfo.xml from hidden file list */
 
 /*mobile class. this should be set with ms os descriptor. see portable device installation consideration */

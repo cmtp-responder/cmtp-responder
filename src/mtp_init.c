@@ -478,12 +478,6 @@ void _features_supported_info(void)
 	DBG("***********************************************************");
 	DBG("### Feature ###");
 
-#ifdef MTP_SUPPORT_ALBUM_ART
-	DBG("### 2. MTP_SUPPORT_ALBUM_ART	: [ON]");
-#else /* MTP_SUPPORT_ALBUM_ART */
-	DBG("### 2. MTP_SUPPORT_ALBUM_ART	: [OFF]");
-#endif /* MTP_SUPPORT_ALBUM_ART */
-
 #ifdef MTP_SUPPORT_SET_PROTECTION
 	DBG("### 3. MTP_SUPPORT_SET_PROTECTION	: [ON]");
 #else /* MTP_SUPPORT_SET_PROTECTION */

@@ -314,42 +314,6 @@ mtp_err_t _hutil_add_object_entry(obj_info_t *obj_info, mtp_char *file_name,
 
 		DBG_SECURE("Temp file path [%s]\n", g_mgr->ftemp_st.filepath);
 
-
-#ifdef MTP_SUPPORT_ALBUM_ART
-		if (access(new_f_path, F_OK) == 0) {
-			/* LCOV_EXCL_START */
-			file_exist = TRUE;
-			/* if file is album, overwrite it. */
-			mtp_char alb_buf[MTP_MAX_PATHNAME_SIZE + 1] = { 0 };
-			mtp_char alb_ext[MTP_MAX_PATHNAME_SIZE + 1] =	{ 0 };
-
-			/* find extension, if album or pla, overwrite that. */
-			_util_utf16_to_utf8(alb_buf, sizeof(alb_buf), temp_wfname);
-
-			if (obj_info->obj_fmt != PTP_FMT_ASSOCIATION ||
-					(obj_info->obj_fmt == PTP_FMT_ASSOCIATION &&
-					 obj_info->association_type !=
-					 PTP_ASSOCIATIONTYPE_UNDEFINED &&
-					 obj_info->association_type !=
-					 PTP_ASSOCIATIONTYPE_FOLDER)) {
-
-				_util_get_file_extn(alb_buf, alb_ext);
-				if (!strcasecmp(alb_ext, "alb")) {
-					if (remove(new_f_path) == 0) {
-						file_exist = FALSE;
-						DBG("[%s] file is found. Delete\
-								old and make new one\n",
-								alb_ext);
-					} else
-						ERR("[%s] file is found. but \
-								cannot delete it\n",
-								alb_ext);
-				}
-			}
-			/* LCOV_EXCL_STOP */
-		}
-#endif /*MTP_SUPPORT_ALBUM_ART*/
-
 		if (file_exist == FALSE) {
 			DBG_SECURE("Found a unique file name for the incoming object\
 					[0x%p]\n", temp_wfname);
@@ -1513,14 +1477,6 @@ mtp_err_t _hutil_construct_object_entry_prop_list(mtp_uint32 store_id,
 	mtp_int32 bytes_left = data_sz;
 	mtp_err_t resp = 0;
 
-#ifdef MTP_SUPPORT_ALBUM_ART
-	mtp_uint16 albumFormat = 0;
-	mtp_char alb_extn[MTP_MAX_EXTENSION_LENGTH + 1] = { 0 };
-	mtp_char *alb_buf = NULL;
-	mtp_uint32 alb_sz = 0;
-	FILE* h_temp = NULL;
-	mtp_int32 error = 0;
-#endif /*MTP_SUPPORT_ALBUM_ART*/
 	mtp_char file_name[MTP_MAX_FILENAME_SIZE + 1] = { 0 };
 
 	if (obj_data != NULL && obj_data->obj != NULL) {
@@ -1737,70 +1693,6 @@ mtp_err_t _hutil_construct_object_entry_prop_list(mtp_uint32 store_id,
 		case MTP_OBJ_PROPERTYCODE_FRAMESPER1KSECONDS:
 			// TODO: find mechanism to save (integer)
 			break;
-#ifdef MTP_SUPPORT_ALBUM_ART
-		case MTP_OBJ_PROPERTYCODE_SAMPLEDATA:
-			/* save sample data(album cover data) with
-			 * sample format, otherwise no extension
-			 * update db with sample data path
-			 * there is no case that this position is called
-			 * again but prevent detect this
-			 */
-			g_free(alb_buf);
-			alb_buf = NULL;
-			alb_buf = g_malloc(sizeof(mtp_uchar) *
-					(prop_val->current_val.array->num_ele) + 1);
-			alb_sz = prop_val->current_val.array->num_ele;
-			if (alb_buf != NULL) {
-				memset(alb_buf, 0,
-						sizeof(mtp_uchar) * alb_sz + 1);
-				if (alb_sz > 0)
-					memcpy(alb_buf,
-							(prop_val->current_val.array->array_entry),
-							sizeof(mtp_uchar) * alb_sz);
-			} else {
-				ERR("album art test mem allocation Fail");
-				_prop_destroy_obj_propval(prop_val);
-				_entity_dealloc_obj_info(obj_info);
-				return MTP_ERROR_GENERAL;
-			}
-			break;
-
-		case MTP_OBJ_PROPERTYCODE_SAMPLEFORMAT:
-			/* if is_albumart is turned on, Move file with
-			 * new extension. And update db with data path
-			 */
-			memcpy(&albumFormat, prop_val->current_val.integer,
-					sizeof(mtp_uint16));
-			switch (albumFormat) {
-			case PTP_FMT_IMG_EXIF:
-				g_snprintf(alb_extn, sizeof(alb_extn), "%s", "jpg");
-				break;
-			case PTP_FMT_IMG_GIF:
-				g_snprintf(alb_extn, sizeof(alb_extn), "%s", "gif");
-				break;
-			case PTP_FMT_IMG_PNG:
-				g_snprintf(alb_extn, sizeof(alb_extn), "%s", "png");
-				break;
-			case MTP_FMT_WMA:
-				g_snprintf(alb_extn, sizeof(alb_extn), "%s", "wma");
-				break;
-			case PTP_FMT_MPEG:
-				g_snprintf(alb_extn, sizeof(alb_extn), "%s", "mpg");
-				break;
-			default:
-				g_snprintf(alb_extn, sizeof(alb_extn), "%s", "dat");
-				break;
-			}
-
-			ERR("sampleformatl![0x%x], extension[%s]\n", prop_code, alb_extn);
-			break;
-		case MTP_OBJ_PROPERTYCODE_SAMPLESIZE:
-		case MTP_OBJ_PROPERTYCODE_SAMPLEHEIGHT:
-		case MTP_OBJ_PROPERTYCODE_SAMPLEWIDTH:
-		case MTP_OBJ_PROPERTYCODE_SAMPLEDURATION:
-			DBG("Sample data is not supported [0x%x]\n", prop_code);
-			break;
-#endif /*MTP_SUPPORT_ALBUM_ART*/
 
 		default:
 			DBG("Unsupported Property [0x%x]\n", prop_code);
@@ -1820,51 +1712,11 @@ mtp_err_t _hutil_construct_object_entry_prop_list(mtp_uint32 store_id,
 		goto ERROR_EXIT;
 	}
 
-#ifdef MTP_SUPPORT_ALBUM_ART
-	mtp_char full_path[MTP_MAX_PATHNAME_SIZE + 1] = { 0 };
-	mtp_char extn[MTP_MAX_PATHNAME_SIZE + 1] = { 0 };
-
-	g_strlcpy(full_path, obj->file_path, MTP_MAX_PATHNAME_SIZE + 1);
-
-	/* in case of album, if there is album data, fill it in this file */
-	if (obj_info->obj_fmt != PTP_FMT_ASSOCIATION ||
-			(obj_info->obj_fmt == PTP_FMT_ASSOCIATION &&
-			 obj_info->association_type != PTP_ASSOCIATIONTYPE_UNDEFINED &&
-			 obj_info->association_type != PTP_ASSOCIATIONTYPE_FOLDER)) {
-
-		_util_get_file_extn(full_path, extn);
-		if (!strcasecmp(extn, "alb")) {
-			/* check db whether it contains sample form
-			 * save sample data(album cover data) with
-			 * sample format, otherwise no extension
-			 */
-			if (alb_buf != NULL) {
-				/* file write */
-				h_temp = _util_file_open(full_path,
-						MTP_FILE_WRITE, &error);
-				if (h_temp != NULL) {
-					_util_file_write(h_temp, alb_buf,
-							sizeof(mtp_uchar) *alb_sz);
-					_util_file_close(h_temp);
-				} else {
-					ERR("open album file Fail!!");
-				}
-			} else {
-				ERR("no album art data");
-			}
-		}
-	}
-
-	g_free(alb_buf);
-#endif /* MTP_SUPPORT_ALBUM_ART */
 	*obj_ptr = obj;
 
 	return MTP_ERROR_NONE;
 
 ERROR_EXIT:
-#ifdef MTP_SUPPORT_ALBUM_ART
-	g_free(alb_buf);
-#endif /* MTP_SUPPORT_ALBUM_ART */
 	if (obj_info != NULL)
 		_entity_dealloc_obj_info(obj_info);
 	/* LCOV_EXCL_STOP */
