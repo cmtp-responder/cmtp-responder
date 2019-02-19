@@ -45,11 +45,6 @@ static mtp_bool __create_prop_string(mtp_obj_t *obj, mtp_uint16 propcode,
 		mtp_wchar *value);
 static mtp_bool __create_prop_array(mtp_obj_t *obj, mtp_uint16 propcode,
 		mtp_char *arr, mtp_uint32 size);
-#ifdef MTP_SUPPORT_PROPERTY_SAMPLE
-static mtp_bool __create_prop_sample(mtp_obj_t *obj);
-static void __build_supported_sample_props(mtp_uchar *count,
-		obj_prop_desc_t *prop);
-#endif /*MTP_SUPPORT_PROPERTY_SAMPLE*/
 static mtp_bool __update_prop_values_audio(mtp_obj_t *obj);
 static mtp_bool __update_prop_values_video(mtp_obj_t *obj);
 static mtp_bool __update_prop_values_image(mtp_obj_t *obj);
@@ -4594,10 +4589,6 @@ mtp_bool _prop_build_supp_props_wmv(void)
 	_prop_set_default_integer(&(props_list_wmv[i].propinfo),
 			(mtp_uchar *)&default_val);
 
-#ifdef MTP_SUPPORT_PROPERTY_SAMPLE
-	__build_supported_sample_props(&i, &props_list_wmv[i]);
-#endif /*MTP_SUPPORT_PROPERTY_SAMPLE*/
-
 	initialized = TRUE;
 
 	return TRUE;
@@ -4648,10 +4639,6 @@ mtp_bool _prop_build_supp_props_album(void)
 	/*
 	 * SAMPLE PROPERTIES (3-8)
 	 */
-#ifdef MTP_SUPPORT_PROPERTY_SAMPLE
-	i++
-		__build_supported_sample_props(&i, &props_list_album[i]);
-#endif /*MTP_SUPPORT_PROPERTY_SAMPLE*/
 
 	initialized = TRUE;
 

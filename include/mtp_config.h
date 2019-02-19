@@ -45,11 +45,6 @@
 
 /*#define MTP_SUPPORT_WMV_ENCODINGPROFILE */		/* for WMV encoding profile */
 
-/*Representive Sample Properties are not supported by either music player or libmm-fileinfo */
-#ifdef MTP_SUPPORT_ALBUM_ART
-/*#define MTP_SUPPORT_PROPERTY_SAMPLE*/
-#endif/*MTP_SUPPORT_ALBUM_ART*/
-
 /* external features */
 #define MTP_SUPPORT_OBJECTADDDELETE_EVENT
 
