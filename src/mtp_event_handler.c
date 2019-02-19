@@ -17,8 +17,6 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <signal.h>
-#include <vconf.h>
-#include <vconf-keys.h>
 #include <glib.h>
 #include "mtp_event_handler.h"
 #include "mtp_cmd_handler.h"
@@ -308,7 +306,7 @@ static mtp_bool __send_events_from_device_to_pc(mtp_dword store_id,
 	return _hdlr_send_event_container(&event);
 }
 
-void _handle_lock_status_notification(keynode_t *key, void *data)
+void _handle_lock_status_notification(void)
 {
 	_device_install_storage(MTP_ADDREM_INTERNAL);
 	__send_events_from_device_to_pc(MTP_INTERNAL_STORE_ID,
@@ -319,7 +317,7 @@ void _handle_lock_status_notification(keynode_t *key, void *data)
 	return;
 }
 
-void _handle_mmc_notification(keynode_t *key, void *data)
+void _handle_mmc_notification(void)
 {
 	_device_install_storage(MTP_ADDREM_EXTERNAL);
 	__send_events_from_device_to_pc(MTP_EXTERNAL_STORE_ID,

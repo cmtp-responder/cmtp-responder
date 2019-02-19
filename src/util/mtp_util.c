@@ -21,7 +21,6 @@
 #include <fcntl.h>
 #include <time.h>
 #include <pthread.h>
-#include <vconf.h>
 #include "mtp_util.h"
 #include "mtp_support.h"
 #include "mtp_fs.h"

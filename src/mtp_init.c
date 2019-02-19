@@ -20,7 +20,6 @@
 #include <glib.h>
 #include <glib-object.h>
 #include <malloc.h>
-#include <vconf.h>
 #include "mtp_init.h"
 #include "mtp_config.h"
 #include "mtp_thread.h"
@@ -88,8 +87,8 @@ static void __mtp_exit(void)
 static gboolean __check_internal_storage(gpointer user_data)
 {
 	UTIL_LOCK_MUTEX(&g_cmd_inoti_mutex);
-	_handle_lock_status_notification(NULL, NULL);
-	_handle_mmc_notification(NULL, NULL);
+	_handle_lock_status_notification();
+	_handle_mmc_notification();
 	UTIL_UNLOCK_MUTEX(&g_cmd_inoti_mutex);
 
 	return true;
@@ -98,7 +97,6 @@ static gboolean __check_internal_storage(gpointer user_data)
 
 void _mtp_init(add_rem_store_t sel)
 {
-	mtp_char *sync_partner = NULL;
 	mtp_int32 error = 0;
 
 	DBG("Initialization start!");
@@ -119,14 +117,7 @@ void _mtp_init(add_rem_store_t sel)
 	_transport_set_mtp_operation_state(MTP_STATE_INITIALIZING);
 
 	_device_set_device_name(MTP_DEV_PROPERTY_FRIENDLYNAME);
-
-	sync_partner = vconf_get_str(VCONFKEY_MTP_SYNC_PARTNER_STR);
-	if (sync_partner != NULL && strlen(sync_partner) > 0) {
-		_device_set_sync_partner(sync_partner);
-		g_free(sync_partner);
-	} else {
-		_device_set_sync_partner(MTP_DEV_PROPERTY_SYNCPARTNER);
-	}
+	_device_set_sync_partner(MTP_DEV_PROPERTY_SYNCPARTNER);
 
 	if (g_mgr->ftemp_st.temp_buff == NULL) {
 		/* Allocate memory for temporary */

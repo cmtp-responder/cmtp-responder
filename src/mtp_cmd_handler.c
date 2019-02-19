@@ -23,7 +23,6 @@
 #include <unistd.h>
 #include <glib.h>
 #include <glib/gprintf.h>
-#include <vconf.h>
 #include "mtp_support.h"
 #include "ptp_datacodes.h"
 #include "mtp_media_info.h"
@@ -2409,11 +2408,7 @@ static void __reset_device_prop_value(mtp_handler_t *hdlr)
 		_util_utf16_to_utf8(temp, sizeof(temp),
 				prop->current_val.str->str);
 		_device_set_sync_partner(temp);
-
-		if (!g_strcmp0(temp, MTP_DEV_PROPERTY_NULL_SYNCPARTNER))
-			vconf_set_str(VCONFKEY_MTP_SYNC_PARTNER_STR, "");
-		else
-			vconf_set_str(VCONFKEY_MTP_SYNC_PARTNER_STR, temp);
+		DBG("Setting synch partner:%s, but it will be forgotten after exit!\n", temp);
 	}
 	_cmd_hdlr_send_response_code(hdlr, PTP_RESPONSE_OK);
 
