@@ -245,29 +245,6 @@ static mtp_bool __init_device_props()
 	_prop_init_device_property_desc(dev_prop,
 			MTP_PROPERTYCODE_SYNCHRONIZATIONPARTNER,
 			PTP_DATATYPE_STRING, PTP_PROPGETSET_GETSET, NONE);
-#ifdef MTP_USE_INFORMATION_REGISTRY
-	{
-		mtp_char *sync_ptr = NULL;
-		mtp_wchar wtemp[MTP_MAX_REG_STRING + 1] = { 0 };
-		mtp_wchar wpartner[MTP_MAX_REG_STRING + 1] = { 0 };
-
-		sync_ptr = _device_get_sync_partner();
-		if (sync_ptr == NULL) {
-			_util_utf8_to_utf16(wtemp, sizeof(wpartner) / WCHAR_SIZ,
-					MTP_DEV_PROPERTY_SYNCPARTNER);
-		} else {
-			_util_utf8_to_utf16(wtemp, sizeof(wtemp) / WCHAR_SIZ,
-					sync_ptr);
-		}
-
-		_util_utf8_to_utf16(wpartner, sizeof(wpartner) / WCHAR_SIZ,
-				MTP_DEV_PROPERTY_SYNCPARTNER);
-		_prop_copy_char_to_ptpstring(&tmp, wtemp, WCHAR_TYPE);
-		_prop_set_current_string(dev_prop, &tmp);
-		_prop_set_default_string(&(dev_prop->propinfo), wpartner);
-		g_free(sync_ptr);
-	}
-#else/*MTP_USE_INFORMATION_REGISTRY*/
 	{
 		mtp_wchar wtemp[MTP_MAX_REG_STRING + 1] = { 0 };
 
@@ -277,33 +254,12 @@ static mtp_bool __init_device_props()
 		_prop_set_current_string(dev_prop, &tmp);
 		_prop_set_default_string(&(dev_prop->propinfo), wtemp);
 	}
-#endif/*MTP_USE_INFORMATION_REGISTRY*/
 	i++;
 
 	/* Device Friendly Name */
 	dev_prop = &(g_device.device_prop_list[i]);
 	_prop_init_device_property_desc(dev_prop, MTP_PROPERTYCODE_DEVICEFRIENDLYNAME,
 			PTP_DATATYPE_STRING, PTP_PROPGETSET_GETONLY, NONE);
-#ifdef MTP_USE_INFORMATION_REGISTRY
-	{
-		mtp_char *dev_ptr = NULL;
-		mtp_wchar wmodel[MTP_MAX_REG_STRING + 1] = { 0 };
-
-		dev_ptr = _device_get_device_name();
-		if (dev_ptr == NULL) {
-			ERR("_device_get_device_name() Fail");
-			_util_utf8_to_utf16(wmodel, sizeof(wmodel) / WCHAR_SIZ,
-					MTP_DEV_PROPERTY_FRIENDLYNAME);
-		} else {
-			_util_utf8_to_utf16(wmodel, sizeof(wmodel) / WCHAR_SIZ,
-					dev_ptr);
-			g_free(dev_ptr);
-		}
-		_prop_copy_char_to_ptpstring(&tmp, wmodel, WCHAR_TYPE);
-		_prop_set_current_string(dev_prop, &tmp);
-		_prop_set_default_string(&(dev_prop->propinfo), wmodel);
-	}
-#else /*MTP_USE_INFORMATION_REGISTRY*/
 	{
 		mtp_wchar wmodel[MTP_MAX_REG_STRING + 1] = { 0 };
 
@@ -313,7 +269,6 @@ static mtp_bool __init_device_props()
 		_prop_set_current_string(dev_prop, &tmp);
 		_prop_set_default_string(&(dev_prop->propinfo), wmodel);
 	}
-#endif /*MTP_USE_INFORMATION_REGISTRY*/
 	i++;
 
 	/* supported formats ordered */

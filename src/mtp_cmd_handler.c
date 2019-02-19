@@ -1491,31 +1491,7 @@ static void __set_device_prop_value(mtp_handler_t *hdlr)
 	}
 
 	switch (ret) {
-	case MTP_ERROR_NONE: {
-#ifdef MTP_USE_INFORMATION_REGISTRY
-
-							 mtp_char temp[MTP_MAX_REG_STRING * 3 + 1] = { 0 };
-							 mtp_wchar parsed_buf[MTP_MAX_REG_STRING + 1] = { 0 };
-							 mtp_uchar parse_sz = 0;
-
-							 if (MTP_PROPERTYCODE_SYNCHRONIZATIONPARTNER == prop_id) {
-								 parse_sz = d_raw[0];
-								 _util_wchar_ncpy(parsed_buf, (mtp_wchar *)&d_raw[1],
-										 parse_sz > MTP_MAX_REG_STRING ?
-										 MTP_MAX_REG_STRING : parse_sz);
-								 _util_utf16_to_utf8(temp, sizeof(temp), parsed_buf);
-								 _device_set_sync_partner(temp);
-								 if (!g_strcmp0(temp,
-											 MTP_DEV_PROPERTY_NULL_SYNCPARTNER)) {
-									 vconf_set_str(VCONFKEY_MTP_SYNC_PARTNER_STR,
-											 "");
-								 } else {
-									 vconf_set_str(VCONFKEY_MTP_SYNC_PARTNER_STR,
-											 temp);
-								 }
-							 }
-#endif /*MTP_USE_INFORMATION_REGISTRY*/
-						 }
+	case MTP_ERROR_NONE:
 						 resp = PTP_RESPONSE_OK;
 						 break;
 	case MTP_ERROR_ACCESS_DENIED:

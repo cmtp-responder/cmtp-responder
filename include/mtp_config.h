@@ -19,9 +19,6 @@
 
 #include <stdbool.h>
 
-/* Function Features */
-#define MTP_USE_INFORMATION_REGISTRY		/* for get and set some information value */
-
 /* Set write-protection for read-only files */
 /*#define MTP_SUPPORT_SET_PROTECTION*/
 
