@@ -40,9 +40,6 @@
 
 /*support get wmpinfo.xml from hidden file list */
 
-/*support mtp command GetInterdependentPropDesc (0x9807) */
-/*#define MTP_SUPPORT_INTERDEPENDENTPROP*/
-
 /*mobile class. this should be set with ms os descriptor. see portable device installation consideration */
 #define MTP_SUPPORT_DEVICE_CLASS
 

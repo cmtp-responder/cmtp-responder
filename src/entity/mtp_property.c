@@ -74,10 +74,6 @@ static void __destroy_obj_prop_desc(obj_prop_desc_t *prop);
 static mtp_uint32 __count_obj_proplist(obj_proplist_t *plist);
 static mtp_bool __append_obj_proplist(obj_proplist_t *prop_list, mtp_uint32 obj_handle,
 		mtp_uint16 prop_code, mtp_uint32 data_type, mtp_uchar *val);
-#ifdef MTP_SUPPORT_INTERDEPENDENTPROP
-static mtp_bool __append_interdep_prop(interdep_prop_config_t *config,
-		obj_prop_desc_t *prop);
-#endif /* MTP_SUPPORT_INTERDEPENDENTPROP */
 static mtp_uint32 __count_interdep_proplist(obj_interdep_proplist_t *config_list,
 		mtp_uint32 format_code);
 /*
@@ -4256,134 +4252,6 @@ mtp_bool _prop_build_supp_props_wma(void)
 	 * Valid Configurations for interdependent Object properties
 	 *-------------------------------------------------------------
 	 */
-#ifdef MTP_SUPPORT_INTERDEPENDENTPROP
-	{
-		interdep_prop_config_t *ptr_interdep_prop_cfg = NULL;
-		obj_prop_desc_t *prop = NULL;
-		mtp_uint32 default_val;
-
-		_util_init_list(&(interdep_proplist.plist));
-
-		prop = (obj_prop_desc_t *)g_malloc(sizeof(obj_prop_desc_t) * 4);
-		if (!prop) {
-			ERR("prop g_malloc fail");
-			return FALSE;
-		}
-		/* Valid config. 1 for Bit Rate and Sample Rate */
-		ptr_interdep_prop_cfg =
-			(interdep_prop_config_t *)g_malloc(sizeof(interdep_prop_config_t));
-		if (!ptr_interdep_prop_cfg) {
-			g_free(prop);
-			ERR("ptr_interdep_prop_config g_malloc fail");
-			return FALSE;
-		}
-
-		_util_init_list(&(ptr_interdep_prop_cfg->propdesc_list));
-		if (!ptr_interdep_prop_cfg) {
-			g_free(prop);
-			return FALSE;
-		}
-		ptr_interdep_prop_cfg->format_code = MTP_FMT_WMA;
-		i = 0;
-
-		__init_obj_prop_desc(&(prop[i]),
-				MTP_OBJ_PROPERTYCODE_TOTALBITRATE,
-				PTP_DATATYPE_UINT32,
-				PTP_PROPGETSET_GETONLY,
-				RANGE_FORM, MTP_PROP_GROUPCODE_GENERAL);
-
-		default_val = MTP_AUDIO_BITRATE_192K;
-		_prop_set_range_integer(&(prop[i].propinfo),
-				MTP_AUDIO_BITRATE_192K,
-				MTP_AUDIO_BITRATE_256K, 1000L);
-		_prop_set_default_integer(&(prop[i].propinfo),
-				(mtp_uchar *)&default_val);
-		__append_interdep_prop(ptr_interdep_prop_cfg, &(prop[i]));
-		i++;
-
-		__init_obj_prop_desc(&(prop[i]),
-				MTP_OBJ_PROPERTYCODE_SAMPLERATE,
-				PTP_DATATYPE_UINT32,
-				PTP_PROPGETSET_GETONLY,
-				ENUM_FORM, MTP_PROP_GROUPCODE_GENERAL);
-
-		_prop_add_supp_integer_val(&(prop[i].propinfo),
-				MTP_AUDIO_SAMPLERATE_DVD);
-		_prop_set_default_integer(&(prop[i].propinfo),
-				(mtp_uchar *)MTP_AUDIO_SAMPLERATE_DVD);
-		__append_interdep_prop(ptr_interdep_prop_cfg, &(prop[i]));
-		i++;
-
-		/* Created one valid configuration */
-
-		mtp_bool ret;
-		ret = _util_add_node(&(interdep_proplist.plist),
-				(void *)ptr_interdep_prop_cfg);
-		if (ret == FALSE) {
-			g_free(prop);
-			ERR("List add Fail");
-			return FALSE;
-		}
-
-		/* Valid config. 2 for Bit Rate and Sample Rate */
-		ptr_interdep_prop_cfg =
-			(interdep_prop_config_t *)g_malloc(sizeof(interdep_prop_config_t));
-		if (!ptr_interdep_prop_cfg) {
-			g_free(prop);
-			ERR("ptr_interdep_prop_cfg g_malloc fail");
-			return FALSE;
-		}
-		_util_init_list(&(ptr_interdep_prop_cfg->propdesc_list));
-
-		if (!ptr_interdep_prop_cfg) {
-			g_free(prop);
-			return FALSE;
-		}
-		ptr_interdep_prop_cfg->format_code = MTP_FMT_WMA;
-
-		__init_obj_prop_desc(&(prop[i]),
-				MTP_OBJ_PROPERTYCODE_TOTALBITRATE,
-				PTP_DATATYPE_UINT32,
-				PTP_PROPGETSET_GETONLY,
-				RANGE_FORM, MTP_PROP_GROUPCODE_GENERAL);
-
-		default_val = 0x0;
-		_prop_set_range_integer(&(prop[i].propinfo),
-				MTP_AUDIO_BITRATE_GSM,
-				MTP_AUDIO_BITRATE_BLUERAY, 1L);
-		_prop_set_default_integer(&(prop[i].propinfo),
-				(mtp_uchar *)&default_val);
-		__append_interdep_prop(ptr_interdep_prop_cfg, &(prop[i]));
-		i++;
-
-		__init_obj_prop_desc(&(prop[i]),
-				MTP_OBJ_PROPERTYCODE_SAMPLERATE,
-				PTP_DATATYPE_UINT32,
-				PTP_PROPGETSET_GETONLY,
-				ENUM_FORM, MTP_PROP_GROUPCODE_GENERAL);
-
-		default_val = MTP_AUDIO_SAMPLERATE_CD;
-		_prop_add_supp_integer_val(&(prop[i].propinfo),
-				MTP_AUDIO_SAMPLERATE_32K);
-		_prop_add_supp_integer_val(&(prop[i].propinfo),
-				MTP_AUDIO_SAMPLERATE_CD);
-		_prop_set_default_integer(&(prop[i].propinfo),
-				(mtp_uchar *)&default_val);
-		__append_interdep_prop(ptr_interdep_prop_cfg, &(prop[i]));
-		i++;
-
-		/* Created one valid configuration */
-		ret = _util_add_node(&(interdep_proplist.plist),
-				(void *)ptr_interdep_prop_cfg);
-		if (ret == FALSE) {
-			g_free(prop);
-			ERR("List add Fail");
-			return FALSE;
-		}
-		g_free(prop);
-	}
-#endif /*MTP_SUPPORT_INTERDEPENDENTPROP*/
-
 	initialized = TRUE;
 
 	return TRUE;
@@ -4818,24 +4686,6 @@ void _prop_destroy_supp_obj_props(void)
 
 	return;
 }
-
-#ifdef MTP_SUPPORT_INTERDEPENDENTPROP
-static mtp_bool __append_interdep_prop(interdep_prop_config_t *prop_config,
-		obj_prop_desc_t *prop)
-{
-	mtp_bool ret;
-	if (prop != NULL) {
-		ret = _util_add_node(&(prop_config->propdesc_list),
-				(void*)prop);
-		if (ret == FALSE) {
-			ERR("list add Fail");
-			return FALSE;
-		}
-		return TRUE;
-	}
-	return FALSE;
-}
-#endif /* MTP_SUPPORT_INTERDEPENDENTPROP */
 
 mtp_uint32 _prop_get_size_interdep_prop(interdep_prop_config_t *prop_config)
 {
