@@ -1197,9 +1197,6 @@ mtp_err_t _hutil_write_file_data(mtp_uint32 store_id, mtp_obj_t *obj,
 {
 	mtp_store_t *store;
 	mtp_char fname[MTP_MAX_PATHNAME_SIZE + 1] = { 0 };
-#ifdef MTP_SUPPORT_DELETE_MEDIA_ALBUM_FILE
-	mtp_char extn[MTP_MAX_PATHNAME_SIZE + 1] = { 0 };
-#endif /*MTP_SUPPORT_DELETE_MEDIA_ALBUM_FILE*/
 	mtp_int32 error = 0;
 
 	retv_if(obj == NULL, MTP_ERROR_INVALID_PARAM);
@@ -1216,22 +1213,6 @@ mtp_err_t _hutil_write_file_data(mtp_uint32 store_id, mtp_obj_t *obj,
 		ERR("temp file does not exist");
 		return MTP_ERROR_GENERAL;
 	}
-
-#ifdef MTP_SUPPORT_DELETE_MEDIA_ALBUM_FILE
-	/* in case of alb extension, does not make real file just skip below */
-	if (obj_info->obj_fmt != PTP_FMT_ASSOCIATION ||
-			(obj_info->obj_fmt == PTP_FMT_ASSOCIATION &&
-			 obj_info->association_type != PTP_ASSOCIATIONTYPE_UNDEFINED &&
-			 obj_info->association_type != PTP_ASSOCIATIONTYPE_FOLDER)) {
-
-		_util_get_file_extn(fname, extn);
-		if (strlen(extn) && !strcasecmp(extn, "alb")) {
-			DBG("No need to create album file");
-			remove(fpath, &error);
-			return MTP_ERROR_NONE;
-		}
-	}
-#endif /*MTP_SUPPORT_DELETE_MEDIA_ALBUM_FILE*/
 
 	g_snprintf(g_last_moved, MTP_MAX_PATHNAME_SIZE + 1, "%s", fpath);
 	if (FALSE == _util_file_move(fpath, fname, &error)) {

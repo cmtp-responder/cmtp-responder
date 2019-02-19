@@ -37,7 +37,6 @@
 #define MTP_SUPPORT_CONTROL_REQUEST
 
 #define MTP_SUPPORT_ALBUM_ART		/* album art image file */
-/*#define MTP_SUPPORT_DELETE_MEDIA_ALBUM_FILE*/
 
 /*support get wmpinfo.xml from hidden file list */
 /*#define MTP_SUPPORT_HIDE_WMPINFO_XML*/
