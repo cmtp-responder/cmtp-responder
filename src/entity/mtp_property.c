@@ -53,11 +53,7 @@ static mtp_bool __prop_common_metadata(mtp_obj_t *obj,
 static void __build_supported_common_props(mtp_uchar *count,
 		obj_prop_desc_t *prop);
 /* PtpString Functions */
-#ifndef MTP_USE_VARIABLE_PTP_STRING_MALLOC
 static ptp_string_t *__alloc_ptpstring(void);
-#else /* MTP_USE_VARIABLE_PTP_STRING_MALLOC */
-static ptp_string_t *__alloc_ptpstring(mtp_uint32 size);
-#endif /* MTP_USE_VARIABLE_PTP_STRING_MALLOC */
 static void __init_obj_propval(obj_prop_val_t *val, obj_prop_desc_t *prop);
 static void __init_ptptimestring(ptp_time_string_t *pstring);
 static mtp_uint32 __size_curval_device_prop(device_prop_desc_t *prop);
@@ -1134,7 +1130,6 @@ mtp_uint16 __get_ptp_array_elem_size(data_type_t type)
 }
 
 /* PtpString Functions */
-#ifndef MTP_USE_VARIABLE_PTP_STRING_MALLOC
 static ptp_string_t *__alloc_ptpstring(void)
 {
 	ptp_string_t *pstring = NULL;
@@ -1145,23 +1140,6 @@ static ptp_string_t *__alloc_ptpstring(void)
 
 	return (pstring);
 }
-#else /* MTP_USE_VARIABLE_PTP_STRING_MALLOC */
-static ptp_string_t *__alloc_ptpstring(mtp_uint32 size)
-{
-	ptp_string_t *pstring = NULL;
-	mtp_int32 size_tmp = 0;
-	mtp_int32 alloc_size = 0;
-
-	size_tmp = sizeof(wchar_t) * size + sizeof(wchar_t) * 2;
-	alloc_size = ((size_tmp >> 5) + 1) << 5;	/* multiple of 32 */
-
-	pstring = (ptp_string_t *)g_malloc(alloc_size);	/* for margin */
-	if (pstring != NULL)
-		_prop_init_ptpstring(pstring);
-
-	return (pstring);
-}
-#endif /* MTP_USE_VARIABLE_PTP_STRING_MALLOC */
 
 void _prop_init_ptpstring(ptp_string_t *pstring)
 {
@@ -1505,11 +1483,7 @@ mtp_bool _prop_set_default_string(prop_info_t *prop_info, mtp_wchar *val)
 {
 	if (prop_info->data_type == PTP_DATATYPE_STRING) {
 		_prop_destroy_ptpstring(prop_info->default_val.str);
-#ifndef MTP_USE_VARIABLE_PTP_STRING_MALLOC
 		prop_info->default_val.str = __alloc_ptpstring();
-#else /* MTP_USE_VARIABLE_PTP_STRING_MALLOC */
-		prop_info->default_val.str = __alloc_ptpstring(_util_wchar_len(val));
-#endif /* MTP_USE_VARIABLE_PTP_STRING_MALLOC */
 		if (NULL == prop_info->default_val.str)
 			return FALSE;
 
@@ -1613,11 +1587,7 @@ mtp_bool _prop_set_current_string(device_prop_desc_t *prop, ptp_string_t *str)
 {
 	if (_prop_is_valid_string(&(prop->propinfo), str)) {
 		_prop_destroy_ptpstring(prop->current_val.str);
-#ifndef MTP_USE_VARIABLE_PTP_STRING_MALLOC
 		prop->current_val.str = __alloc_ptpstring();
-#else /* MTP_USE_VARIABLE_PTP_STRING_MALLOC */
-		prop->current_val.str = __alloc_ptpstring(str->num_chars);
-#endif /* MTP_USE_VARIABLE_PTP_STRING_MALLOC */
 		if (prop->current_val.str != NULL) {
 			_prop_copy_ptpstring(prop->current_val.str, str);
 			return TRUE;
@@ -1796,11 +1766,7 @@ mtp_bool _prop_set_current_string_val(obj_prop_val_t *pval, ptp_string_t *str)
 {
 	if (_prop_is_valid_string(&(pval->prop->propinfo), str)) {
 		_prop_destroy_ptpstring(pval->current_val.str);
-#ifndef MTP_USE_VARIABLE_PTP_STRING_MALLOC
 		pval->current_val.str = __alloc_ptpstring();
-#else /* MTP_USE_VARIABLE_PTP_STRING_MALLOC */
-		pval->current_val.str = __alloc_ptpstring(str->num_chars);
-#endif /* MTP_USE_VARIABLE_PTP_STRING_MALLOC */
 		if (pval->current_val.str != NULL) {
 			_prop_copy_ptpstring(pval->current_val.str, str);
 			return TRUE;
@@ -2076,11 +2042,7 @@ mtp_bool _prop_set_regexp(obj_prop_desc_t *prop, mtp_wchar *regex)
 			(prop->propinfo.form_flag != REGULAR_EXPRESSION_FORM)) {
 		return FALSE;
 	}
-#ifndef MTP_USE_VARIABLE_PTP_STRING_MALLOC
 	str = __alloc_ptpstring();
-#else /* MTP_USE_VARIABLE_PTP_STRING_MALLOC */
-	str = __alloc_ptpstring(_util_wchar_len(regex));
-#endif /* MTP_USE_VARIABLE_PTP_STRING_MALLOC */
 	if (str == NULL)
 		return FALSE;
 
@@ -2477,11 +2439,7 @@ void _prop_reset_device_prop_desc(device_prop_desc_t *prop)
 	if (prop->propinfo.data_type == PTP_DATATYPE_STRING) {
 
 		_prop_destroy_ptpstring(prop->current_val.str);
-#ifndef MTP_USE_VARIABLE_PTP_STRING_MALLOC
 		prop->current_val.str = __alloc_ptpstring();
-#else /* MTP_USE_VARIABLE_PTP_STRING_MALLOC */
-		prop->current_val.str = __alloc_ptpstring(prop->propinfo.default_val.str->num_chars);
-#endif /* MTP_USE_VARIABLE_PTP_STRING_MALLOC */
 		if (NULL == prop->current_val.str)
 			return;
 
@@ -2532,11 +2490,7 @@ static void __init_obj_propval(obj_prop_val_t *pval, obj_prop_desc_t *prop)
 
 	if (prop->propinfo.data_type == PTP_DATATYPE_STRING) {
 
-#ifndef MTP_USE_VARIABLE_PTP_STRING_MALLOC
 		pval->current_val.str = __alloc_ptpstring();
-#else /* MTP_USE_VARIABLE_PTP_STRING_MALLOC */
-		pval->current_val.str = __alloc_ptpstring(prop->propinfo.default_val.str->num_chars);
-#endif /* MTP_USE_VARIABLE_PTP_STRING_MALLOC */
 		if (NULL == pval->current_val.str)
 			return;
 		_prop_copy_ptpstring(pval->current_val.str,
@@ -3642,11 +3596,7 @@ mtp_bool _prop_add_supp_string_val(prop_info_t *prop_info, mtp_wchar *val)
 			(prop_info->form_flag != ENUM_FORM)) {
 		return FALSE;
 	}
-#ifndef MTP_USE_VARIABLE_PTP_STRING_MALLOC
 	str = __alloc_ptpstring();
-#else /* MTP_USE_VARIABLE_PTP_STRING_MALLOC */
-	str = __alloc_ptpstring(_util_wchar_len(val));
-#endif /* MTP_USE_VARIABLE_PTP_STRING_MALLOC */
 
 	if (str != NULL) {
 		_prop_copy_char_to_ptpstring(str, val, WCHAR_TYPE);

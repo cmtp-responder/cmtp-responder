@@ -25,7 +25,6 @@
 /*MtpObject.c, for unknown metadata */
 #define MTP_USE_FILL_EMPTYMETADATA_WITH_UNKNOWN
 
-/*define MTP_USE_VARIABLE_PTP_STRING_MALLOC*/	/*allocPtpString in ptpstring.c*/
 #define MTP_USE_RUNTIME_GETOBJECTPROPVALUE	/*use runtime get object property list*/
 
 /*keywords has many space. not support*/
