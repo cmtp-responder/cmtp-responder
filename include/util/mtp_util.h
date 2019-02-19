@@ -24,11 +24,8 @@ extern "C" {
 #include <errno.h>
 #include "mtp_config.h"
 #include "mtp_datatype.h"
+#include "mtp_fs.h"
 
-#ifndef LOG_TAG
-#define LOG_TAG "MTP-RESPONDER"
-#endif /* LOG_TAG */
-#include <dlog.h>
 #include <media_content.h>
 
 #define ACTIVE_USER	0
@@ -39,10 +36,10 @@ extern "C" {
 	"-o -iname '*.wmv' -o -iname '*.avi' -o -iname '*.wma' " \
 	"-o -iname '*.mp3' \\) -mmin -%d >> %s"
 
-#define DBG(format, args...) SLOGD(format, ##args)
-#define ERR(format, args...) SLOGE(format, ##args)
-#define DBG_SECURE(format, args...) SECURE_SLOGD(format, ##args)
-#define ERR_SECURE(format, args...) SECURE_SLOGE(format, ##args)
+#define DBG(format, args...) FLOGD(format, ##args)
+#define ERR(format, args...) FLOGD(format, ##args)
+#define DBG_SECURE(format, args...) FLOGD(format, ##args)
+#define ERR_SECURE(format, args...) FLOGD(format, ##args)
 
 #define ret_if(expr) \
 	do { \

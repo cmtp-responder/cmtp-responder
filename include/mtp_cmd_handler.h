@@ -17,6 +17,8 @@
 #ifndef _MTP_CMD_HANDLER_H_
 #define _MTP_CMD_HANDLER_H_
 
+#include <string.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif

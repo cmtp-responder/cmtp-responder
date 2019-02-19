@@ -17,6 +17,8 @@
 #ifndef _PTP_CONTAINER_H_
 #define _PTP_CONTAINER_H_
 
+#include <string.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif

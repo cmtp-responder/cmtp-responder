@@ -17,6 +17,8 @@
 #ifndef _MTP_SUPPORT_H_
 #define	_MTP_SUPPORT_H_
 
+#include <string.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
