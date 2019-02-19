@@ -30,7 +30,6 @@
 
 /*keywords has many space. not support*/
 /*#define MTP_USE_OBJPROPERTY_KEYWORDS*/
-/*#define MTP_USE_SELFMAKE_ABSTRACTION*/
 
 /*after db loading(mass files), there are some duplicate open session packet*/
 /*#define MTP_USE_SKIP_CONTINUOUS_OPENSESSION*/

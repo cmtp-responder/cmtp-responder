@@ -411,11 +411,6 @@ mtp_err_t _hutil_add_object_entry(obj_info_t *obj_info, mtp_char *file_name,
 			break;
 		}
 
-#ifdef MTP_USE_SELFMAKE_ABSTRACTION
-		is_made_by_mtp = obj_info->file_size == 0 &&
-			obj_info->obj_fmt > MTP_FMT_UNDEFINED_COLLECTION &&
-			obj_info->obj_fmt < MTP_FMT_UNDEFINED_DOC;
-#endif /*MTP_USE_SELFMAKE_ABSTRACTION*/
 	/* LCOV_EXCL_START */
 		if (new_obj == NULL) {
 			_entity_dealloc_obj_info(obj_info);
@@ -449,11 +444,6 @@ mtp_err_t _hutil_add_object_entry(obj_info_t *obj_info, mtp_char *file_name,
 	 * Is this an association (or folder)?
 	 * Associations are fully qualified by the ObjectInfo Dataset.
 	 */
-#ifdef MTP_USE_SELFMAKE_ABSTRACTION
-	is_made_by_mtp = (obj_info->file_size == 0 &&
-			obj_info->obj_fmt > MTP_FMT_UNDEFINED_COLLECTION &&
-			obj_info->obj_fmt < MTP_FMT_UNDEFINED_DOC);
-#endif /*MTP_USE_SELFMAKE_ABSTRACTION*/
 
 	if (obj_info->obj_fmt == PTP_FMT_ASSOCIATION || is_made_by_mtp) {
 		/* Create the new object */

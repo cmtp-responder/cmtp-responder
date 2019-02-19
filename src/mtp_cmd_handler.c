@@ -884,17 +884,6 @@ static void __send_object_info(mtp_handler_t *hdlr)
 				hdlr->data4_send_obj.h_parent = h_parent;
 				hdlr->data4_send_obj.store_id = store_id;
 			}
-#ifdef MTP_USE_SELFMAKE_ABSTRACTION
-			else if (obj->obj_info->file_size == 0 &&
-					obj->obj_info->obj_fmt > MTP_FMT_UNDEFINED_COLLECTION &&
-					obj->obj_info->obj_fmt < MTP_FMT_UNDEFINED_DOC) {
-				hdlr->data4_send_obj.obj = NULL;
-				hdlr->data4_send_obj.is_valid = FALSE;
-				hdlr->data4_send_obj.obj_handle = obj->obj_handle;
-				hdlr->data4_send_obj.h_parent = h_parent;
-				hdlr->data4_send_obj.store_id = store_id;
-			}
-#endif /*MTP_USE_SELFMAKE_ABSTRACTION*/
 			else {
 				hdlr->data4_send_obj.is_valid = TRUE;
 				hdlr->data4_send_obj.obj_handle = obj->obj_handle;
@@ -989,13 +978,6 @@ static void __send_object(mtp_handler_t *hdlr)
 		_cmd_hdlr_send_response_code(hdlr, PTP_RESPONSE_INVALIDPARAM);
 		return;
 	}
-#ifndef MTP_USE_SELFMAKE_ABSTRACTION
-	if (hdlr->data4_send_obj.is_valid != TRUE) {
-		DBG("invalide object info");
-		_device_set_phase(DEVICE_PHASE_NOTREADY);
-		return;
-	}
-#endif /*MTP_USE_SELFMAKE_ABSTRACTION*/
 
 	_device_set_phase(DEVICE_PHASE_DATAOUT);
 	_hdlr_init_data_container(&blk, hdlr->usb_cmd.code, hdlr->usb_cmd.tid);
@@ -1017,9 +999,6 @@ static void __send_object(mtp_handler_t *hdlr)
 		resp = PTP_RESPONSE_NOVALID_OBJINFO;
 		DBG("PTP_RESPONSE_NOVALID_OBJINFO");
 		break;
-#ifdef MTP_USE_SELFMAKE_ABSTRACTION
-	case MTP_ERROR_INVALID_PARAM:	/* association file*/
-#endif /*MTP_USE_SELFMAKE_ABSTRACTION*/
 	case MTP_ERROR_NONE:
 		resp = PTP_RESPONSE_OK;
 		DBG("PTP_RESPONSE_OK");
@@ -2808,16 +2787,7 @@ static void __send_object_prop_list(mtp_handler_t *hdlr)
 			resp = PTP_RESPONSE_ACCESSDENIED;
 			break;
 		case MTP_ERROR_NONE:
-#ifdef MTP_USE_SELFMAKE_ABSTRACTION
-			if ((obj->obj_info->obj_fmt == PTP_FMT_ASSOCIATION) ||
-					(obj->obj_info->file_size == 0 &&
-					 obj->obj_info->obj_fmt >
-					 MTP_FMT_UNDEFINED_COLLECTION &&
-					 obj->obj_info->obj_fmt <
-					 MTP_FMT_UNDEFINED_DOC))
-#else /*MTP_USE_SELFMAKE_ABSTRACTION*/
 				if (obj->obj_info->obj_fmt == PTP_FMT_ASSOCIATION)
-#endif /*MTP_USE_SELFMAKE_ABSTRACTION*/
 				{
 					hdlr->data4_send_obj.obj = NULL;
 					hdlr->data4_send_obj.is_valid = FALSE;
