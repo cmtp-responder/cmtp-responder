@@ -170,7 +170,6 @@
 /* Operation for Windows Media 10 MTP extension */
 #define	MTP_OPCODE_WMP_UNDEFINED				0x9200
 #define	MTP_OPCODE_WMP_METADATAROUNDTRIP			0x9201
-#define	MTP_OPCODE_WMP_REPORTACQUIREDCONTENT			0x9202
 
 /*
  * standard event codes:

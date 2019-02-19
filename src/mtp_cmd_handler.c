@@ -48,7 +48,6 @@ mtp_bool g_is_send_object = FALSE;
  * STATIC VARIABLES
  */
 static mtp_mgr_t *g_mgr = &g_mtp_mgr;
-static mtp_bool g_has_round_trip = FALSE;
 
 #define LEN 20
 
@@ -81,7 +80,6 @@ static void __get_object_prop_value(mtp_handler_t *hdlr);
 static void __set_object_prop_value(mtp_handler_t *hdlr);
 static void __get_object_prop_list(mtp_handler_t *hdlr);
 static void __set_object_prop_list(mtp_handler_t *hdlr);
-static void __report_acquired_content(mtp_handler_t *hdlr);
 static void __send_playback_skip(mtp_handler_t *hdlr);
 #ifndef PMP_VER
 static void __self_test(mtp_handler_t *hdlr);
@@ -246,10 +244,6 @@ static void __process_commands(mtp_handler_t *hdlr, cmd_blk_t *cmd)
 		__send_playback_skip(hdlr);
 		break;
 
-	case MTP_OPCODE_WMP_REPORTACQUIREDCONTENT:
-		/* Windows Media 11 extension*/
-		__report_acquired_content(hdlr);
-		break;
 	case PTP_OPCODE_SENDOBJECTINFO:
 	case PTP_OPCODE_SENDOBJECT:
 	case PTP_OPCODE_SETDEVICEPROPVALUE:
@@ -2178,137 +2172,6 @@ static void __set_object_prop_list(mtp_handler_t *hdlr)
 	return;
 }
 
-static void __report_acquired_content(mtp_handler_t *hdlr)
-{
-	mtp_uint32 tid = 0;
-	mtp_uint32 start_idx = 0;
-	mtp_uint32 max_size = 0;
-	mtp_uint16 resp = PTP_RESPONSE_OK;
-	mtp_uint32 resp_param[3] = { 0 };
-	data_blk_t blk = { 0 };
-	mtp_uchar *ptr = NULL;
-	ptp_array_t guid_arr = { 0 };
-	mtp_uint32 num_mod = 0;
-	mtp_uint32 num_bytes = 0;
-	mtp_uint32 num_lines = 0;
-	mtp_uint32 rem_modified = 0;
-	FILE* h_file;
-	time_t cur_time;
-	time_t l_time;
-	mtp_int32 diff_time;
-	mtp_int32 err = 0;
-	mtp_int32 ret = 0;
-
-	if (_hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 3)) {
-
-		ERR("Unsupported parameters");
-		_cmd_hdlr_send_response_code(hdlr,
-				PTP_RESPONSE_PARAM_NOTSUPPORTED);
-		return;
-	}
-
-	tid = _hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 0);
-	start_idx = _hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 1);
-	max_size = _hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 2);
-
-	if (tid == 0) {
-
-		if (access(MTP_FILES_MODIFIED_FILES, F_OK) == 0)
-			if (remove(MTP_FILES_MODIFIED_FILES) < 0)
-				ERR("remove(%s) Fail", MTP_FILES_MODIFIED_FILES);
-
-		resp = PTP_RESPONSE_OK;
-		_prop_grow_ptparray(&guid_arr, 1);
-		_prop_append_ele_ptparray(&guid_arr, 0);
-		goto DONE;
-	}
-
-	g_is_sync_estab = TRUE;
-
-	if (!g_has_round_trip && start_idx == 0) {
-		time(&cur_time);
-		ret = vconf_get_int(VCONFKEY_MTP_SYNC_TIME_INT, (int *)&l_time);
-		if (ret == -1) {
-			ERR("Error to get key value at [%s] path\n",
-					VCONFKEY_MTP_SYNC_TIME_INT);
-			resp = PTP_RESPONSE_OK;
-			_prop_grow_ptparray(&guid_arr, 1);
-			_prop_append_ele_ptparray(&guid_arr, 0);
-			goto DONE;
-		}
-		diff_time = (cur_time - l_time) / 60;
-		if (diff_time < 0) {
-			resp = PTP_RESPONSE_GEN_ERROR;
-			_prop_init_ptparray(&guid_arr, UINT32_TYPE);
-			_prop_append_ele_ptparray(&guid_arr, 0);
-			goto DONE;
-		}
-		_entity_list_modified_files(diff_time);
-	}
-
-	h_file = _util_file_open(MTP_FILES_MODIFIED_FILES, MTP_FILE_READ, &err);
-	if (h_file == NULL) {
-		resp = PTP_RESPONSE_GEN_ERROR;
-		_prop_init_ptparray(&guid_arr, UINT32_TYPE);
-		_prop_append_ele_ptparray(&guid_arr, 0);
-		goto DONE;
-	}
-
-	if (!g_has_round_trip && start_idx == 0) {
-		_util_count_num_lines(h_file, &g_mgr->meta_info.mod);
-		_util_file_seek(h_file, 0, SEEK_SET);
-	}
-	num_lines = g_mgr->meta_info.mod;
-	num_mod = ((num_lines - start_idx) > max_size) ?
-		max_size : num_lines - start_idx;
-
-	rem_modified = (num_lines - start_idx > max_size) ?
-		(num_lines - start_idx - max_size) : 0;
-
-	g_has_round_trip = FALSE;
-	_prop_init_ptparray(&guid_arr, UINT32_TYPE);
-	_prop_grow_ptparray(&guid_arr, (num_mod * sizeof(mtp_uint32)) + 1);
-	_prop_append_ele_ptparray(&guid_arr, num_mod);
-	_util_fill_guid_array(&guid_arr, start_idx, h_file, num_mod);
-
-	_util_file_close(h_file);
-	if (rem_modified == 0) {
-		if (remove(MTP_FILES_MODIFIED_FILES) < 0)
-			ERR("remove(%s) Fail", MTP_FILES_MODIFIED_FILES);
-
-		g_mgr->meta_info.mod = 0;
-	}
-
-DONE:
-	_hdlr_init_data_container(&blk, hdlr->usb_cmd.code, hdlr->usb_cmd.tid);
-	num_bytes = _prop_get_size_ptparray_without_elemsize(&guid_arr);
-	ptr = _hdlr_alloc_buf_data_container(&blk, num_bytes, num_bytes);
-
-	if (NULL != ptr) {
-		_prop_pack_ptparray_without_elemsize(&guid_arr, ptr, num_bytes);
-		_device_set_phase(DEVICE_PHASE_DATAIN);
-	}
-
-	if (_hdlr_send_data_container(&blk))
-		resp = PTP_RESPONSE_OK;
-	else
-		resp = PTP_RESPONSE_GEN_ERROR;
-
-	_prop_deinit_ptparray(&guid_arr);
-	g_free(blk.data);
-
-	if (PTP_RESPONSE_OK == resp) {
-
-		resp_param[0] = hdlr->usb_cmd.tid;
-		resp_param[1] = rem_modified;
-		resp_param[2] = 0;
-		_cmd_hdlr_send_response(hdlr, resp, 3, resp_param);
-	} else {
-		_cmd_hdlr_send_response_code(hdlr, resp);
-	}
-	return;
-}
-
 static void __send_playback_skip(mtp_handler_t *hdlr)
 {
 	mtp_int32 skip = 0;
@@ -2956,9 +2819,6 @@ static void __print_command(mtp_uint16 code)
 		break;
 	case MTP_OPCODE_WMP_UNDEFINED:
 		DBG("COMMAND ======== WMP UNDEFINED ==========");
-		break;
-	case MTP_OPCODE_WMP_REPORTACQUIREDCONTENT:
-		DBG("COMMAND ======= REPORT ACQUIRED CONTENT =========");
 		break;
 	case MTP_OPCODE_GETOBJECTPROPSUPPORTED:
 		DBG("COMMAND ======= GET OBJECT PROP SUPPORTED ========");

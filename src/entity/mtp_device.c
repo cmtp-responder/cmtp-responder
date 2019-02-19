@@ -76,7 +76,6 @@ static mtp_uint16 g_ops_supported[] = {
 	MTP_OPCODE_SENDOBJECTPROPLIST,
 	/*PTP_CODE_VENDOR_OP1,*/
 #endif /*PMP_VER*/
-	MTP_OPCODE_WMP_REPORTACQUIREDCONTENT,
 };
 
 static mtp_uint16 g_event_supported[] = {

@@ -66,8 +66,6 @@ static void __mtp_exit(void);
 /* LCOV_EXCL_START */
 static void __mtp_exit(void)
 {
-	long cur_time;
-
 	DBG("## Terminate all threads");
 	if (g_eh_thrd && g_eh_thrd != pthread_self()) {
 		_eh_send_event_req_to_eh_thread(EVENT_USB_REMOVED, 0, 0, NULL);
@@ -75,11 +73,6 @@ static void __mtp_exit(void)
 			ERR("_util_thread_join() Fail");
 
 		g_eh_thrd = 0;
-	}
-
-	if (g_is_sync_estab) {
-		time(&cur_time);
-		vconf_set_int(VCONFKEY_MTP_SYNC_TIME_INT, (int)cur_time);
 	}
 
 	DBG("## Terminate main loop");
