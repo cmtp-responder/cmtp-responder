@@ -18,16 +18,6 @@
 #include <linux/usb/functionfs.h>
 #include <endian.h>
 
-#ifndef FUNCTIONFS_DESCRIPTORS_MAGIC_V2
-#define FUNCTIONFS_DESCRIPTORS_MAGIC_V2 3
-enum functionfs_flags {
-        FUNCTIONFS_HAS_FS_DESC = 1,
-        FUNCTIONFS_HAS_HS_DESC = 2,
-        FUNCTIONFS_HAS_SS_DESC = 4,
-        FUNCTIONFS_HAS_MS_OS_DESC = 8,
-};
-#endif
-
 #define cpu_to_le16(x)  htole16(x)
 #define cpu_to_le32(x)  htole32(x)
 #define le32_to_cpu(x)  le32toh(x)
