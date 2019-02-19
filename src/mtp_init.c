@@ -104,7 +104,6 @@ static gboolean __check_internal_storage(gpointer user_data)
 
 void _mtp_init(add_rem_store_t sel)
 {
-	mtp_char *device_name = NULL;
 	mtp_char *sync_partner = NULL;
 	int vconf_ret = 0;
 	mtp_int32 error = 0;
@@ -126,13 +125,7 @@ void _mtp_init(add_rem_store_t sel)
 	_transport_init_status_info();
 	_transport_set_mtp_operation_state(MTP_STATE_INITIALIZING);
 
-	device_name = vconf_get_str(VCONFKEY_SETAPPL_DEVICE_NAME_STR);
-	if (device_name != NULL) {
-		_device_set_device_name(device_name);
-		g_free(device_name);
-	} else {
-		_device_set_device_name(MTP_DEV_PROPERTY_FRIENDLYNAME);
-	}
+	_device_set_device_name(MTP_DEV_PROPERTY_FRIENDLYNAME);
 
 	sync_partner = vconf_get_str(VCONFKEY_MTP_SYNC_PARTNER_STR);
 	if (sync_partner != NULL && strlen(sync_partner) > 0) {
