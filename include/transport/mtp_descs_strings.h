@@ -18,8 +18,8 @@
 #include <linux/usb/functionfs.h>
 #include <endian.h>
 
-#define cpu_to_le16(x)  htole16(x)
-#define cpu_to_le32(x)  htole32(x)
+#define cpu_to_le16(x)  __constant_cpu_to_le16(x)
+#define cpu_to_le32(x)  __constant_cpu_to_le32(x)
 #define le32_to_cpu(x)  le32toh(x)
 #define le16_to_cpu(x)  le16toh(x)
 
