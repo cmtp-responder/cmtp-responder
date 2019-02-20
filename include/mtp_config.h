@@ -49,17 +49,17 @@
  * Transport related configuration
  */
 /* Internal Storage */
-#define MTP_INTERNAL_PATH_CHAR		"/opt/usr/home/"
+#define MTP_INTERNAL_PATH_CHAR		"/home/user/"
 
 /* External Storage */
-#define MTP_EXTERNAL_PATH_CHAR	"/opt/media/SDCardA1"
+#define MTP_EXTERNAL_PATH_CHAR		"/media/card"
 #define MTP_DEVICE_ICON			"/usr/share/mtp/device_icon.ico"
 
 /* File For WMP extesions */
 #define MTP_FILES_MODIFIED_FILES	"/tmp/mtp_mod_files.log"
 
 /* Base MTP USER Directory */
-#define MTP_USER_DIRECTORY		"/opt/usr/home/owner/media"
+#define MTP_USER_DIRECTORY		"/home/user/"
 
 /*STORAGE*/
 #define MTP_MAX_STORAGE			(30*1024*1024)	/*30MB */
@@ -150,7 +150,7 @@
 #define MTP_FILE_SCHEDPARAM		0
 #define MTP_USB_SCHEDPARAM		0
 
-#define MTP_CONFIG_FILE_PATH		"/opt/var/lib/misc/mtp-responder.conf"
+#define MTP_CONFIG_FILE_PATH		"/etc/mtp-responder.conf"
 
 typedef struct {
 	/* Speed related config */
