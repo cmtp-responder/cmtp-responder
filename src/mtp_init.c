@@ -84,15 +84,6 @@ static void __mtp_exit(void)
 	return;
 }
 
-static gboolean __check_internal_storage(gpointer user_data)
-{
-	UTIL_LOCK_MUTEX(&g_cmd_inoti_mutex);
-	_handle_lock_status_notification();
-	_handle_mmc_notification();
-	UTIL_UNLOCK_MUTEX(&g_cmd_inoti_mutex);
-
-	return true;
-}
 /* LCOV_EXCL_STOP */
 
 void _mtp_init(add_rem_store_t sel)
@@ -176,8 +167,6 @@ void _mtp_init(add_rem_store_t sel)
 #ifdef MTP_SUPPORT_OBJECTADDDELETE_EVENT
 	_inoti_init_filesystem_evnts();
 #endif /*MTP_SUPPORT_OBJECTADDDELETE_EVENT*/
-
-	g_timeout_add(1000, __check_internal_storage, NULL);
 
 	return;
 

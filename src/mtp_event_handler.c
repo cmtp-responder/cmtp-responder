@@ -306,26 +306,6 @@ static mtp_bool __send_events_from_device_to_pc(mtp_dword store_id,
 	return _hdlr_send_event_container(&event);
 }
 
-void _handle_lock_status_notification(void)
-{
-	_device_install_storage(MTP_ADDREM_INTERNAL);
-	__send_events_from_device_to_pc(MTP_INTERNAL_STORE_ID,
-			PTP_EVENTCODE_STOREADDED, 0, 0);
-
-	_util_media_content_connect();
-
-	return;
-}
-
-void _handle_mmc_notification(void)
-{
-	_device_install_storage(MTP_ADDREM_EXTERNAL);
-	__send_events_from_device_to_pc(MTP_EXTERNAL_STORE_ID,
-			PTP_EVENTCODE_STOREADDED, 0, 0);
-
-	return;
-}
-
 void _eh_send_event_req_to_eh_thread(event_code_t action, mtp_ulong param1,
 		mtp_ulong param2, void *param3)
 {
