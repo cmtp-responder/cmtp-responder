@@ -236,18 +236,6 @@ static mtp_bool __init_device_props()
 
 	g_device.device_prop_list = g_device_props;
 
-	/* supported formats ordered */
-	dev_prop = &(g_device.device_prop_list[i]);
-	_prop_init_device_property_desc(dev_prop,
-			MTP_PROPERTYCODE_SUPPORTEDFORMATSORDERED,
-			PTP_DATATYPE_UINT8, PTP_PROPGETSET_GETONLY, NONE);
-	{
-		default_val = 1;
-		_prop_set_default_integer(&(dev_prop->propinfo), (mtp_uchar *) &default_val);
-		_prop_set_current_integer(dev_prop, (mtp_uint32)1);
-	}
-	i++;
-
 	already_init = TRUE;
 
 	return TRUE;
