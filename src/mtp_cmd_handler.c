@@ -88,7 +88,6 @@ static void __set_object_protection(mtp_handler_t *hdlr);
 #endif /* MTP_SUPPORT_SET_PROTECTION */
 static void __power_down(mtp_handler_t *hdlr);
 static void __move_object(mtp_handler_t *hdlr);
-static void __copy_object(mtp_handler_t *hdlr);
 static void __reset_device_prop_value(mtp_handler_t *hdlr);
 static void __vendor_command1(mtp_handler_t *hdlr);
 static void __get_interdep_prop_desc(mtp_handler_t *hdlr);
@@ -229,9 +228,6 @@ static void __process_commands(mtp_handler_t *hdlr, cmd_blk_t *cmd)
 		break;
 	case PTP_OPCODE_MOVEOBJECT:
 		__move_object(hdlr);
-		break;
-	case PTP_OPCODE_COPYOBJECT:
-		__copy_object(hdlr);
 		break;
 	case MTP_OPCODE_GETINTERDEPPROPDESC:
 		__get_interdep_prop_desc(hdlr);
@@ -2052,62 +2048,6 @@ static void __move_object(mtp_handler_t *hdlr)
 	return;
 }
 
-static void __copy_object(mtp_handler_t *hdlr)
-{
-	mtp_uint32 store_id = 0;
-	mtp_uint32 h_obj = 0;
-	mtp_uint32 h_parent = 0;
-	mtp_uint32 new_handle = 0;
-	mtp_uint16 resp = 0;
-
-	h_obj = _hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 0);
-	store_id = _hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 1);
-	h_parent = _hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 2);
-
-	_transport_set_mtp_operation_state(MTP_STATE_DATA_PROCESSING);
-
-	switch (_hutil_duplicate_object_entry(store_id, h_parent, h_obj,
-				&new_handle)) {
-	case MTP_ERROR_INVALID_OBJECTHANDLE:
-		resp = PTP_RESPONSE_INVALID_OBJ_HANDLE;
-		break;
-	case MTP_ERROR_OBJECT_WRITE_PROTECTED:
-		resp = PTP_RESPONSE_OBJ_WRITEPROTECTED;
-		break;
-	case MTP_ERROR_STORE_NOT_AVAILABLE:
-		resp = PTP_RESPONSE_STORENOTAVAILABLE;
-		break;
-	case MTP_ERROR_STORE_READ_ONLY:
-		resp = PTP_RESPONSE_STORE_READONLY;
-		break;
-	case MTP_ERROR_INVALID_PARENT:
-		resp = PTP_RESPONSE_INVALIDPARENT;
-		break;
-	case MTP_ERROR_INVALID_PARAM:
-		resp = PTP_RESPONSE_INVALIDPARAM;
-		break;
-	case MTP_ERROR_STORE_FULL:
-		resp = PTP_RESPONSE_STOREFULL;
-		break;
-	case MTP_ERROR_NONE:
-		resp = PTP_RESPONSE_OK;
-		break;
-	case MTP_ERROR_ACCESS_DENIED:
-		resp = PTP_RESPONSE_ACCESSDENIED;
-		break;
-	default:
-		resp = PTP_RESPONSE_GEN_ERROR;
-	}
-	_transport_set_mtp_operation_state(MTP_STATE_ONSERVICE);
-
-	if (resp == PTP_RESPONSE_OK)
-		_cmd_hdlr_send_response(hdlr, resp, 1, &new_handle);
-	else
-		_cmd_hdlr_send_response_code(hdlr, resp);
-
-	return;
-}
-
 static void __reset_device_prop_value(mtp_handler_t *hdlr)
 {
 	mtp_uint32 prop_id = 0;
@@ -2514,9 +2454,6 @@ static void __print_command(mtp_uint16 code)
 		break;
 	case PTP_OPCODE_MOVEOBJECT:
 		DBG("COMMAND ======== MOVE OBJECT ===========");
-		break;
-	case PTP_OPCODE_COPYOBJECT:
-		DBG("COMMAND ======== COPY OBJECT ===========");
 		break;
 	case PTP_OPCODE_GETPARTIALOBJECT:
 		DBG("COMMAND ======== GET PARTIAL OBJECT ===========");
