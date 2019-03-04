@@ -250,9 +250,6 @@ static void __process_commands(mtp_handler_t *hdlr, cmd_blk_t *cmd)
 	case MTP_OPCODE_SETOBJECTREFERENCES:
 	case MTP_OPCODE_SETOBJECTPROPVALUE:
 	case MTP_OPCODE_SETOBJECTPROPLIST:
-#ifndef PMP_VER
-	case MTP_OPCODE_SENDOBJECTPROPLIST:
-#endif /* PMP_VER */
 		/* DATA_HANDLE_PHASE: Send operation will be blocked
 		 * until data packet is received
 		 */
@@ -290,23 +287,6 @@ static void __process_commands(mtp_handler_t *hdlr, cmd_blk_t *cmd)
 			_eh_send_event_req_to_eh_thread(EVENT_DONE_DATAOUT,
 					0, 0, NULL);
 			break;
-		case PTP_OPCODE_SETDEVICEPROPVALUE:
-			__set_device_prop_value(hdlr);
-			break;
-		case MTP_OPCODE_SETOBJECTREFERENCES:
-			__set_object_references(hdlr);
-			break;
-		case MTP_OPCODE_SETOBJECTPROPVALUE:
-			__set_object_prop_value(hdlr);
-			break;
-		case MTP_OPCODE_SETOBJECTPROPLIST:
-			__set_object_prop_list(hdlr);
-			break;
-#ifndef PMP_VER
-		case MTP_OPCODE_SENDOBJECTPROPLIST:
-			__send_object_prop_list(hdlr);
-			break;
-#endif /* PMP_VER */
 		}
 		break;
 
@@ -317,8 +297,7 @@ static void __process_commands(mtp_handler_t *hdlr, cmd_blk_t *cmd)
 		break;
 	}
 DONE:
-	if (((hdlr->last_opcode == PTP_OPCODE_SENDOBJECTINFO) ||
-				(hdlr->last_opcode == MTP_OPCODE_SENDOBJECTPROPLIST)) &&
+	if ((hdlr->last_opcode == PTP_OPCODE_SENDOBJECTINFO) &&
 			((hdlr->last_fmt_code != PTP_FMT_ASSOCIATION) &&
 			 (hdlr->last_fmt_code != PTP_FMT_UNDEF))) {
 		DBG("Processed, last_opcode[0x%x], last_fmt_code[%d]\n",
@@ -2568,9 +2547,6 @@ static void __print_command(mtp_uint16 code)
 		break;
 	case MTP_OPCODE_GETINTERDEPPROPDESC:
 		DBG("COMMAND ======== GET INTERDEP PROP DESC ==========");
-		break;
-	case MTP_OPCODE_SENDOBJECTPROPLIST:
-		DBG("COMMAND ======== SEND OBJECT PROP LIST ==========");
 		break;
 	case MTP_OPCODE_GETOBJECTREFERENCES:
 		DBG("COMMAND ======== GET OBJECT REFERENCES ==========");
