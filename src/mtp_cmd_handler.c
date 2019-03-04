@@ -78,7 +78,6 @@ static void __get_object_prop_value(mtp_handler_t *hdlr);
 static void __get_object_prop_list(mtp_handler_t *hdlr);
 static void __send_playback_skip(mtp_handler_t *hdlr);
 #ifndef PMP_VER
-static void __self_test(mtp_handler_t *hdlr);
 #ifdef MTP_SUPPORT_SET_PROTECTION
 static void __set_object_protection(mtp_handler_t *hdlr);
 #endif /* MTP_SUPPORT_SET_PROTECTION */
@@ -204,9 +203,6 @@ static void __process_commands(mtp_handler_t *hdlr, cmd_blk_t *cmd)
 #ifndef PMP_VER
 	case PTP_OPCODE_RESETDEVICE:
 		__reset_device(hdlr);
-		break;
-	case PTP_OPCODE_SELFTEST:
-		__self_test(hdlr);
 		break;
 #ifdef MTP_SUPPORT_SET_PROTECTION
 	case PTP_OPCODE_SETOBJECTPROTECTION:
@@ -1558,23 +1554,6 @@ static void __send_playback_skip(mtp_handler_t *hdlr)
 }
 
 #ifndef PMP_VER
-static void __self_test(mtp_handler_t *hdlr)
-{
-	if (_hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 1) ||
-			_hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 2)) {
-		ERR("Unsupported parameters");
-		_cmd_hdlr_send_response_code(hdlr,
-				PTP_RESPONSE_PARAM_NOTSUPPORTED);
-		return;
-	}
-
-	_hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 0);
-	/* Do device-specific tests */
-	/* After the test */
-	_cmd_hdlr_send_response_code(hdlr, PTP_RESPONSE_OK);
-	return;
-}
-
 #ifdef MTP_SUPPORT_SET_PROTECTION
 static void __set_object_protection(mtp_handler_t *hdlr)
 {
@@ -1811,9 +1790,6 @@ static void __print_command(mtp_uint16 code)
 		break;
 	case PTP_OPCODE_RESETDEVICE:
 		DBG("COMMAND ======== RESET DEVICE ===========");
-		break;
-	case PTP_OPCODE_SELFTEST:
-		DBG("COMMAND ======== SELF TEST ===========");
 		break;
 	case PTP_OPCODE_SETOBJECTPROTECTION:
 		DBG("COMMAND ======== SET OBJECT PROTECTION ===========");
