@@ -64,21 +64,14 @@
 /*STORAGE*/
 #define MTP_MAX_STORAGE			(30*1024*1024)	/*30MB */
 #define MTP_MAX_STORAGE_IN_OBJTS	0xFFFFFFFF
-#define MTP_MAX_INT_OBJECT_NUM		10000000
-#define MTP_MIN_EXT_OBJECT_NUM		5000000
 
 #define MTP_BUF_SIZE_FOR_INT		11      /* 2^32 - 1 = 4294967295 (10 digits) */
 
-/*To determine whether command is for Samsung mobile*/
-#define MTP_SAMSUNG_MOBILE		0x1000
 #define MTP_STORAGE_DESC_EXT		"Card"
 
 /*Devices Property*/
-#define MTP_DEFAULT_MODEL_NAME			"SAMSUNG Mobile"
-#define MTP_DEFAULT_DEVICE_VERSION		""
 #define MTP_DEV_PROPERTY_SYNCPARTNER		"Longhorn Sync Engine"
 #define MTP_DEV_PROPERTY_FRIENDLYNAME		"Collabora Ltd"
-#define MTP_DEV_PROPERTY_NULL_SYNCPARTNER	"{00000000-0000-0000-0000-000000000000}"
 
 /*temporary file*/
 #define MTP_TEMP_FILE			".mtptemp.tmp"
@@ -98,18 +91,15 @@
 
 /* approximately 3 times of media files. consider album*/
 #define MTP_MAX_REFDB_ROWCNT		4500
-#define MTP_MAX_EXTENSION_LENGTH	11
 #define MTP_MAX_REG_STRING		128
 
 #define MTP_SERIAL_LEN_MAX		32
 #define MD5_HASH_LEN			16
 #define MTP_MODEL_NAME_LEN_MAX		32
-#define MTP_DEVICE_NAME_LEN_MAX		64
 
 /*
  *  User defined Configureations
  */
-/*#define MTP_USE_DEPEND_DEFAULT_MEMORY*/
 #define MTP_SUPPORT_OMADRM_EXTENSION
 
 /* Image Height/Width */
