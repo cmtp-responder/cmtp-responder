@@ -11,6 +11,9 @@ AUX_SOURCE_DIRECTORY(${CMAKE_SOURCE_DIR}/src/entity SRCS)
 AUX_SOURCE_DIRECTORY(${CMAKE_SOURCE_DIR}/src/transport SRCS)
 AUX_SOURCE_DIRECTORY(${CMAKE_SOURCE_DIR}/src/util SRCS)
 
+string(LENGTH "${CMAKE_SOURCE_DIR}/" SRC_PATH_LEN)
+add_definitions("-DSRC_PATH_LEN=${SRC_PATH_LEN}")
+
 INCLUDE(FindPkgConfig)
 pkg_check_modules(pkgs REQUIRED glib-2.0 capi-content-media-content
 	capi-media-metadata-extractor vconf tapi capi-system-info storage libsystemd)

@@ -1044,7 +1044,7 @@ void FLOGD(const char *fmt, ...)
 	if (fp == NULL)
 		return;
 
-	written_bytes += fprintf(fp, "%s ", __FILE__);
+	written_bytes += fprintf(fp, "%s ", __FILE__ + SRC_PATH_LEN);
 	va_start(ap, fmt);
 	written_bytes += vfprintf(fp, fmt, ap);
 	va_end(ap);
