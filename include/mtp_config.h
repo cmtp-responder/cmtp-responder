@@ -35,9 +35,6 @@
 
 /*support get wmpinfo.xml from hidden file list */
 
-/*mobile class. this should be set with ms os descriptor. see portable device installation consideration */
-#define MTP_SUPPORT_DEVICE_CLASS
-
 /* external features */
 #define MTP_SUPPORT_OBJECTADDDELETE_EVENT
 

@@ -279,24 +279,6 @@ static mtp_bool __init_device_props()
 	}
 	i++;
 
-#ifdef MTP_SUPPORT_DEVICE_CLASS
-	/* Perceived Device Type */
-	dev_prop = &(g_device.device_prop_list[i]);
-	_prop_init_device_property_desc(dev_prop,
-			MTP_PROPERTYCODE_PERCEIVEDDEVICETYPE,
-			PTP_DATATYPE_UINT32, PTP_PROPGETSET_GETONLY, NONE);
-	{
-		/*
-		 * 0:generic, 1: DSC, 2: Media Player, 3: mobile,
-		 * 4: digital video camera, 5: PDA, 6: audio recoder
-		 */
-		default_val = 0x3;
-		_prop_set_default_integer(&(dev_prop->propinfo), (mtp_uchar *)&default_val);
-		_prop_set_current_integer(dev_prop, (mtp_uint32)0x3);
-	}
-	i++;
-#endif /*MTP_SUPPORT_DEVICE_CLASS*/
-
 	already_init = TRUE;
 
 	return TRUE;
