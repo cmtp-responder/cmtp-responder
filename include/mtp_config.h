@@ -120,7 +120,7 @@
 #define MTP_VENDOR_EXTENSIONDESC_CHAR	\
 	"microsoft.com/WMDRMPD:10.1;microsoft.com/playready:1.10; "
 
-#define MTP_MANUFACTURER_CHAR		"Tizen"
+#define MTP_MANUFACTURER_CHAR		"Collabora"
 
 #define MTP_MMAP_THRESHOLD	524288
 #define MTP_READ_USB_SIZE	4096

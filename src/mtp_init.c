@@ -481,7 +481,6 @@ static inline int _main_init()
 	return MTP_ERROR_NONE;
 }
 
-#ifndef TIZEN_TEST_GTESTS
 int main(int argc, char *argv[])
 {
 	mtp_int32 ret;
@@ -510,4 +509,3 @@ int main(int argc, char *argv[])
 
 	return MTP_ERROR_NONE;
 }
-#endif
