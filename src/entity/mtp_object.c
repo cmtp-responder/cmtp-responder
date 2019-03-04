@@ -626,7 +626,6 @@ mtp_bool _entity_set_child_object_path(mtp_obj_t *obj, mtp_char *src_path,
 			_entity_dealloc_mtp_obj(child_obj);
 			continue;
 		}
-		_util_delete_file_from_db(child_obj->file_path);
 
 		_entity_set_object_file_path(child_obj, dest_child_path, CHAR_TYPE);
 

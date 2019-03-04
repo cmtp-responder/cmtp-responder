@@ -29,7 +29,6 @@
 #include <sys/types.h>
 //#include <grp.h>
 #include <glib.h>
-#include <media_content_internal.h>
 #include <pwd.h>
 #include <poll.h>
 
@@ -197,20 +196,10 @@ void _util_get_internal_path(char *internal_path)
 /* LCOV_EXCL_START */
 mtp_bool _util_media_content_connect()
 {
-	mtp_int32 ret = 0;
-	uid_t active_user = ACTIVE_USER;
-
-	ret = media_content_connect_with_uid(active_user);
-	if (ret != MEDIA_CONTENT_ERROR_NONE) {
-		ERR("media_content_connect() failed : %d", ret);
-		return FALSE;
-	}
-
 	return TRUE;
 }
 
 void _util_media_content_disconnect()
 {
-	media_content_disconnect();
 }
 /* LCOV_EXCL_STOP */

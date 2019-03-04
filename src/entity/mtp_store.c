@@ -828,7 +828,6 @@ mtp_bool _entity_remove_object_mtp_store(mtp_store_t *store, mtp_obj_t *obj,
 		}
 		_prop_deinit_ptparray(&child_arr);
 
-		_util_scan_folder_contents_in_db(obj->file_path);
 		if (all_del) {
 			g_snprintf(g_last_deleted,
 					MTP_MAX_PATHNAME_SIZE + 1, "%s",
@@ -941,7 +940,6 @@ mtp_uint16 _entity_delete_obj_mtp_store(mtp_store_t *store,
 				node = node->link;
 				temp = _util_delete_node(&(store->obj_list), obj);
 				g_free(temp);
-				_util_delete_file_from_db(obj->file_path);
 				_entity_dealloc_mtp_obj(obj);
 			} else {
 				node = node->link;
@@ -973,7 +971,6 @@ mtp_uint16 _entity_delete_obj_mtp_store(mtp_store_t *store,
 
 				temp = _util_delete_node(&(store->obj_list), obj);
 				g_free(temp);
-				_util_delete_file_from_db(obj->file_path);
 				_entity_dealloc_mtp_obj(obj);
 			} else {
 				switch (response) {

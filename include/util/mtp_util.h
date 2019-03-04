@@ -26,8 +26,6 @@ extern "C" {
 #include "mtp_datatype.h"
 #include "mtp_fs.h"
 
-#include <media_content.h>
-
 #define ACTIVE_USER	0
 #define HASH_VALUE { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf }
 #define VENDOR_EXT_VERSION "vext_DUMMY_VERSION"

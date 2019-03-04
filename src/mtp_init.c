@@ -517,8 +517,6 @@ int main(int argc, char *argv[])
 
 	g_main_loop_run(g_mainloop);
 
-	media_content_disconnect();
-
 	DBG("######### MTP TERMINATED #########");
 
 	return MTP_ERROR_NONE;

@@ -887,10 +887,8 @@ mtp_err_t _hutil_move_object_entry(mtp_uint32 dst_store_id, mtp_uint32 h_parent,
 				return MTP_ERROR_GENERAL;
 			}
 
-			_util_scan_folder_contents_in_db(str_buf);
 			_entity_set_object_file_path(obj, new_fpath, CHAR_TYPE);
 			_entity_set_child_object_path(obj, str_buf, new_fpath);
-			_util_scan_folder_contents_in_db(new_fpath);
 		} else {
 			g_snprintf(g_last_moved, MTP_MAX_PATHNAME_SIZE + 1,
 					"%s", str_buf);
@@ -908,9 +906,7 @@ mtp_err_t _hutil_move_object_entry(mtp_uint32 dst_store_id, mtp_uint32 h_parent,
 				return MTP_ERROR_GENERAL;
 			}
 
-			_util_delete_file_from_db(obj->file_path);
 			_entity_set_object_file_path(obj, dst_fpath, CHAR_TYPE);
-			_util_add_file_to_db(obj->file_path);
 		}
 
 		if (obj->obj_info->h_parent != PTP_OBJECTHANDLE_ROOT) {
@@ -955,11 +951,6 @@ mtp_err_t _hutil_move_object_entry(mtp_uint32 dst_store_id, mtp_uint32 h_parent,
 		new_obj = _device_get_object_with_handle(new_handle);
 		if (NULL == new_obj || NULL == new_obj->obj_info)
 			return MTP_ERROR_GENERAL;
-
-		if (new_obj->obj_info->obj_fmt == PTP_FMT_ASSOCIATION)
-			_util_scan_folder_contents_in_db(new_obj->file_path);
-		else
-			_util_add_file_to_db(new_obj->file_path);
 
 		return MTP_ERROR_NONE;
 		/* LCOV_EXCL_STOP */
@@ -1038,11 +1029,6 @@ mtp_err_t _hutil_duplicate_object_entry(mtp_uint32 dst_store_id,
 		ERR("new obj or info is NULL");
 		return MTP_ERROR_GENERAL;
 	}
-
-	if (new_obj->obj_info->obj_fmt == PTP_FMT_ASSOCIATION)
-		_util_scan_folder_contents_in_db(new_obj->file_path);
-	else
-		_util_add_file_to_db(new_obj->file_path);
 
 	return MTP_ERROR_NONE;
 }
@@ -1146,8 +1132,6 @@ mtp_err_t _hutil_write_file_data(mtp_uint32 store_id, mtp_obj_t *obj,
 				MTP_FILE_ATTR_MODE_READ_ONLY);
 	}
 #endif /* MTP_SUPPORT_SET_PROTECTION */
-
-	_util_add_file_to_db(obj->file_path);
 
 #ifndef MTP_USE_RUNTIME_GETOBJECTPROPVALUE
 	if (updatePropertyValuesMtpObject(obj) == FALSE) {
@@ -1852,15 +1836,6 @@ mtp_err_t _hutil_update_object_property(mtp_uint32 obj_handle,
 				if (EACCES == error)
 					return MTP_ERROR_ACCESS_DENIED;
 				return MTP_ERROR_GENERAL;
-			}
-
-			if (obj->obj_info->obj_fmt == PTP_FMT_ASSOCIATION) {
-				_util_scan_folder_contents_in_db(orig_fpath);
-				_util_scan_folder_contents_in_db(dest_fpath);
-			} else {
-				_util_delete_file_from_db(orig_fpath);
-				_util_add_file_to_db(dest_fpath);
-
 			}
 
 			/* Finally assign new handle and update full path */

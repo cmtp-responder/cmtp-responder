@@ -88,18 +88,7 @@ typedef struct {
 	pthread_mutex_t *lock;
 } timeout_data_t;
 
-mtp_bool _util_get_audio_metadata(const mtp_char *filepath,
-		comp_audio_meta_t *audio_data);
-mtp_bool _util_get_video_metadata(mtp_char *filepath,
-		comp_video_meta_t *video_data);
-mtp_bool _util_get_image_ht_wt(const mtp_char *filepath, image_meta_t *image_data);
 void _util_flush_db(void);
-void _util_delete_file_from_db(const mtp_char *filepath);
-void _util_add_file_to_db(const mtp_char *filepath);
-void _util_scan_folder_contents_in_db(const mtp_char *filepath);
-void _util_free_common_meta(common_meta_t *metadata);
-void _util_free_video_meta(video_meta_t *video);
-void _util_free_image_meta(image_meta_t *image);
 
 #ifdef __cplusplus
 }
