@@ -140,7 +140,7 @@
 #define MTP_FILE_SCHEDPARAM		0
 #define MTP_USB_SCHEDPARAM		0
 
-#define MTP_CONFIG_FILE_PATH		"/etc/mtp-responder.conf"
+#define MTP_CONFIG_FILE_PATH		"/etc/cmtp-responder.conf"
 
 typedef struct {
 	/* Speed related config */
