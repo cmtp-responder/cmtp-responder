@@ -72,7 +72,6 @@ mtp_bool _util_get_serial(mtp_char *serial, mtp_uint32 len)
 
 void _util_get_vendor_ext_desc(mtp_char *vendor_ext_desc, mtp_uint32 len)
 {
-	mtp_char *version = VENDOR_EXT_VERSION;
 	ret_if(len == 0);
 	ret_if(vendor_ext_desc == NULL);
 
