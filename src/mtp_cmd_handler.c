@@ -1087,27 +1087,6 @@ static void __get_device_prop_desc(mtp_handler_t *hdlr)
 	prop_id = _hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 0);
 	switch (prop_id) {
 
-	case MTP_PROPERTYCODE_SYNCHRONIZATIONPARTNER:
-		{
-			mtp_char *sync_ptr = _device_get_sync_partner();
-			if (NULL == sync_ptr) {
-				ERR("_device_get_sync_partner() Fail");
-				break;
-			}
-			prop_ptr = _device_get_device_property(prop_id);
-			if (NULL == prop_ptr) {
-				ERR("prop_ptr is Null");
-				g_free(sync_ptr);
-				break;
-			}
-
-			_util_utf8_to_utf16(temp, sizeof(temp) / WCHAR_SIZ, sync_ptr);
-			_prop_copy_char_to_ptpstring(&ptp_str, temp, WCHAR_TYPE);
-			_prop_set_current_string(prop_ptr, &ptp_str);
-			g_free(sync_ptr);
-			break;
-		}
-
 	default:
 		ERR("Unknown PropId : [0x%x]\n", prop_id);
 		break;
@@ -1163,39 +1142,6 @@ static void __get_device_prop_value(mtp_handler_t *hdlr)
 	_hdlr_init_data_container(&blk, hdlr->usb_cmd.code, hdlr->usb_cmd.tid);
 
 	switch (prop_id) {
-
-	case MTP_PROPERTYCODE_SYNCHRONIZATIONPARTNER:
-		{
-
-													  mtp_char *sync_ptr = _device_get_sync_partner();
-													  if (sync_ptr == NULL) {
-														  ERR("_device_get_sync_partner() Fail");
-														  _cmd_hdlr_send_response_code(hdlr,
-																  PTP_RESPONSE_GEN_ERROR);
-														  return;
-													  }
-													  _util_utf8_to_utf16(temp, sizeof(temp) / WCHAR_SIZ, sync_ptr);
-													  g_free(sync_ptr);
-
-													  _prop_copy_char_to_ptpstring(&ptp_str, temp, WCHAR_TYPE);
-													  no_bytes = _prop_size_ptpstring(&ptp_str);
-
-													  ptr = _hdlr_alloc_buf_data_container(&blk, no_bytes, no_bytes);
-													  if (ptr == NULL) {
-														  _cmd_hdlr_send_response_code(hdlr,
-																  PTP_RESPONSE_GEN_ERROR);
-														  g_free(blk.data);
-														  return;
-													  }
-
-													  if (_prop_pack_ptpstring(&ptp_str, ptr, no_bytes) != no_bytes) {
-														  _cmd_hdlr_send_response_code(hdlr,
-																  PTP_RESPONSE_GEN_ERROR);
-														  g_free(blk.data);
-														  return;
-													  }
-													  break;
-												  }
 
 	default:
 									  ERR("Unknown PropId : [0x%x]\n", prop_id);
@@ -2197,19 +2143,6 @@ static void __reset_device_prop_value(mtp_handler_t *hdlr)
 		return;
 	}
 
-	if (MTP_PROPERTYCODE_SYNCHRONIZATIONPARTNER == prop_id) {
-		prop = _device_get_device_property(prop_id);
-		if (NULL == prop) {
-			_cmd_hdlr_send_response_code(hdlr,
-					PTP_RESPONSE_PROP_NOTSUPPORTED);
-			return;
-		}
-
-		_util_utf16_to_utf8(temp, sizeof(temp),
-				prop->current_val.str->str);
-		_device_set_sync_partner(temp);
-		DBG("Setting synch partner:%s, but it will be forgotten after exit!\n", temp);
-	}
 	_cmd_hdlr_send_response_code(hdlr, PTP_RESPONSE_OK);
 
 	return;

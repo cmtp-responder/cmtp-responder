@@ -66,9 +66,6 @@
 
 #define MTP_STORAGE_DESC_EXT		"Card"
 
-/*Devices Property*/
-#define MTP_DEV_PROPERTY_SYNCPARTNER		"Longhorn Sync Engine"
-
 /*temporary file*/
 #define MTP_TEMP_FILE			".mtptemp.tmp"
 

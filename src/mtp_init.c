@@ -108,8 +108,6 @@ void _mtp_init(add_rem_store_t sel)
 	_transport_init_status_info();
 	_transport_set_mtp_operation_state(MTP_STATE_INITIALIZING);
 
-	_device_set_sync_partner(MTP_DEV_PROPERTY_SYNCPARTNER);
-
 	if (g_mgr->ftemp_st.temp_buff == NULL) {
 		/* Allocate memory for temporary */
 		g_mgr->ftemp_st.temp_buff = (mtp_char *)g_malloc(g_conf.write_file_size);

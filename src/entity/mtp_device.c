@@ -236,22 +236,6 @@ static mtp_bool __init_device_props()
 
 	g_device.device_prop_list = g_device_props;
 
-	/* Synchronization Partner */
-	dev_prop = &(g_device.device_prop_list[i]);
-	_prop_init_device_property_desc(dev_prop,
-			MTP_PROPERTYCODE_SYNCHRONIZATIONPARTNER,
-			PTP_DATATYPE_STRING, PTP_PROPGETSET_GETSET, NONE);
-	{
-		mtp_wchar wtemp[MTP_MAX_REG_STRING + 1] = { 0 };
-
-		_util_utf8_to_utf16(wtemp, sizeof(wtemp) / WCHAR_SIZ,
-				MTP_DEV_PROPERTY_SYNCPARTNER);
-		_prop_copy_char_to_ptpstring(&tmp, wtemp, WCHAR_TYPE);
-		_prop_set_current_string(dev_prop, &tmp);
-		_prop_set_default_string(&(dev_prop->propinfo), wtemp);
-	}
-	i++;
-
 	/* supported formats ordered */
 	dev_prop = &(g_device.device_prop_list[i]);
 	_prop_init_device_property_desc(dev_prop,
@@ -998,17 +982,3 @@ device_status_t _device_get_status(void)
 	return g_device.status;
 }
 /* LCOV_EXCL_STOP */
-
-mtp_char *_device_get_sync_partner(void)
-{
-	return g_strdup(g_device.sync_partner);
-}
-
-void _device_set_sync_partner(mtp_char *sync_ptr)
-{
-	ret_if(sync_ptr == NULL);
-
-	g_strlcpy(g_device.sync_partner, sync_ptr,
-			sizeof(g_device.sync_partner));
-	return;
-}
