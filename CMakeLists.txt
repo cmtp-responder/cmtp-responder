@@ -16,7 +16,7 @@ add_definitions("-DSRC_PATH_LEN=${SRC_PATH_LEN}")
 
 INCLUDE(FindPkgConfig)
 pkg_check_modules(pkgs REQUIRED glib-2.0 capi-content-media-content
-	capi-media-metadata-extractor storage libsystemd)
+	capi-media-metadata-extractor libsystemd)
 
 FOREACH(flag ${pkgs_CFLAGS})
 	SET(EXTRA_CFLAGS "${EXTRA_CFLAGS} ${flag}")
