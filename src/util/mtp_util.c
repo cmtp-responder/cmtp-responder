@@ -21,7 +21,6 @@
 #include <fcntl.h>
 #include <time.h>
 #include <pthread.h>
-#include <system_info.h>
 #include <vconf.h>
 #include "mtp_util.h"
 #include "mtp_support.h"
@@ -88,77 +87,35 @@ mtp_bool _util_get_serial(mtp_char *serial, mtp_uint32 len)
 
 void _util_get_vendor_ext_desc(mtp_char *vendor_ext_desc, mtp_uint32 len)
 {
-	mtp_int32 ret = SYSTEM_INFO_ERROR_NONE;
-	mtp_char *version = NULL;
-
+	mtp_char *version = VENDOR_EXT_VERSION;
 	ret_if(len == 0);
 	ret_if(vendor_ext_desc == NULL);
 
-	ret = system_info_get_platform_string(
-		"http://tizen.org/feature/platform.version", &version);
-
-	if (ret != SYSTEM_INFO_ERROR_NONE) {
-		ERR("system_info_get_value_string Fail : 0x%X\n", ret);	//	LCOV_EXCL_LINE
-		g_strlcpy(vendor_ext_desc, MTP_VENDOR_EXTENSIONDESC_CHAR, len);	//	LCOV_EXCL_LINE
-		return;	//	LCOV_EXCL_LINE
-	}
-	g_snprintf(vendor_ext_desc, len, "%stizen.org:%s; ",
-			MTP_VENDOR_EXTENSIONDESC_CHAR, version);
-	g_free(version);
+	g_snprintf(vendor_ext_desc, len, "%s",
+			MTP_VENDOR_EXTENSIONDESC_CHAR);
 	return;
 }
 
 void _util_get_model_name(mtp_char *model_name, mtp_uint32 len)
 {
-	mtp_int32 ret = SYSTEM_INFO_ERROR_NONE;
-	mtp_char *model = NULL;
+	mtp_char *model = MODEL;
 
 	ret_if(len == 0);
 	ret_if(model_name == NULL);
 
-	ret = system_info_get_platform_string(
-		"http://tizen.org/system/model_name", &model);
-
-	if (ret != SYSTEM_INFO_ERROR_NONE) {
-		ERR("system_info_get_value_string Fail : 0x%X\n", ret);	//	LCOV_EXCL_LINE
-		g_strlcpy(model_name, MTP_DEFAULT_MODEL_NAME, len);	//	LCOV_EXCL_LINE
-		return;	//	LCOV_EXCL_LINE
-	}
 	g_strlcpy(model_name, model, len);
-	g_free(model);
 	return;
 }
 
 void _util_get_device_version(mtp_char *device_version, mtp_uint32 len)
 {
-	mtp_int32 ret = SYSTEM_INFO_ERROR_NONE;
-	mtp_char *version = NULL;
-	mtp_char *build_info = NULL;
+	mtp_char *version = DEVICE_VERSION;
+	mtp_char *build_info = BUILD_INFO;
 
 	ret_if(len == 0);
 	ret_if(device_version == NULL);
 
-	ret = system_info_get_platform_string(
-		"http://tizen.org/feature/platform.version", &version);
-
-	if (ret != SYSTEM_INFO_ERROR_NONE) {
-		ERR("system_info_get_value_string Fail : 0x%X\n", ret);	//	LCOV_EXCL_LINE
-		g_strlcpy(device_version, MTP_DEFAULT_DEVICE_VERSION, len);	//	LCOV_EXCL_LINE
-		return;	//	LCOV_EXCL_LINE
-	}
-
-	ret = system_info_get_platform_string(
-		"http://tizen.org/system/build.string", &build_info);
-
-	if (ret != SYSTEM_INFO_ERROR_NONE) {
-		ERR("system_info_get_value_string Fail : 0x%X\n", ret);	//	LCOV_EXCL_LINE
-		g_strlcpy(device_version, MTP_DEFAULT_DEVICE_VERSION, len);	//	LCOV_EXCL_LINE
-		g_free(version);	//	LCOV_EXCL_LINE
-		return;
-	}
-	g_snprintf(device_version, len, "TIZEN %s (%s)", version, build_info);
-	g_free(version);
-	g_free(build_info);
+	g_snprintf(device_version, len, "cmtp-responder %s (%s)", version, build_info);
 	return;
 }
 
