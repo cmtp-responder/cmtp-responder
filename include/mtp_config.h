@@ -31,9 +31,6 @@
 /*keywords has many space. not support*/
 /*#define MTP_USE_OBJPROPERTY_KEYWORDS*/
 
-/*after db loading(mass files), there are some duplicate open session packet*/
-/*#define MTP_USE_SKIP_CONTINUOUS_OPENSESSION*/
-
 /* Support Features */
 
 /* cancel transactio, device reset, mainly used in mtpmain.c */

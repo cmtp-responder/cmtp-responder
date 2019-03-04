@@ -49,10 +49,6 @@ mtp_bool g_is_send_object = FALSE;
  */
 static mtp_mgr_t *g_mgr = &g_mtp_mgr;
 static mtp_bool g_has_round_trip = FALSE;
-#ifdef MTP_USE_SKIP_CONTINUOUS_OPENSESSION
-static mtp_uint16 g_count_open_session = 0;
-static mtp_uint32 g_old_open_session_time = 0;
-#endif/*MTP_USE_SKIP_CONTINUOUS_OPENSESSION*/
 
 #define LEN 20
 
@@ -121,12 +117,6 @@ void _cmd_hdlr_reset_cmd(mtp_handler_t *hdlr)
 		_entity_dealloc_mtp_obj(hdlr->data4_send_obj.obj);
 
 	memset(hdlr, 0x00, sizeof(mtp_handler_t));
-
-#ifdef MTP_USE_SKIP_CONTINUOUS_OPENSESSION
-	/* reset open session count */
-	g_count_open_session = 0;
-	g_old_open_session_time = 0;
-#endif /* MTP_USE_SKIP_CONTINUOUS_OPENSESSION */
 }
 
 /* LCOV_EXCL_START */
@@ -152,28 +142,9 @@ static void __process_commands(mtp_handler_t *hdlr, cmd_blk_t *cmd)
 #ifdef MTP_SUPPORT_PRINT_COMMAND
 		__print_command(hdlr->usb_cmd.code);
 #endif /*MTP_SUPPORT_PRINT_COMMAND*/
-#ifdef MTP_USE_SKIP_CONTINUOUS_OPENSESSION
-		time_t t;
-		mtp_uint32 cur_time = 0;
-		time(&t);
-		cur_time = (mtp_uint32)t;
-		/*first opensession*/
-		if (g_count_open_session == 0) {
-			g_old_open_session_time = cur_time;
-		} else if (cur_time <= g_old_open_session_time + 1) {
-			/*under 1 sec. it might be skipped*/
-			ERR("skip continuous OPEN session");
-			goto DONE;
-		}
-		++g_count_open_session;
-
-#endif /* MTP_USE_SKIP_CONTINUOUS_OPENSESSION */
 		__open_session(hdlr);
 		goto DONE;
 	}
-#ifdef MTP_USE_SKIP_CONTINUOUS_OPENSESSION
-	g_count_open_session = 0;
-#endif /* MTP_USE_SKIP_CONTINUOUS_OPENSESSION */
 
 	/* Check if session is open or not, if not respond */
 	if (hdlr->session_id == 0) {
