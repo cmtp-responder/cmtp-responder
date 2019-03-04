@@ -140,7 +140,6 @@ mtp_bool _util_get_serial(mtp_char *serial, mtp_uint32 len);
 void _util_get_model_name(mtp_char *model_name, mtp_uint32 len);
 void _util_get_vendor_ext_desc(mtp_char *vendor_ext_desc, mtp_uint32 len);
 void _util_get_device_version(mtp_char *device_version, mtp_uint32 len);
-void _util_gen_alt_serial(mtp_char *serial, mtp_uint32 len);
 phone_status_t _util_get_local_usb_status(void);
 void _util_set_local_usb_status(const phone_status_t val);
 void _util_get_mmc_status(phone_status_t *val);

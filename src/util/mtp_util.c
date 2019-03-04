@@ -107,29 +107,6 @@ void _util_get_device_version(mtp_char *device_version, mtp_uint32 len)
 }
 
 /* LCOV_EXCL_START */
-void _util_gen_alt_serial(mtp_char *serial, mtp_uint32 len)
-{
-	struct timeval st;
-	mtp_char model_name[MTP_MODEL_NAME_LEN_MAX + 1] = { 0 };
-
-	ret_if(len == 0);
-	ret_if(serial == NULL);
-
-	if (gettimeofday(&st, NULL) < 0) {
-		ERR("gettimeofday Fail");
-		_util_print_error();
-		return;
-	}
-	_util_get_model_name(model_name, sizeof(model_name));
-	g_snprintf(serial, len, "%s-%010ld-%011ld", model_name,
-			st.tv_sec, st.tv_usec);
-
-	if (vconf_set_str(VCONFKEY_MTP_SERIAL_NUMBER_STR, serial) == -1)
-		ERR("vconf_set Fail %s\n", VCONFKEY_MTP_SERIAL_NUMBER_STR);
-
-	return;
-}
-
 phone_status_t _util_get_local_usb_status(void)
 {
 	return g_ph_status.usb_state;
