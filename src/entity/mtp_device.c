@@ -252,21 +252,6 @@ static mtp_bool __init_device_props()
 	}
 	i++;
 
-	/* Device Friendly Name */
-	dev_prop = &(g_device.device_prop_list[i]);
-	_prop_init_device_property_desc(dev_prop, MTP_PROPERTYCODE_DEVICEFRIENDLYNAME,
-			PTP_DATATYPE_STRING, PTP_PROPGETSET_GETONLY, NONE);
-	{
-		mtp_wchar wmodel[MTP_MAX_REG_STRING + 1] = { 0 };
-
-		_util_utf8_to_utf16(wmodel, sizeof(wmodel) / WCHAR_SIZ,
-				MTP_DEV_PROPERTY_FRIENDLYNAME);
-		_prop_copy_char_to_ptpstring(&tmp, wmodel, WCHAR_TYPE);
-		_prop_set_current_string(dev_prop, &tmp);
-		_prop_set_default_string(&(dev_prop->propinfo), wmodel);
-	}
-	i++;
-
 	/* supported formats ordered */
 	dev_prop = &(g_device.device_prop_list[i]);
 	_prop_init_device_property_desc(dev_prop,
@@ -1013,19 +998,6 @@ device_status_t _device_get_status(void)
 	return g_device.status;
 }
 /* LCOV_EXCL_STOP */
-
-mtp_char *_device_get_device_name(void)
-{
-	return g_strdup(g_device.device_name);
-}
-
-void _device_set_device_name(mtp_char *dev_name)
-{
-	ret_if(dev_name == NULL);
-
-	g_strlcpy(g_device.device_name, dev_name, sizeof(g_device.device_name));
-	return;
-}
 
 mtp_char *_device_get_sync_partner(void)
 {

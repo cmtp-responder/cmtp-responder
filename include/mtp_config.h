@@ -68,7 +68,6 @@
 
 /*Devices Property*/
 #define MTP_DEV_PROPERTY_SYNCPARTNER		"Longhorn Sync Engine"
-#define MTP_DEV_PROPERTY_FRIENDLYNAME		"Collabora Ltd"
 
 /*temporary file*/
 #define MTP_TEMP_FILE			".mtptemp.tmp"

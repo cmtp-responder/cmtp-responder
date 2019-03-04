@@ -1087,27 +1087,6 @@ static void __get_device_prop_desc(mtp_handler_t *hdlr)
 	prop_id = _hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 0);
 	switch (prop_id) {
 
-	case MTP_PROPERTYCODE_DEVICEFRIENDLYNAME:
-		{
-			mtp_char *dev_name = _device_get_device_name();
-			if (dev_name == NULL) {
-				ERR("_device_get_device_name() Fail");
-				break;
-			}
-
-			prop_ptr = _device_get_device_property(prop_id);
-			if (NULL == prop_ptr) {
-				ERR("prop_ptr is Null");
-				g_free(dev_name);
-				break;
-			}
-			_util_utf8_to_utf16(temp, sizeof(temp) / WCHAR_SIZ, dev_name);
-			_prop_copy_char_to_ptpstring(&ptp_str, temp, WCHAR_TYPE);
-			_prop_set_current_string(prop_ptr, &ptp_str);
-			g_free(dev_name);
-			break;
-		}
-
 	case MTP_PROPERTYCODE_SYNCHRONIZATIONPARTNER:
 		{
 			mtp_char *sync_ptr = _device_get_sync_partner();
@@ -1184,39 +1163,6 @@ static void __get_device_prop_value(mtp_handler_t *hdlr)
 	_hdlr_init_data_container(&blk, hdlr->usb_cmd.code, hdlr->usb_cmd.tid);
 
 	switch (prop_id) {
-
-	case MTP_PROPERTYCODE_DEVICEFRIENDLYNAME:
-		{
-
-												  mtp_char *device = _device_get_device_name();
-												  if (device == NULL) {
-													  ERR("_device_get_device_name() Fail");
-													  _cmd_hdlr_send_response_code(hdlr,
-															  PTP_RESPONSE_GEN_ERROR);
-													  return;
-												  }
-
-												  _util_utf8_to_utf16(temp, sizeof(temp) / WCHAR_SIZ, device);
-												  _prop_copy_char_to_ptpstring(&ptp_str, temp, WCHAR_TYPE);
-												  no_bytes = _prop_size_ptpstring(&ptp_str);
-												  g_free(device);
-
-												  ptr = _hdlr_alloc_buf_data_container(&blk, no_bytes, no_bytes);
-												  if (ptr == NULL) {
-													  _cmd_hdlr_send_response_code(hdlr,
-															  PTP_RESPONSE_GEN_ERROR);
-													  g_free(blk.data);
-													  return;
-												  }
-
-												  if (_prop_pack_ptpstring(&ptp_str, ptr, no_bytes) != no_bytes) {
-													  _cmd_hdlr_send_response_code(hdlr,
-															  PTP_RESPONSE_GEN_ERROR);
-													  g_free(blk.data);
-													  return;
-												  }
-												  break;
-											  }
 
 	case MTP_PROPERTYCODE_SYNCHRONIZATIONPARTNER:
 		{
@@ -2251,19 +2197,7 @@ static void __reset_device_prop_value(mtp_handler_t *hdlr)
 		return;
 	}
 
-	if (MTP_PROPERTYCODE_DEVICEFRIENDLYNAME == prop_id) {
-		prop = _device_get_device_property(prop_id);
-		if (prop == NULL) {
-			_cmd_hdlr_send_response_code(hdlr,
-					PTP_RESPONSE_PROP_NOTSUPPORTED);
-			return;
-		}
-
-		_util_utf16_to_utf8(temp, sizeof(temp),
-				prop->current_val.str->str);
-		_device_set_device_name(temp);
-
-	} else if (MTP_PROPERTYCODE_SYNCHRONIZATIONPARTNER == prop_id) {
+	if (MTP_PROPERTYCODE_SYNCHRONIZATIONPARTNER == prop_id) {
 		prop = _device_get_device_property(prop_id);
 		if (NULL == prop) {
 			_cmd_hdlr_send_response_code(hdlr,

@@ -109,7 +109,6 @@ typedef struct {
 	mtp_uint32 default_hparent;
 	/* A pointer to array of device property. */
 	device_prop_desc_t *device_prop_list;
-	mtp_char device_name[MTP_MAX_REG_STRING + 1];
 	mtp_char sync_partner[MTP_MAX_REG_STRING + 1];
 	mtp_bool is_mounted[MTP_STORAGE_ALL];
 } mtp_device_t;
@@ -258,8 +257,6 @@ mtp_uint32 _device_get_default_store_id(void);
 mtp_uint32 _device_get_default_parent_handle(void);
 mtp_uint32 _device_get_num_stores(void);
 device_status_t _device_get_status(void);
-void _device_set_device_name(mtp_char *dev_name);
-mtp_char *_device_get_device_name(void);
 mtp_char *_device_get_sync_partner(void);
 void _device_set_sync_partner(mtp_char *sync_ptr);
 
