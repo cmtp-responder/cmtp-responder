@@ -83,7 +83,6 @@ static void __self_test(mtp_handler_t *hdlr);
 static void __set_object_protection(mtp_handler_t *hdlr);
 #endif /* MTP_SUPPORT_SET_PROTECTION */
 static void __power_down(mtp_handler_t *hdlr);
-static void __reset_device_prop_value(mtp_handler_t *hdlr);
 static void __vendor_command1(mtp_handler_t *hdlr);
 static void __get_interdep_prop_desc(mtp_handler_t *hdlr);
 #endif /* PMP_VER */
@@ -216,9 +215,6 @@ static void __process_commands(mtp_handler_t *hdlr, cmd_blk_t *cmd)
 #endif /* MTP_SUPPORT_SET_PROTECTION */
 	case PTP_OPCODE_POWERDOWN:
 		__power_down(hdlr);
-		break;
-	case PTP_OPCODE_RESETDEVICEPROPVALUE:
-		__reset_device_prop_value(hdlr);
 		break;
 	case MTP_OPCODE_GETINTERDEPPROPDESC:
 		__get_interdep_prop_desc(hdlr);
@@ -1645,23 +1641,6 @@ static void __power_down(mtp_handler_t *hdlr)
 	return;
 }
 
-static void __reset_device_prop_value(mtp_handler_t *hdlr)
-{
-	mtp_uint32 prop_id = 0;
-
-	prop_id = _hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 0);
-
-	if (MTP_ERROR_NONE != _hutil_reset_device_entry(prop_id)) {
-		_cmd_hdlr_send_response_code(hdlr,
-				PTP_RESPONSE_PROP_NOTSUPPORTED);
-		return;
-	}
-
-	_cmd_hdlr_send_response_code(hdlr, PTP_RESPONSE_OK);
-
-	return;
-}
-
 /* Vendor-specific operations */
 #define GET_DEVICEPC_NAME	1
 static void __vendor_command1(mtp_handler_t *hdlr)
@@ -1850,9 +1829,6 @@ static void __print_command(mtp_uint16 code)
 		break;
 	case PTP_OPCODE_SETDEVICEPROPVALUE:
 		DBG("COMMAND ======== SET DEVICE PROP VALUE ===========");
-		break;
-	case PTP_OPCODE_RESETDEVICEPROPVALUE:
-		DBG("COMMAND ======== RESET DEVICE PROP VALUE ===========");
 		break;
 	case PTP_OPCODE_TERMINATECAPTURE:
 		DBG("COMMAND ======== TERMINATE CAPTURE ===========");
