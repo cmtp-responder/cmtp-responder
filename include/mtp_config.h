@@ -27,9 +27,6 @@
 
 #define MTP_USE_RUNTIME_GETOBJECTPROPVALUE	/*use runtime get object property list*/
 
-/*keywords has many space. not support*/
-/*#define MTP_USE_OBJPROPERTY_KEYWORDS*/
-
 /* Support Features */
 
 /* cancel transactio, device reset, mainly used in mtpmain.c */
@@ -39,8 +36,6 @@
 
 /*mobile class. this should be set with ms os descriptor. see portable device installation consideration */
 #define MTP_SUPPORT_DEVICE_CLASS
-
-/*#define MTP_SUPPORT_WMV_ENCODINGPROFILE */		/* for WMV encoding profile */
 
 /* external features */
 #define MTP_SUPPORT_OBJECTADDDELETE_EVENT
@@ -66,22 +61,6 @@
 /* Base MTP USER Directory */
 #define MTP_USER_DIRECTORY		"/opt/usr/home/owner/media"
 
-/* Hidden Root directory */
-#define MTP_HIDDEN_PHONE		".HiddenPhone"
-#define MTP_HIDDEN_CARD			".HiddenCard"
-
-/* Windows Media Player xml file */
-#define MTP_FILE_NAME_WMPINFO_XML	"WMPInfo.xml"
-
-/* MTP extension name */
-#define MTP_EXT_NAME_REGISTRY		"ini"
-
-/* special extension */
-#define MTP_ALBUMFILE_EXTENSION		"alb"
-
-/* Reference Key name */
-#define MTP_REF_KEYNAME_CHAR		"Reference"
-
 /*STORAGE*/
 #define MTP_MAX_STORAGE			(30*1024*1024)	/*30MB */
 #define MTP_MAX_STORAGE_IN_OBJTS	0xFFFFFFFF
@@ -103,13 +82,9 @@
 
 /*temporary file*/
 #define MTP_TEMP_FILE			".mtptemp.tmp"
-#define MTP_TEMP_FILE_DEFAULT		"/tmp/.mtptemp.tmp"
 
 /*Unknown Metadata default name*/
 #define MTP_UNKNOWN_METADATA		"Unknown"
-
-/*2006.10.20 empty metadata folder problem*/
-#define MTP_UNKNOWN_METADATAW		L"Unknown"
 
 /* strlen(/opt/usr/share/crash/) + MTP path len limit */
 #define MTP_MAX_PATHNAME_SIZE		(21 + 1024)	/* except \0 */
@@ -156,7 +131,6 @@
 	"microsoft.com/WMDRMPD:10.1;microsoft.com/playready:1.10; "
 
 #define MTP_MANUFACTURER_CHAR		"Tizen"
-#define HAVE_OWN_WCHAR_CONVERSION
 
 #define MTP_MMAP_THRESHOLD	524288
 #define MTP_READ_USB_SIZE	4096
