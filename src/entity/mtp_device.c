@@ -70,7 +70,6 @@ static mtp_uint16 g_ops_supported[] = {
 #endif /* MTP_SUPPORT_SET_PROTECTION */
 	/*PTP_OPCODE_POWERDOWN,*/
 	PTP_OPCODE_RESETDEVICEPROPVALUE,
-	PTP_OPCODE_MOVEOBJECT,
 	/*PTP_CODE_VENDOR_OP1,*/
 #endif /*PMP_VER*/
 };
