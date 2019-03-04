@@ -211,7 +211,6 @@ static void __init_device_info(void)
 	_prop_init_ptpstring(&(info->serial_no));
 	if (FALSE == _util_get_serial(serial_no, sizeof(serial_no))) {
 		ERR("_util_get_serial() Fail");
-		_util_gen_alt_serial(serial_no, sizeof(serial_no));
 	}
 	_util_utf8_to_utf16(wtemp, sizeof(wtemp) / WCHAR_SIZ, serial_no);
 	_prop_copy_char_to_ptpstring(&(info->serial_no), wtemp, WCHAR_TYPE);
