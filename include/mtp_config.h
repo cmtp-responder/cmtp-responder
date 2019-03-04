@@ -54,7 +54,6 @@
 
 /* External Storage */
 #define MTP_EXTERNAL_PATH_CHAR		"/media/card"
-#define MTP_DEVICE_ICON			"/usr/share/mtp/device_icon.ico"
 
 /* File For WMP extesions */
 #define MTP_FILES_MODIFIED_FILES	"/tmp/mtp_mod_files.log"

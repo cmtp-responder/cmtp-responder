@@ -297,11 +297,6 @@ static mtp_bool __init_device_props()
 	i++;
 #endif /*MTP_SUPPORT_DEVICE_CLASS*/
 
-	dev_prop = &(g_device.device_prop_list[i]);
-	_prop_init_device_property_desc(dev_prop, MTP_PROPERTYCODE_DEVICEICON,
-			PTP_DATATYPE_AUINT8, PTP_PROPGETSET_GETONLY, NONE);
-	i++;
-
 	already_init = TRUE;
 
 	return TRUE;
