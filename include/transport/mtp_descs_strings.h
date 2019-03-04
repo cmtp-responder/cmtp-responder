@@ -41,7 +41,7 @@ extern struct mtp_usb_descs{
 	// struct {} __attribute__((packed)) os_descs;
 } __attribute__((packed)) descriptors;
 
-#define STR_INTERFACE "Samsung MTP"
+#define STR_INTERFACE "Collabora MTP"
 
 extern struct mtp_usb_strs {
 	struct usb_functionfs_strings_head header;
