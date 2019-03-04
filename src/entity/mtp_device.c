@@ -34,9 +34,7 @@ static mtp_device_t g_device = { 0 };
 /*
  * STATIC VARIABLES
  */
-static device_prop_desc_t g_device_props[NUM_DEVICE_PROPERTIES];
 static mtp_store_t g_store_list[MAX_NUM_DEVICE_STORES];
-static mtp_uint16 g_device_props_supported[NUM_DEVICE_PROPERTIES];
 
 static mtp_uint16 g_ops_supported[] = {
 	PTP_OPCODE_GETDEVICEINFO,
@@ -147,7 +145,6 @@ static mtp_uint16 g_object_fmts[] = {
  * STATIC FUNCTIONS
  */
 static void __init_device_info(void);
-static mtp_bool __init_device_props(void);
 static mtp_err_t __clear_store_data(mtp_uint32 store_id);
 static mtp_bool __remove_store_from_device(store_type_t store_type);
 static mtp_bool __add_store_to_device(store_type_t store_type);
@@ -163,7 +160,6 @@ static mtp_bool __add_store_to_device(store_type_t store_type);
  */
 static void __init_device_info(void)
 {
-	mtp_int32 ii;
 	device_info_t *info = &(g_device.device_info);
 	mtp_char model_name[MTP_MODEL_NAME_LEN_MAX + 1] = { 0 };
 	mtp_char device_version[MAX_PTP_STRING_CHARS + 1] = { 0 };
@@ -175,7 +171,6 @@ static void __init_device_info(void)
 	info->events_supported = g_event_supported;
 	info->capture_fmts = g_capture_fmts;
 	info->object_fmts = g_object_fmts;
-	info->device_prop_supported = g_device_props_supported;
 	info->std_version = MTP_STANDARD_VERSION;
 	info->vendor_extn_id = MTP_VENDOR_EXTN_ID;
 	info->vendor_extn_version = MTP_VENDOR_EXTN_VERSION;
@@ -185,11 +180,6 @@ static void __init_device_info(void)
 	_util_get_vendor_ext_desc(vendor_ext_desc, sizeof(vendor_ext_desc));
 	_util_utf8_to_utf16(wtemp, sizeof(wtemp) / WCHAR_SIZ, vendor_ext_desc);
 	_prop_copy_char_to_ptpstring(&(info->vendor_extn_desc), wtemp, WCHAR_TYPE);
-
-	for (ii = 0; ii < NUM_DEVICE_PROPERTIES; ii++) {
-		info->device_prop_supported[ii] =
-			g_device.device_prop_list[ii].propinfo.prop_code;
-	}
 
 	_prop_init_ptpstring(&(info->manufacturer));
 	_util_utf8_to_utf16(wtemp, sizeof(wtemp) / WCHAR_SIZ, MTP_MANUFACTURER_CHAR);
@@ -215,32 +205,6 @@ static void __init_device_info(void)
 	return;
 }
 
-/*
- * static mtp_bool __device_init_device_props()
- * this function will initialise all the properties of the device.
- * @return	TRUE if success, otherwise FALSE.
- */
-static mtp_bool __init_device_props()
-{
-	static mtp_bool already_init = FALSE;
-
-	device_prop_desc_t *dev_prop = NULL;
-	mtp_uint16 i = 0;
-	ptp_string_t tmp = { 0 };
-	mtp_uint32 default_val;
-
-	if (TRUE == already_init) {
-		ERR("Already initialized. just return...");
-		return TRUE;
-	}
-
-	g_device.device_prop_list = g_device_props;
-
-	already_init = TRUE;
-
-	return TRUE;
-}
-
 void _init_mtp_device(void)
 {
 	static mtp_bool already_init = FALSE;
@@ -259,7 +223,6 @@ void _init_mtp_device(void)
 	g_device.default_store_id = MTP_INTERNAL_STORE_ID;
 	g_device.default_hparent = PTP_OBJECTHANDLE_ROOT;
 
-	__init_device_props();
 	_prop_build_supp_props_mp3();
 	_prop_build_supp_props_wmv();
 	_prop_build_supp_props_wma();
@@ -379,14 +342,6 @@ mtp_uint32 _pack_device_info(mtp_uchar *buf, mtp_uint32 buf_sz)
 	_util_conv_byte_order(ptr, sizeof(count));
 #endif /*__BIG_ENDIAN__*/
 	ptr += sizeof(count);
-	for (ii = 0; ii < NUM_DEVICE_PROPERTIES; ii++) {
-		memcpy(ptr, (void *)&(info->device_prop_supported[ii]),
-				sizeof(mtp_uint16));
-#ifdef __BIG_ENDIAN__
-		_util_conv_byte_order(ptr, sizeof(mtp_uint16));
-#endif /*__BIG_ENDIAN__*/
-		ptr += sizeof(mtp_uint16);
-	}
 
 	count = (sizeof(g_capture_fmts) / sizeof(mtp_uint16));
 	memcpy(ptr, &count, sizeof(count));
@@ -450,12 +405,6 @@ void _reset_mtp_device(void)
 
 device_prop_desc_t *_device_get_device_property(mtp_uint32 prop_code)
 {
-	mtp_uint16 ii = 0;
-
-	for (ii = 0; ii < NUM_DEVICE_PROPERTIES; ii++) {
-		if (g_device.device_prop_list[ii].propinfo.prop_code == prop_code)
-			return &(g_device.device_prop_list[ii]);
-	}
 	return NULL;
 }
 

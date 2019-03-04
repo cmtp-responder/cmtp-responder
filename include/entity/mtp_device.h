@@ -25,22 +25,11 @@ extern "C" {
 #include "mtp_store.h"
 #include "mtp_property.h"
 
-#define MTP_NUM_DEVICE_DEFAULT		3
-
-#define MTP_NUM_DEVICE_WMP11		1
-
-#define MTP_NUM_DEVICE_DSC		0
-
-#define MTP_NUM_DEVICE_SVC		0
-
 /* currently not supported */
 #define MTP_NUM_DEVICE_PLAYBACK_2WIRE	4
 #define MTP_NUM_DEVICE_OMADRM		1
 
-#define NUM_DEVICE_PROPERTIES		(MTP_NUM_DEVICE_DEFAULT + \
-		MTP_NUM_DEVICE_WMP11 + \
-		MTP_NUM_DEVICE_DSC + \
-		MTP_NUM_DEVICE_SVC)
+#define NUM_DEVICE_PROPERTIES		0
 
 /*This number can be changed based on MAX number or stores allowed*/
 #define	MAX_NUM_DEVICE_STORES		3
