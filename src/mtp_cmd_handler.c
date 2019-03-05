@@ -75,7 +75,6 @@ static void __get_object_references(mtp_handler_t *hdlr);
 static void __get_object_prop_desc(mtp_handler_t *hdlr);
 static void __get_object_prop_supported(mtp_handler_t *hdlr);
 static void __get_object_prop_value(mtp_handler_t *hdlr);
-static void __get_object_prop_list(mtp_handler_t *hdlr);
 static void __send_playback_skip(mtp_handler_t *hdlr);
 #ifndef PMP_VER
 #ifdef MTP_SUPPORT_SET_PROTECTION
@@ -89,8 +88,6 @@ static void __close_session(mtp_handler_t *hdlr);
 #ifdef MTP_SUPPORT_PRINT_COMMAND
 static void __print_command(mtp_uint16 code);
 #endif /* MTP_SUPPORT_PRINT_COMMAND */
-static void __enum_store_not_enumerated(mtp_uint32 obj_handle,
-		mtp_uint32 fmt, mtp_uint32 depth);
 static mtp_bool __receive_temp_file_first_packet(mtp_char *data,
 		mtp_int32 data_len);
 static mtp_bool __receive_temp_file_next_packets(mtp_char *data,
@@ -196,9 +193,6 @@ static void __process_commands(mtp_handler_t *hdlr, cmd_blk_t *cmd)
 		break;
 	case MTP_OPCODE_GETOBJECTPROPVALUE:
 		__get_object_prop_value(hdlr);
-		break;
-	case MTP_OPCODE_GETOBJECTPROPLIST:
-		__get_object_prop_list(hdlr);
 		break;
 #ifndef PMP_VER
 	case PTP_OPCODE_RESETDEVICE:
@@ -1425,120 +1419,6 @@ static void __get_object_prop_value(mtp_handler_t *hdlr)
 	return;
 }
 
-static void __get_object_prop_list(mtp_handler_t *hdlr)
-{
-	mtp_uint32 h_obj = 0;
-	mtp_uint32 fmt = 0;
-	mtp_uint32 prop_id = 0;
-	mtp_uint32 group_code = 0;
-	mtp_uint32 depth = 0;
-	mtp_err_t ret = 0;
-	mtp_uint16 resp = 0;
-	obj_proplist_t prop_list = { { 0 } };
-	data_blk_t blk = { 0 };
-	mtp_uint32 num_bytes = 0;
-	mtp_uchar *ptr = NULL;
-#ifdef MTP_USE_RUNTIME_GETOBJECTPROPVALUE
-	ptp_array_t obj_arr = { 0 };
-	slist_node_t *node = NULL;
-	slist_node_t *next_node = NULL;
-	mtp_uint32 ii = 0;
-	mtp_uint32 jj = 0;
-	mtp_obj_t *obj = NULL;
-#endif /*MTP_USE_RUNTIME_GETOBJECTPROPVALUE*/
-
-	h_obj = _hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 0);
-	fmt = _hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 1);
-	prop_id = _hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 2);
-	group_code = _hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 3);
-	depth = _hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 4);
-
-	__enum_store_not_enumerated(h_obj, fmt, depth);
-
-#ifdef MTP_USE_RUNTIME_GETOBJECTPROPVALUE
-	ret = _hutil_get_object_prop_list(h_obj, fmt, prop_id, group_code,
-			depth, &prop_list, &obj_arr);
-#else /*MTP_USE_RUNTIME_GETOBJECTPROPVALUE*/
-	ret = _hutil_get_object_prop_list(h_obj, fmt, prop_id, group_code,
-			depth, &prop_list);
-#endif /*MTP_USE_RUNTIME_GETOBJECTPROPVALUE*/
-
-	switch (ret) {
-	case MTP_ERROR_NONE:
-		resp = PTP_RESPONSE_OK;
-		break;
-	case MTP_ERROR_INVALID_OBJECTHANDLE:
-		resp = PTP_RESPONSE_INVALID_OBJ_HANDLE;
-		break;
-	case MTP_ERROR_INVALID_PARAM:
-		resp = PTP_RESPONSE_INVALIDPARAM;
-		break;
-	case MTP_ERROR_NO_SPEC_BY_FORMAT:
-		resp = PTP_RESPONSE_NOSPECIFICATIONBYFORMAT;
-		break;
-	case MTP_ERROR_GENERAL:
-	default:
-		resp = PTP_RESPONSE_GEN_ERROR;
-	}
-
-	if (PTP_RESPONSE_OK != resp) {
-		_cmd_hdlr_send_response_code(hdlr, resp);
-		_prop_deinit_ptparray(&obj_arr);
-		return;
-	}
-
-	_hdlr_init_data_container(&blk, hdlr->usb_cmd.code, hdlr->usb_cmd.tid);
-	num_bytes = _prop_size_obj_proplist(&prop_list);
-	ptr = _hdlr_alloc_buf_data_container(&blk, num_bytes, num_bytes);
-	if (num_bytes == _prop_pack_obj_proplist(&prop_list, ptr, num_bytes)) {
-
-		_device_set_phase(DEVICE_PHASE_DATAIN);
-		if (_hdlr_send_data_container(&blk)) {
-			_cmd_hdlr_send_response_code(hdlr, resp);
-		} else {
-			/* Host Cancelled data-in transfer*/
-			_device_set_phase(DEVICE_PHASE_NOTREADY);
-		}
-	}
-
-	_prop_destroy_obj_proplist(&prop_list);
-	g_free(blk.data);
-
-#ifdef MTP_USE_RUNTIME_GETOBJECTPROPVALUE
-	if (resp == PTP_RESPONSE_OK && obj_arr.array_entry) {
-		mtp_uint32 *obj_handles = obj_arr.array_entry;
-
-		for (ii = 0; ii < obj_arr.num_ele; ii++) {
-			mtp_store_t *store = NULL;
-
-			store = _device_get_store_containing_obj(obj_handles[ii]);
-			if (store == NULL)
-				continue;
-
-			obj = _entity_get_object_from_store(store, obj_handles[ii]);
-			if (NULL == obj || obj->propval_list.nnodes == 0)
-				continue;
-
-			/*Remove all the old property value, and ready to set up new */
-			for (jj = 0, next_node = obj->propval_list.start;
-					jj < obj->propval_list.nnodes; jj++) {
-				node = next_node;
-				next_node = node->link;
-				_prop_destroy_obj_propval
-					((obj_prop_val_t *)node->value);
-				g_free(node);
-			}
-			obj->propval_list.start = NULL;
-			obj->propval_list.end = NULL;
-			obj->propval_list.nnodes = 0;
-			node = NULL;
-		}
-	}
-	_prop_deinit_ptparray(&obj_arr);
-#endif /*MTP_USE_RUNTIME_GETOBJECTPROPVALUE*/
-	return;
-}
-
 static void __send_playback_skip(mtp_handler_t *hdlr)
 {
 	mtp_int32 skip = 0;
@@ -1829,9 +1709,6 @@ static void __print_command(mtp_uint16 code)
 	case MTP_OPCODE_SETOBJECTPROPVALUE:
 		DBG("COMMAND ======== SET OBJECT PROP VALUE ==========");
 		break;
-	case MTP_OPCODE_GETOBJECTPROPLIST:
-		DBG("COMMAND ======== GET OBJECT PROP LIST ==========");
-		break;
 	case MTP_OPCODE_GETINTERDEPPROPDESC:
 		DBG("COMMAND ======== GET INTERDEP PROP DESC ==========");
 		break;
@@ -1852,39 +1729,6 @@ static void __print_command(mtp_uint16 code)
 	return;
 }
 #endif /*MTP_SUPPORT_PRINT_COMMAND*/
-
-static void __enum_store_not_enumerated(mtp_uint32 obj_handle,
-		mtp_uint32 fmt, mtp_uint32 depth)
-{
-	mtp_uint32 ii;
-	mtp_store_t *store = NULL;
-	mtp_obj_t *obj = NULL;
-
-	if (TRUE == g_is_full_enum) {
-		DBG("Full Enumeration has been already done");
-		return;
-	}
-
-	DBG("obj_handle = [%u], format =[ %u], depth = [%u]\n", obj_handle,
-			fmt, depth);
-	if (obj_handle == PTP_OBJECTHANDLE_ALL || obj_handle == PTP_OBJECTHANDLE_ROOT) {
-		for (ii = 0; ii < _device_get_num_stores(); ii++) {
-			store = _device_get_store_at_index(ii);
-			if (store && store->obj_list.nnodes == 0)
-				_entity_store_recursive_enum_folder_objects(store, NULL);
-		}
-		g_is_full_enum = TRUE;
-	} else if (obj_handle != PTP_OBJECTHANDLE_ROOT) {
-		store = _device_get_store_containing_obj(obj_handle);
-		obj = _entity_get_object_from_store(store, obj_handle);
-		if (obj == NULL) {
-			ERR("pObject is NULL");
-			return;
-		}
-		_entity_store_recursive_enum_folder_objects(store, obj);
-	}
-	return;
-}
 
 void _receive_mq_data_cb(mtp_char *buffer, mtp_int32 buf_len)
 {
