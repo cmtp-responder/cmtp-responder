@@ -66,7 +66,6 @@ static void __get_object(mtp_handler_t *hdlr);
 static void __send_object_info(mtp_handler_t *hdlr);
 static void __send_object(mtp_handler_t *hdlr);
 static void __delete_object(mtp_handler_t *hdlr);
-static void __format_store(mtp_handler_t *hdlr);
 static void __reset_device(mtp_handler_t *hdlr);
 static void __get_partial_object(mtp_handler_t *hdlr);
 static void __send_playback_skip(mtp_handler_t *hdlr);
@@ -163,9 +162,6 @@ static void __process_commands(mtp_handler_t *hdlr, cmd_blk_t *cmd)
 		break;
 	case PTP_OPCODE_DELETEOBJECT:
 		__delete_object(hdlr);
-		break;
-	case PTP_OPCODE_FORMATSTORE:
-		__format_store(hdlr);
 		break;
 	case PTP_OPCODE_GETPARTIALOBJECT:
 		__get_partial_object(hdlr);
@@ -962,26 +958,6 @@ static void __delete_object(mtp_handler_t *hdlr)
 	_cmd_hdlr_send_response_code(hdlr, resp);
 }
 
-static void __format_store(mtp_handler_t *hdlr)
-{
-	mtp_uint32 store_id = 0;
-	mtp_uint32 fs_fmt = 0;
-
-	if (_hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 2)) {
-		_cmd_hdlr_send_response_code(hdlr,
-				PTP_RESPONSE_PARAM_NOTSUPPORTED);
-		return;
-	}
-
-	store_id = _hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 0);
-	fs_fmt = _hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 1);
-
-	_hutil_format_storage(store_id, fs_fmt);
-
-	/* although there is remain file, send OK */
-	_cmd_hdlr_send_response_code(hdlr, PTP_RESPONSE_OK);
-}
-
 static void __reset_device(mtp_handler_t *hdlr)
 {
 	if (_hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 0) ||
@@ -1319,9 +1295,6 @@ static void __print_command(mtp_uint16 code)
 		break;
 	case PTP_OPCODE_INITIATECAPTURE:
 		DBG("COMMAND ======== INITIATE CAPTURE ===========");
-		break;
-	case PTP_OPCODE_FORMATSTORE:
-		DBG("COMMAND ======== FORMAT STORE ===========");
 		break;
 	case PTP_OPCODE_RESETDEVICE:
 		DBG("COMMAND ======== RESET DEVICE ===========");
