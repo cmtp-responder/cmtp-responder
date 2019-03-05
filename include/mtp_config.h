@@ -111,7 +111,7 @@
 #define MTP_MAX_METADATA		204800	/* 200KB */
 
 #define MTP_VENDOR_EXTENSIONDESC_CHAR	\
-	"microsoft.com/WMDRMPD:10.1;microsoft.com/playready:1.10; "
+	"microsoft.com:1.0;android.com:1.0; "
 
 #define MTP_MANUFACTURER_CHAR		"Collabora"
 
