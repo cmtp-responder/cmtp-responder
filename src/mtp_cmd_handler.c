@@ -59,7 +59,6 @@ static void __open_session(mtp_handler_t *hdlr);
 static void __get_device_info(mtp_handler_t *hdlr);
 static void __get_storage_ids(mtp_handler_t *hdlr);
 static void __get_storage_info(mtp_handler_t *hdlr);
-static void __get_num_objects(mtp_handler_t *hdlr);
 static void __get_object_handles(mtp_handler_t *hdlr);
 static void __get_object_info(mtp_handler_t *hdlr);
 static void __get_object(mtp_handler_t *hdlr);
@@ -145,9 +144,6 @@ static void __process_commands(mtp_handler_t *hdlr, cmd_blk_t *cmd)
 		break;
 	case PTP_OPCODE_GETSTORAGEINFO:
 		__get_storage_info(hdlr);
-		break;
-	case PTP_OPCODE_GETNUMOBJECTS:
-		__get_num_objects(hdlr);
 		break;
 	case PTP_OPCODE_GETOBJECTHANDLES:
 		__get_object_handles(hdlr);
@@ -432,45 +428,6 @@ static void __get_storage_info(mtp_handler_t *hdlr)
 	}
 
 	g_free(blk.data);
-}
-
-static void __get_num_objects(mtp_handler_t *hdlr)
-{
-	mtp_uint16 resp = 0;
-	mtp_uint32 store_id = 0;
-	mtp_uint32 h_parent = 0;
-	mtp_uint32 fmt = 0;
-	mtp_uint32 num_obj = 0;
-
-	store_id = _hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 0);
-	fmt = _hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 1);
-	h_parent = _hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 2);
-
-	switch (_hutil_get_num_objects(store_id, h_parent, fmt,
-				(mtp_uint32 *)(&num_obj))) {
-	case MTP_ERROR_INVALID_STORE:
-		resp = PTP_RESPONSE_INVALID_STORE_ID;
-		break;
-	case MTP_ERROR_INVALID_OBJECTHANDLE:
-		resp = PTP_RESPONSE_INVALID_OBJ_HANDLE;
-		break;
-	case MTP_ERROR_INVALID_PARENT:
-		resp = PTP_RESPONSE_INVALIDPARENT;
-		break;
-	case MTP_ERROR_STORE_NOT_AVAILABLE:
-		resp = PTP_RESPONSE_STORENOTAVAILABLE;
-		break;
-	case MTP_ERROR_NONE:
-		resp = PTP_RESPONSE_OK;
-		break;
-	default:
-		resp = PTP_RESPONSE_GEN_ERROR;
-	}
-
-	if (resp == PTP_RESPONSE_OK)
-		_cmd_hdlr_send_response(hdlr, resp, 1, (mtp_uint32 *)&num_obj);
-	else
-		_cmd_hdlr_send_response_code(hdlr, resp);
 }
 
 static void __get_object_handles(mtp_handler_t *hdlr)
@@ -1271,9 +1228,6 @@ static void __print_command(mtp_uint16 code)
 		break;
 	case PTP_OPCODE_GETSTORAGEINFO:
 		DBG("COMMAND ======== GET STORAGE INFO ===========");
-		break;
-	case PTP_OPCODE_GETNUMOBJECTS:
-		DBG("COMMAND ======== GET NUM OBJECTS ===========");
 		break;
 	case PTP_OPCODE_GETOBJECTHANDLES:
 		DBG("COMMAND ======== GET OBJECT HANDLES ===========");
