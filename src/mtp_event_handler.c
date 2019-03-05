@@ -263,20 +263,6 @@ static mtp_bool __send_events_from_device_to_pc(mtp_dword store_id,
 	memset(&event, 0, sizeof(cmd_container_t));
 
 	switch (ptp_event) {
-	case PTP_EVENTCODE_STOREADDED:
-		DBG("case PTP_EVENTCODE_STOREADDED:");
-		DBG("store_id [0x%lu]\n", store_id);
-		_hdlr_init_event_container(&event, PTP_EVENTCODE_STOREADDED, 0,
-				store_id, 0);
-		break;
-
-	case PTP_EVENTCODE_STOREREMOVED:
-		DBG("case PTP_EVENTCODE_STOREREMOVED");
-		DBG("store_id [0x%lu]\n", store_id);
-		_hdlr_init_event_container(&event,
-				PTP_EVENTCODE_STOREREMOVED, 0, store_id, 0);
-		break;
-
 	case PTP_EVENTCODE_OBJECTADDED:
 		DBG("case PTP_EVENTCODE_OBJECTADDED");
 		DBG("param1 : [0x%x]\n", param1);
