@@ -346,41 +346,12 @@ mtp_err_t _util_wchar_swprintf(mtp_wchar *mtp_wstr, mtp_int32 size,
 mtp_uint16 _util_get_fmtcode(const mtp_char *extn)
 {
 	static fmt_code_t fmt_code_table[] = {
-		{"ALB", MTP_FMT_ABSTRACT_AUDIO_ALBUM},
-		{"MP3", PTP_FMT_MP3},
-		{"WMA", MTP_FMT_WMA},
-		{"WMV", MTP_FMT_WMV},
-		{"JPG", PTP_FMT_IMG_EXIF},
-		{"GIF", PTP_FMT_IMG_GIF},
-		{"BMP", PTP_FMT_IMG_BMP},
-		{"PNG", PTP_FMT_IMG_PNG},
-		{"ASF", PTP_FMT_ASF},
-		{"WAV", PTP_FMT_WAVE},
-		{"AVI", PTP_FMT_AVI},
-		{"MPG", PTP_FMT_MPEG},
-		{"TXT", PTP_FMT_TEXT},
-		{"3GP", MTP_FMT_3GP},
-		{"ODF", MTP_FMT_3GP},
-		{"O4A", MTP_FMT_3GP},
-		{"O4V", MTP_FMT_3GP},
-		{"MP4", MTP_FMT_MP4},
-		{"FLAC", MTP_FMT_FLAC},
 		{"", PTP_FMT_UNDEF}
 	};
 
 	fmt_code_t *p = NULL;
 	p = fmt_code_table;
 
-	while (p->fmt_code != PTP_FMT_UNDEF) {
-		if (!strncasecmp(extn, p->extn, strlen(p->extn)))
-			break;
-
-		p++;
-	}
-
-	/* will return FormatCode or PTP_FORMATCODE_UNDEFINED
-	 * if we hit end of list.
-	 */
 	return p->fmt_code;
 }
 

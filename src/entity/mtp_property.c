@@ -2692,46 +2692,6 @@ obj_prop_desc_t *_prop_get_obj_prop_desc(mtp_uint32 format_code,
 			return &(props_list_default[i]);
 	}
 
-	switch (format_code) {
-	/* LCOV_EXCL_START */
-	case PTP_FMT_MP3:
-	case PTP_FMT_WAVE:
-		for (i = 0; i < NUM_OBJECT_PROP_DESC_MP3; i++) {
-			if (props_list_mp3[i].propinfo.prop_code == propcode)
-				return &(props_list_mp3[i]);
-		}
-		break;
-	case MTP_FMT_WMA:
-		for (i = 0; i < NUM_OBJECT_PROP_DESC_WMA; i++) {
-			if (props_list_wma[i].propinfo.prop_code == propcode)
-				return &(props_list_wma[i]);
-		}
-		break;
-	case MTP_FMT_WMV:
-	case PTP_FMT_ASF:
-	case MTP_FMT_MP4:
-	case PTP_FMT_AVI:
-	case PTP_FMT_MPEG:
-	case MTP_FMT_3GP:
-		for (i = 0; i < NUM_OBJECT_PROP_DESC_WMV; i++) {
-			if (props_list_wmv[i].propinfo.prop_code == propcode)
-				return &(props_list_wmv[i]);
-		}
-		break;
-	case MTP_FMT_ABSTRACT_AUDIO_ALBUM:
-	case PTP_FMT_IMG_EXIF:
-	case PTP_FMT_IMG_GIF:
-	case PTP_FMT_IMG_BMP:
-	case PTP_FMT_IMG_PNG:
-		for (i = 0; i < NUM_OBJECT_PROP_DESC_ALBUM; i++) {
-			if (props_list_album[i].propinfo.prop_code == propcode)
-				return &(props_list_album[i]);
-		}
-		break;
-
-	default:
-		break;
-	}
 	/* LCOV_EXCL_STOP */
 
 	ERR("No matched property[0x%x], format[0x%x]!!\n", propcode,
@@ -3212,45 +3172,6 @@ mtp_uint32 _prop_get_supp_obj_props(mtp_uint32 format_code,
 				props_list_default[i].propinfo.prop_code);
 	}
 
-	switch (format_code) {
-	/* LCOV_EXCL_START */
-	case PTP_FMT_MP3:
-	case PTP_FMT_WAVE:
-		for (i = 0; i < NUM_OBJECT_PROP_DESC_MP3; i++) {
-			_prop_append_ele_ptparray(supp_props,
-					props_list_mp3[i].propinfo.prop_code);
-		}
-		break;
-	case MTP_FMT_WMA:
-		for (i = 0; i < NUM_OBJECT_PROP_DESC_WMA; i++) {
-			_prop_append_ele_ptparray(supp_props,
-					props_list_wma[i].propinfo.prop_code);
-		}
-		break;
-	case MTP_FMT_WMV:
-	case PTP_FMT_ASF:
-	case MTP_FMT_MP4:
-	case PTP_FMT_AVI:
-	case PTP_FMT_MPEG:
-	case MTP_FMT_3GP:
-		for (i = 0; i < NUM_OBJECT_PROP_DESC_WMV; i++) {
-			_prop_append_ele_ptparray(supp_props,
-					props_list_wmv[i].propinfo.prop_code);
-		}
-		break;
-	case MTP_FMT_ABSTRACT_AUDIO_ALBUM:
-	case PTP_FMT_IMG_EXIF:
-	case PTP_FMT_IMG_GIF:
-	case PTP_FMT_IMG_BMP:
-	case PTP_FMT_IMG_PNG:
-		for (i = 0; i < NUM_OBJECT_PROP_DESC_ALBUM; i++) {
-			_prop_append_ele_ptparray(supp_props,
-					props_list_album[i].propinfo.prop_code);
-		}
-		break;
-	default:
-		break;
-	}
 	/* LCOV_EXCL_STOP */
 	DBG("getsupp_props : format [0x%x], supported list [%d]\n",
 			format_code, supp_props->num_ele);
@@ -3294,7 +3215,7 @@ mtp_bool _prop_build_supp_props_default(void)
 			NONE,
 			MTP_PROP_GROUPCODE_GENERAL);
 
-	default_val = PTP_FMT_UNDEF;
+	default_val = PTP_FMT_ASSOCIATION;
 	_prop_set_default_integer(&(props_list_default[i].propinfo),
 			(mtp_uchar *)&default_val);
 	i++;

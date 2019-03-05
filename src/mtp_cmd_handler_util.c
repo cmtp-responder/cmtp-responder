@@ -2125,11 +2125,7 @@ mtp_err_t _hutil_get_playback_skip(mtp_int32 skip_param)
 	}
 
 	obj_info = obj->obj_info;
-	if ((obj_info->obj_fmt == PTP_FMT_WAVE) ||
-			(obj_info->obj_fmt == PTP_FMT_MP3) ||
-			(obj_info->obj_fmt == MTP_FMT_WMA) ||
-			(obj_info->obj_fmt == MTP_FMT_WMV) ||
-			(obj_info->obj_fmt == MTP_FMT_UNDEFINED_AUDIO)) {
+	if (obj_info->obj_fmt == MTP_FMT_UNDEFINED_AUDIO) {
 		par_obj = _device_get_object_with_handle(obj_info->h_parent);
 		if (!par_obj) {
 			ERR("parent not found in obj_list");
@@ -2157,8 +2153,7 @@ mtp_err_t _hutil_get_playback_skip(mtp_int32 skip_param)
 				_device_set_playback_obj(new_hobj);
 			}
 		}
-	} else if ((obj_info->obj_fmt == MTP_FMT_ABSTRACT_AUDIO_ALBUM) ||
-			(obj_info->obj_fmt == MTP_FMT_ABSTRACT_VIDEO_ALBUM)) {
+	} else if (obj_info->obj_fmt == MTP_FMT_ABSTRACT_VIDEO_ALBUM) {
 		dev_prop = _device_get_device_property(
 				MTP_PROPERTYCODE_PLAYBACK_CONT_INDEX);
 		if (dev_prop == NULL) {
