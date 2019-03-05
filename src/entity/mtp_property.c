@@ -2861,7 +2861,6 @@ mtp_bool _prop_update_property_values_list(mtp_obj_t *obj)
 	slist_node_t *node = NULL;
 	slist_node_t *next_node = NULL;
 	ptp_time_string_t create_tm, modify_tm;
-	mtp_uint32 fmt_code = obj->obj_info->obj_fmt;
 	mtp_wchar buf[MTP_MAX_PATHNAME_SIZE+1] = { 0 };
 	mtp_char file_name[MTP_MAX_FILENAME_SIZE + 1] = { 0 };
 	mtp_wchar w_file_name[MTP_MAX_FILENAME_SIZE + 1] = { 0 };
