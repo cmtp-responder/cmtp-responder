@@ -68,7 +68,6 @@ static void __send_object(mtp_handler_t *hdlr);
 static void __delete_object(mtp_handler_t *hdlr);
 static void __format_store(mtp_handler_t *hdlr);
 static void __reset_device(mtp_handler_t *hdlr);
-static void __get_device_prop_desc(mtp_handler_t *hdlr);
 static void __get_partial_object(mtp_handler_t *hdlr);
 static void __send_playback_skip(mtp_handler_t *hdlr);
 #ifndef PMP_VER
@@ -167,9 +166,6 @@ static void __process_commands(mtp_handler_t *hdlr, cmd_blk_t *cmd)
 		break;
 	case PTP_OPCODE_FORMATSTORE:
 		__format_store(hdlr);
-		break;
-	case PTP_OPCODE_GETDEVICEPROPDESC:
-		__get_device_prop_desc(hdlr);
 		break;
 	case PTP_OPCODE_GETPARTIALOBJECT:
 		__get_partial_object(hdlr);
@@ -1000,59 +996,6 @@ static void __reset_device(mtp_handler_t *hdlr)
 	_cmd_hdlr_send_response_code(hdlr, PTP_RESPONSE_OK);
 }
 
-static void __get_device_prop_desc(mtp_handler_t *hdlr)
-{
-	device_prop_desc_t dev_prop = { { 0 }, };
-	data_blk_t blk = { 0 };
-	mtp_uint32 prop_id = 0;
-	mtp_uint32 resp = 0;
-	mtp_uint32 num_bytes = 0;
-	mtp_uchar *ptr = NULL;
-
-	prop_id = _hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 0);
-	switch (prop_id) {
-
-	default:
-		ERR("Unknown PropId : [0x%x]\n", prop_id);
-		break;
-	}
-
-	if (_hutil_get_device_property(prop_id, &dev_prop) != MTP_ERROR_NONE) {
-		ERR("_hutil_get_device_property returned error");
-		resp = PTP_RESPONSE_PROP_NOTSUPPORTED;
-		_cmd_hdlr_send_response_code(hdlr, resp);
-		return;
-	}
-	num_bytes = _prop_size_device_prop_desc(&dev_prop);
-
-	_hdlr_init_data_container(&blk, hdlr->usb_cmd.code, hdlr->usb_cmd.tid);
-	ptr = _hdlr_alloc_buf_data_container(&blk, num_bytes, num_bytes);
-	if (ptr == NULL) {
-		resp = PTP_RESPONSE_GEN_ERROR;
-		_cmd_hdlr_send_response_code(hdlr, resp);
-		g_free(blk.data);
-		return;
-	}
-
-	if (_prop_pack_device_prop_desc(&dev_prop, ptr, num_bytes) != num_bytes) {
-		resp = PTP_RESPONSE_GEN_ERROR;
-		_cmd_hdlr_send_response_code(hdlr, resp);
-		g_free(blk.data);
-		return;
-	}
-
-	_device_set_phase(DEVICE_PHASE_DATAIN);
-	if (_hdlr_send_data_container(&blk))
-		_cmd_hdlr_send_response_code(hdlr, PTP_RESPONSE_OK);
-	else {
-		_device_set_phase(DEVICE_PHASE_NOTREADY);
-		_cmd_hdlr_send_response_code(hdlr, PTP_RESPONSE_GEN_ERROR);
-	}
-
-	g_free(blk.data);
-	return;
-}
-
 static void __get_partial_object(mtp_handler_t *hdlr)
 {
 	mtp_uint32 h_obj = 0;
@@ -1388,9 +1331,6 @@ static void __print_command(mtp_uint16 code)
 		break;
 	case PTP_OPCODE_POWERDOWN:
 		DBG("COMMAND ======== POWER DOWN ===========");
-		break;
-	case PTP_OPCODE_GETDEVICEPROPDESC:
-		DBG("COMMAND ======== GET DEVICE PROP DESC ===========");
 		break;
 	case PTP_OPCODE_TERMINATECAPTURE:
 		DBG("COMMAND ======== TERMINATE CAPTURE ===========");
