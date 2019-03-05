@@ -26,18 +26,6 @@ extern "C" {
 #include "mtp_datatype.h"
 #include "mtp_msgq.h"
 
-/* Start of driver related defines */
-#define MTP_DRIVER_PATH			"/dev/usb_mtp_gadget"
-
-/* FunctionFS endpoint paths  */
-#ifndef MTP_FFS_PATH
-#define MTP_FFS_PATH "/dev/usb-funcs/mtp/default"
-#endif
-#define MTP_EP0_PATH       MTP_FFS_PATH "/ep0"
-#define MTP_EP_IN_PATH     MTP_FFS_PATH "/ep1"
-#define MTP_EP_OUT_PATH    MTP_FFS_PATH "/ep2"
-#define MTP_EP_STATUS_PATH MTP_FFS_PATH "/ep3"
-
 /* These values come from f_mtp_slp.h of kernel source */
 #define MTP_IOCTL_LETTER		'Z'
 #define MTP_GET_HIGH_FULL_SPEED		_IOR(MTP_IOCTL_LETTER, 1, int)
@@ -78,7 +66,6 @@ extern const mtp_usb_driver_t mtp_usb_driver_ffs;
 /* Maximum repeat count for USB error recovery */
 #define MTP_USB_ERROR_MAX_RETRY		5
 
-mtp_bool _transport_select_driver(void);
 mtp_bool _transport_init_usb_device(void);
 void _transport_deinit_usb_device(void);
 void *_transport_thread_usb_write(void *arg);

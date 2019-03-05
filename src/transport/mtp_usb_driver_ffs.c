@@ -84,51 +84,6 @@ static mtp_bool __io_init()
 		return TRUE;
 	}
 
-	g_usb_ep0 = open(MTP_EP0_PATH, O_RDWR);
-	if (g_usb_ep0 < 0)
-		goto out;
-
-	DBG("Writing USB descriptors");
-	ret = write(g_usb_ep0, &descriptors, sizeof(descriptors));
-	if (ret < 0) {
-		ERR("Error writing descriptors");
-		goto cleanup;
-	}
-
-	DBG("Writing USB strings");
-	ret = write(g_usb_ep0, &strings, sizeof(strings));
-	if (ret < 0) {
-		ERR("Error writing strings");
-		goto cleanup;
-	}
-
-	g_usb_ep_in = open(MTP_EP_IN_PATH, O_RDWR);
-	if (g_usb_ep_in < 0) {
-		ERR("Error opening bulk-in");
-		goto cleanup;
-	}
-
-	g_usb_ep_out = open(MTP_EP_OUT_PATH, O_RDWR);
-	if (g_usb_ep_out < 0) {
-		ERR("Error opening bulk-out");
-		goto cleanup_in;
-	}
-
-	g_usb_ep_status = open(MTP_EP_STATUS_PATH, O_RDWR);
-	if (g_usb_ep_status < 0) {
-		ERR("Error opening status");
-		goto cleanup_out;
-	}
-
-	return TRUE;
-
-cleanup_out:
-	close(g_usb_ep_out);
-cleanup_in:
-	close(g_usb_ep_in);
-cleanup:
-	close(g_usb_ep0);
-out:
 	return FALSE;
 }
 
@@ -145,8 +100,8 @@ static mtp_bool ffs_transport_init_usb_device(void)
 	status = __io_init();
 	if (!status) {
 		char error[256];
-		ERR("Device node [%s] open failed, errno [%s]\n",
-		    MTP_EP0_PATH, strerror_r(errno, error, sizeof(error)));
+		ERR("Inheriting FunctionFS descriptors from systemd failed, errno [%s]\n",
+		    strerror_r(errno, error, sizeof(error)));
 		return FALSE;
 	}
 

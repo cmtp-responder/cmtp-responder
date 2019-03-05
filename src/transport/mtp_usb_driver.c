@@ -19,24 +19,12 @@
 #include <systemd/sd-daemon.h>
 #include "mtp_usb_driver.h"
 
-static const mtp_usb_driver_t *usb_driver;
+static const mtp_usb_driver_t *usb_driver = &mtp_usb_driver_ffs;
 
 /*
  * FUNCTIONS
  */
 /* LCOV_EXCL_START */
-mtp_bool _transport_select_driver(void)
-{
-	if (access(MTP_EP0_PATH, F_OK) == 0 || sd_listen_fds(0) >= 4) {
-		usb_driver = &mtp_usb_driver_ffs;
-		DBG("FFS driver selected");
-		return TRUE;
-	}
-
-	ERR("No suport for USB gadgets in kernel");
-	return FALSE;
-}
-
 mtp_bool _transport_init_usb_device(void)
 {
 	return usb_driver->transport_init_usb_device();

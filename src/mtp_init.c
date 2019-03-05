@@ -483,11 +483,6 @@ int main(int argc, char *argv[])
 {
 	mtp_int32 ret;
 
-	if (_transport_select_driver() == FALSE) {
-		ERR("_transport_select_driver fail");
-		return MTP_ERROR_GENERAL;
-	}
-
 	if (_eh_register_notification_callbacks() == FALSE) {
 		ERR("_eh_register_notification_callbacks() Fail");
 		return MTP_ERROR_GENERAL;
