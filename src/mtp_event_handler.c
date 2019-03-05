@@ -207,12 +207,6 @@ static mtp_bool __process_event_request(mtp_event_t *evt)
 				PTP_EVENTCODE_OBJECTREMOVED, evt->param1, 0);
 		break;
 
-	case EVENT_OBJECT_PROP_CHANGED:
-		__send_events_from_device_to_pc(0,
-				MTP_EVENTCODE_OBJECTPROPCHANGED, evt->param1,
-				evt->param2);
-		break;
-
 	case EVENT_CLOSE:
 		break;
 
@@ -275,14 +269,6 @@ static mtp_bool __send_events_from_device_to_pc(mtp_dword store_id,
 		DBG("param1 [0x%x]\n", param1);
 		_hdlr_init_event_container(&event, PTP_EVENTCODE_OBJECTREMOVED,
 				0, param1 , 0);
-		break;
-
-	case MTP_EVENTCODE_OBJECTPROPCHANGED:
-		DBG("case MTP_EVENTCODE_OBJECTPROPCHANGED");
-		DBG("param1 [0x%x]\n", param1);
-		DBG("param2 [0x%x]\n", param2);
-		_hdlr_init_event_container_with_param(&event,
-				MTP_EVENTCODE_OBJECTPROPCHANGED, 0, param1 , param2);
 		break;
 
 	default:
