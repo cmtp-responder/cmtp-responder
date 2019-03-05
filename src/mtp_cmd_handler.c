@@ -71,7 +71,6 @@ static void __reset_device(mtp_handler_t *hdlr);
 static void __get_device_prop_desc(mtp_handler_t *hdlr);
 static void __get_device_prop_value(mtp_handler_t *hdlr);
 static void __get_partial_object(mtp_handler_t *hdlr);
-static void __get_object_prop_desc(mtp_handler_t *hdlr);
 static void __get_object_prop_supported(mtp_handler_t *hdlr);
 static void __send_playback_skip(mtp_handler_t *hdlr);
 #ifndef PMP_VER
@@ -179,9 +178,6 @@ static void __process_commands(mtp_handler_t *hdlr, cmd_blk_t *cmd)
 		break;
 	case PTP_OPCODE_GETPARTIALOBJECT:
 		__get_partial_object(hdlr);
-		break;
-	case MTP_OPCODE_GETOBJECTPROPDESC:
-		__get_object_prop_desc(hdlr);
 		break;
 	case MTP_OPCODE_GETOBJECTPROPSUPPORTED:
 		__get_object_prop_supported(hdlr);
@@ -1174,51 +1170,6 @@ static void __get_partial_object(mtp_handler_t *hdlr)
 	return;
 }
 
-static void __get_object_prop_desc(mtp_handler_t *hdlr)
-{
-	mtp_uint32 prop_id = 0;
-	mtp_uint32 fmt = 0;
-	obj_prop_desc_t prop = { { 0 }, };
-	data_blk_t blk = { 0, };
-	mtp_uint32 num_bytes = 0;
-	mtp_uchar *ptr = NULL;
-
-	if (_hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 2)) {
-		_cmd_hdlr_send_response_code(hdlr,
-				PTP_RESPONSE_PARAM_NOTSUPPORTED);
-		return;
-	}
-
-	prop_id = _hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 0);
-	fmt = _hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 1);
-
-	if (MTP_ERROR_NONE != _hutil_get_prop_desc(fmt, prop_id, &prop)) {
-		_cmd_hdlr_send_response_code(hdlr,
-				PTP_RESPONSE_PROP_NOTSUPPORTED);
-		return;
-	}
-
-	_hdlr_init_data_container(&blk, hdlr->usb_cmd.code, hdlr->usb_cmd.tid);
-	num_bytes = _prop_size_obj_prop_desc(&prop);
-	ptr = _hdlr_alloc_buf_data_container(&blk, num_bytes, num_bytes);
-
-	if (num_bytes == _prop_pack_obj_prop_desc(&prop, ptr, num_bytes)) {
-		_device_set_phase(DEVICE_PHASE_DATAIN);
-		if (_hdlr_send_data_container(&blk)) {
-			_cmd_hdlr_send_response_code(hdlr, PTP_RESPONSE_OK);
-		} else {
-			/* Host Cancelled data-in transfer */
-			_device_set_phase(DEVICE_PHASE_NOTREADY);
-		}
-	} else {
-		_cmd_hdlr_send_response_code(hdlr,
-				PTP_RESPONSE_GEN_ERROR);
-	}
-
-	g_free(blk.data);
-	return;
-}
-
 static void __get_object_prop_supported(mtp_handler_t *hdlr)
 {
 	mtp_uint32 fmt = 0;
@@ -1547,9 +1498,6 @@ static void __print_command(mtp_uint16 code)
 		break;
 	case MTP_OPCODE_GETOBJECTPROPSUPPORTED:
 		DBG("COMMAND ======= GET OBJECT PROP SUPPORTED ========");
-		break;
-	case MTP_OPCODE_GETOBJECTPROPDESC:
-		DBG("COMMAND ======== GET OBJECT PROP DESC ==========");
 		break;
 	case MTP_OPCODE_GETINTERDEPPROPDESC:
 		DBG("COMMAND ======== GET INTERDEP PROP DESC ==========");
