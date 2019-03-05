@@ -150,7 +150,6 @@
 
 /* MTP extended operations */
 #define	MTP_OPCODE_UNDEFINED			0x9800
-#define	MTP_OPCODE_GETOBJECTPROPSUPPORTED	0x9801
 #define MTP_OPCODE_GETINTERDEPPROPDESC		0x9807
 
 /* MTP Playback control operation */
