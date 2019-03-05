@@ -62,8 +62,6 @@ typedef struct mtp_max_pkt_size {
 /* Transport driver interface */
 typedef struct mtp_usb_driver {
 	mtp_bool (*transport_init_usb_device)(void);
-	void *(*transport_thread_fake_usb_read)(void *arg);
-	void *(*transport_thread_fake_usb_write)(void *arg);
 	void (*transport_deinit_usb_device)(void);
 	void *(*transport_thread_usb_write)(void *arg);
 	void *(*transport_thread_usb_read)(void *arg);
