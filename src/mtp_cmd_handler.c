@@ -74,7 +74,6 @@ static void __get_partial_object(mtp_handler_t *hdlr);
 static void __get_object_references(mtp_handler_t *hdlr);
 static void __get_object_prop_desc(mtp_handler_t *hdlr);
 static void __get_object_prop_supported(mtp_handler_t *hdlr);
-static void __get_object_prop_value(mtp_handler_t *hdlr);
 static void __send_playback_skip(mtp_handler_t *hdlr);
 #ifndef PMP_VER
 #ifdef MTP_SUPPORT_SET_PROTECTION
@@ -190,9 +189,6 @@ static void __process_commands(mtp_handler_t *hdlr, cmd_blk_t *cmd)
 		break;
 	case MTP_OPCODE_GETOBJECTPROPSUPPORTED:
 		__get_object_prop_supported(hdlr);
-		break;
-	case MTP_OPCODE_GETOBJECTPROPVALUE:
-		__get_object_prop_value(hdlr);
 		break;
 #ifndef PMP_VER
 	case PTP_OPCODE_RESETDEVICE:
@@ -1340,84 +1336,6 @@ static void __get_object_prop_supported(mtp_handler_t *hdlr)
 	return;
 }
 
-static void __get_object_prop_value(mtp_handler_t *hdlr)
-{
-	mtp_uint32 h_obj = 0;
-	mtp_uint32 prop_id = 0;
-	mtp_uchar *ptr = NULL;
-	mtp_uint32 num_bytes = 0;
-	data_blk_t blk = { 0 };
-	obj_prop_val_t prop_val = { 0 };
-	mtp_err_t ret = 0;
-	mtp_obj_t *obj = NULL;
-#ifdef MTP_USE_RUNTIME_GETOBJECTPROPVALUE
-	slist_node_t *node = NULL;
-	slist_node_t *next_node = NULL;
-	mtp_uint32 ii = 0;
-#endif /*MTP_USE_RUNTIME_GETOBJECTPROPVALUE*/
-
-	if (_hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 2)) {
-		_cmd_hdlr_send_response_code(hdlr,
-				PTP_RESPONSE_PARAM_NOTSUPPORTED);
-		return;
-	}
-
-	h_obj = _hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 0);
-	prop_id = _hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 1);
-	ret = _hutil_get_object_prop_value(h_obj, prop_id, &prop_val, &obj);
-
-	if (MTP_ERROR_NONE == ret) {
-		num_bytes = _prop_size_obj_propval(&prop_val);
-		_hdlr_init_data_container(&blk, hdlr->usb_cmd.code,
-				hdlr->usb_cmd.tid);
-		ptr = _hdlr_alloc_buf_data_container(&blk, num_bytes,
-				num_bytes);
-		if (num_bytes ==
-				_prop_pack_obj_propval(&prop_val, ptr, num_bytes)) {
-
-			_device_set_phase(DEVICE_PHASE_DATAIN);
-			if (_hdlr_send_data_container(&blk)) {
-				_cmd_hdlr_send_response_code(hdlr,
-						PTP_RESPONSE_OK);
-			} else {
-				/* Host Cancelled data-in transfer */
-				_device_set_phase(DEVICE_PHASE_NOTREADY);
-			}
-		} else {
-			_cmd_hdlr_send_response_code(hdlr,
-					PTP_RESPONSE_GEN_ERROR);
-		}
-
-		g_free(blk.data);
-
-	} else if (ret == MTP_ERROR_INVALID_OBJECTHANDLE) {
-		_cmd_hdlr_send_response_code(hdlr,
-				PTP_RESPONSE_INVALID_OBJ_HANDLE);
-	} else {
-		_cmd_hdlr_send_response_code(hdlr, PTP_RESPONSE_GEN_ERROR);
-	}
-
-#ifdef MTP_USE_RUNTIME_GETOBJECTPROPVALUE
-	if (NULL == obj) {
-		ERR("Invalid object");
-		return;
-	}
-
-	for (ii = 0, next_node = obj->propval_list.start;
-			ii < obj->propval_list.nnodes; ii++) {
-		node = next_node;
-		next_node = node->link;
-		_prop_destroy_obj_propval((obj_prop_val_t *)node->value);
-		g_free(node);
-	}
-	obj->propval_list.start = NULL;
-	obj->propval_list.end = NULL;
-	obj->propval_list.nnodes = 0;
-#endif /*MTP_USE_RUNTIME_GETOBJECTPROPVALUE*/
-
-	return;
-}
-
 static void __send_playback_skip(mtp_handler_t *hdlr)
 {
 	mtp_int32 skip = 0;
@@ -1701,9 +1619,6 @@ static void __print_command(mtp_uint16 code)
 		break;
 	case MTP_OPCODE_GETOBJECTPROPDESC:
 		DBG("COMMAND ======== GET OBJECT PROP DESC ==========");
-		break;
-	case MTP_OPCODE_GETOBJECTPROPVALUE:
-		DBG("COMMAND ======== GET OBJECT PROP VALUE ==========");
 		break;
 	case MTP_OPCODE_GETINTERDEPPROPDESC:
 		DBG("COMMAND ======== GET INTERDEP PROP DESC ==========");
