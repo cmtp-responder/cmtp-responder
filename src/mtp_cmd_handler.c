@@ -71,7 +71,6 @@ static void __reset_device(mtp_handler_t *hdlr);
 static void __get_device_prop_desc(mtp_handler_t *hdlr);
 static void __get_device_prop_value(mtp_handler_t *hdlr);
 static void __get_partial_object(mtp_handler_t *hdlr);
-static void __get_object_references(mtp_handler_t *hdlr);
 static void __get_object_prop_desc(mtp_handler_t *hdlr);
 static void __get_object_prop_supported(mtp_handler_t *hdlr);
 static void __send_playback_skip(mtp_handler_t *hdlr);
@@ -180,9 +179,6 @@ static void __process_commands(mtp_handler_t *hdlr, cmd_blk_t *cmd)
 		break;
 	case PTP_OPCODE_GETPARTIALOBJECT:
 		__get_partial_object(hdlr);
-		break;
-	case MTP_OPCODE_GETOBJECTREFERENCES:
-		__get_object_references(hdlr);
 		break;
 	case MTP_OPCODE_GETOBJECTPROPDESC:
 		__get_object_prop_desc(hdlr);
@@ -1178,70 +1174,6 @@ static void __get_partial_object(mtp_handler_t *hdlr)
 	return;
 }
 
-static void __get_object_references(mtp_handler_t *hdlr)
-{
-	mtp_uint32 h_obj = 0;
-	ptp_array_t ref_arr = { 0 };
-	data_blk_t blk = { 0 };
-	mtp_uint32 num_bytes = 0;
-	mtp_uchar *ptr = NULL;
-	mtp_uint32 num_ele = 0;
-	mtp_uint16 resp = 0;
-
-	if (_hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 1) ||
-			_hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 2)) {
-
-		ERR("Unsupported Parameters");
-		_cmd_hdlr_send_response_code(hdlr,
-				PTP_RESPONSE_PARAM_NOTSUPPORTED);
-		return;
-	}
-
-	h_obj = _hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 0);
-
-	switch (_hutil_get_object_references(h_obj, &ref_arr, &num_ele)) {
-	case MTP_ERROR_INVALID_OBJECTHANDLE:
-		resp = PTP_RESPONSE_INVALID_OBJ_HANDLE;
-		break;
-	case MTP_ERROR_NONE:
-		resp = PTP_RESPONSE_OK;
-		break;
-	default:
-		resp = PTP_RESPONSE_GEN_ERROR;
-	}
-
-	if (resp != PTP_RESPONSE_OK) {
-		_cmd_hdlr_send_response_code(hdlr, resp);
-		return;
-	}
-
-	if (resp == PTP_RESPONSE_OK && num_ele == 0) {
-		_cmd_hdlr_send_response_code(hdlr, resp);
-		return;
-	}
-
-	num_bytes = _prop_get_size_ptparray(&ref_arr);
-	_hdlr_init_data_container(&blk, hdlr->usb_cmd.code, hdlr->usb_cmd.tid);
-
-	ptr = _hdlr_alloc_buf_data_container(&blk, num_bytes, num_bytes);
-	if (num_bytes == _prop_pack_ptparray(&ref_arr, ptr, num_bytes)) {
-		_device_set_phase(DEVICE_PHASE_DATAIN);
-		if (_hdlr_send_data_container(&blk)) {
-			_cmd_hdlr_send_response_code(hdlr, PTP_RESPONSE_OK);
-		} else {
-			/* Host Cancelled data-in transfer*/
-			_device_set_phase(DEVICE_PHASE_NOTREADY);
-		}
-	} else {
-		_cmd_hdlr_send_response_code(hdlr, PTP_RESPONSE_GEN_ERROR);
-	}
-
-	_prop_deinit_ptparray(&ref_arr);
-	g_free(blk.data);
-
-	return;
-}
-
 static void __get_object_prop_desc(mtp_handler_t *hdlr)
 {
 	mtp_uint32 prop_id = 0;
@@ -1621,9 +1553,6 @@ static void __print_command(mtp_uint16 code)
 		break;
 	case MTP_OPCODE_GETINTERDEPPROPDESC:
 		DBG("COMMAND ======== GET INTERDEP PROP DESC ==========");
-		break;
-	case MTP_OPCODE_GETOBJECTREFERENCES:
-		DBG("COMMAND ======== GET OBJECT REFERENCES ==========");
 		break;
 	case MTP_OPCODE_PLAYBACK_SKIP:
 		DBG("COMMAND ======== PLAYBACK SKIP ==========");
