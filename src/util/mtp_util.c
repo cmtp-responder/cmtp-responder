@@ -164,14 +164,3 @@ int _util_wait_for_user()
 	return 0;
 }
 /* LCOV_EXCL_STOP */
-
-/* LCOV_EXCL_START */
-mtp_bool _util_media_content_connect()
-{
-	return TRUE;
-}
-
-void _util_media_content_disconnect()
-{
-}
-/* LCOV_EXCL_STOP */

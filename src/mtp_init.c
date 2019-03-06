@@ -469,7 +469,6 @@ int main(int argc, char *argv[])
 	ret = _main_init();
 	if (MTP_ERROR_NONE != ret) {
 		ERR("_main_init() Fail(%d)", ret);
-		_util_media_content_disconnect();
 		return MTP_ERROR_GENERAL;
 	}
 	DBG("MTP UID = [%u] and GID = [%u]\n", getuid(), getgid());

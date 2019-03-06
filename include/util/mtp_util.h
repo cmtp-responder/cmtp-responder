@@ -141,8 +141,6 @@ void _util_set_local_usb_status(const phone_status_t val);
 phone_status_t _util_get_local_usbmode_status(void);
 void _util_set_local_usbmode_status(const phone_status_t val);
 void _util_get_external_path(char *external_path);
-mtp_bool _util_media_content_connect();
-void _util_media_content_disconnect();
 
 #ifdef __cplusplus
 }
