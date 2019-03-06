@@ -69,13 +69,11 @@ typedef struct {
 } missing_child_data_t;
 
 typedef enum {
-	MTP_INTERNAL_STORE_ID = 0x10001,
 	MTP_EXTERNAL_STORE_ID = 0x20001
 } mtp_store_id_t;
 
 typedef enum {
 	MTP_ADDREM_AUTO,
-	MTP_ADDREM_INTERNAL,
 	MTP_ADDREM_EXTERNAL,
 	MTP_ADDREM_ALL
 } add_rem_store_t;

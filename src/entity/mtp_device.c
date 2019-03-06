@@ -184,7 +184,7 @@ void _init_mtp_device(void)
 	g_device.phase = DEVICE_PHASE_IDLE;
 	g_device.num_stores = 0;
 	g_device.store_list = g_store_list;
-	g_device.default_store_id = MTP_INTERNAL_STORE_ID;
+	g_device.default_store_id = MTP_EXTERNAL_STORE_ID;
 	g_device.default_hparent = PTP_OBJECTHANDLE_ROOT;
 
 	_prop_build_supp_props_mp3();
@@ -386,11 +386,6 @@ static mtp_bool __add_store_to_device(store_type_t store_type)
 	char sto_path[MTP_MAX_PATHNAME_SIZE + 1] = { 0 };
 
 	switch (store_type) {
-	case MTP_STORAGE_INTERNAL:
-		_util_get_internal_path(sto_path);
-		storage_path = (mtp_char *)sto_path;
-		store_id = MTP_INTERNAL_STORE_ID;
-		break;
 	case MTP_STORAGE_EXTERNAL:
 		_util_get_external_path(sto_path);
 		storage_path = (mtp_char *)sto_path;
@@ -447,9 +442,6 @@ static mtp_bool __remove_store_from_device(store_type_t store_type)
 	mtp_uint32 store_id = 0;
 
 	switch (store_type) {
-	case MTP_STORAGE_INTERNAL:
-		store_id = MTP_INTERNAL_STORE_ID;
-		break;
 	case MTP_STORAGE_EXTERNAL:
 		store_id = MTP_EXTERNAL_STORE_ID;
 		break;
@@ -472,7 +464,7 @@ static mtp_bool __remove_store_from_device(store_type_t store_type)
 
 mtp_bool _device_is_store_mounted(mtp_int32 store_type)
 {
-	if (store_type < MTP_STORAGE_INTERNAL ||
+	if (store_type < MTP_STORAGE_EXTERNAL ||
 			store_type >= MTP_STORAGE_ALL) {
 		ERR("unknown storage(%d)\n", store_type);
 		return FALSE;
@@ -491,30 +483,12 @@ mtp_bool _device_install_storage(mtp_int32 type)
 	switch (type) {
 	case MTP_ADDREM_AUTO:
 		DBG(" case MTP_ADDREM_AUTO:");
-
-		{
-			/* LCOV_EXCL_START */
-			int_status = _device_is_store_mounted(MTP_STORAGE_INTERNAL);
-			if (int_status == FALSE)
-				__add_store_to_device(MTP_STORAGE_INTERNAL);
-			/* LCOV_EXCL_STOP */
-		}
-
-		{
-
-			/* LCOV_EXCL_START */
-			ext_status =
-				_device_is_store_mounted(MTP_STORAGE_EXTERNAL);
-			if (ext_status == FALSE)
-				__add_store_to_device(MTP_STORAGE_EXTERNAL);
-			/* LCOV_EXCL_STOP */
-		}
-		break;
-
-	case MTP_ADDREM_INTERNAL:
-		DBG("case MTP_ADDREM_INTERNAL:");
-		if (FALSE == _device_is_store_mounted(MTP_STORAGE_INTERNAL))
-			__add_store_to_device(MTP_STORAGE_INTERNAL);
+		/* LCOV_EXCL_START */
+		ext_status =
+			_device_is_store_mounted(MTP_STORAGE_EXTERNAL);
+		if (ext_status == FALSE)
+			__add_store_to_device(MTP_STORAGE_EXTERNAL);
+		/* LCOV_EXCL_STOP */
 		break;
 
 	case MTP_ADDREM_EXTERNAL:
@@ -532,7 +506,6 @@ mtp_bool _device_install_storage(mtp_int32 type)
 
 	case MTP_ADDREM_ALL:
 		DBG(" case MTP_ADDREM_ALL:");
-		__add_store_to_device(MTP_STORAGE_INTERNAL);
 		__add_store_to_device(MTP_STORAGE_EXTERNAL);
 		break;
 
@@ -551,19 +524,12 @@ mtp_bool _device_uninstall_storage(mtp_int32 type)
 	case MTP_ADDREM_AUTO:
 		if (TRUE == _device_is_store_mounted(MTP_STORAGE_EXTERNAL))
 			__remove_store_from_device(MTP_STORAGE_EXTERNAL);
-		if (TRUE == _device_is_store_mounted(MTP_STORAGE_INTERNAL))
-			__remove_store_from_device(MTP_STORAGE_INTERNAL);
-		break;
-	case MTP_ADDREM_INTERNAL:
-		if (TRUE == _device_is_store_mounted(MTP_STORAGE_INTERNAL))
-			__remove_store_from_device(MTP_STORAGE_INTERNAL);
 		break;
 	case MTP_ADDREM_EXTERNAL:
 		if (TRUE == _device_is_store_mounted(MTP_STORAGE_EXTERNAL))
 			__remove_store_from_device(MTP_STORAGE_EXTERNAL);
 		break;
 	case MTP_ADDREM_ALL:
-		__remove_store_from_device(MTP_STORAGE_INTERNAL);
 		__remove_store_from_device(MTP_STORAGE_EXTERNAL);
 		break;
 	default:

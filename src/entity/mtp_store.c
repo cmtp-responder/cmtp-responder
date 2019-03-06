@@ -95,11 +95,6 @@ mtp_bool _entity_get_store_path_by_id(mtp_uint32 store_id, mtp_char *path)
 	char sto_path[MTP_MAX_PATHNAME_SIZE + 1] = { 0 };
 
 	switch (store_id) {
-	case MTP_INTERNAL_STORE_ID:
-		_util_get_internal_path(sto_path);
-		g_strlcpy(path, sto_path,
-				MTP_MAX_PATHNAME_SIZE + 1);
-		break;
 	case MTP_EXTERNAL_STORE_ID:
 		_util_get_external_path(sto_path);
 		g_strlcpy(path, sto_path,
@@ -181,17 +176,12 @@ mtp_uint32 _entity_get_store_id_by_path(const mtp_char *path_name)
 {
 	mtp_uint32 store_id = 0;
 	char ext_path[MTP_MAX_PATHNAME_SIZE + 1] = { 0 };
-	char inter_path[MTP_MAX_PATHNAME_SIZE + 1] = { 0 };
 
 	retv_if(NULL == path_name, FALSE);
 
 	_util_get_external_path(ext_path);
-	_util_get_internal_path(inter_path);
 
-	if (!strncmp(path_name, inter_path,
-				strlen(inter_path))) {
-		store_id = MTP_INTERNAL_STORE_ID;
-	} else if (!strncmp(path_name, ext_path,
+	if (!strncmp(path_name, ext_path,
 				strlen(ext_path))) {
 		store_id = MTP_EXTERNAL_STORE_ID;
 	}
@@ -225,23 +215,6 @@ mtp_bool _entity_init_mtp_store(mtp_store_t *store, mtp_uint32 store_id,
 	_util_utf8_to_utf16(wserial, sizeof(wserial) / WCHAR_SIZ, serial);
 
 	switch (store_id) {
-	case MTP_INTERNAL_STORE_ID:
-		store->is_hidden = FALSE;
-
-		storage_desc = g_strdup(STORAGE_DESC);
-
-		_util_utf8_to_utf16(wtemp, sizeof(wtemp) / WCHAR_SIZ,
-				storage_desc);
-		__init_store_info_params(&(store->store_info),
-				store->store_info.capacity, PTP_STORAGETYPE_FIXEDRAM,
-				PTP_FILESYSTEMTYPE_HIERARCHICAL, PTP_STORAGEACCESS_RWD,
-				wtemp, wserial);
-
-		if (storage_desc != NULL)
-			g_free(storage_desc);
-
-		break;
-
 	case MTP_EXTERNAL_STORE_ID:
 	/* LCOV_EXCL_START */
 		store->is_hidden = FALSE;
@@ -1220,23 +1193,6 @@ void _entity_list_modified_files(mtp_uint32 minutes)
 	mtp_int32 ret;
 	mtp_char command[FIND_CMD_LEN] = { 0 };
 
-	if (TRUE == _device_is_store_mounted(MTP_STORAGE_INTERNAL)) {
-		char inter_path[MTP_MAX_PATHNAME_SIZE + 1] = { 0 };
-		_util_get_internal_path(inter_path);
-
-		g_snprintf(command, FIND_CMD_LEN, FIND_CMD,
-				inter_path, minutes,
-				MTP_FILES_MODIFIED_FILES);
-		DBG("find query is [%s]\n", command);
-		ret = _util_system_cmd_wait(command);
-
-		if (WIFSIGNALED(ret) &&
-				(WTERMSIG(ret) == SIGINT ||
-				 WTERMSIG(ret) == SIGQUIT)) {
-			ERR("SYSTEM Fail");
-			return;
-		}
-	}
 	if (TRUE == _device_is_store_mounted(MTP_STORAGE_EXTERNAL)) {
 		char ext_path[MTP_MAX_PATHNAME_SIZE + 1] = { 0 };
 		_util_get_external_path(ext_path);

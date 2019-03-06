@@ -165,34 +165,6 @@ int _util_wait_for_user()
 }
 /* LCOV_EXCL_STOP */
 
-void _util_get_internal_path(char *internal_path)
-{
-	struct passwd *pwd;
-	uid_t active_user = ACTIVE_USER;
-	char *active_name = NULL;
-
-	pwd = getpwuid(active_user);
-	active_name = pwd->pw_name;
-
-	if (active_name == NULL) {
-		/* LCOV_EXCL_START */
-		ERR("active_name is NULL");
-		strncpy(internal_path, MTP_USER_DIRECTORY, sizeof(MTP_USER_DIRECTORY));
-		internal_path[sizeof(MTP_USER_DIRECTORY) - 1] = 0;
-		return;
-		/* LCOV_EXCL_STOP */
-	}
-
-	if (internal_path != NULL) {
-		strncpy(internal_path, MTP_INTERNAL_PATH_CHAR, sizeof(MTP_INTERNAL_PATH_CHAR));
-		strncat(internal_path, active_name, strlen(active_name) + 1);
-		strncat(internal_path, "/media", 7);
-		internal_path[strlen(internal_path)] = 0;
-	}
-
-	ERR("internal path is %s", internal_path);
-}
-
 /* LCOV_EXCL_START */
 mtp_bool _util_media_content_connect()
 {

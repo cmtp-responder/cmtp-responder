@@ -46,8 +46,6 @@
 /*
  * Transport related configuration
  */
-/* Internal Storage */
-#define MTP_INTERNAL_PATH_CHAR		"/home/user/"
 
 /* External Storage */
 #define MTP_EXTERNAL_PATH_CHAR		"/media/card"

@@ -117,28 +117,6 @@ void _mtp_init(add_rem_store_t sel)
 		}
 	}
 
-	/* Internal Storage */
-	{
-		mtp_int32 ret;
-		/* LCOV_EXCL_START */
-		char inter_path[MTP_MAX_PATHNAME_SIZE + 1] = { 0 };
-
-		ret = _util_media_content_connect();
-		if (FALSE == ret) {
-			ERR("media_content_connect() Fail");
-			goto MTP_INIT_FAIL;
-		}
-
-		_util_get_internal_path(inter_path);
-		if (access(inter_path, F_OK) < 0) {
-			if (FALSE == _util_dir_create((const mtp_char *)inter_path, &error)) {
-				ERR("Cannot make directory!! [%s]\n",
-						inter_path);
-				goto MTP_INIT_FAIL;
-			}
-		}
-		/* LCOV_EXCL_STOP */
-	}
 	/* External Storage */
 	{
 	/* LCOV_EXCL_START */

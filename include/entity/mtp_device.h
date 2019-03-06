@@ -40,8 +40,7 @@ extern "C" {
 
 /* This enumeration specifies the type of store. */
 typedef enum {
-	MTP_STORAGE_INTERNAL = 0,
-	MTP_STORAGE_EXTERNAL,
+	MTP_STORAGE_EXTERNAL = 0,
 	MTP_STORAGE_ALL
 } store_type_t;
 
@@ -144,14 +143,14 @@ mtp_bool _device_is_store_mounted(mtp_int32 store_type);
 /*
  * mtp_bool _device_install_storage(mtp_int32 type)
  * This function add the storage.
- * @param[in]	type	Specifies the Storage : AUTO, INTERNAL, EXTERNAL, ALL
+ * @param[in]	type	Specifies the Storage : AUTO, EXTERNAL, ALL
  * @return	If success, returns TRUE. Otherwise returns FALSE.
  */
 mtp_bool _device_install_storage(mtp_int32 type);
 
 /* mtp_bool _device_uninstall_storage(mtp_int32 type)
  * This function removes the storage.
- * @param[in]	type	Specifies the Storage : AUTO, INTERNAL, EXTERNAL, ALL
+ * @param[in]	type	Specifies the Storage : AUTO, EXTERNAL, ALL
  * @return	If success, returns TRUE. Otherwise returns FALSE.
  */
 mtp_bool _device_uninstall_storage(mtp_int32 type);

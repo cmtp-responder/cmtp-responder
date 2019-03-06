@@ -443,31 +443,24 @@ mtp_bool _util_is_path_len_valid(const mtp_char *path)
 
 	static mtp_uint32 max_store_len = 0;
 	static mtp_bool is_initialized = FALSE;
-	static mtp_uint32 internal_store_len = 0;
 	static mtp_uint32 external_store_len = 0;
 
 	char ext_path[MTP_MAX_PATHNAME_SIZE + 1] = { 0 };
-	char inter_path[MTP_MAX_PATHNAME_SIZE + 1] = { 0 };
 
 	retv_if(path == NULL, FALSE);
 
 	_util_get_external_path(ext_path);
-	_util_get_internal_path(inter_path);
 
 	if (!is_initialized) {
 		is_initialized = TRUE;
-		internal_store_len = strlen(inter_path);
 		external_store_len = strlen(ext_path);
 
-		max_store_len = internal_store_len > external_store_len ?
-			internal_store_len : external_store_len;
+		max_store_len = external_store_len;
 
 		DBG("max store len : [%u]\n", max_store_len);
 	}
 
-	if (!strncmp(path, inter_path, internal_store_len)) {
-		root_path_len = internal_store_len;
-	} else if (!strncmp(path, ext_path, external_store_len)) {
+	if (!strncmp(path, ext_path, external_store_len)) {
 		root_path_len = external_store_len;
 	} else {
 		ERR("Unknown store's path : %s\n", path);
