@@ -1996,43 +1996,6 @@ mtp_uint32 _prop_pack_obj_prop_desc(obj_prop_desc_t *prop, mtp_uchar *buf,
 
 	return (mtp_uint32)(temp - buf);
 }
-
-mtp_uint32 _prop_pack_default_val_obj_prop_desc(obj_prop_desc_t *prop,
-		mtp_uchar *buf, mtp_uint32 size)
-{
-	mtp_uint32 bytes_to_write;
-
-	bytes_to_write = __get_size_default_val_obj_prop_desc(prop);
-
-	if ((!bytes_to_write) || (buf == NULL) || (size < bytes_to_write))
-		return 0;
-
-	if (prop->propinfo.data_type == PTP_DATATYPE_STRING) {
-		if (bytes_to_write !=
-				_prop_pack_ptpstring(prop->propinfo.default_val.str,
-					buf, bytes_to_write)) {
-			return 0;
-		}
-	} else if ((prop->propinfo.data_type & PTP_DATATYPE_ARRAYMASK) ==
-			PTP_DATATYPE_ARRAY) {
-		if (bytes_to_write !=
-				_prop_pack_ptparray(prop->propinfo.default_val.array,
-					buf, bytes_to_write)) {
-			return 0;
-		}
-	} else if ((prop->propinfo.data_type & PTP_DATATYPE_VALUEMASK) ==
-			PTP_DATATYPE_VALUE) {
-		/* this property is of type UINT8, ... */
-		memcpy(buf, prop->propinfo.default_val.integer, bytes_to_write);
-#ifdef __BIG_ENDIAN__
-		_util_conv_byte_order(buf, bytes_to_write);
-#endif /* __BIG_ENDIAN__ */
-	} else {
-		return 0;
-	}
-
-	return bytes_to_write;
-}
 /* LCOV_EXCL_STOP */
 
 obj_prop_desc_t *_prop_get_obj_prop_desc(mtp_uint32 format_code,

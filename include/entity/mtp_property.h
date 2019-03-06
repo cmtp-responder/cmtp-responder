@@ -251,8 +251,6 @@ mtp_bool _prop_set_regexp(obj_prop_desc_t *prop, mtp_wchar *regex);
 mtp_uint32 _prop_size_obj_prop_desc(obj_prop_desc_t *prop);
 mtp_uint32 _prop_pack_obj_prop_desc(obj_prop_desc_t *prop, mtp_uchar *buf,
 		mtp_uint32 size);
-mtp_uint32 _prop_pack_default_val_obj_prop_desc(obj_prop_desc_t *prop,
-		mtp_uchar *buf, mtp_uint32 size);
 obj_prop_desc_t *_prop_get_obj_prop_desc(mtp_uint32 format_code,
 		mtp_uint32 prop_code);
 
