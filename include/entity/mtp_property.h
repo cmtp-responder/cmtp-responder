@@ -272,7 +272,6 @@ mtp_bool _prop_build_supp_props_wma(void);
 mtp_bool _prop_build_supp_props_wmv(void);
 mtp_bool _prop_build_supp_props_album(void);
 mtp_bool _prop_build_supp_props_default(void);
-void _prop_destroy_supp_obj_props(void);
 
 /*
  *Interdependent Prop Functions

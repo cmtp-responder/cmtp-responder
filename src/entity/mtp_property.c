@@ -3317,34 +3317,6 @@ mtp_bool _prop_build_supp_props_album(void)
 }
 
 /* LCOV_EXCL_ST */
-void _prop_destroy_supp_obj_props(void)
-{
-	mtp_uint32 i = 0;
-	int num_default_obj_prps = 0;
-
-	for (i = 0; i < NUM_OBJECT_PROP_DESC_MP3; i++)
-		__destroy_obj_prop_desc(&(props_list_mp3[i]));
-
-	for (i = 0; i < NUM_OBJECT_PROP_DESC_WMA; i++)
-		__destroy_obj_prop_desc(&(props_list_wma[i]));
-
-	for (i = 0; i < NUM_OBJECT_PROP_DESC_WMV; i++)
-		__destroy_obj_prop_desc(&(props_list_wmv[i]));
-
-	for (i = 0; i < NUM_OBJECT_PROP_DESC_ALBUM; i++)
-		__destroy_obj_prop_desc(&(props_list_album[i]));
-
-	if (_get_oma_drm_status() == TRUE)
-		num_default_obj_prps = NUM_OBJECT_PROP_DESC_DEFAULT;
-	else
-		num_default_obj_prps = NUM_OBJECT_PROP_DESC_DEFAULT - 1;
-
-	for (i = 0; i < num_default_obj_prps; i++)
-		__destroy_obj_prop_desc(&(props_list_default[i]));
-
-	return;
-}
-
 mtp_uint32 _prop_get_size_interdep_prop(interdep_prop_config_t *prop_config)
 {
 	obj_prop_desc_t *prop = NULL;
