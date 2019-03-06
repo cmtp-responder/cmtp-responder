@@ -26,7 +26,6 @@
 #include "mtp_init.h"
 #include "mtp_usb_driver.h"
 #include "mtp_transport.h"
-#include "mtp_media_info.h"
 
 /*
  * GLOBAL AND EXTERN VARIABLES
@@ -193,7 +192,6 @@ static mtp_bool __process_event_request(mtp_event_t *evt)
 		break;
 
 	case EVENT_USB_REMOVED:
-		_util_flush_db();
 		_eh_handle_usb_events(USB_REMOVED);
 		break;
 

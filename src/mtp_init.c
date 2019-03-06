@@ -31,7 +31,6 @@
 #include "mtp_inoti_handler.h"
 #include "mtp_transport.h"
 #include "mtp_util.h"
-#include "mtp_media_info.h"
 #include "mtp_usb_driver.h"
 
 /*

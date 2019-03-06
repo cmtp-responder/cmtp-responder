@@ -22,7 +22,6 @@
 #include "mtp_util.h"
 #include "mtp_support.h"
 #include "mtp_device.h"
-#include "mtp_media_info.h"
 #include "mtp_transport.h"
 #include "mtp_inoti_handler.h"
 

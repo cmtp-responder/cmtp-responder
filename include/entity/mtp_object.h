@@ -24,7 +24,6 @@ extern "C" {
 #include "mtp_list.h"
 #include "ptp_datacodes.h"
 #include "mtp_fs.h"
-#include "mtp_media_info.h"
 
 #define FIXED_LENGTH_MEMBERS_SIZE \
 	(4 * sizeof(mtp_uint16) + 11 * sizeof(mtp_uint32))

@@ -26,7 +26,6 @@
 #include <glib/gprintf.h>
 #include "mtp_support.h"
 #include "ptp_datacodes.h"
-#include "mtp_media_info.h"
 #include "mtp_usb_driver.h"
 #include "mtp_cmd_handler.h"
 #include "mtp_cmd_handler_util.h"

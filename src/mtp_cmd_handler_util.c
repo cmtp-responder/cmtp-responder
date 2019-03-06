@@ -21,7 +21,6 @@
 #include "mtp_cmd_handler.h"
 #include "mtp_cmd_handler_util.h"
 #include "mtp_support.h"
-#include "mtp_media_info.h"
 #include "mtp_transport.h"
 
 /*
