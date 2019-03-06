@@ -344,16 +344,6 @@ mtp_uint32 _prop_get_size_ptparray(ptp_array_t *parray)
 	return (sizeof(mtp_uint32) + (size *parray->num_ele));
 }
 
-mtp_uint32 _prop_get_size_ptparray_without_elemsize(ptp_array_t *parray)
-{
-	mtp_uint16 size = 0;
-
-	size = __get_ptp_array_elem_size(parray->type);
-	if (size == 0)
-		return 0;
-
-	return (size * parray->num_ele);
-}
 /* LCOV_EXCL_STOP */
 
 mtp_bool _prop_grow_ptparray(ptp_array_t *parray, mtp_uint32 new_size)
@@ -425,40 +415,6 @@ mtp_int32 _prop_find_ele_ptparray(ptp_array_t *parray, mtp_uint32 element)
 	return ELEMENT_NOT_FOUND;
 }
 
-/* LCOV_EXCL_START */
-mtp_bool _prop_get_ele_ptparray(ptp_array_t *parray, mtp_uint32 index, void *ele)
-{
-	mtp_uchar *ptr8 = NULL;
-	mtp_uint16 *ptr16 = NULL;
-	mtp_uint32 *ptr32 = NULL;
-
-	retv_if(parray->array_entry == NULL, FALSE);
-
-	if (index >= parray->num_ele)
-		return FALSE;
-
-	switch (parray->type) {
-	case UINT8_TYPE:
-		ptr8 = parray->array_entry;
-		*((mtp_uchar *)ele) = ptr8[index];
-		break;
-	case UINT16_TYPE:
-		ptr16 = parray->array_entry;
-		*((mtp_uint16 *)ele) = ptr16[index];
-		break;
-
-	case PTR_TYPE:
-	case UINT32_TYPE:
-		ptr32 = parray->array_entry;
-		*((mtp_uint32 *)ele) = ptr32[index];
-		break;
-	default:
-		return FALSE;
-	}
-	return TRUE;
-}
-/* LCOV_EXCL_STOP */
-
 mtp_bool _prop_append_ele_ptparray(ptp_array_t *parray, mtp_uint32 element)
 {
 
@@ -500,32 +456,6 @@ mtp_bool _prop_append_ele_ptparray(ptp_array_t *parray, mtp_uint32 element)
 }
 
 /* LCOV_EXCL_START */
-mtp_bool _prop_append_ele128_ptparray(ptp_array_t *parray, mtp_uint64 *element)
-{
-	mtp_uchar *ptr = NULL;
-	mtp_bool ret = FALSE;
-	if (parray->num_ele >= parray->arr_size) {
-		if (FALSE == _prop_grow_ptparray(parray,
-					((parray->arr_size * 3) >> 1) + 2))
-			return FALSE;
-	}
-
-	switch (parray->type) {
-	case UINT128_TYPE:
-		ptr = parray->array_entry;
-		memcpy(&(ptr[(parray->num_ele * 16)]), element,
-				sizeof(mtp_uint64) * 2);
-		parray->num_ele++;
-		ret = TRUE;
-		break;
-
-	default:
-		break;
-	}
-
-	return ret;
-}
-
 mtp_bool _prop_copy_ptparray(ptp_array_t *dst, ptp_array_t *src)
 {
 	mtp_uchar *ptr8src = NULL;
@@ -602,37 +532,6 @@ mtp_uint32 _prop_pack_ptparray(ptp_array_t *parray, mtp_uchar *buf,
 #endif /* __BIG_ENDIAN__ */
 	}
 	return (sizeof(mtp_uint32) + parray->num_ele * size);
-}
-
-mtp_uint32 _prop_pack_ptparray_without_elemsize(ptp_array_t *parray,
-		mtp_uchar *buf, mtp_uint32 bufsize)
-{
-	mtp_uint16 size = 1;
-#ifdef __BIG_ENDIAN__
-	mtp_uchar *temp;
-	mtp_uint32 ii;
-#endif /* __BIG_ENDIAN__ */
-
-	size = __get_ptp_array_elem_size(parray->type);
-	if (size == 0)
-		return 0;
-
-	if ((buf == NULL) || (bufsize < (parray->num_ele * size)))
-		return 0;
-
-	if (parray->num_ele != 0)
-		memcpy(buf, parray->array_entry, parray->num_ele * size);
-
-#ifdef __BIG_ENDIAN__
-	/* Swap all the elements */
-	temp = buf;
-	for (ii = 0; ii < parray->num_ele; ii++) {
-		_util_conv_byte_order(temp, size);
-		temp += size;
-	}
-#endif /* __BIG_ENDIAN__ */
-
-	return (parray->num_ele * size);
 }
 
 mtp_bool _prop_rem_elem_ptparray(ptp_array_t *parray, mtp_uint32 element)

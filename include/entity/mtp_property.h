@@ -183,17 +183,12 @@ typedef struct {
 void _prop_init_ptparray(ptp_array_t *parray, data_type_t type);
 ptp_array_t *_prop_alloc_ptparray(data_type_t type);
 mtp_uint32 _prop_get_size_ptparray(ptp_array_t *parray);
-mtp_uint32 _prop_get_size_ptparray_without_elemsize(ptp_array_t *parray);
 mtp_bool _prop_grow_ptparray(ptp_array_t *parray, mtp_uint32 new_size);
 mtp_int32 _prop_find_ele_ptparray(ptp_array_t *parray, mtp_uint32 element);
-mtp_bool _prop_get_ele_ptparray(ptp_array_t *parray, mtp_uint32 index, void *ele);
 mtp_bool _prop_append_ele_ptparray(ptp_array_t *parray, mtp_uint32 element);
-mtp_bool _prop_append_ele128_ptparray(ptp_array_t *parray, mtp_uint64 *element);
 mtp_bool _prop_copy_ptparray(ptp_array_t *dst, ptp_array_t *src);
 mtp_uint32 _prop_pack_ptparray(ptp_array_t *parray, mtp_uchar *buf,
 		mtp_uint32 bufsize);
-mtp_uint32 _prop_pack_ptparray_without_elemsize(ptp_array_t *parray,
-		mtp_uchar *buf, mtp_uint32 bufsize);
 mtp_bool _prop_rem_elem_ptparray(ptp_array_t *parray, mtp_uint32 element);
 void _prop_deinit_ptparray(ptp_array_t *parray);
 void _prop_destroy_ptparray(ptp_array_t *parray);
