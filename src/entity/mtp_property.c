@@ -749,17 +749,6 @@ void _prop_copy_ptpstring(ptp_string_t *dst, ptp_string_t *src)
 }
 
 /* LCOV_EXCL_START */
-void _prop_copy_ptptimestring(ptp_time_string_t *dst, ptp_time_string_t *src)
-{
-	mtp_uint16 ii;
-
-	dst->num_chars = src->num_chars;
-	for (ii = 0; ii < src->num_chars; ii++)
-		dst->str[ii] = src->str[ii];
-
-	return;
-}
-
 mtp_bool _prop_is_equal_ptpstring(ptp_string_t *dst, ptp_string_t *src)
 {
 	mtp_uint16 ii;
