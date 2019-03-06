@@ -35,7 +35,6 @@ mtp_err_t _hutil_get_device_property(mtp_uint32 prop_id,
 		device_prop_desc_t* dev_prop);
 mtp_err_t _hutil_set_device_property(mtp_uint32 prop_id, void *data,
 		mtp_uint32 data_sz);
-mtp_err_t _hutil_reset_device_entry(mtp_uint32 prop_id);
 mtp_err_t _hutil_add_object_entry(obj_info_t *obj_info, mtp_char *file_name,
 		mtp_obj_t **new_obj);
 mtp_err_t _hutil_remove_object_entry(mtp_uint32 obj_handle, mtp_uint32 format);

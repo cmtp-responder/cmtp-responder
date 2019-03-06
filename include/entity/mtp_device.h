@@ -82,8 +82,6 @@ typedef struct {
 	mtp_uint32 default_store_id;
 	/* Used when SendObjectInfo doesn't specify Parent Object Handle */
 	mtp_uint32 default_hparent;
-	/* A pointer to array of device property. */
-	device_prop_desc_t *device_prop_list;
 	mtp_bool is_mounted[MAX_NUM_DEVICE_STORES];
 } mtp_device_t;
 
@@ -182,7 +180,6 @@ mtp_uint16 _device_delete_object(mtp_uint32 obj_handle, mtp_uint32 fmt);
  */
 mtp_store_t *_device_get_store_containing_obj(mtp_uint32 obj_handle);
 mtp_store_t *_device_get_store_at_index(mtp_uint32 index);
-device_prop_desc_t *_device_get_ref_prop_list(void);
 
 /*
  * Get current playback object from device property

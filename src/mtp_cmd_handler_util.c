@@ -119,31 +119,6 @@ mtp_err_t _hutil_set_device_property(mtp_uint32 prop_id, void *data,
 }
 
 /*
- * This function resets the device property.
- * @param[in]	prop_id		Specifies the property id to retrieve.
- * @return	This function returns MTP_ERROR_NONE on success,
- *		appropriate error on failure.
- */
-mtp_err_t _hutil_reset_device_entry(mtp_uint32 prop_id)
-{
-	device_prop_desc_t *prop = NULL;
-
-	if (prop_id == 0xFFFFFFFF) {
-		/* LCOV_EXCL_START */
-		prop = _device_get_ref_prop_list();
-		if (prop == NULL) {
-			ERR("property reference is NULL");
-			return MTP_ERROR_GENERAL;
-		}
-		/* LCOV_EXCL_STOP */
-	} else {
-		return MTP_ERROR_GENERAL;
-	}
-
-	return MTP_ERROR_NONE;
-}
-
-/*
  * This function adds the object entry.
  * @param[in]	obj_info	Points the objectinfo.
  * @param[in]	file_name	Points the file name of the object.

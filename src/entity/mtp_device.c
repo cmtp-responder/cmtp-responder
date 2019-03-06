@@ -641,11 +641,6 @@ mtp_store_t *_device_get_store_at_index(mtp_uint32 index)
 }
 
 /* LCOV_EXCL_START */
-device_prop_desc_t *_device_get_ref_prop_list(void)
-{
-	return g_device.device_prop_list;
-}
-
 mtp_bool _device_get_playback_obj(mtp_uint32 *playback_obj)
 {
 	ERR("device_prop is NULL");
