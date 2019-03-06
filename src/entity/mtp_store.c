@@ -249,7 +249,7 @@ mtp_bool _entity_init_mtp_store(mtp_store_t *store, mtp_uint32 store_id,
 				MTP_STORAGE_DESC_EXT);
 		__init_store_info_params(&(store->store_info),
 				store->store_info.capacity,
-				PTP_STORAGETYPE_REMOVABLERAM,
+				PTP_STORAGETYPE_FIXEDRAM,
 				PTP_FILESYSTEMTYPE_HIERARCHICAL,
 				PTP_STORAGEACCESS_RWD, wtemp, wserial);
 		break;
