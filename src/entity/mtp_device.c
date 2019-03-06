@@ -502,11 +502,6 @@ mtp_bool _device_install_storage(mtp_int32 type)
 		/* LCOV_EXCL_STOP */
 		break;
 
-	case MTP_ADDREM_ALL:
-		DBG(" case MTP_ADDREM_ALL:");
-		__add_store_to_device(MTP_STORAGE_EXTERNAL);
-		break;
-
 	default:
 		ERR("_device_install_storage : unknown type [%d]\n", type);
 		break;
@@ -526,9 +521,6 @@ mtp_bool _device_uninstall_storage(mtp_int32 type)
 	case MTP_ADDREM_EXTERNAL:
 		if (TRUE == _device_is_store_mounted(MTP_STORAGE_EXTERNAL))
 			__remove_store_from_device(MTP_STORAGE_EXTERNAL);
-		break;
-	case MTP_ADDREM_ALL:
-		__remove_store_from_device(MTP_STORAGE_EXTERNAL);
 		break;
 	default:
 		ERR("unknown mode [%d]\n", type);

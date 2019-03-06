@@ -75,7 +75,6 @@ typedef enum {
 typedef enum {
 	MTP_ADDREM_AUTO,
 	MTP_ADDREM_EXTERNAL,
-	MTP_ADDREM_ALL
 } add_rem_store_t;
 
 void _entity_update_store_info_run_time(store_info_t *info,
