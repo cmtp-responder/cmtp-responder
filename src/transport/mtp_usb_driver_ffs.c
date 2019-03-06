@@ -72,8 +72,6 @@ static void __handle_control_request(mtp_int32 request);
 /* LCOV_EXCL_START */
 static mtp_bool __io_init()
 {
-	int ret;
-
 	if (sd_listen_fds(0) >= 4) {
 		DBG("socket-activated");
 		g_usb_ep0 = SD_LISTEN_FDS_START;
