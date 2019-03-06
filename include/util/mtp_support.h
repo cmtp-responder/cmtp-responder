@@ -45,7 +45,6 @@ void _util_conv_byte_order_gen_str(void *str, mtp_int32 size, mtp_int32 elem_sz)
 void _util_wchar_cpy(mtp_wchar *dest, const mtp_wchar *src);
 void _util_wchar_ncpy(mtp_wchar *dest, const mtp_wchar *src, unsigned long n);
 size_t _util_wchar_len(const mtp_wchar *s);
-mtp_wchar *mtp_wcscat_charstr(mtp_wchar *str1, const mtp_char *char_str);
 mtp_err_t _util_wchar_swprintf(mtp_wchar *mtp_wstr, mtp_int32 size,
 		mtp_char *format, ...);
 mtp_int32 _util_utf16_to_utf8(char *dest, mtp_int32 size, const mtp_wchar *src);
@@ -61,7 +60,6 @@ void _util_get_parent_path(const mtp_char *fullpath, mtp_char *p_path);
 void _util_conv_wstr_to_guid(mtp_wchar *wstr, mtp_uint64 *guid);
 mtp_bool _util_get_unique_dir_path(const mtp_char *exist_path, mtp_char *new_path,
 		mtp_uint32 new_path_buf_len);
-mtp_int32 _util_system_cmd_wait(const mtp_char *cmd);
 
 #ifdef __cplusplus
 }

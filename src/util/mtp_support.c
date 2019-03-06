@@ -621,38 +621,4 @@ SUCCESS:
 	DBG_SECURE("Unique dir name[%s]\n", new_path);
 	return TRUE;
 }
-
-mtp_int32 _util_system_cmd_wait(const mtp_char *cmd)
-{
-
-	int pid = 0;
-	int status = 0;
-
-	if (cmd == NULL)
-		return -1;
-
-	pid = fork();
-
-	if (pid == -1)
-		return -1;
-
-	if (pid == 0) {
-		char *argv[4];
-		argv[0] = "sh";
-		argv[1] = "-c";
-		argv[2] = (char*)cmd;
-		argv[3] = 0;
-		execv("/bin/sh", argv);
-		exit(127);
-	}
-
-	do {
-		if (waitpid(pid, &status, 0) == -1) {
-			if (errno != EINTR)
-				return -1;
-		} else {
-			return status;
-		}
-	} while (1);
-}
 /* LCOV_EXCL_STOP */
