@@ -131,15 +131,6 @@ static void __init_device_info(void)
 
 void _init_mtp_device(void)
 {
-	static mtp_bool already_init = FALSE;
-
-	if (TRUE == already_init) {
-		DBG("Device is already initialized");
-		return;
-	}
-
-	already_init = TRUE;
-
 	g_device.status = DEVICE_STATUSOK;
 	g_device.phase = DEVICE_PHASE_IDLE;
 	g_device.num_stores = 0;
