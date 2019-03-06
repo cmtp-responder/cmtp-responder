@@ -640,20 +640,6 @@ mtp_store_t *_device_get_store_at_index(mtp_uint32 index)
 	return &(g_device.store_list[index]);
 }
 
-/* LCOV_EXCL_START */
-mtp_bool _device_get_playback_obj(mtp_uint32 *playback_obj)
-{
-	ERR("device_prop is NULL");
-	return FALSE;
-}
-
-mtp_bool _device_set_playback_obj(mtp_uint32 playback_obj)
-{
-	ERR("device_prop is NULL");
-	return FALSE;
-}
-/* LCOV_EXCL_STOP */
-
 void _device_get_serial(mtp_char *serial_no, mtp_uint32 len)
 {
 	ret_if(serial_no == NULL);
