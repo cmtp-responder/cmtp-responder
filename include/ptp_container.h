@@ -101,8 +101,6 @@ void _hdlr_resp_container_init(cmd_container_t *dst, mtp_uint16 resp_code,
 mtp_bool _hdlr_send_resp_container(cmd_container_t *dst);
 void _hdlr_init_event_container(cmd_container_t *dst, mtp_uint16 code,
 		mtp_uint32 tid, mtp_uint32 param1, mtp_uint32 param2);
-void _hdlr_init_event_container_with_param(cmd_container_t *dst,
-		mtp_uint16 code, mtp_uint32 tid, mtp_uint32 param1, mtp_uint32 param2);
 mtp_bool _hdlr_send_event_container(cmd_container_t *dst);
 void _hdlr_conv_cmd_container_byte_order(cmd_container_t *dst);
 void _hdlr_conv_data_container_byte_order(data_container_t *dst);

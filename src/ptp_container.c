@@ -371,22 +371,6 @@ void _hdlr_init_event_container(cmd_container_t *dst, mtp_uint16 code,
 	return;
 }
 
-void _hdlr_init_event_container_with_param(cmd_container_t *dst,
-		mtp_uint16 code, mtp_uint32 tid, mtp_uint32 param1, mtp_uint32 param2)
-{
-	dst->type = CONTAINER_EVENT_BLK;
-	dst->code = code;
-	dst->tid = tid;
-	dst->no_param = 2;
-	dst->params[0] = param1;
-	dst->params[1] = param2;
-	dst->len = sizeof(header_container_t) + sizeof(mtp_uint32) * 3;
-#ifdef __BIG_ENDIAN__
-	_hdlr_conv_cmd_container_byte_order(dst);
-#endif /* __BIG_ENDIAN__ */
-	return;
-}
-
 /* LCOV_EXCL_START */
 mtp_bool _hdlr_send_event_container(cmd_container_t *dst)
 {
