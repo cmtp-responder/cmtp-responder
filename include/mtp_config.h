@@ -23,11 +23,7 @@
 /* Set write-protection for read-only files */
 /*#define MTP_SUPPORT_SET_PROTECTION*/
 
-/*MtpObject.c, for unknown metadata */
-#define MTP_USE_FILL_EMPTYMETADATA_WITH_UNKNOWN
-
 #define MTP_USE_RUNTIME_GETOBJECTPROPVALUE	/*use runtime get object property list*/
-
 /* Support Features */
 
 /* cancel transactio, device reset, mainly used in mtpmain.c */
@@ -49,12 +45,6 @@
 
 /* External Storage */
 #define MTP_EXTERNAL_PATH_CHAR		"/media/card"
-
-/* File For WMP extesions */
-#define MTP_FILES_MODIFIED_FILES	"/tmp/mtp_mod_files.log"
-
-/* Base MTP USER Directory */
-#define MTP_USER_DIRECTORY		"/home/user/"
 
 /*STORAGE*/
 #define MTP_MAX_STORAGE			(30*1024*1024)	/*30MB */
@@ -80,8 +70,6 @@
 #define MTP_MAX_PACKET_SIZE_SEND_FS	64	/* Full speed */
 #define MTP_FILESIZE_4GB			4294967296L
 
-/* approximately 3 times of media files. consider album*/
-#define MTP_MAX_REFDB_ROWCNT		4500
 #define MTP_MAX_REG_STRING		128
 
 #define MTP_SERIAL_LEN_MAX		32
@@ -102,11 +90,6 @@
 
 #define MTP_MIN_VIDEO_WIDTH		0
 #define MTP_MIN_VIDEO_HEIGHT		0
-
-/* about 976kbytes for object property value like sample data*/
-#define MTP_MAX_PROP_DATASIZE		1000000
-
-#define MTP_MAX_METADATA		204800	/* 200KB */
 
 #define MTP_VENDOR_EXTENSIONDESC_CHAR	\
 	"microsoft.com:1.0;android.com:1.0; "

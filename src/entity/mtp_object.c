@@ -711,9 +711,6 @@ void _entity_copy_mtp_object(mtp_obj_t *dst, mtp_obj_t *src)
 	dst->obj_handle = 0;
 	dst->file_path = NULL;
 
-#ifndef MTP_USE_RUNTIME_GETOBJECTPROPVALUE
-	_prop_update_property_values_list(dst);
-#endif /* MTP_USE_RUNTIME_GETOBJECTPROPVALUE */
 	return;
 }
 

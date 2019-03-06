@@ -394,7 +394,6 @@ void _features_supported_info(void)
 	DBG("### MTP Information ###");
 	DBG("### 1. Solution		: SLP");
 	DBG("### 2. MTP Version		: 1.0");
-	DBG("### 3. DB Limitation       : Reference(%d)\n", MTP_MAX_REFDB_ROWCNT);
 
 	DBG("***********************************************************");
 	DBG("### Extension ###");
