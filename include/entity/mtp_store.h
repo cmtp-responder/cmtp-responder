@@ -72,11 +72,6 @@ typedef enum {
 	MTP_EXTERNAL_STORE_ID = 0x20001
 } mtp_store_id_t;
 
-typedef enum {
-	MTP_ADDREM_AUTO,
-	MTP_ADDREM_EXTERNAL,
-} add_rem_store_t;
-
 void _entity_update_store_info_run_time(store_info_t *info,
 		mtp_char *root_path);
 mtp_bool _entity_get_store_path_by_id(mtp_uint32 store_id, mtp_char *path);

@@ -1192,7 +1192,7 @@ void _entity_list_modified_files(mtp_uint32 minutes)
 	mtp_int32 ret;
 	mtp_char command[FIND_CMD_LEN] = { 0 };
 
-	if (TRUE == _device_is_store_mounted(MTP_STORAGE_EXTERNAL)) {
+	if (TRUE == _device_is_store_mounted()) {
 		char ext_path[MTP_MAX_PATHNAME_SIZE + 1] = { 0 };
 		_util_get_external_path(ext_path);
 

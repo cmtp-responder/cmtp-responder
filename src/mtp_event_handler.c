@@ -154,7 +154,7 @@ mtp_bool _eh_handle_usb_events(mtp_uint32 type)
 		}
 
 		_mtp_deinit();
-		_device_uninstall_storage(MTP_ADDREM_AUTO);
+		_device_uninstall_storage();
 		_eh_send_event_req_to_eh_thread(EVENT_CLOSE, 1, 0, NULL);
 		break;
 
@@ -172,7 +172,7 @@ static mtp_bool __process_event_request(mtp_event_t *evt)
 	switch (evt->action) {
 	case EVENT_CANCEL_INITIALIZATION:
 		DBG("EVENT_CANCEL_INITIALIZATION entered.");
-		_device_uninstall_storage(MTP_ADDREM_AUTO);
+		_device_uninstall_storage();
 		break;
 
 	case EVENT_START_MAIN_OP:
@@ -182,7 +182,7 @@ static mtp_bool __process_event_request(mtp_event_t *evt)
 		_transport_set_cancel_initialization(FALSE);
 		_transport_set_mtp_operation_state(MTP_STATE_INITIALIZING);
 
-		_mtp_init(evt->param1);
+		_mtp_init();
 		_transport_set_mtp_operation_state(MTP_STATE_READY_SERVICE);
 		if (FALSE == _transport_init_interfaces(_receive_mq_data_cb)) {
 			ERR("USB init fail");
@@ -306,7 +306,7 @@ static mtp_bool __send_start_event_to_eh_thread(void)
 	mtp_int32 status;
 
 	event.action = EVENT_START_MAIN_OP;
-	event.param1 = (mtp_ulong) MTP_ADDREM_AUTO;
+	event.param1 = 0;
 	event.param2 = 0;
 	event.param3 = 0;
 

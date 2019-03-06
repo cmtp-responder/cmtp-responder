@@ -26,7 +26,7 @@ extern "C" {
 #define MTP_LOG_FILE			"/var/log/mtp.log"
 #define MTP_LOG_MAX_SIZE		5 * 1024 * 1024 /*5MB*/
 
-void _mtp_init(add_rem_store_t sel);
+void _mtp_init(void);
 void _mtp_deinit(void);
 void _features_supported_info(void);
 void mtp_end_event(void);

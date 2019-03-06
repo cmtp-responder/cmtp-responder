@@ -110,8 +110,6 @@ static mtp_uint16 g_object_fmts[] = {
  */
 static void __init_device_info(void);
 static mtp_err_t __clear_store_data(mtp_uint32 store_id);
-static mtp_bool __remove_store_from_device(store_type_t store_type);
-static mtp_bool __add_store_to_device(store_type_t store_type);
 
 /*
  * FUNCTIONS
@@ -372,28 +370,20 @@ device_prop_desc_t *_device_get_device_property(mtp_uint32 prop_code)
 }
 
 /*
- * static mtp_bool _device_add_store(store_type_t store_type)
+ * static mtp_bool _device_add_store(void)
  * This function will add the store to the device.
- * @param[in]	store_type	Store Number
  * @return	TRUE if success, otherwise FALSE.
  */
-static mtp_bool __add_store_to_device(store_type_t store_type)
+static mtp_bool __add_store_to_device(void)
 {
 	mtp_char *storage_path = NULL;
 	mtp_uint32 store_id = 0;
 	file_attr_t attrs = { 0, };
 	char sto_path[MTP_MAX_PATHNAME_SIZE + 1] = { 0 };
 
-	switch (store_type) {
-	case MTP_STORAGE_EXTERNAL:
-		_util_get_external_path(sto_path);
-		storage_path = (mtp_char *)sto_path;
-		store_id = MTP_EXTERNAL_STORE_ID;
-		break;
-	default:
-		ERR("Unknown Storage [%d]\n", store_id);
-		return FALSE;
-	}
+	_util_get_external_path(sto_path);
+	storage_path = (mtp_char *)sto_path;
+	store_id = MTP_EXTERNAL_STORE_ID;
 
 	if (FALSE == _util_get_file_attrs(storage_path, &attrs)) {
 		ERR("_util_get_file_attrs() Fail");
@@ -421,111 +411,51 @@ static mtp_bool __add_store_to_device(store_type_t store_type)
 	}
 
 	g_device.num_stores++;
-	g_device.is_mounted[store_type] = TRUE;
+	g_device.is_mounted[0] = TRUE;
 
 	return TRUE;
 }
 
 /*
- * static mtp_bool _device_remove_store(store_type_t store_type)
+ * static mtp_bool _device_remove_store(void)
  * This function will remove the store from the device.
- * @param[in]	store_type	Store type
  * @return	TRUE if success, otherwise FALSE.
  */
 /* LCOV_EXCL_START */
-static mtp_bool __remove_store_from_device(store_type_t store_type)
+static mtp_bool __remove_store_from_device(void)
 {
-	mtp_int32 ii = 0;
 	mtp_device_t *device = &g_device;
 	mtp_store_t *store = NULL;
-	mtp_uint32 store_id = 0;
 
-	switch (store_type) {
-	case MTP_STORAGE_EXTERNAL:
-		store_id = MTP_EXTERNAL_STORE_ID;
-		break;
-	default:
-		ERR("Unknown Storage [%d]\n", store_type);
-		return FALSE;
-	}
-
-	for (ii = 0; ii < device->num_stores; ii++) {
-		store = &(device->store_list[ii]);
-		if (store->store_id == store_id) {
-			__clear_store_data(store->store_id);
-			device->is_mounted[store_type] = FALSE;
-			break;
-		}
-	}
+	store = &(device->store_list[0]);
+	__clear_store_data(store->store_id);
+	device->is_mounted[0] = FALSE;
 
 	return TRUE;
 }
 
-mtp_bool _device_is_store_mounted(mtp_int32 store_type)
+mtp_bool _device_is_store_mounted(void)
 {
-	if (store_type < MTP_STORAGE_EXTERNAL ||
-			store_type >= MTP_STORAGE_ALL) {
-		ERR("unknown storage(%d)\n", store_type);
-		return FALSE;
-	}
-
-	return g_device.is_mounted[store_type];
+	return g_device.is_mounted[0];
 }
 /* LCOV_EXCL_STOP */
 
-mtp_bool _device_install_storage(mtp_int32 type)
+mtp_bool _device_install_storage(void)
 {
-	mtp_int32 ext_status = TRUE;
-	mtp_bool mounted;
-
-	switch (type) {
-	case MTP_ADDREM_AUTO:
-		DBG(" case MTP_ADDREM_AUTO:");
-		/* LCOV_EXCL_START */
-		ext_status =
-			_device_is_store_mounted(MTP_STORAGE_EXTERNAL);
-		if (ext_status == FALSE)
-			__add_store_to_device(MTP_STORAGE_EXTERNAL);
-		/* LCOV_EXCL_STOP */
-		break;
-
-	case MTP_ADDREM_EXTERNAL:
-		DBG(" case MTP_ADDREM_EXTERNAL:");
-		/* LCOV_EXCL_START */
-		mounted = _device_is_store_mounted(MTP_STORAGE_EXTERNAL);
-		if (mounted == FALSE) {
-			if (__add_store_to_device(MTP_STORAGE_EXTERNAL) == FALSE) {
-				ERR("__add_store_to_device() Fail");
-				return FALSE;
-			}
-		}
-		/* LCOV_EXCL_STOP */
-		break;
-
-	default:
-		ERR("_device_install_storage : unknown type [%d]\n", type);
-		break;
-	}
+	DBG(" ADD Storage");
+	/* LCOV_EXCL_START */
+	if (_device_is_store_mounted() == FALSE)
+		__add_store_to_device();
+	/* LCOV_EXCL_STOP */
 
 	return TRUE;
 }
 
 /* LCOV_EXCL_START */
-mtp_bool _device_uninstall_storage(mtp_int32 type)
+mtp_bool _device_uninstall_storage(void)
 {
-	switch (type) {
-	case MTP_ADDREM_AUTO:
-		if (TRUE == _device_is_store_mounted(MTP_STORAGE_EXTERNAL))
-			__remove_store_from_device(MTP_STORAGE_EXTERNAL);
-		break;
-	case MTP_ADDREM_EXTERNAL:
-		if (TRUE == _device_is_store_mounted(MTP_STORAGE_EXTERNAL))
-			__remove_store_from_device(MTP_STORAGE_EXTERNAL);
-		break;
-	default:
-		ERR("unknown mode [%d]\n", type);
-		break;
-	}
+	if (TRUE == _device_is_store_mounted())
+		__remove_store_from_device();
 
 	return TRUE;
 }

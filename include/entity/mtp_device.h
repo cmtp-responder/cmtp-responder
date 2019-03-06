@@ -26,18 +26,11 @@ extern "C" {
 #include "mtp_property.h"
 
 /*This number can be changed based on MAX number or stores allowed*/
-#define	MAX_NUM_DEVICE_STORES		3
+#define	MAX_NUM_DEVICE_STORES		1
 
 #define MTP_STANDARD_VERSION		0x64
 #define MTP_VENDOR_EXTN_ID		0x06
 #define MTP_VENDOR_EXTN_VERSION		0x64
-
-/* This enumeration specifies the type of store. */
-typedef enum {
-	MTP_STORAGE_EXTERNAL = 0,
-	MTP_STORAGE_ALL
-} store_type_t;
-
 
 /* Defines the status of the Device */
 typedef enum {
@@ -91,7 +84,7 @@ typedef struct {
 	mtp_uint32 default_hparent;
 	/* A pointer to array of device property. */
 	device_prop_desc_t *device_prop_list;
-	mtp_bool is_mounted[MTP_STORAGE_ALL];
+	mtp_bool is_mounted[MAX_NUM_DEVICE_STORES];
 } mtp_device_t;
 
 /*
@@ -132,22 +125,20 @@ void _reset_mtp_device(void);
  */
 device_prop_desc_t *_device_get_device_property(mtp_uint32 prop_code);
 
-mtp_bool _device_is_store_mounted(mtp_int32 store_type);
+mtp_bool _device_is_store_mounted(void);
 
 /*
- * mtp_bool _device_install_storage(mtp_int32 type)
+ * mtp_bool _device_install_storage(void)
  * This function add the storage.
- * @param[in]	type	Specifies the Storage : AUTO, EXTERNAL, ALL
  * @return	If success, returns TRUE. Otherwise returns FALSE.
  */
-mtp_bool _device_install_storage(mtp_int32 type);
+mtp_bool _device_install_storage(void);
 
-/* mtp_bool _device_uninstall_storage(mtp_int32 type)
+/* mtp_bool _device_uninstall_storage(void)
  * This function removes the storage.
- * @param[in]	type	Specifies the Storage : AUTO, EXTERNAL, ALL
  * @return	If success, returns TRUE. Otherwise returns FALSE.
  */
-mtp_bool _device_uninstall_storage(mtp_int32 type);
+mtp_bool _device_uninstall_storage(void);
 
 /*
  * mtp_store_t *_device_get_store(mtp_uint32 store_id)

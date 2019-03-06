@@ -87,7 +87,7 @@ static void __mtp_exit(void)
 
 /* LCOV_EXCL_STOP */
 
-void _mtp_init(add_rem_store_t sel)
+void _mtp_init(void)
 {
 	mtp_int32 error = 0;
 
@@ -138,7 +138,7 @@ void _mtp_init(add_rem_store_t sel)
 	_features_supported_info();
 
 	/* Install storage */
-	_device_install_storage(sel);
+	_device_install_storage();
 
 #ifdef MTP_SUPPORT_OBJECTADDDELETE_EVENT
 	_inoti_init_filesystem_evnts();
