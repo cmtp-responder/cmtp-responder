@@ -199,7 +199,6 @@ mtp_bool _entity_init_mtp_store(mtp_store_t *store, mtp_uint32 store_id,
 	mtp_wchar wtemp[MTP_MAX_REG_STRING + 1] = { 0 };
 	mtp_char serial[MTP_MAX_REG_STRING + 1] = { 0 };
 	mtp_wchar wserial[MTP_MAX_REG_STRING + 1] = { 0 };
-	char *storage_desc = NULL;
 
 	retv_if(store == NULL, FALSE);
 

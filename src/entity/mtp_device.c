@@ -476,7 +476,6 @@ mtp_bool _device_is_store_mounted(mtp_int32 store_type)
 
 mtp_bool _device_install_storage(mtp_int32 type)
 {
-	mtp_int32 int_status = TRUE;
 	mtp_int32 ext_status = TRUE;
 	mtp_bool mounted;
 
