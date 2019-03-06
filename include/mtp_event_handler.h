@@ -25,11 +25,6 @@ extern "C" {
 #include "mtp_datatype.h"
 #include "mtp_util.h"
 
-typedef enum {
-	MTP_TURN_OFF,
-	MTP_ASK_TURN_ON,
-	MTP_ALWAYS_TURN_ON
-} on_off_state_t;
 
 typedef enum {
 	USB_INSERTED,
