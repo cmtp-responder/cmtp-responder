@@ -386,17 +386,13 @@ static mtp_bool __remove_store_from_device(void)
 	return TRUE;
 }
 
-mtp_bool _device_is_store_mounted(void)
-{
-	return g_device.is_mounted[0];
-}
 /* LCOV_EXCL_STOP */
 
 mtp_bool _device_install_storage(void)
 {
 	DBG(" ADD Storage");
 	/* LCOV_EXCL_START */
-	if (_device_is_store_mounted() == FALSE)
+	if (g_device.is_mounted[0] == FALSE)
 		__add_store_to_device();
 	/* LCOV_EXCL_STOP */
 
@@ -406,7 +402,7 @@ mtp_bool _device_install_storage(void)
 /* LCOV_EXCL_START */
 mtp_bool _device_uninstall_storage(void)
 {
-	if (TRUE == _device_is_store_mounted())
+	if (TRUE == g_device.is_mounted[0])
 		__remove_store_from_device();
 
 	return TRUE;

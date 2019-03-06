@@ -115,8 +115,6 @@ mtp_uint32 _pack_device_info(mtp_uchar *buf, mtp_uint32 buf_sz);
  */
 void _reset_mtp_device(void);
 
-mtp_bool _device_is_store_mounted(void);
-
 /*
  * mtp_bool _device_install_storage(void)
  * This function add the storage.
