@@ -267,10 +267,6 @@ mtp_uint32 _prop_get_obj_proplist(mtp_obj_t *pObject, mtp_uint32 prop_code,
  */
 mtp_uint32 _prop_get_supp_obj_props(mtp_uint32 format_code,
 		ptp_array_t *supp_props);
-mtp_bool _prop_build_supp_props_mp3(void);
-mtp_bool _prop_build_supp_props_wma(void);
-mtp_bool _prop_build_supp_props_wmv(void);
-mtp_bool _prop_build_supp_props_album(void);
 mtp_bool _prop_build_supp_props_default(void);
 
 /*

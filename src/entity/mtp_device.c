@@ -138,10 +138,6 @@ void _init_mtp_device(void)
 	g_device.default_store_id = MTP_EXTERNAL_STORE_ID;
 	g_device.default_hparent = PTP_OBJECTHANDLE_ROOT;
 
-	_prop_build_supp_props_mp3();
-	_prop_build_supp_props_wmv();
-	_prop_build_supp_props_wma();
-	_prop_build_supp_props_album();
 	_prop_build_supp_props_default();
 	__init_device_info();
 
