@@ -27,10 +27,6 @@ obj_interdep_proplist_t interdep_proplist;
 /*
  * STATIC VARIABLES
  */
-static obj_prop_desc_t props_list_mp3[NUM_OBJECT_PROP_DESC_MP3];
-static obj_prop_desc_t props_list_wma[NUM_OBJECT_PROP_DESC_WMA];
-static obj_prop_desc_t props_list_wmv[NUM_OBJECT_PROP_DESC_WMV];
-static obj_prop_desc_t props_list_album[NUM_OBJECT_PROP_DESC_ALBUM];
 static obj_prop_desc_t props_list_default[NUM_OBJECT_PROP_DESC_DEFAULT];
 
 /*
@@ -45,18 +41,13 @@ static mtp_bool __create_prop_string(mtp_obj_t *obj, mtp_uint16 propcode,
 		mtp_wchar *value);
 static mtp_bool __create_prop_array(mtp_obj_t *obj, mtp_uint16 propcode,
 		mtp_char *arr, mtp_uint32 size);
-static void __build_supported_common_props(mtp_uchar *count,
-		obj_prop_desc_t *prop);
 /* PtpString Functions */
 static ptp_string_t *__alloc_ptpstring(void);
 static void __init_obj_propval(obj_prop_val_t *val, obj_prop_desc_t *prop);
 static void __init_ptptimestring(ptp_time_string_t *pstring);
-static mtp_uint32 __size_curval_device_prop(device_prop_desc_t *prop);
 static void __init_obj_prop_desc(obj_prop_desc_t *prop, mtp_uint16 propcode,
 		mtp_uint16 data_type, mtp_uchar get_set, mtp_uchar form_flag,
 		mtp_uint32 group_code);
-static mtp_uint32 __get_size_default_val_obj_prop_desc(obj_prop_desc_t *prop);
-static void __destroy_obj_prop_desc(obj_prop_desc_t *prop);
 static mtp_uint32 __count_obj_proplist(obj_proplist_t *plist);
 static mtp_bool __append_obj_proplist(obj_proplist_t *prop_list, mtp_uint32 obj_handle,
 		mtp_uint16 prop_code, mtp_uint32 data_type, mtp_uchar *val);
@@ -174,126 +165,6 @@ static mtp_bool __create_prop_array(mtp_obj_t *obj, mtp_uint16 propcode,
 	return TRUE;
 }
 /* LCOV_EXCL_STOP */
-
-static void __build_supported_common_props(mtp_uchar *count,
-		obj_prop_desc_t *prop)
-{
-	mtp_uchar i = 0;
-	mtp_wchar str[MTP_MAX_REG_STRING + 1] = { 0 };
-	mtp_uint32 default_val;
-
-	_util_utf8_to_utf16(str, sizeof(str) / WCHAR_SIZ, "");
-
-	/*
-	 * MTP_OBJ_PROPERTYCODE_ARTIST (1)
-	 */
-	__init_obj_prop_desc((prop + i),
-			MTP_OBJ_PROPERTYCODE_ARTIST,
-			PTP_DATATYPE_STRING,
-			PTP_PROPGETSET_GETONLY,
-			NONE,
-			MTP_PROP_GROUPCODE_OBJECT);
-	_prop_set_default_string(&(prop[i].propinfo), str);
-	i++;
-
-	/*
-	 * MTP_OBJ_PROPERTYCODE_DURATION (2)
-	 */
-	__init_obj_prop_desc((prop + i),
-			MTP_OBJ_PROPERTYCODE_DURATION,
-			PTP_DATATYPE_UINT32,
-			PTP_PROPGETSET_GETONLY,
-			RANGE_FORM,
-			MTP_PROP_GROUPCODE_OBJECT);
-
-	default_val = 0x0;
-	_prop_set_range_integer(&(prop[i].propinfo), 0, 0xffffffff, 1L);
-	_prop_set_default_integer(&((prop[i].propinfo)), (mtp_uchar *) &default_val);
-	i++;
-
-	/*
-	 * MTP_OBJ_PROPERTYCODE_USERRATING (3)
-	 */
-	__init_obj_prop_desc((prop + i),
-			MTP_OBJ_PROPERTYCODE_USERRATING,
-			PTP_DATATYPE_UINT16,
-			PTP_PROPGETSET_GETONLY,
-			RANGE_FORM,
-			MTP_PROP_GROUPCODE_OBJECT);
-
-	default_val = 0x0;
-	_prop_set_range_integer(&(prop[i].propinfo), 0, 100, 1L);
-	_prop_set_default_integer(&(prop[i].propinfo),
-			(mtp_uchar *) &default_val);
-	i++;
-
-	/*
-	 * MTP_OBJ_PROPERTYCODE_TRACK (4)
-	 */
-	__init_obj_prop_desc((prop + i),
-			MTP_OBJ_PROPERTYCODE_TRACK,
-			PTP_DATATYPE_UINT16,
-			PTP_PROPGETSET_GETONLY,
-			NONE,
-			MTP_PROP_GROUPCODE_OBJECT);
-
-	default_val = 0x0;
-	_prop_set_default_integer(&(prop[i].propinfo),
-			(mtp_uchar *) &default_val);
-	i++;
-
-	/*
-	 * MTP_OBJ_PROPERTYCODE_GENRE (5)
-	 */
-	__init_obj_prop_desc((prop + i),
-			MTP_OBJ_PROPERTYCODE_GENRE,
-			PTP_DATATYPE_STRING,
-			PTP_PROPGETSET_GETONLY,
-			NONE,
-			MTP_PROP_GROUPCODE_OBJECT);
-	_prop_set_default_string(&(prop[i].propinfo), str);
-	i++;
-
-	/*
-	 * MTP_OBJ_PROPERTYCODE_ORIGINALRELEASEDATE (6)
-	 */
-	__init_obj_prop_desc((prop + i),
-			MTP_OBJ_PROPERTYCODE_ORIGINALRELEASEDATE,
-			PTP_DATATYPE_STRING,
-			PTP_PROPGETSET_GETONLY,
-			DATE_TIME_FORM,
-			MTP_PROP_GROUPCODE_OBJECT);
-	_prop_set_default_string(&(prop[i].propinfo), str);
-	i++;
-
-	/*
-	 * MTP_OBJ_PROPERTYCODE_ALBUMNAME (7)
-	 */
-	__init_obj_prop_desc((prop + i),
-			MTP_OBJ_PROPERTYCODE_ALBUMNAME,
-			PTP_DATATYPE_STRING,
-			PTP_PROPGETSET_GETONLY,
-			NONE,
-			MTP_PROP_GROUPCODE_OBJECT);
-	_prop_set_default_string(&(prop[i].propinfo), str);
-	i++;
-
-	/*
-	 * MTP_OBJ_PROPERTYCODE_COMPOSER (8)
-	 */
-	__init_obj_prop_desc((prop + i),
-			MTP_OBJ_PROPERTYCODE_COMPOSER,
-			PTP_DATATYPE_STRING,
-			PTP_PROPGETSET_GETONLY,
-			NONE,
-			MTP_PROP_GROUPCODE_OBJECT);
-	_prop_set_default_string(&(prop[i].propinfo), str);
-	i++;
-
-	*count += i;
-
-	return;
-}
 
 /* PTP Array Functions */
 void _prop_init_ptparray(ptp_array_t *parray, data_type_t type)
@@ -1448,27 +1319,6 @@ mtp_uint32 _prop_size_device_prop_desc(device_prop_desc_t *prop)
 	return size;
 }
 
-static mtp_uint32 __size_curval_device_prop(device_prop_desc_t *prop)
-{
-	mtp_uint32 size = 0;
-
-	if (prop->propinfo.data_type == PTP_DATATYPE_STRING) {
-
-		size = _prop_size_ptpstring(prop->current_val.str);
-
-	} else if ((prop->propinfo.data_type & PTP_DATATYPE_ARRAYMASK) ==
-			PTP_DATATYPE_ARRAY) {
-
-		size = _prop_get_size_ptparray(prop->current_val.array);
-
-	} else if ((prop->propinfo.data_type & PTP_DATATYPE_VALUEMASK) ==
-			PTP_DATATYPE_VALUE) {
-
-		size = prop->propinfo.dts_size;
-	}
-	return size;
-}
-
 /* ObjectPropVal Functions */
 obj_prop_val_t * _prop_alloc_obj_propval(obj_prop_desc_t *prop)
 {
@@ -1718,28 +1568,6 @@ static void __init_obj_prop_desc(obj_prop_desc_t *prop, mtp_uint16 propcode,
 }
 
 /* LCOV_EXCL_START */
-static mtp_uint32 __get_size_default_val_obj_prop_desc(obj_prop_desc_t *prop)
-{
-	mtp_uint32 size = 0;
-
-	if (prop->propinfo.data_type == PTP_DATATYPE_STRING) {
-
-		size = _prop_size_ptpstring(prop->propinfo.default_val.str);
-
-	} else if ((prop->propinfo.data_type & PTP_DATATYPE_ARRAYMASK) ==
-			PTP_DATATYPE_ARRAY) {
-
-		size = _prop_get_size_ptparray(prop->propinfo.default_val.array);
-
-	} else if ((prop->propinfo.data_type & PTP_DATATYPE_VALUEMASK) ==
-			PTP_DATATYPE_VALUE) {
-
-		size = prop->propinfo.dts_size;
-	}
-
-	return size;
-}
-
 mtp_uint32 _prop_size_obj_prop_desc(obj_prop_desc_t *prop)
 {
 	mtp_uint32 size =
@@ -2022,55 +1850,6 @@ obj_prop_desc_t *_prop_get_obj_prop_desc(mtp_uint32 format_code,
 }
 
 /* LCOV_EXCL_START */
-static void __destroy_obj_prop_desc(obj_prop_desc_t *prop)
-{
-	slist_node_t *node = NULL;
-	slist_node_t *next_node = NULL;
-	mtp_uint32 ii;
-
-	if (prop->propinfo.data_type == PTP_DATATYPE_STRING) {
-
-		if (prop->propinfo.default_val.str) {
-
-			_prop_destroy_ptpstring(prop->propinfo.default_val.str);
-			prop->propinfo.default_val.str = NULL;
-		}
-
-		if (prop->propinfo.form_flag == ENUM_FORM) {
-
-			for (node = prop->propinfo.supp_value_list.start, ii = 0;
-					ii < prop->propinfo.supp_value_list.nnodes;
-					node = node->link, ii++) {
-				_prop_destroy_ptpstring((ptp_string_t *) node->value);
-			}
-		}
-
-		if (prop->propinfo.form_flag == REGULAR_EXPRESSION_FORM) {
-
-			if (prop->prop_forms.reg_exp != NULL) {
-				_prop_destroy_ptpstring(prop->prop_forms.reg_exp);
-				prop->prop_forms.reg_exp = NULL;
-			}
-		}
-	} else if ((prop->propinfo.data_type & PTP_DATATYPE_ARRAYMASK) ==
-			PTP_DATATYPE_ARRAY) {
-
-		if (prop->propinfo.default_val.array) {
-
-			_prop_destroy_ptparray(prop->propinfo.default_val.array);
-			prop->propinfo.default_val.array = NULL;
-		}
-	}
-
-	/* deallocate memory consumed by list elements  */
-	next_node = prop->propinfo.supp_value_list.start;
-	for (ii = 0; ii < prop->propinfo.supp_value_list.nnodes; ii++) {
-		node = next_node;
-		next_node = next_node->link;
-		g_free(node);
-	}
-	return;
-}
 
 /* Objectproplist functions */
 static mtp_uint32 __count_obj_proplist(obj_proplist_t *prop_list)
