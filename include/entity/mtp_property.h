@@ -222,8 +222,6 @@ mtp_uint32 _prop_size_device_prop_desc(device_prop_desc_t *prop);
  */
 obj_prop_val_t *_prop_alloc_obj_propval(obj_prop_desc_t *prop);
 obj_prop_val_t *_prop_get_prop_val(mtp_obj_t *obj, mtp_uint32 prop_code);
-mtp_uint32 _prop_pack_obj_propval(obj_prop_val_t *val, mtp_uchar *buf,
-		mtp_uint32 size);
 mtp_uint32 _prop_size_obj_propval(obj_prop_val_t *val);
 void _prop_destroy_obj_propval(obj_prop_val_t *pval);
 mtp_bool _prop_set_default_integer(prop_info_t *prop_info, mtp_uchar *value);
@@ -241,16 +239,10 @@ mtp_bool _prop_is_equal_ptpstring(ptp_string_t *dst, ptp_string_t *src);
 mtp_bool _prop_set_current_integer(device_prop_desc_t *prop, mtp_uint32 val);
 mtp_bool _prop_set_current_string(device_prop_desc_t *prop, ptp_string_t *str);
 mtp_bool _prop_set_current_array(device_prop_desc_t *prop, mtp_uchar *arr);
-mtp_bool _prop_set_current_device_prop(device_prop_desc_t *prop, mtp_uchar *val,
-		mtp_uint32 size);
 mtp_bool _prop_set_current_integer_val(obj_prop_val_t *propval, mtp_uint64 val);
 mtp_bool _prop_set_current_string_val(obj_prop_val_t *propval, ptp_string_t *str);
 mtp_bool _prop_set_current_array_val(obj_prop_val_t *propval, mtp_uchar *arr,
 		mtp_uint32 size);
-#ifdef __BIG_ENDIAN__
-mtp_bool _prop_set_current_array_val_usbrawdata(obj_prop_val_t *val,
-		mtp_uchar *arr, mtp_uint32 size);
-#endif /* __BIG_ENDIAN__ */
 mtp_bool _prop_set_regexp(obj_prop_desc_t *prop, mtp_wchar *regex);
 
 /*
