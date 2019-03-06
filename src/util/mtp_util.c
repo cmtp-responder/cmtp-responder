@@ -51,58 +51,6 @@ void _util_print_error()
 }
 /* LCOV_EXCL_STOP */
 
-mtp_bool _util_get_serial(mtp_char *serial, mtp_uint32 len)
-{
-	mtp_uint16 i = 0;
-	char hash_value[MD5_HASH_LEN] = HASH_VALUE;
-
-	if (serial == NULL || len <= MD5_HASH_LEN * 2) {
-		ERR("serial is null or length is less than (MD5_HASH_LEN * 2)");
-		return FALSE;
-	}
-
-/* LCOV_EXCL_START */
-
-	for (i = 0; i < MD5_HASH_LEN; i++)
-		g_snprintf(&serial[i*2], 3, "%02X", hash_value[i]);
-
-	return TRUE;
-}
-/* LCOV_EXCL_STOP */
-
-void _util_get_vendor_ext_desc(mtp_char *vendor_ext_desc, mtp_uint32 len)
-{
-	ret_if(len == 0);
-	ret_if(vendor_ext_desc == NULL);
-
-	g_snprintf(vendor_ext_desc, len, "%s",
-			MTP_VENDOR_EXTENSIONDESC_CHAR);
-	return;
-}
-
-void _util_get_model_name(mtp_char *model_name, mtp_uint32 len)
-{
-	mtp_char *model = MODEL;
-
-	ret_if(len == 0);
-	ret_if(model_name == NULL);
-
-	g_strlcpy(model_name, model, len);
-	return;
-}
-
-void _util_get_device_version(mtp_char *device_version, mtp_uint32 len)
-{
-	mtp_char *version = DEVICE_VERSION;
-	mtp_char *build_info = BUILD_INFO;
-
-	ret_if(len == 0);
-	ret_if(device_version == NULL);
-
-	g_snprintf(device_version, len, "cmtp-responder %s (%s)", version, build_info);
-	return;
-}
-
 /* LCOV_EXCL_START */
 phone_status_t _util_get_local_usb_status(void)
 {

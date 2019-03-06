@@ -28,10 +28,9 @@ extern "C" {
 #include "mtp_fs.h"
 
 #define ACTIVE_USER	0
-#define HASH_VALUE { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf }
 #define MODEL "DUMMY_MODEL"
 #define DEVICE_VERSION "devv_DUMMY_VERSION"
-#define BUILD_INFO "DUMMY_BUILD_INFO"
+#define SERIAL "DUMMY_SERIAL"
 #define FIND_CMD_LEN				300
 #define FIND_CMD	"/usr/bin/find %s \\( -iname '*.jpg' -o -iname '*.gif' " \
 	"-o -iname '*.exif' -o -iname '*.png' " \
@@ -132,10 +131,6 @@ typedef struct {
 } usb_status_req_t;
 
 void _util_print_error();
-mtp_bool _util_get_serial(mtp_char *serial, mtp_uint32 len);
-void _util_get_model_name(mtp_char *model_name, mtp_uint32 len);
-void _util_get_vendor_ext_desc(mtp_char *vendor_ext_desc, mtp_uint32 len);
-void _util_get_device_version(mtp_char *device_version, mtp_uint32 len);
 phone_status_t _util_get_local_usb_status(void);
 void _util_set_local_usb_status(const phone_status_t val);
 phone_status_t _util_get_local_usbmode_status(void);

@@ -68,29 +68,60 @@ static mtp_uint16 g_object_fmts[] = {
 };
 
 /*
- * STATIC FUNCTIONS
+ * static mtp_err_t __device_clear_store_data(mtp_uint32 store_id)
+ * This function removes the storage entry.
+ * @param[in]	store_id	Specifies the storage id to remove
+ * @return	This function returns MTP_ERROR_NONE on success
+ *		ERROR number on failure.
  */
-static void __init_device_info(void);
-static mtp_err_t __clear_store_data(mtp_uint32 store_id);
+static mtp_err_t __clear_store_data(mtp_uint32 store_id)
+{
+	mtp_uint16 idx = 0;
+	mtp_store_t *store = NULL;
+	mtp_uint32 count = g_device.num_stores;
 
-/*
- * FUNCTIONS
- */
+	for (idx = 0; idx < count; idx++) {
+		if (g_device.store_list[idx].store_id == store_id) {
 
-/*
- * static void __device_init_device_info()
- * This function initializes MTP device information
- *@return	none
- */
-static void __init_device_info(void)
+			_entity_destroy_mtp_store(&(g_device.store_list[idx]));
+
+			store = &(g_device.store_list[idx]);
+			store->store_id = 0;
+			store->is_hidden = FALSE;
+			g_free(store->root_path);
+			store->root_path = NULL;
+
+			for (; idx < count - 1; idx++) {
+				_entity_copy_store_data(&(g_device.store_list[idx]),
+						&(g_device.store_list[idx + 1]));
+			}
+
+			g_device.store_list[count - 1].store_id = 0;
+			g_device.store_list[count - 1].root_path = NULL;
+			g_device.store_list[count - 1].is_hidden = FALSE;
+			_util_init_list(&(g_device.store_list[count - 1].obj_list));
+
+			/*Initialize the destroyed store*/
+			g_device.num_stores--;
+			return MTP_ERROR_NONE;
+		}
+	}
+	return MTP_ERROR_GENERAL;
+}
+
+void _init_mtp_device(void)
 {
 	device_info_t *info = &(g_device.device_info);
-	mtp_char model_name[MTP_MODEL_NAME_LEN_MAX + 1] = { 0 };
-	mtp_char device_version[MAX_PTP_STRING_CHARS + 1] = { 0 };
-	mtp_char vendor_ext_desc[MAX_PTP_STRING_CHARS + 1] = { 0 };
-	mtp_char serial_no[MTP_SERIAL_LEN_MAX + 1] = { 0 };
 	mtp_wchar wtemp[MAX_PTP_STRING_CHARS + 1] = { 0 };
 
+	g_device.status = DEVICE_STATUSOK;
+	g_device.phase = DEVICE_PHASE_IDLE;
+	g_device.num_stores = 0;
+	g_device.store_list = g_store_list;
+	g_device.default_store_id = MTP_EXTERNAL_STORE_ID;
+	g_device.default_hparent = PTP_OBJECTHANDLE_ROOT;
+
+	_prop_build_supp_props_default();
 	info->ops_supported = g_ops_supported;
 	info->events_supported = g_event_supported;
 	info->capture_fmts = g_capture_fmts;
@@ -101,8 +132,7 @@ static void __init_device_info(void)
 	info->functional_mode = PTP_FUNCTIONMODE_SLEEP;
 
 	_prop_init_ptpstring(&(info->vendor_extn_desc));
-	_util_get_vendor_ext_desc(vendor_ext_desc, sizeof(vendor_ext_desc));
-	_util_utf8_to_utf16(wtemp, sizeof(wtemp) / WCHAR_SIZ, vendor_ext_desc);
+	_util_utf8_to_utf16(wtemp, sizeof(wtemp) / WCHAR_SIZ, MTP_VENDOR_EXTENSIONDESC_CHAR);
 	_prop_copy_char_to_ptpstring(&(info->vendor_extn_desc), wtemp, WCHAR_TYPE);
 
 	_prop_init_ptpstring(&(info->manufacturer));
@@ -110,38 +140,16 @@ static void __init_device_info(void)
 	_prop_copy_char_to_ptpstring(&(info->manufacturer), wtemp, WCHAR_TYPE);
 
 	_prop_init_ptpstring(&(info->model));
-	_util_get_model_name(model_name, sizeof(model_name));
-	_util_utf8_to_utf16(wtemp, sizeof(wtemp) / WCHAR_SIZ, model_name);
+	_util_utf8_to_utf16(wtemp, sizeof(wtemp) / WCHAR_SIZ, MODEL);
 	_prop_copy_char_to_ptpstring(&(info->model), wtemp, WCHAR_TYPE);
 
 	_prop_init_ptpstring(&(info->device_version));
-	_util_get_device_version(device_version, sizeof(device_version));
-	_util_utf8_to_utf16(wtemp, sizeof(wtemp) / WCHAR_SIZ, device_version);
+	_util_utf8_to_utf16(wtemp, sizeof(wtemp) / WCHAR_SIZ, DEVICE_VERSION);
 	_prop_copy_char_to_ptpstring(&(info->device_version), wtemp, WCHAR_TYPE);
 
 	_prop_init_ptpstring(&(info->serial_no));
-	if (FALSE == _util_get_serial(serial_no, sizeof(serial_no))) {
-		ERR("_util_get_serial() Fail");
-	}
-	_util_utf8_to_utf16(wtemp, sizeof(wtemp) / WCHAR_SIZ, serial_no);
+	_util_utf8_to_utf16(wtemp, sizeof(wtemp) / WCHAR_SIZ, SERIAL);
 	_prop_copy_char_to_ptpstring(&(info->serial_no), wtemp, WCHAR_TYPE);
-
-	return;
-}
-
-void _init_mtp_device(void)
-{
-	g_device.status = DEVICE_STATUSOK;
-	g_device.phase = DEVICE_PHASE_IDLE;
-	g_device.num_stores = 0;
-	g_device.store_list = g_store_list;
-	g_device.default_store_id = MTP_EXTERNAL_STORE_ID;
-	g_device.default_hparent = PTP_OBJECTHANDLE_ROOT;
-
-	_prop_build_supp_props_default();
-	__init_device_info();
-
-	return;
 }
 
 /* LCOV_EXCL_START */
@@ -404,47 +412,6 @@ mtp_bool _device_uninstall_storage(void)
 	return TRUE;
 }
 
-/*
- * static mtp_err_t __device_clear_store_data(mtp_uint32 store_id)
- * This function removes the storage entry.
- * @param[in]	store_id	Specifies the storage id to remove
- * @return	This function returns MTP_ERROR_NONE on success
- *		ERROR number on failure.
- */
-static mtp_err_t __clear_store_data(mtp_uint32 store_id)
-{
-	mtp_uint16 idx = 0;
-	mtp_store_t *store = NULL;
-	mtp_uint32 count = g_device.num_stores;
-
-	for (idx = 0; idx < count; idx++) {
-		if (g_device.store_list[idx].store_id == store_id) {
-
-			_entity_destroy_mtp_store(&(g_device.store_list[idx]));
-
-			store = &(g_device.store_list[idx]);
-			store->store_id = 0;
-			store->is_hidden = FALSE;
-			g_free(store->root_path);
-			store->root_path = NULL;
-
-			for (; idx < count - 1; idx++) {
-				_entity_copy_store_data(&(g_device.store_list[idx]),
-						&(g_device.store_list[idx + 1]));
-			}
-
-			g_device.store_list[count - 1].store_id = 0;
-			g_device.store_list[count - 1].root_path = NULL;
-			g_device.store_list[count - 1].is_hidden = FALSE;
-			_util_init_list(&(g_device.store_list[count - 1].obj_list));
-
-			/*Initialize the destroyed store*/
-			g_device.num_stores--;
-			return MTP_ERROR_NONE;
-		}
-	}
-	return MTP_ERROR_GENERAL;
-}
 /* LCOV_EXCL_STOP */
 
 mtp_store_t *_device_get_store(mtp_uint32 store_id)
