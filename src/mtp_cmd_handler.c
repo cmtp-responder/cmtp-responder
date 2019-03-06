@@ -66,14 +66,12 @@ static void __send_object(mtp_handler_t *hdlr);
 static void __delete_object(mtp_handler_t *hdlr);
 static void __reset_device(mtp_handler_t *hdlr);
 static void __get_partial_object(mtp_handler_t *hdlr);
-#ifndef PMP_VER
 #ifdef MTP_SUPPORT_SET_PROTECTION
 static void __set_object_protection(mtp_handler_t *hdlr);
 #endif /* MTP_SUPPORT_SET_PROTECTION */
 static void __power_down(mtp_handler_t *hdlr);
 static void __vendor_command1(mtp_handler_t *hdlr);
 static void __get_interdep_prop_desc(mtp_handler_t *hdlr);
-#endif /* PMP_VER */
 static void __close_session(mtp_handler_t *hdlr);
 #ifdef MTP_SUPPORT_PRINT_COMMAND
 static void __print_command(mtp_uint16 code);
@@ -160,7 +158,6 @@ static void __process_commands(mtp_handler_t *hdlr, cmd_blk_t *cmd)
 	case PTP_OPCODE_GETPARTIALOBJECT:
 		__get_partial_object(hdlr);
 		break;
-#ifndef PMP_VER
 	case PTP_OPCODE_RESETDEVICE:
 		__reset_device(hdlr);
 		break;
@@ -178,7 +175,6 @@ static void __process_commands(mtp_handler_t *hdlr, cmd_blk_t *cmd)
 	case PTP_CODE_VENDOR_OP1:	/* Vendor-specific operations */
 		__vendor_command1(hdlr);
 		break;
-#endif /* PMP_VER */
 
 	case PTP_OPCODE_SENDOBJECTINFO:
 	case PTP_OPCODE_SENDOBJECT:
@@ -1003,7 +999,6 @@ static void __get_partial_object(mtp_handler_t *hdlr)
 	return;
 }
 
-#ifndef PMP_VER
 #ifdef MTP_SUPPORT_SET_PROTECTION
 static void __set_object_protection(mtp_handler_t *hdlr)
 {
@@ -1130,8 +1125,6 @@ static void __get_interdep_prop_desc(mtp_handler_t *hdlr)
 	g_free(blk.data);
 	return;
 }
-
-#endif /*PMP_VER*/
 
 void __close_session(mtp_handler_t *hdlr)
 {
