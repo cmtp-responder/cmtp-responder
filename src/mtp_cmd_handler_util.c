@@ -1176,80 +1176,6 @@ mtp_err_t _hutil_set_protection(mtp_uint32 obj_handle, mtp_uint16 prot_status)
 }
 #endif /* MTP_SUPPORT_SET_PROTECTION */
 
-mtp_err_t _hutil_get_num_objects(mtp_uint32 store_id, mtp_uint32 h_parent,
-		mtp_uint32 format, mtp_uint32 *num_obj)
-{
-	mtp_store_t *store = NULL;
-	mtp_obj_t *obj = NULL;
-	mtp_int32 i = 0;
-	mtp_uint32 numobj = 0;
-
-	*num_obj = 0;
-	if (store_id != PTP_STORAGEID_ALL) {
-		store = _device_get_store(store_id);
-		if (store == NULL) {
-			ERR("specific store is null");
-			return MTP_ERROR_INVALID_STORE;
-		}
-	}
-
-	/* LCOV_EXCL_START */
-	if (!h_parent) {
-		if (!format) {
-			*num_obj = _device_get_num_objects(store_id);
-		} else {
-			*num_obj = _device_get_num_objects_with_format(store_id,
-					format);
-		}
-		return MTP_ERROR_NONE;
-	}
-
-	/* return the number of direct children for a particular association
-	 * (in a single store)
-	 */
-	if (h_parent == PTP_OBJECTHANDLE_ALL) {
-
-		h_parent = PTP_OBJECTHANDLE_ROOT;
-		if (store_id == PTP_STORAGEID_ALL) {
-			for (i = (_device_get_num_stores() - 1); i >= 0; i--) {
-				store = _device_get_store_at_index(i);
-				if (store == NULL) {
-					ERR("Store is null");
-					return MTP_ERROR_STORE_NOT_AVAILABLE;
-				}
-				numobj += _entity_get_num_children(store,
-						h_parent, format);
-			}
-			*num_obj = numobj;
-
-			return MTP_ERROR_NONE;
-		}
-	} else {
-		/* Initiator wants number of children of a particular association */
-		obj = _device_get_object_with_handle(h_parent);
-		if (obj == NULL) {
-			ERR("obj is null");
-			return MTP_ERROR_INVALID_OBJECTHANDLE;
-		}
-
-		if (obj->obj_info->obj_fmt != PTP_FMT_ASSOCIATION) {
-			ERR("format is not association");
-			return MTP_ERROR_INVALID_PARENT;
-		}
-
-		store = _device_get_store_containing_obj(h_parent);
-	}
-
-	if (store == NULL) {
-		ERR("store is null");
-		return MTP_ERROR_STORE_NOT_AVAILABLE;
-	}
-
-	*num_obj = _entity_get_num_children(store, h_parent, format);
-	return MTP_ERROR_NONE;
-}
-/* LCOV_EXCL_STOP */
-
 mtp_err_t _hutil_get_object_handles(mtp_uint32 store_id, mtp_uint32 format,
 		mtp_uint32 h_parent, ptp_array_t *handle_arr)
 {
@@ -2039,12 +1965,6 @@ mtp_err_t _hutil_get_object_references(mtp_uint32 obj_handle,
 
 	_prop_deinit_ptparray(&ref_arr);
 	/* LCOV_EXCL_STOP */
-	return MTP_ERROR_NONE;
-}
-
-mtp_err_t _hutil_get_number_of_objects(mtp_uint32 store_id, mtp_uint32 *num_obj)
-{
-	*num_obj = _device_get_num_objects(store_id);
 	return MTP_ERROR_NONE;
 }
 

@@ -149,26 +149,6 @@ mtp_store_t *_device_get_store(mtp_uint32 store_id);
 mtp_uint32 _device_get_store_ids(ptp_array_t *store_ids);
 
 /*
- * mtp_uint32 _device_get_num_objects(mtp_uint32 store_id)
- * This functions will get the number of objects in the store
- * @param[in]	store_id	storage id
- * @return	the number of objects.
- */
-mtp_uint32 _device_get_num_objects(mtp_uint32 store_id);
-
-/*
- * mtp_uint32 _device_get_num_objects_with_format(mtp_uint32 store_id,
- * mtp_uint32 format)
- * This function will get the number of objects with certain format code in the
- * specified store
- * @param[in]	store_id	storage id
- * @param[in]	format	format code of the objects
- * @return	the number of objects with the formatcode.
- */
-mtp_uint32 _device_get_num_objects_with_format(mtp_uint32 store_id,
-		mtp_uint32 format);
-
-/*
  * mtp_obj_t *_device_get_object_with_handle(mtp_uint32 obj_handle)
  * This fuctions returns the object with the obj_handle
  * @param[in]	obj_handle	object handle of the desired object

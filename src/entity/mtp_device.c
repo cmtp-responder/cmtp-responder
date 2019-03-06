@@ -526,47 +526,6 @@ mtp_uint32 _device_get_store_ids(ptp_array_t *store_ids)
 	return store_ids->num_ele;
 }
 
-mtp_uint32 _device_get_num_objects(mtp_uint32 store_id)
-{
-	mtp_uint32 num_objs = 0;
-	mtp_store_t *store = NULL;
-	mtp_uint32 ii = 0;
-
-	for (ii = 0; ii < g_device.num_stores; ii++) {
-
-		store = &(g_device.store_list[ii]);
-		if ((store->store_id == store_id) ||
-				(store_id == PTP_STORAGEID_ALL)) {
-			num_objs += store->obj_list.nnodes;
-		}
-	}
-
-	return num_objs;
-}
-
-/* LCOV_EXCL_START */
-mtp_uint32 _device_get_num_objects_with_format(mtp_uint32 store_id,
-		mtp_uint32 format)
-{
-	mtp_uint32 num_objs = 0;
-	mtp_store_t *store = NULL;
-	mtp_uint32 ii = 0;
-
-	for (ii = 0; ii < g_device.num_stores; ii++) {
-
-		store = &(g_device.store_list[ii]);
-		if ((store->store_id != store_id) &&
-				(store_id != PTP_STORAGEID_ALL)) {
-			continue;
-		}
-		num_objs += _entity_get_num_object_with_same_format(store,
-				format);
-	}
-
-	return num_objs;
-}
-/* LCOV_EXCL_STOP */
-
 mtp_obj_t *_device_get_object_with_handle(mtp_uint32 obj_handle)
 {
 	mtp_int32 ii = 0;
