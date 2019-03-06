@@ -459,10 +459,12 @@ int main(int argc, char *argv[])
 {
 	mtp_int32 ret;
 
-	if (_eh_register_notification_callbacks() == FALSE) {
-		ERR("_eh_register_notification_callbacks() Fail");
-		return MTP_ERROR_GENERAL;
-	}
+	DBG("Using FFS transport, assuming established connection");
+	_util_set_local_usb_status(MTP_PHONE_USB_DISCONNECTED);
+	_util_set_local_usbmode_status(1);
+	DBG("Phone status: USB = [%d] MMC = [%d] USB_MODE = [%d] LOCK_STATUS = [%d]\n",
+			_util_get_local_usb_status(), MTP_PHONE_MMC_INSERTED,
+			_util_get_local_usbmode_status(), MTP_PHONE_LOCK_OFF);
 
 	ret = _main_init();
 	if (MTP_ERROR_NONE != ret) {

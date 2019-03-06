@@ -52,18 +52,6 @@ static mtp_bool __send_start_event_to_eh_thread(void);
  * FUNCTIONS
  */
 /* LCOV_EXCL_START */
-mtp_bool _eh_register_notification_callbacks(void)
-{
-	DBG("Using FFS transport, assuming established connection");
-	_util_set_local_usb_status(MTP_PHONE_USB_DISCONNECTED);
-	_util_set_local_usbmode_status(1);
-
-	DBG("Phone status: USB = [%d] MMC = [%d] USB_MODE = [%d] LOCK_STATUS = [%d]\n",
-			_util_get_local_usb_status(), MTP_PHONE_MMC_INSERTED,
-			_util_get_local_usbmode_status(), MTP_PHONE_LOCK_OFF);
-	return TRUE;
-}
-
 mtp_bool _eh_handle_usb_events(mtp_uint32 type)
 {
 	mtp_state_t state = MTP_STATE_STOPPED;
