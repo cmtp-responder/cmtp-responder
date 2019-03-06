@@ -68,7 +68,6 @@ typedef enum {
 
 void _entity_update_store_info_run_time(store_info_t *info,
 		mtp_char *root_path);
-mtp_bool _entity_get_store_path_by_id(mtp_uint32 store_id, mtp_char *path);
 mtp_uint32 _entity_get_store_info_size(store_info_t *info);
 mtp_uint32 _entity_pack_store_info(store_info_t *info, mtp_uchar *buf,
 		mtp_uint32 buf_sz);
@@ -92,10 +91,6 @@ mtp_uint32 _entity_get_objects_from_store_till_depth(mtp_store_t *store,
 		ptp_array_t *obj_arr);
 mtp_uint32 _entity_get_objects_from_store_by_format(mtp_store_t *store,
 		mtp_uint32 format, ptp_array_t *obj_arr);
-mtp_uint32 _entity_get_num_object_with_same_format(mtp_store_t *store,
-		mtp_uint32 format);
-mtp_uint32 _entity_get_num_children(mtp_store_t *store, mtp_uint32 h_parent,
-		mtp_uint32 format);
 mtp_uint32 _entity_get_child_handles(mtp_store_t *store, mtp_uint32 h_parent,
 		ptp_array_t *child_arr);
 mtp_uint32 _entity_get_child_handles_with_same_format(mtp_store_t *store,
@@ -113,7 +108,6 @@ mtp_uint16 _entity_format_store(mtp_store_t *store, mtp_uint32 fs_format);
 void _entity_destroy_mtp_store(mtp_store_t *store);
 void _entity_store_recursive_enum_folder_objects(mtp_store_t *store,
 		mtp_obj_t *pobj);
-void _entity_list_modified_files(mtp_uint32 minutes);
 void _entity_copy_store_data(mtp_store_t *dst, mtp_store_t *src);
 
 #ifdef __cplusplus

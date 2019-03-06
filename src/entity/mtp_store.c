@@ -90,24 +90,6 @@ void _entity_update_store_info_run_time(store_info_t *info,
 }
 
 /* LCOV_EXCL_START */
-mtp_bool _entity_get_store_path_by_id(mtp_uint32 store_id, mtp_char *path)
-{
-	char sto_path[MTP_MAX_PATHNAME_SIZE + 1] = { 0 };
-
-	switch (store_id) {
-	case MTP_EXTERNAL_STORE_ID:
-		_util_get_external_path(sto_path);
-		g_strlcpy(path, sto_path,
-				MTP_MAX_PATHNAME_SIZE + 1);
-		break;
-	default:
-		ERR("No valid match for the store id [0x%x]\n", store_id);
-		return FALSE;
-
-	}
-	return TRUE;
-}
-
 mtp_uint32 _entity_get_store_info_size(store_info_t *info)
 {
 	mtp_uint32 size = FIXED_LENGTH_MEMBERS_MTPSTORE_SIZE;
@@ -521,76 +503,6 @@ mtp_uint32 _entity_get_objects_from_store_by_format(mtp_store_t *store,
 
 	_util_deinit_list_iterator(iter);
 	return (obj_arr->num_ele);
-}
-
-mtp_uint32 _entity_get_num_object_with_same_format(mtp_store_t *store,
-		mtp_uint32 format)
-{
-	mtp_uint32 count = 0;
-	mtp_obj_t *obj = NULL;
-	slist_iterator *iter = NULL;
-
-	retv_if(store == NULL, 0);
-
-	if (PTP_FORMATCODE_NOTUSED == format)
-		return store->obj_list.nnodes;
-
-	iter = (slist_iterator *)_util_init_list_iterator(&(store->obj_list));
-	if (iter == NULL) {
-		ERR("Iterator init Fail, store id = [0x%x]\n", store->store_id);
-		return 0;
-	}
-
-	while (UTIL_CHECK_LIST_NEXT(iter) == TRUE) {
-
-		obj = (mtp_obj_t *)_util_get_list_next(iter);
-		if (obj == NULL || obj->obj_info == NULL)
-			continue;
-
-		if ((obj->obj_info->obj_fmt == format) ||
-				(obj->obj_info->obj_fmt != PTP_FMT_ASSOCIATION &&
-				 PTP_FORMATCODE_ALL == format)) {
-			count++;
-		}
-	}
-
-	_util_deinit_list_iterator(iter);
-	return count;
-}
-
-mtp_uint32 _entity_get_num_children(mtp_store_t *store, mtp_uint32 h_parent,
-		mtp_uint32 format)
-{
-	mtp_uint32 count = 0;
-	mtp_obj_t *obj = NULL;
-	slist_iterator *iter = NULL;
-
-	retv_if(store == NULL, 0);
-
-	iter = (slist_iterator *)_util_init_list_iterator(&(store->obj_list));
-	if (iter == NULL) {
-		ERR("Iterator init Fail Store id = [0x%x]\n", store->store_id);
-		return 0;
-	}
-
-	while (UTIL_CHECK_LIST_NEXT(iter) == TRUE) {
-
-		obj = (mtp_obj_t *)_util_get_list_next(iter);
-		if (obj == NULL || obj->obj_info == NULL)
-			continue;
-
-		if ((obj->obj_info->h_parent == h_parent) &&
-				((format == obj->obj_info->obj_fmt) ||
-				 (format == PTP_FORMATCODE_NOTUSED) ||
-				 ((format == PTP_FORMATCODE_ALL) &&
-				  (obj->obj_info->obj_fmt !=
-				   PTP_FMT_ASSOCIATION)))) {
-			count++;
-		}
-	}
-
-	_util_deinit_list_iterator(iter);
-	return count;
 }
 
 mtp_uint32 _entity_get_child_handles(mtp_store_t *store, mtp_uint32 h_parent,
@@ -1185,34 +1097,6 @@ NEXT:
 }
 
 /* LCOV_EXCL_START */
-void _entity_list_modified_files(mtp_uint32 minutes)
-{
-	if (minutes == 0)
-		return;
-	mtp_int32 ret;
-	mtp_char command[FIND_CMD_LEN] = { 0 };
-
-	if (TRUE == _device_is_store_mounted()) {
-		char ext_path[MTP_MAX_PATHNAME_SIZE + 1] = { 0 };
-		_util_get_external_path(ext_path);
-
-		g_snprintf(command, FIND_CMD_LEN, FIND_CMD,
-				ext_path, minutes,
-				MTP_FILES_MODIFIED_FILES);
-		DBG("find query is [%s]\n", command);
-		ret = _util_system_cmd_wait(command);
-
-		if (WIFSIGNALED(ret) &&
-				(WTERMSIG(ret) == SIGINT ||
-				 WTERMSIG(ret) == SIGQUIT)) {
-			ERR("SYSTEM Fail");
-			return;
-		}
-	}
-
-	return;
-}
-
 void _entity_copy_store_data(mtp_store_t *dst, mtp_store_t *src)
 {
 	dst->store_id = src->store_id;
