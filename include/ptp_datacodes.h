@@ -147,9 +147,6 @@
 #define	MTP_OPCODE_UNDEFINED			0x9800
 #define MTP_OPCODE_GETINTERDEPPROPDESC		0x9807
 
-/* MTP Playback control operation */
-#define	MTP_OPCODE_PLAYBACK_SKIP		0x9820
-
 /* Operation for Windows Media 10 MTP extension */
 #define	MTP_OPCODE_WMP_UNDEFINED				0x9200
 #define	MTP_OPCODE_WMP_METADATAROUNDTRIP			0x9201

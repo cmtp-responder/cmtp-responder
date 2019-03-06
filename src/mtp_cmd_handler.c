@@ -67,7 +67,6 @@ static void __send_object(mtp_handler_t *hdlr);
 static void __delete_object(mtp_handler_t *hdlr);
 static void __reset_device(mtp_handler_t *hdlr);
 static void __get_partial_object(mtp_handler_t *hdlr);
-static void __send_playback_skip(mtp_handler_t *hdlr);
 #ifndef PMP_VER
 #ifdef MTP_SUPPORT_SET_PROTECTION
 static void __set_object_protection(mtp_handler_t *hdlr);
@@ -181,9 +180,6 @@ static void __process_commands(mtp_handler_t *hdlr, cmd_blk_t *cmd)
 		__vendor_command1(hdlr);
 		break;
 #endif /* PMP_VER */
-	case MTP_OPCODE_PLAYBACK_SKIP:	/* Playback control */
-		__send_playback_skip(hdlr);
-		break;
 
 	case PTP_OPCODE_SENDOBJECTINFO:
 	case PTP_OPCODE_SENDOBJECT:
@@ -1008,19 +1004,6 @@ static void __get_partial_object(mtp_handler_t *hdlr)
 	return;
 }
 
-static void __send_playback_skip(mtp_handler_t *hdlr)
-{
-	mtp_int32 skip = 0;
-	mtp_uint16 resp = PTP_RESPONSE_INVALIDPARAM;
-
-	skip = (mtp_int32) _hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 0);
-	if (MTP_ERROR_NONE == _hutil_get_playback_skip(skip))
-		resp = PTP_RESPONSE_OK;
-
-	_cmd_hdlr_send_response_code(hdlr, resp);
-	return;
-}
-
 #ifndef PMP_VER
 #ifdef MTP_SUPPORT_SET_PROTECTION
 static void __set_object_protection(mtp_handler_t *hdlr)
@@ -1273,9 +1256,6 @@ static void __print_command(mtp_uint16 code)
 		break;
 	case MTP_OPCODE_GETINTERDEPPROPDESC:
 		DBG("COMMAND ======== GET INTERDEP PROP DESC ==========");
-		break;
-	case MTP_OPCODE_PLAYBACK_SKIP:
-		DBG("COMMAND ======== PLAYBACK SKIP ==========");
 		break;
 	default:
 		DBG("======== UNKNOWN COMMAND ==========");
