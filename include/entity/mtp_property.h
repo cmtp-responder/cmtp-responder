@@ -215,15 +215,7 @@ void _prop_destroy_ptpstring(ptp_string_t *pstring);
 /*
  * DevicePropDesc Functions
  */
-void _prop_init_device_property_desc(device_prop_desc_t *prop,
-		mtp_uint16 propcode, mtp_uint16 data_type, mtp_uchar get_set,
-		mtp_uchar form_flag);
 mtp_uint32 _prop_size_device_prop_desc(device_prop_desc_t *prop);
-mtp_uint32 _prop_pack_device_prop_desc(device_prop_desc_t *prop,
-		mtp_uchar *buf, mtp_uint32 size);
-mtp_uint32 _prop_pack_curval_device_prop_desc(device_prop_desc_t *prop,
-		mtp_uchar *buf, mtp_uint32 size);
-void _prop_reset_device_prop_desc(device_prop_desc_t *prop);
 
 /*
  * ObjectPropVal Functions
