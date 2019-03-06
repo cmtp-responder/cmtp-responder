@@ -261,9 +261,6 @@ mtp_bool _prop_update_property_values_list(mtp_obj_t *obj);
 mtp_uint32 _prop_size_obj_proplist(obj_proplist_t *prop_list);
 mtp_uint32 _prop_get_obj_proplist(mtp_obj_t *pObject, mtp_uint32 prop_code,
 		mtp_uint32 group_code, obj_proplist_t *prop_list);
-mtp_uint32 _prop_pack_obj_proplist(obj_proplist_t *prop_list, mtp_uchar *buf,
-		mtp_uint32 size);
-void _prop_destroy_obj_proplist(obj_proplist_t *prop_list);
 
 /*
  * ObjectProp Functions
