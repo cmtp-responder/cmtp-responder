@@ -138,15 +138,6 @@ void* _util_get_list_next(slist_iterator *iter)
 	return temp->value;
 }
 
-/* LCOV_EXCL_START */
-slist_node_t* _util_get_first_node(slist_t *l_ptr)
-{
-	retv_if(l_ptr == NULL, NULL);
-
-	return l_ptr->start;
-}
-/* LCOV_EXCL_STOP */
-
 void _util_deinit_list_iterator(slist_iterator *iter)
 {
 	ret_if(iter == NULL);
