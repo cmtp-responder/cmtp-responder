@@ -28,7 +28,6 @@ extern "C" {
 
 void _mtp_init(void);
 void _mtp_deinit(void);
-void _features_supported_info(void);
 void mtp_end_event(void);
 
 #ifdef __cplusplus

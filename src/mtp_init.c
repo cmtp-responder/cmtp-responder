@@ -86,6 +86,32 @@ static void __mtp_exit(void)
 
 /* LCOV_EXCL_STOP */
 
+static void _features_supported_info(void)
+{
+	DBG("***********************************************************");
+	DBG("### MTP Information ###");
+	DBG("### 1. Solution		: SLP");
+	DBG("### 2. MTP Version		: 1.0");
+
+	DBG("***********************************************************");
+	DBG("### Extension ###");
+	if (_get_oma_drm_status() == TRUE)
+		DBG("### 2. OMADRM		: [ON]");
+	else
+		DBG("### 2. OMADRM		: [OFF]");
+
+	DBG("***********************************************************");
+	DBG("### Feature ###");
+
+#ifdef MTP_SUPPORT_SET_PROTECTION
+	DBG("### 3. MTP_SUPPORT_SET_PROTECTION	: [ON]");
+#else /* MTP_SUPPORT_SET_PROTECTION */
+	DBG("### 3. MTP_SUPPORT_SET_PROTECTION	: [OFF]");
+#endif /* MTP_SUPPORT_SET_PROTECTION */
+	DBG("***********************************************************");
+	return;
+}
+
 void _mtp_init(void)
 {
 	mtp_int32 error = 0;
@@ -386,32 +412,6 @@ void __init_mtp_info(void)
 	memset(&g_mgr->meta_info, 0, sizeof(g_mgr->meta_info));
 
 	return ;
-}
-
-void _features_supported_info(void)
-{
-	DBG("***********************************************************");
-	DBG("### MTP Information ###");
-	DBG("### 1. Solution		: SLP");
-	DBG("### 2. MTP Version		: 1.0");
-
-	DBG("***********************************************************");
-	DBG("### Extension ###");
-	if (_get_oma_drm_status() == TRUE)
-		DBG("### 2. OMADRM		: [ON]");
-	else
-		DBG("### 2. OMADRM		: [OFF]");
-
-	DBG("***********************************************************");
-	DBG("### Feature ###");
-
-#ifdef MTP_SUPPORT_SET_PROTECTION
-	DBG("### 3. MTP_SUPPORT_SET_PROTECTION	: [ON]");
-#else /* MTP_SUPPORT_SET_PROTECTION */
-	DBG("### 3. MTP_SUPPORT_SET_PROTECTION	: [OFF]");
-#endif /* MTP_SUPPORT_SET_PROTECTION */
-	DBG("***********************************************************");
-	return;
 }
 
 /*
