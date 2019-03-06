@@ -25,15 +25,9 @@ extern "C" {
 #include "mtp_object.h"
 
 
-#define STORAGE_DESC "Phone"
 /* First six members of SStorageInfo structure */
 #define FIXED_LENGTH_MEMBERS_MTPSTORE_SIZE \
 	(sizeof(mtp_uint16) * 3 + sizeof(mtp_uint64) * 2 + sizeof(mtp_uint32))
-
-typedef enum {
-	MTPSTORE_WMPINFO_PHONE = 1,
-	MTPSTORE_WMPINFO_CARD
-} store_special_obj_t;
 
 /*
  * store_info
