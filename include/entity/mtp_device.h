@@ -117,14 +117,6 @@ mtp_uint32 _pack_device_info(mtp_uchar *buf, mtp_uint32 buf_sz);
  */
 void _reset_mtp_device(void);
 
-/*
- * device_prop_desc_t *_device_get_device_property(mtp_uint32 prop_code)
- * This function will get the property with the input property code
- * @param[in]	prop_code	Property code
- * @return	pointer to the property if success else NULL.
- */
-device_prop_desc_t *_device_get_device_property(mtp_uint32 prop_code);
-
 mtp_bool _device_is_store_mounted(void);
 
 /*

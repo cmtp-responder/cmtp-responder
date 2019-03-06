@@ -364,11 +364,6 @@ void _reset_mtp_device(void)
 }
 /* LCOV_EXCL_STOP */
 
-device_prop_desc_t *_device_get_device_property(mtp_uint32 prop_code)
-{
-	return NULL;
-}
-
 /*
  * static mtp_bool _device_add_store(void)
  * This function will add the store to the device.
@@ -694,34 +689,14 @@ device_prop_desc_t *_device_get_ref_prop_list(void)
 
 mtp_bool _device_get_playback_obj(mtp_uint32 *playback_obj)
 {
-	device_prop_desc_t *device_prop = NULL;
-
-	device_prop = _device_get_device_property(MTP_PROPERTYCODE_PLAYBACK_OBJECT);
-	if (NULL == device_prop) {
-		ERR("device_prop is NULL");
-		return FALSE;
-	}
-	memcpy(playback_obj, device_prop->current_val.integer,
-			sizeof(mtp_uint32));
-
-	return TRUE;
+	ERR("device_prop is NULL");
+	return FALSE;
 }
 
 mtp_bool _device_set_playback_obj(mtp_uint32 playback_obj)
 {
-	device_prop_desc_t *device_prop = NULL;
-	cmd_container_t event = { 0, };
-
-	device_prop = _device_get_device_property(MTP_PROPERTYCODE_PLAYBACK_OBJECT);
-	if (device_prop == NULL) {
-		ERR("device_prop is NULL");
-		return FALSE;
-	}
-	_prop_set_current_integer(device_prop, playback_obj);
-	_hdlr_init_event_container(&event,
-			PTP_EVENTCODE_DEVICEPROPCHANGED, 0, 0, 0);
-	_hdlr_send_event_container(&event);
-	return TRUE;
+	ERR("device_prop is NULL");
+	return FALSE;
 }
 /* LCOV_EXCL_STOP */
 

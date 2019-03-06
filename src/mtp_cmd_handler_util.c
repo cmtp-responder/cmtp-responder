@@ -101,14 +101,7 @@ mtp_err_t _hutil_get_storage_ids(ptp_array_t *store_ids)
 mtp_err_t _hutil_get_device_property(mtp_uint32 prop_id,
 		device_prop_desc_t* dev_prop)
 {
-	device_prop_desc_t *prop = NULL;
-
-	prop = _device_get_device_property(prop_id);
-	if (prop == NULL)
 		return MTP_ERROR_GENERAL;
-
-	memcpy(dev_prop, prop, sizeof(device_prop_desc_t));
-	return MTP_ERROR_NONE;
 }
 
 /*
@@ -122,20 +115,7 @@ mtp_err_t _hutil_get_device_property(mtp_uint32 prop_id,
 mtp_err_t _hutil_set_device_property(mtp_uint32 prop_id, void *data,
 		mtp_uint32 data_sz)
 {
-	device_prop_desc_t *prop = NULL;
-
-	prop = _device_get_device_property(prop_id);
-	if (prop == NULL)
-		return MTP_ERROR_GENERAL;
-/* LCOV_EXCL_START */
-	if (prop->propinfo.get_set == PTP_PROPGETSET_GETONLY)
-		return MTP_ERROR_ACCESS_DENIED;
-
-	if (FALSE == _prop_set_current_device_prop(prop, data, data_sz))
-		return MTP_ERROR_INVALID_OBJ_PROP_VALUE;
-
-	return MTP_ERROR_NONE;
-/* LCOV_EXCL_STOP */
+	return MTP_ERROR_GENERAL;
 }
 
 /*
@@ -157,11 +137,7 @@ mtp_err_t _hutil_reset_device_entry(mtp_uint32 prop_id)
 		}
 		/* LCOV_EXCL_STOP */
 	} else {
-		prop = _device_get_device_property(prop_id);
-		if (prop == NULL)
-			return MTP_ERROR_GENERAL;
-
-		_prop_reset_device_prop_desc(prop);
+		return MTP_ERROR_GENERAL;
 	}
 
 	return MTP_ERROR_NONE;
