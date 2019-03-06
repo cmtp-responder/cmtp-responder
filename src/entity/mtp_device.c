@@ -213,7 +213,6 @@ mtp_uint32 _get_device_info_size(void)
 	size += sizeof(mtp_uint32);
 	size += sizeof(g_event_supported);
 	size += sizeof(mtp_uint32);
-	size += NUM_DEVICE_PROPERTIES * sizeof(mtp_uint16);
 	size += sizeof(mtp_uint32);
 	size += sizeof(g_capture_fmts);
 	size += sizeof(mtp_uint32);
@@ -300,7 +299,7 @@ mtp_uint32 _pack_device_info(mtp_uchar *buf, mtp_uint32 buf_sz)
 		ptr += sizeof(mtp_uint16);
 	}
 
-	count = NUM_DEVICE_PROPERTIES;
+	count = 0;
 	memcpy(ptr, &count, sizeof(count));
 #ifdef __BIG_ENDIAN__
 	_util_conv_byte_order(ptr, sizeof(count));

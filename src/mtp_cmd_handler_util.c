@@ -147,7 +147,6 @@ mtp_err_t _hutil_set_device_property(mtp_uint32 prop_id, void *data,
 mtp_err_t _hutil_reset_device_entry(mtp_uint32 prop_id)
 {
 	device_prop_desc_t *prop = NULL;
-	mtp_uint16 ii = 0;
 
 	if (prop_id == 0xFFFFFFFF) {
 		/* LCOV_EXCL_START */
@@ -156,8 +155,6 @@ mtp_err_t _hutil_reset_device_entry(mtp_uint32 prop_id)
 			ERR("property reference is NULL");
 			return MTP_ERROR_GENERAL;
 		}
-		for (ii = 0; ii < NUM_DEVICE_PROPERTIES; ii++)
-			_prop_reset_device_prop_desc(&prop[ii]);
 		/* LCOV_EXCL_STOP */
 	} else {
 		prop = _device_get_device_property(prop_id);
