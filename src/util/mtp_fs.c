@@ -61,20 +61,7 @@ FILE* _util_file_open(const mtp_char *filename, file_mode_t mode,
 		break;
 
 	case MTP_FILE_WRITE:
-/* LCOV_EXCL_START */
 		fmode = "w";
-		break;
-
-	case MTP_FILE_APPEND:
-		fmode = "a";
-		break;
-
-	case MTP_FILE_READ | MTP_FILE_WRITE:
-		fmode = "r+";
-		break;
-
-	case MTP_FILE_READ | MTP_FILE_WRITE | MTP_FILE_APPEND:
-		fmode = "a+";
 		break;
 
 	default:
@@ -82,7 +69,6 @@ FILE* _util_file_open(const mtp_char *filename, file_mode_t mode,
 		*error = EINVAL;
 		return NULL;
 	}
-/* LCOV_EXCL_STOP */
 
 	fhandle = fopen(filename, fmode);
 	if (fhandle == NULL) {
@@ -92,7 +78,6 @@ FILE* _util_file_open(const mtp_char *filename, file_mode_t mode,
 		return NULL;
 	}
 
-	/* LCOV_EXCL_START*/
 	fcntl(fileno(fhandle), F_SETFL, O_NOATIME);
 
 	return fhandle;

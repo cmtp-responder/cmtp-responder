@@ -60,7 +60,6 @@ typedef struct {
 typedef enum {
 	MTP_FILE_READ = 0x1,
 	MTP_FILE_WRITE = 0x2,
-	MTP_FILE_APPEND = 0x4,
 } file_mode_t;
 
 typedef struct {
