@@ -402,18 +402,7 @@ mtp_uint32 _entity_pack_obj_info(mtp_obj_t *obj, ptp_string_t *file_name,
 	DBG("number of bytes for objectinfo :[%d]\n", num_bytes);
 	return num_bytes;
 }
-
-void _entity_dealloc_obj_info(obj_info_t *info)
-{
-	g_free(info);
-	info = NULL;
-}
 /* LCOV_EXCL_STOP */
-
-mtp_obj_t *_entity_alloc_mtp_object(void)
-{
-	return ((mtp_obj_t *)g_malloc(sizeof(mtp_obj_t)));
-}
 
 mtp_bool _entity_init_mtp_object_params(
 		mtp_obj_t *obj,

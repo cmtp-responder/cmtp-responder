@@ -70,8 +70,8 @@ mtp_uint32 _entity_parse_raw_obj_info(mtp_uchar *buf, mtp_uint32 buf_sz,
 void _entity_copy_obj_info(obj_info_t *dst, obj_info_t *src);
 mtp_uint32 _entity_pack_obj_info(mtp_obj_t *obj, ptp_string_t *file_name,
 		mtp_uchar *buf, mtp_uint32 buf_sz);
-void _entity_dealloc_obj_info(obj_info_t *info);
-mtp_obj_t *_entity_alloc_mtp_object(void);
+#define _entity_dealloc_obj_info(info) g_free(info)
+#define _entity_alloc_mtp_object(...) (((mtp_obj_t *)g_malloc(sizeof(mtp_obj_t))))
 mtp_bool _entity_init_mtp_object_params(
 		mtp_obj_t *obj,
 		mtp_uint32 store_id,
