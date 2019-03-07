@@ -98,11 +98,7 @@ FILE* _util_file_open(const mtp_char *filename, file_mode_t mode,
 void _util_file_read(FILE* fhandle, void *bufptr, mtp_uint32 size,
 		mtp_uint32 *read_count)
 {
-	mtp_uint32 bytes_read = 0;
-
-	bytes_read = fread_unlocked(bufptr, sizeof(mtp_char), size, fhandle);
-
-	*read_count = bytes_read;
+	*read_count = fread_unlocked(bufptr, sizeof(mtp_char), size, fhandle);
 }
 /**
  * mtp_uint32 _util_file_write(mtp_uint32 fhandle, void *bufptr, mtp_uint32 size)
@@ -117,11 +113,7 @@ void _util_file_read(FILE* fhandle, void *bufptr, mtp_uint32 size,
 
 mtp_uint32 _util_file_write(FILE* fhandle, void *bufptr, mtp_uint32 size)
 {
-	mtp_uint32 bytes_written = 0;
-
-	bytes_written = fwrite_unlocked(bufptr, sizeof(mtp_char), size, fhandle);
-
-	return bytes_written;
+	return fwrite_unlocked(bufptr, sizeof(mtp_char), size, fhandle);
 }
 
 /**
