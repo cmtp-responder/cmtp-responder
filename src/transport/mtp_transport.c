@@ -47,13 +47,6 @@ static msgq_id_t g_usb_to_mtp_mqid;
 static status_info_t g_status;
 
 /*
- * STATIC FUNCTIONS
- */
-static void *__transport_thread_data_rcv(void *func);
-static mtp_err_t __transport_init_io();
-static void __transport_deinit_io();
-
-/*
  * FUNCTIONS
  */
 /* LCOV_EXCL_START */
@@ -392,6 +385,48 @@ static void __transport_deinit_io()
 	g_usb_threads_created = FALSE;
 }
 
+static void *__transport_thread_data_rcv(void *func)
+{
+	msgq_ptr_t pkt = { 0 };
+	mtp_uchar *pkt_data = NULL;
+	mtp_uint32 pkt_len = 0;
+	mtp_int32 flag = 1;
+	mtp_int32 len = 0;
+	_cmd_handler_cb _cmd_handler_func = (_cmd_handler_cb)func;
+
+	while (flag) {
+		if (_util_msgq_receive(g_usb_to_mtp_mqid, (void *)&pkt,
+					sizeof(pkt) - sizeof(long), 0, &len) == FALSE) {
+			ERR("_util_msgq_receive() Fail");
+			flag = 0;
+			break;
+		}
+		if (len == sizeof(msgq_ptr_t) - sizeof(long)) {
+			len = pkt.length;
+			if (pkt.length == 6 && pkt.signal == 0xABCD) {
+				ERR("Got NULL character in MQ");
+				flag = 0;
+				break;
+			}
+			pkt_data = pkt.buffer;
+			pkt_len = pkt.length;
+			_cmd_handler_func((mtp_char *)pkt_data, pkt_len);
+			g_free(pkt_data);
+			pkt_data = NULL;
+			pkt_len = 0;
+			memset(&pkt, 0, sizeof(pkt));
+		} else {
+			g_free(pkt.buffer);
+			pkt.buffer = NULL;
+			ERR("Received packet is less than real size");
+		}
+	}
+
+	ERR("thread_data_rcv[%lu] exiting\n", g_data_rcv);
+	_util_thread_exit("__transport_thread_data_rcv is over");
+	return NULL;
+}
+
 mtp_bool _transport_init_interfaces(_cmd_handler_cb func)
 {
 	mtp_int32 res = 0;
@@ -467,47 +502,6 @@ void _transport_usb_finalize(void)
 	_transport_deinit_usb_device();
 }
 
-static void *__transport_thread_data_rcv(void *func)
-{
-	msgq_ptr_t pkt = { 0 };
-	mtp_uchar *pkt_data = NULL;
-	mtp_uint32 pkt_len = 0;
-	mtp_int32 flag = 1;
-	mtp_int32 len = 0;
-	_cmd_handler_cb _cmd_handler_func = (_cmd_handler_cb)func;
-
-	while (flag) {
-		if (_util_msgq_receive(g_usb_to_mtp_mqid, (void *)&pkt,
-					sizeof(pkt) - sizeof(long), 0, &len) == FALSE) {
-			ERR("_util_msgq_receive() Fail");
-			flag = 0;
-			break;
-		}
-		if (len == sizeof(msgq_ptr_t) - sizeof(long)) {
-			len = pkt.length;
-			if (pkt.length == 6 && pkt.signal == 0xABCD) {
-				ERR("Got NULL character in MQ");
-				flag = 0;
-				break;
-			}
-			pkt_data = pkt.buffer;
-			pkt_len = pkt.length;
-			_cmd_handler_func((mtp_char *)pkt_data, pkt_len);
-			g_free(pkt_data);
-			pkt_data = NULL;
-			pkt_len = 0;
-			memset(&pkt, 0, sizeof(pkt));
-		} else {
-			g_free(pkt.buffer);
-			pkt.buffer = NULL;
-			ERR("Received packet is less than real size");
-		}
-	}
-
-	ERR("thread_data_rcv[%lu] exiting\n", g_data_rcv);
-	_util_thread_exit("__transport_thread_data_rcv is over");
-	return NULL;
-}
 /* LCOV_EXCL_STOP */
 
 void _transport_init_status_info(void)
