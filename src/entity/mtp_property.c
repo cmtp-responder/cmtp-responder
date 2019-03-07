@@ -30,32 +30,34 @@ obj_interdep_proplist_t interdep_proplist;
 static obj_prop_desc_t props_list_default[NUM_OBJECT_PROP_DESC_DEFAULT];
 
 /*
- * STATIC FUNCTIONS
- */
-static mtp_uint16 __get_ptp_array_elem_size(data_type_t type);
-static mtp_bool __check_object_propcode(obj_prop_desc_t *prop,
-		mtp_uint32 propcode, mtp_uint32 group_code);
-static mtp_bool __create_prop_integer(mtp_obj_t *obj,
-		mtp_uint16 propcode, mtp_uint64 value);
-static mtp_bool __create_prop_string(mtp_obj_t *obj, mtp_uint16 propcode,
-		mtp_wchar *value);
-static mtp_bool __create_prop_array(mtp_obj_t *obj, mtp_uint16 propcode,
-		mtp_char *arr, mtp_uint32 size);
-/* PtpString Functions */
-static ptp_string_t *__alloc_ptpstring(void);
-static void __init_obj_propval(obj_prop_val_t *val, obj_prop_desc_t *prop);
-static void __init_ptptimestring(ptp_time_string_t *pstring);
-static void __init_obj_prop_desc(obj_prop_desc_t *prop, mtp_uint16 propcode,
-		mtp_uint16 data_type, mtp_uchar get_set, mtp_uchar form_flag,
-		mtp_uint32 group_code);
-static mtp_uint32 __count_obj_proplist(obj_proplist_t *plist);
-static mtp_bool __append_obj_proplist(obj_proplist_t *prop_list, mtp_uint32 obj_handle,
-		mtp_uint16 prop_code, mtp_uint32 data_type, mtp_uchar *val);
-static mtp_uint32 __count_interdep_proplist(obj_interdep_proplist_t *config_list,
-		mtp_uint32 format_code);
-/*
  * FUNCTIONS
  */
+mtp_uint16 __get_ptp_array_elem_size(data_type_t type)
+{
+	mtp_uint16 size = 0;
+
+	switch (type) {
+	case UINT8_TYPE:
+		size = 1;
+		break;
+	case UINT16_TYPE:
+		size = 2;
+		break;
+	case PTR_TYPE:
+	case UINT32_TYPE:
+		size = 4;
+		break;
+	case UINT128_TYPE:
+		size = 16;
+		break;
+	default:
+		size = 0;
+		break;
+	}
+
+	return size;
+}
+
 /* LCOV_EXCL_START */
 static mtp_bool __check_object_propcode(obj_prop_desc_t *prop,
 		mtp_uint32 propcode, mtp_uint32 group_code)
@@ -473,32 +475,6 @@ void _prop_destroy_ptparray(ptp_array_t *parray)
 	g_free(parray);
 }
 /* LCOV_EXCL_STOP */
-
-mtp_uint16 __get_ptp_array_elem_size(data_type_t type)
-{
-	mtp_uint16 size = 0;
-
-	switch (type) {
-	case UINT8_TYPE:
-		size = 1;
-		break;
-	case UINT16_TYPE:
-		size = 2;
-		break;
-	case PTR_TYPE:
-	case UINT32_TYPE:
-		size = 4;
-		break;
-	case UINT128_TYPE:
-		size = 16;
-		break;
-	default:
-		size = 0;
-		break;
-	}
-
-	return size;
-}
 
 /* PtpString Functions */
 static ptp_string_t *__alloc_ptpstring(void)
@@ -1309,17 +1285,6 @@ mtp_uint32 _prop_size_device_prop_desc(device_prop_desc_t *prop)
 }
 
 /* ObjectPropVal Functions */
-obj_prop_val_t * _prop_alloc_obj_propval(obj_prop_desc_t *prop)
-{
-	obj_prop_val_t *pval = NULL;
-	pval = (obj_prop_val_t *)g_malloc(sizeof(obj_prop_val_t));
-
-	if (pval != NULL)
-		__init_obj_propval(pval, prop);
-
-	return pval;
-}
-
 static void __init_obj_propval(obj_prop_val_t *pval, obj_prop_desc_t *prop)
 {
 	mtp_int32 ii;
@@ -1376,6 +1341,17 @@ static void __init_obj_propval(obj_prop_val_t *pval, obj_prop_desc_t *prop)
 
 		/* Add support for other array data types */
 	}
+}
+
+obj_prop_val_t * _prop_alloc_obj_propval(obj_prop_desc_t *prop)
+{
+	obj_prop_val_t *pval = NULL;
+	pval = (obj_prop_val_t *)g_malloc(sizeof(obj_prop_val_t));
+
+	if (pval != NULL)
+		__init_obj_propval(pval, prop);
+
+	return pval;
 }
 
 obj_prop_val_t *_prop_get_prop_val(mtp_obj_t *obj, mtp_uint32 propcode)
@@ -1865,6 +1841,87 @@ mtp_uint32 _prop_size_obj_proplist(obj_proplist_t *prop_list)
 	return size;
 }
 
+static mtp_bool __append_obj_proplist(obj_proplist_t *prop_list, mtp_uint32 obj_handle,
+		mtp_uint16 propcode, mtp_uint32 data_type, mtp_uchar *val)
+{
+	ptp_string_t *str = NULL;
+	prop_quad_t *quad = NULL;
+	ptp_array_t *arr_uint8;
+	ptp_array_t *arr_uint16;
+	ptp_array_t *arr_uint32;
+
+	quad = (prop_quad_t *)g_malloc(sizeof(prop_quad_t));
+	if (NULL == quad)
+		return FALSE;
+
+	quad->obj_handle = obj_handle;
+	quad->prop_code =  propcode;
+	quad->data_type =  data_type;
+	quad->pval = val;
+
+	switch (data_type) {
+	case PTP_DATATYPE_UINT8:
+	case PTP_DATATYPE_INT8:
+		quad->val_size = sizeof(mtp_uchar);
+		break;
+
+	case PTP_DATATYPE_UINT16:
+	case PTP_DATATYPE_INT16:
+		quad->val_size = sizeof(mtp_uint16);
+		break;
+
+	case PTP_DATATYPE_UINT32:
+	case PTP_DATATYPE_INT32:
+		quad->val_size = sizeof(mtp_uint32);
+		break;
+
+	case PTP_DATATYPE_UINT64:
+	case PTP_DATATYPE_INT64:
+		quad->val_size = sizeof(mtp_int64);
+		break;
+
+	case PTP_DATATYPE_UINT128:
+	case PTP_DATATYPE_INT128:
+		quad->val_size = 2 * sizeof(mtp_int64);
+		break;
+
+	case PTP_DATATYPE_AUINT8:
+	case PTP_DATATYPE_AINT8:
+		memcpy(&arr_uint8, val, sizeof(ptp_array_t *));
+		quad->val_size = (arr_uint8 != NULL) ?
+			_prop_get_size_ptparray(arr_uint8) : 0;
+		quad->pval = (mtp_uchar *)arr_uint8;
+		break;
+
+	case PTP_DATATYPE_AUINT16:
+	case PTP_DATATYPE_AINT16:
+		memcpy(&arr_uint16, val, sizeof(ptp_array_t *));
+		quad->val_size = (arr_uint16 != NULL) ?
+			_prop_get_size_ptparray(arr_uint16) : 0;
+		quad->pval = (mtp_uchar *)arr_uint16;
+		break;
+
+	case PTP_DATATYPE_AUINT32:
+	case PTP_DATATYPE_AINT32:
+		memcpy(&arr_uint32, val, sizeof(ptp_array_t *));
+		quad->val_size = (arr_uint32 != NULL) ? _prop_get_size_ptparray(arr_uint32) : 0;
+		quad->pval = (mtp_uchar *)arr_uint32;
+		break;
+
+	case PTP_DATATYPE_STRING:
+		memcpy(&str, val, sizeof(ptp_string_t *));
+		quad->val_size = (str != NULL) ? _prop_size_ptpstring(str) : 1;
+		quad->pval = (mtp_uchar *)str;
+		break;
+	default:
+		/* don't know  */
+		quad->val_size = 0;
+		break;
+	}
+
+	_util_add_node(&(prop_list->prop_quad_list), quad);
+	return TRUE;
+}
 mtp_uint32 _prop_get_obj_proplist(mtp_obj_t *obj, mtp_uint32 propcode,
 		mtp_uint32 group_code, obj_proplist_t *prop_list)
 {
@@ -2013,87 +2070,6 @@ mtp_bool _prop_update_property_values_list(mtp_obj_t *obj)
 	return TRUE;
 }
 
-static mtp_bool __append_obj_proplist(obj_proplist_t *prop_list, mtp_uint32 obj_handle,
-		mtp_uint16 propcode, mtp_uint32 data_type, mtp_uchar *val)
-{
-	ptp_string_t *str = NULL;
-	prop_quad_t *quad = NULL;
-	ptp_array_t *arr_uint8;
-	ptp_array_t *arr_uint16;
-	ptp_array_t *arr_uint32;
-
-	quad = (prop_quad_t *)g_malloc(sizeof(prop_quad_t));
-	if (NULL == quad)
-		return FALSE;
-
-	quad->obj_handle = obj_handle;
-	quad->prop_code =  propcode;
-	quad->data_type =  data_type;
-	quad->pval = val;
-
-	switch (data_type) {
-	case PTP_DATATYPE_UINT8:
-	case PTP_DATATYPE_INT8:
-		quad->val_size = sizeof(mtp_uchar);
-		break;
-
-	case PTP_DATATYPE_UINT16:
-	case PTP_DATATYPE_INT16:
-		quad->val_size = sizeof(mtp_uint16);
-		break;
-
-	case PTP_DATATYPE_UINT32:
-	case PTP_DATATYPE_INT32:
-		quad->val_size = sizeof(mtp_uint32);
-		break;
-
-	case PTP_DATATYPE_UINT64:
-	case PTP_DATATYPE_INT64:
-		quad->val_size = sizeof(mtp_int64);
-		break;
-
-	case PTP_DATATYPE_UINT128:
-	case PTP_DATATYPE_INT128:
-		quad->val_size = 2 * sizeof(mtp_int64);
-		break;
-
-	case PTP_DATATYPE_AUINT8:
-	case PTP_DATATYPE_AINT8:
-		memcpy(&arr_uint8, val, sizeof(ptp_array_t *));
-		quad->val_size = (arr_uint8 != NULL) ?
-			_prop_get_size_ptparray(arr_uint8) : 0;
-		quad->pval = (mtp_uchar *)arr_uint8;
-		break;
-
-	case PTP_DATATYPE_AUINT16:
-	case PTP_DATATYPE_AINT16:
-		memcpy(&arr_uint16, val, sizeof(ptp_array_t *));
-		quad->val_size = (arr_uint16 != NULL) ?
-			_prop_get_size_ptparray(arr_uint16) : 0;
-		quad->pval = (mtp_uchar *)arr_uint16;
-		break;
-
-	case PTP_DATATYPE_AUINT32:
-	case PTP_DATATYPE_AINT32:
-		memcpy(&arr_uint32, val, sizeof(ptp_array_t *));
-		quad->val_size = (arr_uint32 != NULL) ? _prop_get_size_ptparray(arr_uint32) : 0;
-		quad->pval = (mtp_uchar *)arr_uint32;
-		break;
-
-	case PTP_DATATYPE_STRING:
-		memcpy(&str, val, sizeof(ptp_string_t *));
-		quad->val_size = (str != NULL) ? _prop_size_ptpstring(str) : 1;
-		quad->pval = (mtp_uchar *)str;
-		break;
-	default:
-		/* don't know  */
-		quad->val_size = 0;
-		break;
-	}
-
-	_util_add_node(&(prop_list->prop_quad_list), quad);
-	return TRUE;
-}
 /* LCOV_EXCL_STOP */
 
 mtp_bool _prop_add_supp_integer_val(prop_info_t *prop_info, mtp_uint32 value)
