@@ -449,9 +449,7 @@ void _prop_deinit_ptparray(ptp_array_t *parray)
 {
 	parray->num_ele = 0;
 	parray->arr_size = 0;
-	if (parray->array_entry)
-		g_free(parray->array_entry);
-
+	g_free(parray->array_entry);
 	parray->array_entry = NULL;
 }
 
@@ -460,11 +458,7 @@ void _prop_destroy_ptparray(ptp_array_t *parray)
 	if (parray == NULL)
 		return;
 
-	if (parray->array_entry != NULL)
-		g_free(parray->array_entry);
-
-	parray->arr_size = 0;
-	parray->num_ele = 0;
+	g_free(parray->array_entry);
 	g_free(parray);
 }
 /* LCOV_EXCL_STOP */
