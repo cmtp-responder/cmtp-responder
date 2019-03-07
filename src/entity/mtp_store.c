@@ -190,7 +190,8 @@ mtp_bool _entity_init_mtp_store(mtp_store_t *store, mtp_uint32 store_id,
 	_entity_update_store_info_run_time(&(store->store_info),
 			store->root_path);
 
-	_device_get_serial(temp, sizeof(temp));
+	_util_utf16_to_utf8(temp, sizeof(temp),
+			g_device->device_info.serial_no.str);
 	g_snprintf(serial, sizeof(serial), "%s-%x", temp, store_id);
 	_util_utf8_to_utf16(wserial, sizeof(wserial) / WCHAR_SIZ, serial);
 

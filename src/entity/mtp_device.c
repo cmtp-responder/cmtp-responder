@@ -552,15 +552,6 @@ mtp_store_t *_device_get_store_at_index(mtp_uint32 index)
 	return &(g_device->store_list[index]);
 }
 
-void _device_get_serial(mtp_char *serial_no, mtp_uint32 len)
-{
-	ret_if(serial_no == NULL);
-
-	_util_utf16_to_utf8(serial_no, len,
-			g_device->device_info.serial_no.str);
-	return;
-}
-
 /* LCOV_EXCL_START */
 void _device_set_phase(device_phase_t phase)
 {
