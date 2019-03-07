@@ -493,11 +493,6 @@ void _prop_init_ptpstring(ptp_string_t *pstring)
 	pstring->num_chars = 0;
 }
 
-static void __init_ptptimestring(ptp_time_string_t *pstring)
-{
-	pstring->num_chars = 0;
-}
-
 void _prop_copy_char_to_ptpstring(ptp_string_t *pstring, void *str,
 		char_mode_t cmode)
 {
@@ -553,7 +548,7 @@ void _prop_copy_time_to_ptptimestring(ptp_time_string_t *pstring,
 	char time[17] = { 0 };
 
 	if (sys_time == NULL) {
-		__init_ptptimestring(pstring);
+		pstring->num_chars = 0;
 	} else {
 #if defined(NEED_TO_PORT)
 		_util_wchar_swprintf(pstring->str, sizeof(pstring->str) / WCHAR_SIZ,
@@ -1812,11 +1807,6 @@ obj_prop_desc_t *_prop_get_obj_prop_desc(mtp_uint32 format_code,
 /* LCOV_EXCL_START */
 
 /* Objectproplist functions */
-static mtp_uint32 __count_obj_proplist(obj_proplist_t *prop_list)
-{
-	return prop_list->prop_quad_list.nnodes;
-}
-
 mtp_uint32 _prop_size_obj_proplist(obj_proplist_t *prop_list)
 {
 	prop_quad_t *quad = NULL;
@@ -1953,7 +1943,7 @@ mtp_uint32 _prop_get_obj_proplist(mtp_obj_t *obj, mtp_uint32 propcode,
 				(mtp_uchar *)propval->current_val.integer);
 	}
 
-	return __count_obj_proplist(prop_list);
+	return prop_list->prop_quad_list.nnodes;
 }
 
 mtp_bool _prop_update_property_values_list(mtp_obj_t *obj)
