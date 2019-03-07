@@ -453,7 +453,7 @@ static void __clean_up_msg_queue(void *mq_id)
 	ret_if(mq_id == NULL);
 
 	l_mqid = *(msgq_id_t *)mq_id;
-	_transport_set_control_event(PTP_EVENTCODE_CANCELTRANSACTION);
+	g_status->ctrl_event_code = PTP_EVENTCODE_CANCELTRANSACTION;
 	while (TRUE == _util_msgq_receive(l_mqid, (void *)&pkt,
 					  sizeof(msgq_ptr_t) - sizeof(long), 1, &len)) {
 		g_free(pkt.buffer);
@@ -477,7 +477,7 @@ static void __handle_control_request(mtp_int32 request)
 		cancel_req_t cancelreq_data;
 
 		host_cancel = TRUE;
-		_transport_set_control_event(PTP_EVENTCODE_CANCELTRANSACTION);
+		g_status->ctrl_event_code = PTP_EVENTCODE_CANCELTRANSACTION;
 		status = read(g_usb_ep0, &cancelreq_data, sizeof(cancelreq_data));
 		if (status < 0) {
 			char error[256];

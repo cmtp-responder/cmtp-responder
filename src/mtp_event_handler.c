@@ -54,13 +54,13 @@ static mtp_bool __send_start_event_to_eh_thread(void);
 /* LCOV_EXCL_START */
 mtp_bool _eh_handle_usb_events(mtp_uint32 type)
 {
-	mtp_state_t state = MTP_STATE_STOPPED;
+	mtp_state_t state;
 	mtp_int32 res = 0;
 	/* Prevent repeated USB insert/remove mal-function */
 	static mtp_int32 is_usb_inserted = 0;
 	static mtp_int32 is_usb_removed = 0;
 
-	state = _transport_get_mtp_operation_state();
+	state = g_status->mtp_op_state;
 
 	switch (type) {
 	case USB_INSERTED:
@@ -72,8 +72,8 @@ mtp_bool _eh_handle_usb_events(mtp_uint32 type)
 		/* check USB connection state */
 		is_usb_inserted = 1;
 
-		_transport_set_usb_discon_state(FALSE);
-		_transport_set_cancel_initialization(FALSE);
+		g_status->is_usb_discon = FALSE;
+		g_status->cancel_intialization = FALSE;
 
 		if (state == MTP_STATE_INITIALIZING) {
 			ERR("MTP is already being initialized");
@@ -108,14 +108,14 @@ mtp_bool _eh_handle_usb_events(mtp_uint32 type)
 		is_usb_removed = 1;
 		DBG("USB is disconnected");
 
-		_transport_set_usb_discon_state(TRUE);
-		_transport_set_cancel_initialization(TRUE);
+		g_status->is_usb_discon = TRUE;
+		g_status->cancel_intialization = TRUE;
 
 		/* cancel all transaction */
-		_transport_set_control_event(PTP_EVENTCODE_CANCELTRANSACTION);
+		g_status->ctrl_event_code = PTP_EVENTCODE_CANCELTRANSACTION;
 
 		_transport_usb_finalize();
-		_transport_set_mtp_operation_state(MTP_STATE_STOPPED);
+		g_status->mtp_op_state = MTP_STATE_STOPPED;
 
 		/*
 		 * Temp file should be deleted after usb usb read/write threads
@@ -166,17 +166,17 @@ static mtp_bool __process_event_request(mtp_event_t *evt)
 		DBG("EVENT_START_MAIN_OP entered.");
 
 		/* start MTP */
-		_transport_set_cancel_initialization(FALSE);
-		_transport_set_mtp_operation_state(MTP_STATE_INITIALIZING);
+		g_status->cancel_intialization = FALSE;
+		g_status->mtp_op_state = MTP_STATE_INITIALIZING;
 
 		_mtp_init();
-		_transport_set_mtp_operation_state(MTP_STATE_READY_SERVICE);
+		g_status->mtp_op_state = MTP_STATE_READY_SERVICE;
 		if (FALSE == _transport_init_interfaces(_receive_mq_data_cb)) {
 			ERR("USB init fail");
 			kill(getpid(), SIGTERM);
 			break;
 		}
-		_transport_set_mtp_operation_state(MTP_STATE_ONSERVICE);
+		g_status->mtp_op_state = MTP_STATE_ONSERVICE;
 		break;
 
 	case EVENT_USB_REMOVED:

@@ -44,7 +44,8 @@ static pthread_t g_ctrl_thrd = 0;
 static pthread_t g_data_rcv = 0;
 static msgq_id_t mtp_to_usb_mqid;
 static msgq_id_t g_usb_to_mtp_mqid;
-static status_info_t g_status;
+static status_info_t _g_status;
+status_info_t *g_status = &_g_status;
 
 /*
  * FUNCTIONS
@@ -501,63 +502,3 @@ void _transport_usb_finalize(void)
 
 	_transport_deinit_usb_device();
 }
-
-/* LCOV_EXCL_STOP */
-
-void _transport_init_status_info(void)
-{
-	memset((void *)&g_status, 0, sizeof(status_info_t));
-}
-
-/* LCOV_EXCL_START */
-mtp_int32 _transport_get_control_event(void)
-{
-	mtp_uint32 event_code;
-
-	event_code = g_status.ctrl_event_code;
-
-	/* initialize for next usage */
-	g_status.ctrl_event_code = 0;
-
-	return event_code;
-}
-
-void _transport_set_control_event(mtp_int32 event_code)
-{
-	g_status.ctrl_event_code = event_code;
-}
-
-mtp_state_t _transport_get_mtp_operation_state(void)
-{
-	return g_status.mtp_op_state;
-}
-/* LCOV_EXCL_STOP */
-
-void _transport_set_mtp_operation_state(mtp_state_t state)
-{
-	g_status.mtp_op_state = state;
-}
-
-/* LCOV_EXCL_START */
-void _transport_set_usb_discon_state(mtp_bool is_usb_discon)
-{
-	g_status.is_usb_discon = is_usb_discon;
-}
-/* LCOV_EXCL_STOP */
-
-mtp_bool _transport_get_usb_discon_state(void)
-{
-	return g_status.is_usb_discon;
-}
-
-/* LCOV_EXCL_START */
-void _transport_set_cancel_initialization(mtp_bool value)
-{
-	g_status.cancel_intialization = value;
-}
-
-mtp_bool _transport_get_cancel_initialization(void)
-{
-	return g_status.cancel_intialization;
-}
-/* LCOV_EXCL_STOP */

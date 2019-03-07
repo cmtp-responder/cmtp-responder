@@ -310,8 +310,8 @@ mtp_uint32 _pack_device_info(mtp_uchar *buf, mtp_uint32 buf_sz)
 
 void _reset_mtp_device(void)
 {
-	_transport_set_control_event(0);
-	_transport_set_mtp_operation_state(MTP_STATE_ONSERVICE);
+	g_status->ctrl_event_code = 0;
+	g_status->mtp_op_state = MTP_STATE_ONSERVICE;
 
 	/* resets device state to ok/Ready */
 	/* reset device phase to idle */

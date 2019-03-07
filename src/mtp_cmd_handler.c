@@ -60,6 +60,8 @@ static mtp_mgr_t *g_mgr = &g_mtp_mgr;
 		g_device->phase = (_phase);		\
 	} while (0)
 
+#define _transport_get_control_event(...)		\
+	({mtp_uint32 event_code = g_status->ctrl_event_code; g_status->ctrl_event_code = 0; event_code;})
 
 static void __process_commands(mtp_handler_t *hdlr, cmd_blk_t *cmd);
 static void __open_session(mtp_handler_t *hdlr);
@@ -885,7 +887,7 @@ static void __delete_object(mtp_handler_t *hdlr)
 		return;
 	}
 
-	_transport_set_mtp_operation_state(MTP_STATE_DATA_PROCESSING);
+	g_status->mtp_op_state = MTP_STATE_DATA_PROCESSING;
 
 	switch (_hutil_remove_object_entry(obj_handle, fmt)) {
 	case MTP_ERROR_NONE:
@@ -910,7 +912,7 @@ static void __delete_object(mtp_handler_t *hdlr)
 		resp = PTP_RESPONSE_GEN_ERROR;
 	}
 
-	_transport_set_mtp_operation_state(MTP_STATE_ONSERVICE);
+	g_status->mtp_op_state = MTP_STATE_ONSERVICE;
 	_cmd_hdlr_send_response_code(hdlr, resp);
 }
 
@@ -1263,7 +1265,7 @@ void _receive_mq_data_cb(mtp_char *buffer, mtp_int32 buf_len)
 	cmd_blk_t cmd = { 0 };
 	mtp_uint32 rx_size = _get_rx_pkt_size();
 
-	if (_transport_get_mtp_operation_state() < MTP_STATE_READY_SERVICE) {
+	if (g_status->mtp_op_state < MTP_STATE_READY_SERVICE) {
 		ERR("MTP is stopped or initializing. ignore all");
 		return;
 	}
@@ -1273,13 +1275,13 @@ void _receive_mq_data_cb(mtp_char *buffer, mtp_int32 buf_len)
 	switch (_transport_get_control_event()) {
 	case PTP_EVENTCODE_CANCELTRANSACTION:
 		DBG("PTP_EVENTCODE_CANCELTRANSACTION, just change state to IDLE");
-		_transport_set_control_event(PTP_EVENTCODE_CANCELTRANSACTION);
+		g_status->ctrl_event_code = PTP_EVENTCODE_CANCELTRANSACTION;
 		_device_set_phase(DEVICE_PHASE_IDLE);
 		if ((buf_len == rx_size) ||
 				(buf_len < sizeof(header_container_t))) {
 			DBG("Cancelling Transaction. data length [%d]\n",
 					buf_len);
-			_transport_set_control_event(PTP_EVENTCODE_CANCELTRANSACTION);
+			g_status->ctrl_event_code = PTP_EVENTCODE_CANCELTRANSACTION;
 			return;
 		}
 
@@ -1328,8 +1330,8 @@ void _receive_mq_data_cb(mtp_char *buffer, mtp_int32 buf_len)
 			DBG("Cancelling Transaction, Finished.");
 		}
 
-		_transport_set_control_event(0);
-		_transport_set_mtp_operation_state(MTP_STATE_ONSERVICE);
+		g_status->ctrl_event_code = 0;
+		g_status->mtp_op_state = MTP_STATE_ONSERVICE;
 		if (g_mgr->ftemp_st.fhandle != NULL) {
 			DBG("In Cancel Transaction fclose ");
 			_util_file_close(g_mgr->ftemp_st.fhandle);
@@ -1349,8 +1351,8 @@ void _receive_mq_data_cb(mtp_char *buffer, mtp_int32 buf_len)
 		 * mtp_save_object_references_mtp_device(MtpHandler.pDevice);
 		 */
 		g_mgr->hdlr.session_id = 0;
-		_transport_set_control_event(0);
-		_transport_set_mtp_operation_state(MTP_STATE_ONSERVICE);
+		g_status->ctrl_event_code = 0;
+		g_status->mtp_op_state = MTP_STATE_ONSERVICE;
 		break;
 
 	default:
@@ -1389,7 +1391,7 @@ void _receive_mq_data_cb(mtp_char *buffer, mtp_int32 buf_len)
 				g_device->phase);
 		ERR("PhaseUnknown-> pData[0x%p], length=[%d]", buffer, buf_len);
 		_device_set_phase(DEVICE_PHASE_IDLE);
-		_transport_set_mtp_operation_state(MTP_STATE_ONSERVICE);
+		g_status->mtp_op_state = MTP_STATE_ONSERVICE;
 	}
 }
 
@@ -1405,7 +1407,7 @@ static mtp_bool __receive_temp_file_first_packet(mtp_char *data,
 	mtp_uint32 i, num, start, range;
 	unsigned int seed;
 
-	_transport_set_mtp_operation_state(MTP_STATE_DATA_TRANSFER_DL);
+	g_status->mtp_op_state = MTP_STATE_DATA_TRANSFER_DL;
 	if (!g_is_send_object) {
 		/*create a unique filename for /tmp/.mtptemp.tmp only if
 		 is_send_object = 0. If is_send_object = 0 implies t->filepath
@@ -1534,7 +1536,7 @@ static void __finish_receiving_file_packets(mtp_char *data, mtp_int32 data_len)
 		}
 	}
 
-	_transport_set_mtp_operation_state(MTP_STATE_ONSERVICE);
+	g_status->mtp_op_state = MTP_STATE_ONSERVICE;
 	_hdlr_copy_cmd_container_unknown_params((cmd_container_t *)cmd_buf,
 			&cmd);
 

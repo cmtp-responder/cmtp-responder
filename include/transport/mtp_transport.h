@@ -36,6 +36,8 @@ typedef struct {
 
 typedef void (*_cmd_handler_cb)(mtp_char *buf, mtp_int32 pkt_len);
 
+extern status_info_t *g_status;
+
 void _transport_save_cmd_buffer(mtp_char *buffer, mtp_uint32 size);
 mtp_err_t _transport_rcv_temp_file_data(mtp_byte *buffer, mtp_uint32 size,
 		mtp_uint32 *count);
@@ -49,14 +51,6 @@ void _transport_send_zlp(void);
 mtp_bool _transport_init_interfaces(_cmd_handler_cb func);
 void _transport_usb_finalize(void);
 void _transport_init_status_info(void);
-mtp_int32 _transport_get_control_event(void);
-void _transport_set_control_event(mtp_int32 event_code);
-mtp_state_t _transport_get_mtp_operation_state(void);
-void _transport_set_mtp_operation_state(mtp_state_t state);
-void _transport_set_usb_discon_state(mtp_bool is_usb_discon);
-mtp_bool _transport_get_usb_discon_state(void);
-void _transport_set_cancel_initialization(mtp_bool value);
-mtp_bool _transport_get_cancel_initialization(void);
 
 #ifdef __cplusplus
 }

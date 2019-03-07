@@ -127,8 +127,8 @@ void _mtp_init(void)
 
 	__init_mtp_info();
 
-	_transport_init_status_info();
-	_transport_set_mtp_operation_state(MTP_STATE_INITIALIZING);
+	memset((void *)g_status, 0, sizeof(status_info_t));
+	g_status->mtp_op_state = MTP_STATE_INITIALIZING;
 
 	if (g_mgr->ftemp_st.temp_buff == NULL) {
 		/* Allocate memory for temporary */
@@ -170,7 +170,7 @@ void _mtp_init(void)
 
 MTP_INIT_FAIL:
 	/* Set MTP state to stopped */
-	_transport_set_mtp_operation_state(MTP_STATE_STOPPED);
+	g_status->mtp_op_state = MTP_STATE_STOPPED;
 	mtp_end_event();
 }
 

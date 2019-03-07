@@ -583,8 +583,8 @@ mtp_bool _entity_remove_object_mtp_store(mtp_store_t *store, mtp_obj_t *obj,
 
 	retv_if(store == NULL, 0);
 
-	if (TRUE == _transport_get_cancel_initialization() ||
-			TRUE == _transport_get_usb_discon_state()) {
+	if (TRUE == g_status->cancel_intialization ||
+			TRUE == g_status->is_usb_discon) {
 		ERR("Delete operation cancelled or USB is disconnected");
 		*response = PTP_RESPONSE_PARTIAL_DELETION;
 		return FALSE;
@@ -634,8 +634,8 @@ mtp_bool _entity_remove_object_mtp_store(mtp_store_t *store, mtp_obj_t *obj,
 			for (i = 0; i < child_arr.num_ele; i++) {
 				mtp_uint32 *ptr32 = child_arr.array_entry;
 				/*check cancel transaction*/
-				if (_transport_get_cancel_initialization() == TRUE ||
-						_transport_get_usb_discon_state() == TRUE) {
+				if (g_status->cancel_intialization == TRUE ||
+						g_status->is_usb_discon == TRUE) {
 					ERR("child handle. USB is disconnected \
 							format operation is cancelled.");
 					*response =
@@ -661,8 +661,8 @@ mtp_bool _entity_remove_object_mtp_store(mtp_store_t *store, mtp_obj_t *obj,
 				} else {
 					all_del = FALSE;
 					/*check cancel transaction*/
-					if (TRUE == _transport_get_cancel_initialization() ||
-							TRUE ==	_transport_get_usb_discon_state()) {
+					if (TRUE == g_status->cancel_intialization ||
+							TRUE ==	g_status->is_usb_discon) {
 						ERR("USB is disconnected format\
 								operation is cancelled.");
 						*response =
@@ -797,8 +797,8 @@ mtp_uint16 _entity_delete_obj_mtp_store(mtp_store_t *store,
 		slist_node_t *node = NULL;
 		node = store->obj_list.start;
 		while (NULL != node) {
-			if (TRUE == _transport_get_cancel_initialization() ||
-					TRUE == _transport_get_usb_discon_state()) {
+			if (TRUE == g_status->cancel_intialization ||
+					TRUE == g_status->is_usb_discon) {
 				ERR("USB is disconnected format\
 						operation is cancelled.");
 				response = PTP_RESPONSE_GEN_ERROR;
@@ -995,7 +995,7 @@ void _entity_store_recursive_enum_folder_objects(mtp_store_t *store,
 	}
 
 	do {
-		if (TRUE == _transport_get_usb_discon_state()) {
+		if (TRUE == g_status->is_usb_discon) {
 			/* LCOV_EXCL_START */
 			DBG("USB is disconnected");
 			if (closedir(h_dir) < 0)

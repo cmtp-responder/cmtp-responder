@@ -1103,7 +1103,7 @@ mtp_err_t _hutil_construct_object_entry_prop_list(mtp_uint32 store_id,
 	 */
 	for (index = 0; index < num_elem; index++) {
 		if (MTP_PHONE_USB_DISCONNECTED == _util_get_local_usb_status() ||
-				TRUE == _transport_get_usb_discon_state()) {
+				TRUE == g_status->is_usb_discon) {
 			/* seems usb is disconnected, stop */
 			_entity_dealloc_obj_info(obj_info);
 			resp = MTP_ERROR_GENERAL;
