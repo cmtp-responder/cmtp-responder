@@ -679,12 +679,6 @@ mtp_uint32 _prop_parse_rawstring(ptp_string_t *pstring, mtp_uchar *buf,
 }
 /* LCOV_EXCL_STOP */
 
-void _prop_destroy_ptpstring(ptp_string_t *pstring)
-{
-	if (pstring != NULL)
-		g_free(pstring);
-}
-
 mtp_bool _prop_is_valid_integer(prop_info_t *prop_info, mtp_uint64 value)
 {
 	if ((prop_info->data_type & PTP_DATATYPE_VALUEMASK) !=
@@ -767,7 +761,7 @@ mtp_bool _prop_is_valid_string(prop_info_t *prop_info, ptp_string_t *pstring)
 mtp_bool _prop_set_default_string(prop_info_t *prop_info, mtp_wchar *val)
 {
 	if (prop_info->data_type == PTP_DATATYPE_STRING) {
-		_prop_destroy_ptpstring(prop_info->default_val.str);
+		g_free(prop_info->default_val.str);
 		prop_info->default_val.str = __alloc_ptpstring();
 		if (NULL == prop_info->default_val.str)
 			return FALSE;
@@ -871,13 +865,13 @@ mtp_bool _prop_set_current_integer(device_prop_desc_t *prop, mtp_uint32 val)
 mtp_bool _prop_set_current_string(device_prop_desc_t *prop, ptp_string_t *str)
 {
 	if (_prop_is_valid_string(&(prop->propinfo), str)) {
-		_prop_destroy_ptpstring(prop->current_val.str);
+		g_free(prop->current_val.str);
 		prop->current_val.str = __alloc_ptpstring();
 		if (prop->current_val.str != NULL) {
 			_prop_copy_ptpstring(prop->current_val.str, str);
 			return TRUE;
 		} else {
-			_prop_destroy_ptpstring(prop->current_val.str);
+			g_free(prop->current_val.str);
 			return FALSE;
 		}
 	} else {
@@ -996,7 +990,7 @@ mtp_bool _prop_set_current_integer_val(obj_prop_val_t *pval, mtp_uint64 val)
 mtp_bool _prop_set_current_string_val(obj_prop_val_t *pval, ptp_string_t *str)
 {
 	if (_prop_is_valid_string(&(pval->prop->propinfo), str)) {
-		_prop_destroy_ptpstring(pval->current_val.str);
+		g_free(pval->current_val.str);
 		pval->current_val.str = __alloc_ptpstring();
 		if (pval->current_val.str != NULL) {
 			_prop_copy_ptpstring(pval->current_val.str, str);
@@ -1393,7 +1387,7 @@ void _prop_destroy_obj_propval(obj_prop_val_t *pval)
 
 	if (pval->prop->propinfo.data_type == PTP_DATATYPE_STRING) {
 		if (pval->current_val.str) {
-			_prop_destroy_ptpstring(pval->current_val.str);
+			g_free(pval->current_val.str);
 			pval->current_val.str = NULL;
 		}
 	} else if ((pval->prop->propinfo.data_type & PTP_DATATYPE_ARRAYMASK) ==

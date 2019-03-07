@@ -209,7 +209,6 @@ mtp_uint32 _prop_pack_ptptimestring(ptp_time_string_t *pstring, mtp_uchar *buf,
 		mtp_uint32 size);
 mtp_uint32 _prop_parse_rawstring(ptp_string_t *pstring, mtp_uchar *buf,
 		mtp_uint32 size);
-void _prop_destroy_ptpstring(ptp_string_t *pstring);
 
 /*
  * DevicePropDesc Functions
