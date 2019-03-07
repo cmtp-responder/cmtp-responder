@@ -578,61 +578,24 @@ mtp_bool _prop_is_equal_ptpstring(ptp_string_t *dst, ptp_string_t *src)
 }
 /* LCOV_EXCL_STOP */
 
+#define _prop_size_ptp_string_body(pstring)	\
+	if ((pstring) == NULL)			\
+		return 0;			\
+	return ((pstring)->num_chars * sizeof(mtp_wchar) + 1);
+
 mtp_uint32 _prop_size_ptpstring(ptp_string_t *pstring)
 {
-	if (pstring == NULL)
-		return 0;
-
-	return (pstring->num_chars * sizeof(mtp_wchar) + 1);
+	_prop_size_ptp_string_body(pstring);
 }
 
 /* LCOV_EXCL_START */
 mtp_uint32 _prop_size_ptptimestring(ptp_time_string_t *pstring)
 {
-	if (pstring == NULL)
-		return 0;
-
-	return (pstring->num_chars * sizeof(mtp_wchar) + 1);
+	_prop_size_ptp_string_body(pstring);
 }
 
-mtp_uint32 _prop_pack_ptpstring(ptp_string_t *pstring, mtp_uchar *buf,
-		mtp_uint32 size)
-{
-	mtp_uint32 bytes_written = 0;
-	mtp_uint32 ii;
-	mtp_uchar *pchar = NULL;
-#ifdef __BIG_ENDIAN__
-	mtp_wchar conv_str[MAX_PTP_STRING_CHARS];
-#endif /* __BIG_ENDIAN__ */
-
-	if ((buf == NULL) || (pstring == NULL) || (size == 0) ||
-			(size < _prop_size_ptpstring(pstring))) {
-		return bytes_written;
-	}
-
-	if (pstring->num_chars == 0) {
-		buf[0] = 0;
-		bytes_written = 1;
-	} else {
-#ifdef __BIG_ENDIAN__
-		memcpy(conv_str, pstring->str,
-				pstring->num_chars * sizeof(mtp_wchar));
-		_util_conv_byte_orderForWString(conv_str, pstring->num_chars);
-		pchar = (mtp_uchar *) conv_str;
-#else /* __BIG_ENDIAN__ */
-		pchar = (mtp_uchar *) pstring->str;
-#endif /* __BIG_ENDIAN__ */
-		buf[0] = pstring->num_chars;
-
-		bytes_written = _prop_size_ptpstring(pstring);
-		for (ii = 0; ii < (bytes_written - 1); ii++)
-			buf[ii + 1] = pchar[ii];
-	}
-	return bytes_written;
-}
-
-mtp_uint32 _prop_pack_ptptimestring(ptp_time_string_t *pstring, mtp_uchar *buf,
-		mtp_uint32 size)
+static mtp_uint32 _prop_pack_ptpstring_body(mtp_wchar *str, mtp_uchar *buf,
+		mtp_uint32 size, mtp_uint32 pstring_size, mtp_uint32 num_chars)
 {
 	mtp_uint32 bytes_written = 0;
 	mtp_uchar *pchar = NULL;
@@ -640,31 +603,48 @@ mtp_uint32 _prop_pack_ptptimestring(ptp_time_string_t *pstring, mtp_uchar *buf,
 	mtp_wchar conv_str[MAX_PTP_STRING_CHARS];
 #endif /* __BIG_ENDIAN__ */
 
-	if ((buf == NULL) || (pstring == NULL) || (size == 0) ||
-			(size < _prop_size_ptptimestring(pstring))) {
+	if ((buf == NULL) || (size == 0) || (size < pstring_size))
 		return bytes_written;
-	}
 
-	if (pstring->num_chars == 0) {
+	if (num_chars == 0) {
 		buf[0] = 0;
 		bytes_written = 1;
 	} else {
 #ifdef __BIG_ENDIAN__
-		memcpy(conv_str, pstring->str,
-				pstring->num_chars * sizeof(mtp_wchar));
-		_util_conv_byte_order_wstring(conv_str, pstring->num_chars);
+		memcpy(conv_str, str, num_chars * sizeof(mtp_wchar));
+		_util_conv_byte_order_wstring(conv_str, num_chars);
 		pchar = (mtp_uchar *)conv_str;
 #else /* __BIG_ENDIAN__ */
-		pchar = (mtp_uchar *)pstring->str;
+		pchar = (mtp_uchar *)str;
 #endif /* __BIG_ENDIAN__ */
-		buf[0] = pstring->num_chars;
+		buf[0] = num_chars;
 
-		bytes_written = _prop_size_ptptimestring(pstring);
+		bytes_written = pstring_size;
 
 		memcpy(&buf[1], pchar, bytes_written - 1);
 
 	}
 	return bytes_written;
+}
+
+mtp_uint32 _prop_pack_ptpstring(ptp_string_t *pstring, mtp_uchar *buf,
+		mtp_uint32 size)
+{
+	if (pstring == NULL)
+		return 0;
+
+	return _prop_pack_ptpstring_body(pstring->str, buf, size,
+			_prop_size_ptpstring(pstring), pstring->num_chars);
+}
+
+mtp_uint32 _prop_pack_ptptimestring(ptp_time_string_t *pstring, mtp_uchar *buf,
+		mtp_uint32 size)
+{
+	if (pstring == NULL)
+		return 0;
+
+	return _prop_pack_ptpstring_body(pstring->str, buf, size,
+			_prop_size_ptptimestring(pstring), pstring->num_chars);
 }
 
 mtp_uint32 _prop_parse_rawstring(ptp_string_t *pstring, mtp_uchar *buf,
