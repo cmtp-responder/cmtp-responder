@@ -211,11 +211,6 @@ mtp_uint32 _prop_parse_rawstring(ptp_string_t *pstring, mtp_uchar *buf,
 		mtp_uint32 size);
 
 /*
- * DevicePropDesc Functions
- */
-mtp_uint32 _prop_size_device_prop_desc(device_prop_desc_t *prop);
-
-/*
  * ObjectPropVal Functions
  */
 obj_prop_val_t *_prop_alloc_obj_propval(obj_prop_desc_t *prop);
@@ -224,13 +219,7 @@ mtp_uint32 _prop_size_obj_propval(obj_prop_val_t *val);
 void _prop_destroy_obj_propval(obj_prop_val_t *pval);
 mtp_bool _prop_set_default_integer(prop_info_t *prop_info, mtp_uchar *value);
 mtp_bool _prop_set_default_string(prop_info_t *prop_info, mtp_wchar *val);
-mtp_bool _prop_set_range_integer(prop_info_t *prop_info, mtp_uint32 min,
-		mtp_uint32 max, mtp_uint32 step);
-mtp_bool _prop_set_maxlen(obj_prop_desc_t *prop, mtp_uint32 max);
-mtp_bool _prop_set_default_array(prop_info_t *prop_info, mtp_uchar *parray,
-		mtp_uint32 num_ele);
 mtp_bool _prop_add_supp_integer_val(prop_info_t *prop_info, mtp_uint32 val);
-mtp_bool _prop_add_supp_string_val(prop_info_t *prop_info, mtp_wchar *val);
 mtp_bool _prop_is_valid_integer(prop_info_t *prop_info, mtp_uint64 value);
 mtp_bool _prop_is_valid_string(prop_info_t *prop, ptp_string_t *str);
 mtp_bool _prop_is_equal_ptpstring(ptp_string_t *dst, ptp_string_t *src);
@@ -256,10 +245,8 @@ obj_prop_desc_t *_prop_get_obj_prop_desc(mtp_uint32 format_code,
  * ObjectProplist Functions
  */
 mtp_bool _prop_update_property_values_list(mtp_obj_t *obj);
-mtp_uint32 _prop_size_obj_proplist(obj_proplist_t *prop_list);
 mtp_uint32 _prop_get_obj_proplist(mtp_obj_t *pObject, mtp_uint32 prop_code,
 		mtp_uint32 group_code, obj_proplist_t *prop_list);
-
 /*
  * ObjectProp Functions
  */

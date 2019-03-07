@@ -51,7 +51,6 @@ mtp_uint16 __get_ptp_array_elem_size(data_type_t type)
 	return 0;
 }
 
-/* LCOV_EXCL_START */
 static mtp_bool __check_object_propcode(obj_prop_desc_t *prop,
 		mtp_uint32 propcode, mtp_uint32 group_code)
 {
@@ -786,64 +785,6 @@ mtp_bool _prop_set_default_integer(prop_info_t *prop_info, mtp_uchar *value)
 	}
 }
 
-mtp_bool _prop_set_default_array(prop_info_t *prop_info, mtp_uchar *parray,
-		mtp_uint32 num_ele)
-{
-	/* Allocate memory for the PTP array */
-	if ((prop_info->data_type == PTP_DATATYPE_AUINT8) ||
-			(prop_info->data_type == PTP_DATATYPE_AINT8))
-		prop_info->default_val.array = _prop_alloc_ptparray(UINT8_TYPE);
-	else if ((prop_info->data_type == PTP_DATATYPE_AUINT16) ||
-			(prop_info->data_type == PTP_DATATYPE_AINT16))
-		prop_info->default_val.array = _prop_alloc_ptparray(UINT16_TYPE);
-	else if ((prop_info->data_type == PTP_DATATYPE_AUINT32) ||
-			(prop_info->data_type == PTP_DATATYPE_AINT32))
-		prop_info->default_val.array = _prop_alloc_ptparray(UINT32_TYPE);
-	else
-		return FALSE;
-
-	if (prop_info->default_val.array == NULL)
-		return FALSE;
-
-	/* Copies the data into the PTP array */
-	/* LCOV_EXCL_START */
-	if ((prop_info->default_val.array != NULL) && (num_ele != 0)) {
-		mtp_uchar *ptr8 = NULL;
-		mtp_uint16 *ptr16 = NULL;
-		mtp_uint32 *ptr32 = NULL;
-		mtp_uint32 ii;
-
-		_prop_grow_ptparray(prop_info->default_val.array, num_ele);
-
-		if ((prop_info->data_type == PTP_DATATYPE_AUINT8) ||
-				(prop_info->data_type == PTP_DATATYPE_AINT8)) {
-			ptr8 = (mtp_uchar *) parray;
-			for (ii = 0; ii < num_ele; ii++)
-				_prop_append_ele_ptparray(prop_info->default_val.array,
-						ptr8[ii]);
-
-		} else if ((prop_info->data_type == PTP_DATATYPE_AUINT16) ||
-				(prop_info->data_type == PTP_DATATYPE_AINT16)) {
-
-			ptr16 = (mtp_uint16 *) parray;
-			for (ii = 0; ii < num_ele; ii++)
-				_prop_append_ele_ptparray(prop_info->default_val.array,
-						ptr16[ii]);
-
-		} else if ((prop_info->data_type == PTP_DATATYPE_AUINT32) ||
-				(prop_info->data_type == PTP_DATATYPE_AINT32)) {
-
-			ptr32 = (mtp_uint32 *)parray;
-			for (ii = 0; ii < num_ele; ii++)
-				_prop_append_ele_ptparray(prop_info->default_val.array,
-						ptr32[ii]);
-		}
-		return TRUE;
-	}
-	/* LCOV_EXCL_STOP */
-	return FALSE;
-}
-
 mtp_bool _prop_set_current_integer(device_prop_desc_t *prop, mtp_uint32 val)
 {
 	if (_prop_is_valid_integer(&(prop->propinfo), val)) {
@@ -1119,21 +1060,6 @@ mtp_bool _prop_set_current_array_val(obj_prop_val_t *pval, mtp_uchar *arr,
 }
 /* LCOV_EXCL_STOP */
 
-mtp_bool _prop_set_range_integer(prop_info_t *prop_info, mtp_uint32 min,
-		mtp_uint32 max, mtp_uint32 step)
-{
-	if (((prop_info->data_type & PTP_DATATYPE_VALUEMASK) !=
-				PTP_DATATYPE_VALUE) || (prop_info->form_flag != RANGE_FORM)) {
-		return FALSE;
-
-	} else {
-		prop_info->range.min_val = min;
-		prop_info->range.max_val = max;
-		prop_info->range.step_size = step;
-		return TRUE;
-	}
-}
-
 mtp_bool _prop_set_regexp(obj_prop_desc_t *prop, mtp_wchar *regex)
 {
 	ptp_string_t *str;
@@ -1152,88 +1078,7 @@ mtp_bool _prop_set_regexp(obj_prop_desc_t *prop, mtp_wchar *regex)
 	return TRUE;
 }
 
-mtp_bool _prop_set_maxlen(obj_prop_desc_t *prop, mtp_uint32 max)
-{
-	if ((prop->propinfo.form_flag != BYTE_ARRAY_FORM) &&
-			(prop->propinfo.form_flag != LONG_STRING_FORM)) {
-		return FALSE;
-	}
-
-	if ((prop->propinfo.data_type & PTP_DATATYPE_VALUEMASK) !=
-			PTP_DATATYPE_ARRAY) {
-		return FALSE;
-	}
-
-	prop->prop_forms.max_len = max;
-	return TRUE;
-
-}
-
 /* DeviceObjectPropDesc Functions */
-
-/* LCOV_EXCL_START */
-mtp_uint32 _prop_size_device_prop_desc(device_prop_desc_t *prop)
-{
-	/* size :PropCode,Datatype,Getset,formflag */
-	mtp_uint32 size = sizeof(mtp_uint16) + sizeof(mtp_uint16) +
-		sizeof(mtp_uchar) + sizeof(mtp_uchar);
-
-	/* size of default value: DTS */
-	/* size of current value: DTS */
-	if (prop->propinfo.data_type == PTP_DATATYPE_STRING) {
-
-		size += _prop_size_ptpstring(prop->propinfo.default_val.str);
-		size += _prop_size_ptpstring(prop->current_val.str);
-
-
-	} else if ((prop->propinfo.data_type & PTP_DATATYPE_ARRAYMASK) ==
-			PTP_DATATYPE_ARRAY) {
-
-		size += _prop_get_size_ptparray(prop->propinfo.default_val.array);
-		size += _prop_get_size_ptparray(prop->current_val.array);
-
-	} else {
-		size += 2 * prop->propinfo.dts_size;
-	}
-
-	/* Add the size of the Form followed */
-	switch (prop->propinfo.form_flag) {
-	case NONE:
-		break;
-
-	case RANGE_FORM:
-		size += 3 * prop->propinfo.dts_size;
-		break;
-
-	case ENUM_FORM:
-		/* Number of Values */
-		size += sizeof(mtp_uint16);
-		if (prop->propinfo.data_type != PTP_DATATYPE_STRING) {
-
-			size += prop->propinfo.supp_value_list.nnodes *
-				prop->propinfo.dts_size;
-
-		} else {
-			slist_node_t *node = NULL;
-			mtp_uint16 ii;
-
-			for (ii = 0, node = prop->propinfo.supp_value_list.start;
-					ii < prop->propinfo.supp_value_list.nnodes;
-					ii++, node = node->link) {
-
-				size += _prop_size_ptpstring((ptp_string_t *) node->value);
-			}
-		}
-		break;
-
-	default:
-		/* don't know how to handle */
-		break;
-
-	}
-
-	return size;
-}
 
 /* ObjectPropVal Functions */
 static void __init_obj_propval(obj_prop_val_t *pval, obj_prop_desc_t *prop)
@@ -1760,33 +1605,7 @@ obj_prop_desc_t *_prop_get_obj_prop_desc(mtp_uint32 format_code,
 	return NULL;
 }
 
-/* LCOV_EXCL_START */
-
 /* Objectproplist functions */
-mtp_uint32 _prop_size_obj_proplist(obj_proplist_t *prop_list)
-{
-	prop_quad_t *quad = NULL;
-	slist_node_t *node = NULL;
-	mtp_uint32 ii;
-	mtp_uint32 size;
-
-	/* for the NumberOfElements field in objpropvalList Dataset */
-	size = sizeof(mtp_uint32);
-
-	/* add all the fixed length members of the list */
-	size += prop_list->prop_quad_list.nnodes * (sizeof(mtp_uint32) +
-			sizeof(mtp_uint16) + sizeof(mtp_uint16));
-	node = prop_list->prop_quad_list.start;
-	for (ii = 0; ii < prop_list->prop_quad_list.nnodes; ii++) {
-		quad = (prop_quad_t *) node->value;
-		if (quad)
-			size += quad->val_size;
-
-		node = node->link;
-	}
-	return size;
-}
-
 static mtp_bool __append_obj_proplist(obj_proplist_t *prop_list, mtp_uint32 obj_handle,
 		mtp_uint16 propcode, mtp_uint32 data_type, mtp_uchar *val)
 {
