@@ -29,7 +29,8 @@
 /*
  * GLOBAL AND EXTERN VARIABLES
  */
-static mtp_device_t g_device = { 0 };
+static mtp_device_t _g_device = { 0 };
+mtp_device_t *g_device = &_g_device;
 
 /*
  * STATIC VARIABLES
@@ -78,31 +79,31 @@ static mtp_err_t __clear_store_data(mtp_uint32 store_id)
 {
 	mtp_uint16 idx = 0;
 	mtp_store_t *store = NULL;
-	mtp_uint32 count = g_device.num_stores;
+	mtp_uint32 count = g_device->num_stores;
 
 	for (idx = 0; idx < count; idx++) {
-		if (g_device.store_list[idx].store_id == store_id) {
+		if (g_device->store_list[idx].store_id == store_id) {
 
-			_entity_destroy_mtp_store(&(g_device.store_list[idx]));
+			_entity_destroy_mtp_store(&(g_device->store_list[idx]));
 
-			store = &(g_device.store_list[idx]);
+			store = &(g_device->store_list[idx]);
 			store->store_id = 0;
 			store->is_hidden = FALSE;
 			g_free(store->root_path);
 			store->root_path = NULL;
 
 			for (; idx < count - 1; idx++) {
-				_entity_copy_store_data(&(g_device.store_list[idx]),
-						&(g_device.store_list[idx + 1]));
+				_entity_copy_store_data(&(g_device->store_list[idx]),
+						&(g_device->store_list[idx + 1]));
 			}
 
-			g_device.store_list[count - 1].store_id = 0;
-			g_device.store_list[count - 1].root_path = NULL;
-			g_device.store_list[count - 1].is_hidden = FALSE;
-			_util_init_list(&(g_device.store_list[count - 1].obj_list));
+			g_device->store_list[count - 1].store_id = 0;
+			g_device->store_list[count - 1].root_path = NULL;
+			g_device->store_list[count - 1].is_hidden = FALSE;
+			_util_init_list(&(g_device->store_list[count - 1].obj_list));
 
 			/*Initialize the destroyed store*/
-			g_device.num_stores--;
+			g_device->num_stores--;
 			return MTP_ERROR_NONE;
 		}
 	}
@@ -111,15 +112,15 @@ static mtp_err_t __clear_store_data(mtp_uint32 store_id)
 
 void _init_mtp_device(void)
 {
-	device_info_t *info = &(g_device.device_info);
+	device_info_t *info = &(g_device->device_info);
 	mtp_wchar wtemp[MAX_PTP_STRING_CHARS + 1] = { 0 };
 
-	g_device.status = DEVICE_STATUSOK;
-	g_device.phase = DEVICE_PHASE_IDLE;
-	g_device.num_stores = 0;
-	g_device.store_list = g_store_list;
-	g_device.default_store_id = MTP_EXTERNAL_STORE_ID;
-	g_device.default_hparent = PTP_OBJECTHANDLE_ROOT;
+	g_device->status = DEVICE_STATUSOK;
+	g_device->phase = DEVICE_PHASE_IDLE;
+	g_device->num_stores = 0;
+	g_device->store_list = g_store_list;
+	g_device->default_store_id = MTP_EXTERNAL_STORE_ID;
+	g_device->default_hparent = PTP_OBJECTHANDLE_ROOT;
 
 	_prop_build_supp_props_default();
 	info->ops_supported = g_ops_supported;
@@ -156,7 +157,7 @@ void _init_mtp_device(void)
 mtp_uint32 _get_device_info_size(void)
 {
 	mtp_uint32 size = 0;
-	device_info_t *info = &(g_device.device_info);
+	device_info_t *info = &(g_device->device_info);
 
 	size += sizeof(info->std_version);
 	size += sizeof(info->vendor_extn_id);
@@ -185,7 +186,7 @@ mtp_uint32 _pack_device_info(mtp_uchar *buf, mtp_uint32 buf_sz)
 	mtp_uint16 ii = 0;
 	mtp_uchar *ptr = buf;
 	mtp_uint32 count = 0;
-	device_info_t *info = &(g_device.device_info);
+	device_info_t *info = &(g_device->device_info);
 
 	retv_if(NULL == buf, 0);
 
@@ -315,8 +316,8 @@ void _reset_mtp_device(void)
 	/* resets device state to ok/Ready */
 	/* reset device phase to idle */
 
-	g_device.status = DEVICE_STATUSOK;
-	g_device.phase = DEVICE_PHASE_IDLE;
+	g_device->status = DEVICE_STATUSOK;
+	g_device->phase = DEVICE_PHASE_IDLE;
 	return;
 }
 /* LCOV_EXCL_STOP */
@@ -351,19 +352,19 @@ static mtp_bool __add_store_to_device(void)
 	}
 
 
-	if (g_device.num_stores + 1 > MAX_NUM_DEVICE_STORES) {
+	if (g_device->num_stores + 1 > MAX_NUM_DEVICE_STORES) {
 		ERR("reached to max [%d]\n", MAX_NUM_DEVICE_STORES);
 		return FALSE;
 	}
 
-	if (FALSE == _entity_init_mtp_store(&(g_device.store_list[g_device.num_stores]),
+	if (FALSE == _entity_init_mtp_store(&(g_device->store_list[g_device->num_stores]),
 				store_id, storage_path)) {
 		ERR("_entity_init_mtp_store() Fail");
 		return FALSE;
 	}
 
-	g_device.num_stores++;
-	g_device.is_mounted[0] = TRUE;
+	g_device->num_stores++;
+	g_device->is_mounted[0] = TRUE;
 
 	return TRUE;
 }
@@ -376,12 +377,11 @@ static mtp_bool __add_store_to_device(void)
 /* LCOV_EXCL_START */
 static mtp_bool __remove_store_from_device(void)
 {
-	mtp_device_t *device = &g_device;
 	mtp_store_t *store = NULL;
 
-	store = &(device->store_list[0]);
+	store = &(g_device->store_list[0]);
 	__clear_store_data(store->store_id);
-	device->is_mounted[0] = FALSE;
+	g_device->is_mounted[0] = FALSE;
 
 	return TRUE;
 }
@@ -392,7 +392,7 @@ mtp_bool _device_install_storage(void)
 {
 	DBG(" ADD Storage");
 	/* LCOV_EXCL_START */
-	if (g_device.is_mounted[0] == FALSE)
+	if (g_device->is_mounted[0] == FALSE)
 		__add_store_to_device();
 	/* LCOV_EXCL_STOP */
 
@@ -402,7 +402,7 @@ mtp_bool _device_install_storage(void)
 /* LCOV_EXCL_START */
 mtp_bool _device_uninstall_storage(void)
 {
-	if (TRUE == g_device.is_mounted[0])
+	if (TRUE == g_device->is_mounted[0])
 		__remove_store_from_device();
 
 	return TRUE;
@@ -415,9 +415,9 @@ mtp_store_t *_device_get_store(mtp_uint32 store_id)
 	mtp_int32 ii = 0;
 	mtp_store_t *store = NULL;
 
-	for (ii = 0; ii < g_device.num_stores; ii++) {
+	for (ii = 0; ii < g_device->num_stores; ii++) {
 
-		store = &(g_device.store_list[ii]);
+		store = &(g_device->store_list[ii]);
 		if (store->store_id == store_id)
 			return store;
 	}
@@ -429,9 +429,9 @@ mtp_uint32 _device_get_store_ids(ptp_array_t *store_ids)
 	mtp_store_t *store = NULL;
 	mtp_int32 ii = 0;
 
-	for (ii = g_device.num_stores - 1; ii >= 0; ii--) {
+	for (ii = g_device->num_stores - 1; ii >= 0; ii--) {
 
-		store = &(g_device.store_list[ii]);
+		store = &(g_device->store_list[ii]);
 		if ((store != NULL) && (FALSE == store->is_hidden))
 			_prop_append_ele_ptparray(store_ids, store->store_id);
 	}
@@ -444,9 +444,9 @@ mtp_obj_t *_device_get_object_with_handle(mtp_uint32 obj_handle)
 	mtp_obj_t *obj = NULL;
 	mtp_store_t *store = NULL;
 
-	for (ii = 0; ii < g_device.num_stores; ii++) {
+	for (ii = 0; ii < g_device->num_stores; ii++) {
 
-		store = &(g_device.store_list[ii]);
+		store = &(g_device->store_list[ii]);
 		obj = _entity_get_object_from_store(store, obj_handle);
 		if (obj == NULL)
 			continue;
@@ -464,8 +464,8 @@ mtp_obj_t* _device_get_object_with_path(mtp_char *full_path)
 
 	retv_if(NULL == full_path, NULL);
 
-	for (i = 0; i < g_device.num_stores; i++) {
-		store = &(g_device.store_list[i]);
+	for (i = 0; i < g_device->num_stores; i++) {
+		store = &(g_device->store_list[i]);
 		obj = _entity_get_object_from_store_by_path(store, full_path);
 		if (obj == NULL)
 			continue;
@@ -495,8 +495,8 @@ mtp_uint16 _device_delete_object(mtp_uint32 obj_handle, mtp_uint32 fmt)
 		return response;
 	}
 
-	for (ii = 0; ii < g_device.num_stores; ii++) {
-		store = &(g_device.store_list[ii]);
+	for (ii = 0; ii < g_device->num_stores; ii++) {
+		store = &(g_device->store_list[ii]);
 		response = _entity_delete_obj_mtp_store(store, obj_handle,
 				fmt, TRUE);
 		switch (response) {
@@ -533,8 +533,8 @@ mtp_store_t *_device_get_store_containing_obj(mtp_uint32 obj_handle)
 	mtp_obj_t *obj = NULL;
 	mtp_store_t *store = NULL;
 
-	for (ii = 0; ii < g_device.num_stores; ii++) {
-		store = &(g_device.store_list[ii]);
+	for (ii = 0; ii < g_device->num_stores; ii++) {
+		store = &(g_device->store_list[ii]);
 		obj = _entity_get_object_from_store(store, obj_handle);
 		if (obj != NULL)
 			return store;
@@ -544,12 +544,12 @@ mtp_store_t *_device_get_store_containing_obj(mtp_uint32 obj_handle)
 
 mtp_store_t *_device_get_store_at_index(mtp_uint32 index)
 {
-	if (index >= g_device.num_stores) {
+	if (index >= g_device->num_stores) {
 		ERR("Index not valid");
 		return NULL;
 	}
 
-	return &(g_device.store_list[index]);
+	return &(g_device->store_list[index]);
 }
 
 void _device_get_serial(mtp_char *serial_no, mtp_uint32 len)
@@ -557,7 +557,7 @@ void _device_get_serial(mtp_char *serial_no, mtp_uint32 len)
 	ret_if(serial_no == NULL);
 
 	_util_utf16_to_utf8(serial_no, len,
-			g_device.device_info.serial_no.str);
+			g_device->device_info.serial_no.str);
 	return;
 }
 
@@ -565,34 +565,34 @@ void _device_get_serial(mtp_char *serial_no, mtp_uint32 len)
 void _device_set_phase(device_phase_t phase)
 {
 	DBG("Devie phase is set [%d]\n", phase);
-	g_device.phase = phase;
+	g_device->phase = phase;
 	return;
 }
 
 device_phase_t _device_get_phase(void)
 {
-	return g_device.phase;
+	return g_device->phase;
 }
 /* LCOV_EXCL_STOP */
 
 mtp_uint32 _device_get_default_store_id(void)
 {
-	return g_device.default_store_id;
+	return g_device->default_store_id;
 }
 
 mtp_uint32 _device_get_default_parent_handle(void)
 {
-	return g_device.default_hparent;
+	return g_device->default_hparent;
 }
 
 mtp_uint32 _device_get_num_stores(void)
 {
-	return g_device.num_stores;
+	return g_device->num_stores;
 }
 
 /* LCOV_EXCL_START */
 device_status_t _device_get_status(void)
 {
-	return g_device.status;
+	return g_device->status;
 }
 /* LCOV_EXCL_STOP */

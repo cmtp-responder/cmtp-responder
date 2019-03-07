@@ -85,6 +85,8 @@ typedef struct {
 	mtp_bool is_mounted[MAX_NUM_DEVICE_STORES];
 } mtp_device_t;
 
+extern mtp_device_t *g_device;
+
 /*
  * void _init_mtp_device(void)
  * This function initializes mtp device structure.
