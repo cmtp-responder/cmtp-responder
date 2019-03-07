@@ -942,45 +942,6 @@ mtp_bool _entity_check_if_B_parent_of_A(mtp_store_t *store,
 	return FALSE;
 }
 
-mtp_uint16 _entity_format_store(mtp_store_t *store, mtp_uint32 fs_format)
-{
-	mtp_uint16 response;
-
-	retv_if(store == NULL, PTP_RESPONSE_GEN_ERROR);
-
-	/* Is store ready only? */
-	if (store->store_info.access == PTP_STORAGEACCESS_R) {
-		ERR("Read only storage");
-		return PTP_RESPONSE_STORE_READONLY;
-	}
-
-	/* Is FilesystemFormat supported? */
-	if ((fs_format != PTP_FILESYSTEMTYPE_UNDEFINED) &&
-			(fs_format != PTP_FILESYSTEMTYPE_FLAT) &&
-			(fs_format != PTP_FILESYSTEMTYPE_HIERARCHICAL) &&
-			(fs_format != PTP_FILESYSTEMTYPE_DCF)) {
-		ERR("File system type not supported");
-		return PTP_RESPONSE_INVALIDPARAM;
-	}
-
-	/* check cancel transaction */
-	if (TRUE == _transport_get_cancel_initialization() ||
-			TRUE == _transport_get_usb_discon_state()) {
-		ERR("USB is disconnected format operation is cancelled.");
-		return PTP_RESPONSE_GEN_ERROR;
-	}
-
-	response = _entity_delete_obj_mtp_store(store, PTP_OBJECTHANDLE_ALL,
-			PTP_FORMATCODE_NOTUSED, TRUE);
-
-	if (PTP_RESPONSE_OK != response) {
-		ERR("format is not completed [0x%X].\n", response);
-		return response;
-	}
-
-	return PTP_RESPONSE_OK;
-}
-
 void _entity_destroy_mtp_store(mtp_store_t *store)
 {
 	mtp_uint32 ii = 0;
