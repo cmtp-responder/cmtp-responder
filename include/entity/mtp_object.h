@@ -28,10 +28,6 @@ extern "C" {
 #define FIXED_LENGTH_MEMBERS_SIZE \
 	(4 * sizeof(mtp_uint16) + 11 * sizeof(mtp_uint32))
 
-/*
- * MAX size for sendObjectInfo
- * SIZE_IN_BYTES_OF_FIXED_LENGTH_MEMBERS + 4 * (sizeof(ptp_string_t)) = 2096
- */
 #define MAX_SIZE_IN_BYTES_OF_OBJECT_INFO	(4000*8)
 
 /*
