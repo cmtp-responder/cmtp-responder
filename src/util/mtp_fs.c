@@ -33,6 +33,8 @@
 #include "ptp_datacodes.h"
 #include "mtp_device.h"
 
+extern mtp_uint32 g_next_obj_handle;
+
 /*
  * FUNCTIONS
  */
@@ -417,7 +419,7 @@ mtp_bool _util_copy_dir_children_recursive(const mtp_char *origpath,
 		}
 
 		_entity_set_object_file_path(new_obj, new_pathname, CHAR_TYPE);
-		new_obj->obj_handle = _entity_generate_next_obj_handle();
+		new_obj->obj_handle = g_next_obj_handle++;
 		new_obj->obj_info->h_parent = parent_obj->obj_handle;
 
 		if (S_ISDIR(entryinfo.st_mode)) {

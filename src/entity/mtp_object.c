@@ -25,8 +25,8 @@
 #include "mtp_util.h"
 #include "mtp_device.h"
 
-
 extern mtp_bool g_is_full_enum;
+extern mtp_uint32 g_next_obj_handle;
 
 
 /* LCOV_EXCL_START */
@@ -417,7 +417,7 @@ mtp_bool _entity_init_mtp_object_params(
 	obj->obj_handle = 0;
 	obj->obj_info = NULL;
 	obj->file_path = NULL;
-	obj->obj_handle = _entity_generate_next_obj_handle();
+	obj->obj_handle = g_next_obj_handle++;
 	_entity_set_object_file_path(obj, file_path, CHAR_TYPE);
 	obj->obj_info = _entity_alloc_object_info();
 

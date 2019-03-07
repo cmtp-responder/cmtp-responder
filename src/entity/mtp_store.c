@@ -27,7 +27,7 @@
 
 
 extern mtp_char g_last_deleted[MTP_MAX_PATHNAME_SIZE + 1];
-static mtp_uint32 g_next_obj_handle = 1;
+mtp_uint32 g_next_obj_handle = 1;
 
 
 static inline mtp_bool UTIL_CHECK_LIST_NEXT(slist_iterator *iter)
@@ -941,14 +941,7 @@ mtp_bool _entity_check_if_B_parent_of_A(mtp_store_t *store,
 	_prop_deinit_ptparray(&child_arr);
 	return FALSE;
 }
-/* LCOV_EXCL_STOP */
 
-mtp_uint32 _entity_generate_next_obj_handle(void)
-{
-	return g_next_obj_handle++;
-}
-
-/* LCOV_EXCL_START */
 mtp_uint16 _entity_format_store(mtp_store_t *store, mtp_uint32 fs_format)
 {
 	mtp_uint16 response;

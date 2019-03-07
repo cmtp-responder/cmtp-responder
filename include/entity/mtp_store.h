@@ -103,7 +103,6 @@ mtp_uint16 _entity_delete_obj_mtp_store(mtp_store_t *store,
 mtp_uint32 _entity_get_object_tree_size(mtp_store_t *store, mtp_obj_t *obj);
 mtp_bool _entity_check_if_B_parent_of_A(mtp_store_t *store,
 		mtp_uint32 handleA, mtp_uint32 handleB);
-mtp_uint32 _entity_generate_next_obj_handle(void);
 mtp_uint16 _entity_format_store(mtp_store_t *store, mtp_uint32 fs_format);
 void _entity_destroy_mtp_store(mtp_store_t *store);
 void _entity_store_recursive_enum_folder_objects(mtp_store_t *store,

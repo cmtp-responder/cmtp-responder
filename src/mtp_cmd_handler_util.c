@@ -33,6 +33,7 @@ extern mtp_char g_last_created_dir[MTP_MAX_PATHNAME_SIZE + 1];
 extern mtp_char g_last_moved[MTP_MAX_PATHNAME_SIZE + 1];
 extern mtp_char g_last_copied[MTP_MAX_PATHNAME_SIZE + 1];
 extern mtp_char g_last_deleted[MTP_MAX_PATHNAME_SIZE + 1];
+extern mtp_uint32 g_next_obj_handle;
 
 /*
  * STATIC VARIABLES
@@ -157,7 +158,7 @@ mtp_err_t _hutil_add_object_entry(obj_info_t *obj_info, mtp_char *file_name,
 
 	memset(obj, 0, sizeof(mtp_obj_t));
 	obj->child_array.type = UINT32_TYPE;
-	obj->obj_handle = _entity_generate_next_obj_handle();
+	obj->obj_handle = g_next_obj_handle++;
 	obj->obj_info = obj_info;
 
 	/* For PC->MMC read-only file/folder transfer
@@ -494,7 +495,7 @@ mtp_err_t _hutil_copy_object_entries(mtp_uint32 dst_store_id,
 	}
 
 	new_obj->obj_handle = (keep_handle) ? obj->obj_handle :
-		_entity_generate_next_obj_handle();
+		g_next_obj_handle++;
 	new_obj->obj_info->h_parent = (par_obj == NULL) ? PTP_OBJECTHANDLE_ROOT :
 		par_obj->obj_handle;
 
