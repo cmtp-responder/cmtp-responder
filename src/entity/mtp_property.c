@@ -34,28 +34,21 @@ static obj_prop_desc_t props_list_default[NUM_OBJECT_PROP_DESC_DEFAULT];
  */
 mtp_uint16 __get_ptp_array_elem_size(data_type_t type)
 {
-	mtp_uint16 size = 0;
-
 	switch (type) {
 	case UINT8_TYPE:
-		size = 1;
-		break;
+		return 1;
 	case UINT16_TYPE:
-		size = 2;
-		break;
+		return 2;
 	case PTR_TYPE:
 	case UINT32_TYPE:
-		size = 4;
-		break;
+		return 4;
 	case UINT128_TYPE:
-		size = 16;
-		break;
+		return 16;
 	default:
-		size = 0;
-		break;
+		;
 	}
 
-	return size;
+	return 0;
 }
 
 /* LCOV_EXCL_START */
