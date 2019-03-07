@@ -683,46 +683,32 @@ mtp_bool _util_ifind_next(mtp_char *dir_name, DIR *dirp, dir_entry_t *dir_info)
 	return TRUE;
 }
 
-/* LCOV_EXCL_START */
-mtp_bool _util_get_filesystem_info_ext(mtp_char *storepath,
-	fs_info_t *fs_info)
-{
-	struct statfs buf = { 0 };
-	mtp_uint64 avail_size = 0;
-	mtp_uint64 capacity = 0;
-	mtp_uint64 used_size = 0;
-
-	if (statfs(storepath, &buf) != 0) {
-		ERR("statfs is failed\n");
-		return FALSE;
-	}
-
-	capacity = used_size = avail_size = (mtp_uint64)buf.f_bsize;
-	DBG("Block size : %lu\n", (unsigned long)buf.f_bsize);
-	capacity *= buf.f_blocks;
-	used_size *= (buf.f_blocks - buf.f_bavail);
-	avail_size *= buf.f_bavail;
-
-	fs_info->disk_size = capacity;
-	fs_info->reserved_size = used_size;
-	fs_info->avail_size = avail_size;
-
-	return TRUE;
-}
-/* LCOV_EXCL_STOP */
-
-mtp_bool _util_get_filesystem_info_int(mtp_char *storepath, fs_info_t *fs_info)
-{
-	return _util_get_filesystem_info_ext("/", fs_info);
-}
-
 mtp_bool _util_get_filesystem_info(mtp_char *storepath,
 	fs_info_t *fs_info)
 {
-	if (!g_strcmp0(storepath, MTP_EXTERNAL_PATH_CHAR))
-		return _util_get_filesystem_info_ext(storepath, fs_info);
-	else
-		return _util_get_filesystem_info_int(storepath, fs_info);
+	if (!g_strcmp0(storepath, MTP_EXTERNAL_PATH_CHAR)) {
+		struct statfs buf = { 0 };
+		mtp_uint64 avail_size = 0;
+		mtp_uint64 capacity = 0;
+		mtp_uint64 used_size = 0;
+
+		if (statfs(storepath, &buf) != 0) {
+			ERR("statfs is failed\n");
+			return FALSE;
+		}
+
+		capacity = used_size = avail_size = (mtp_uint64)buf.f_bsize;
+		DBG("Block size : %lu\n", (unsigned long)buf.f_bsize);
+		capacity *= buf.f_blocks;
+		used_size *= (buf.f_blocks - buf.f_bavail);
+		avail_size *= buf.f_bavail;
+
+		fs_info->disk_size = capacity;
+		fs_info->reserved_size = used_size;
+		fs_info->avail_size = avail_size;
+
+		return TRUE;
+	}
 
 	return FALSE;
 }
