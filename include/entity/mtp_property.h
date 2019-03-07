@@ -196,7 +196,6 @@ void _prop_destroy_ptparray(ptp_array_t *parray);
 /*
  * PtpString Functions
  */
-void _prop_init_ptpstring(ptp_string_t *pstring);
 void _prop_copy_time_to_ptptimestring(ptp_time_string_t *pString,
 		system_time_t *sys_time);
 void _prop_copy_ptpstring(ptp_string_t *dst, ptp_string_t *src);

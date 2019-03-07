@@ -1362,7 +1362,7 @@ mtp_err_t _hutil_update_object_property(mtp_uint32 obj_handle,
 	if (prop_code == MTP_OBJ_PROPERTYCODE_OBJECTFILENAME) {
 		ptp_string_t fname = { 0 };
 
-		_prop_init_ptpstring(&fname);
+		fname.num_chars = 0;
 		_prop_parse_rawstring(&fname, buf, buf_sz);
 
 		_util_utf16_to_utf8(temp_buf, sizeof(temp_buf),

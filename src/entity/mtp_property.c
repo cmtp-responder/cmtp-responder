@@ -470,14 +470,9 @@ static ptp_string_t *__alloc_ptpstring(void)
 
 	pstring = (ptp_string_t *)g_malloc(sizeof(ptp_string_t));
 	if (pstring != NULL)
-		_prop_init_ptpstring(pstring);
+		pstring->num_chars = 0;
 
 	return (pstring);
-}
-
-void _prop_init_ptpstring(ptp_string_t *pstring)
-{
-	pstring->num_chars = 0;
 }
 
 void _prop_copy_char_to_ptpstring(ptp_string_t *pstring, void *str,
@@ -1045,7 +1040,7 @@ mtp_bool _prop_set_current_array_val(obj_prop_val_t *pval, mtp_uchar *arr,
 
 	if (propinfo->data_type == PTP_DATATYPE_STRING) {
 		ptp_string_t str;
-		_prop_init_ptpstring(&str);
+		str.num_chars = 0;
 		_prop_parse_rawstring(&str, arr, size);
 		return _prop_set_current_string_val(pval, &str);
 
