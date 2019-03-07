@@ -31,7 +31,6 @@ void _hdlr_init_cmd_container(cmd_container_t *cntr)
 	cntr->code = PTP_OPCODE_UNDEFINED;
 	cntr->len = sizeof(header_container_t);
 	cntr->no_param = 0;
-	return;
 }
 
 mtp_uint32 _hdlr_get_param_cmd_container(cmd_container_t *cntr,
@@ -58,8 +57,6 @@ void _hdlr_copy_cmd_container_unknown_params(cmd_container_t *src,
 
 	for (ii = 0; ii < dst->no_param; ii++)
 		dst->params[ii] = src->params[ii];
-
-	return;
 }
 /* LCOV_EXCL_STOP */
 
@@ -75,8 +72,6 @@ void _hdlr_copy_cmd_container(cmd_container_t *src, cmd_container_t *dst)
 
 	for (ii = 0; ii < dst->no_param; ii++)
 		dst->params[ii] = src->params[ii];
-
-	return;
 }
 
 mtp_bool _hdlr_add_param_resp_container(resp_blk_t *dst, mtp_uint32 num,
@@ -136,7 +131,6 @@ void _hdlr_init_data_container(data_container_t *dst, mtp_uint16 code,
 #ifdef __BIG_ENDIAN__
 	_hdlr_conv_data_container_byte_order(dst);
 #endif /* __BIG_ENDIAN__ */
-	return;
 }
 
 mtp_uchar *_hdlr_alloc_buf_data_container(data_container_t *dst,
@@ -328,7 +322,6 @@ void _hdlr_resp_container_init(cmd_container_t *dst, mtp_uint16 resp_code,
 #ifdef __BIG_ENDIAN__
 	_hdlr_conv_cmd_container_byte_order(dst);
 #endif /* __BIG_ENDIAN__ */
-	return;
 }
 
 /* LCOV_EXCL_START */
@@ -368,7 +361,6 @@ void _hdlr_init_event_container(cmd_container_t *dst, mtp_uint16 code,
 #ifdef __BIG_ENDIAN__
 	_hdlr_conv_cmd_container_byte_order(dst);
 #endif /* __BIG_ENDIAN__ */
-	return;
 }
 
 /* LCOV_EXCL_START */
@@ -399,7 +391,6 @@ void _hdlr_conv_cmd_container_byte_order(cmd_container_t *dst)
 				sizeof(dst->params[idx]));
 	}
 #endif /* __BIG_ENDIAN__ */
-	return;
 }
 
 void _hdlr_conv_data_container_byte_order(data_container_t *dst)
@@ -417,5 +408,4 @@ void _hdlr_conv_data_container_byte_order(data_container_t *dst)
 				sizeof(dst->params[idx]));
 	}
 #endif /* __BIG_ENDIAN__ */
-	return;
 }

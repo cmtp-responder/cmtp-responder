@@ -29,8 +29,6 @@ void _util_init_list(slist_t *l_ptr)
 	l_ptr->start = NULL;
 	l_ptr->end = NULL;
 	l_ptr->nnodes = 0;
-
-	return;
 }
 
 mtp_bool _util_add_node(slist_t *l_ptr, void *data)

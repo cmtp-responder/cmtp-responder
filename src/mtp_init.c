@@ -80,8 +80,6 @@ static void __mtp_exit(void)
 
 	if (g_eh_thrd == pthread_self())
 		_util_thread_exit("Event handler stopped itself");
-
-	return;
 }
 
 /* LCOV_EXCL_STOP */
@@ -109,7 +107,6 @@ static void _features_supported_info(void)
 	DBG("### 3. MTP_SUPPORT_SET_PROTECTION	: [OFF]");
 #endif /* MTP_SUPPORT_SET_PROTECTION */
 	DBG("***********************************************************");
-	return;
 }
 
 void _mtp_init(void)
@@ -175,8 +172,6 @@ MTP_INIT_FAIL:
 	/* Set MTP state to stopped */
 	_transport_set_mtp_operation_state(MTP_STATE_STOPPED);
 	mtp_end_event();
-
-	return;
 }
 
 void _mtp_deinit(void)
@@ -192,8 +187,6 @@ void _mtp_deinit(void)
 #ifdef MTP_SUPPORT_OBJECTADDDELETE_EVENT
 	_inoti_deinit_filesystem_events();
 #endif /*MTP_SUPPORT_OBJECTADDDELETE_EVENT*/
-
-	return;
 }
 
 static void __print_mtp_conf(void)
@@ -401,7 +394,6 @@ static void __read_mtp_conf(void)
 	g_conf.is_init = true;
 
 	__print_mtp_conf();
-	return;
 }
 
 void __init_mtp_info(void)

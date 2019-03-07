@@ -47,14 +47,11 @@ void _util_conv_byte_order(void *data, mtp_int32 size)
 		l_data[idx] = l_data[size - idx - 1];
 		l_data[size - idx - 1] = temp;
 	}
-
-	return;
 }
 
 void _util_conv_byte_order_wstring(mtp_uint16 *wstr, mtp_int32 size)
 {
 	_util_conv_byte_order_gen_str(wstr, size, sizeof(mtp_uint16));
-	return;
 }
 
 void _util_conv_byte_order_gen_str(void *str, mtp_int32 size, mtp_int32 elem_sz)
@@ -68,8 +65,6 @@ void _util_conv_byte_order_gen_str(void *str, mtp_int32 size, mtp_int32 elem_sz)
 
 	for (idx = 0; idx < f_size; idx += elem_sz)
 		_util_conv_byte_order(&(l_str[idx]), elem_sz);
-
-	return;
 }
 /* LCOV_EXCL_STOP */
 
@@ -171,8 +166,6 @@ void _util_wchar_cpy(mtp_wchar *dest, const mtp_wchar *src)
 			pc2 += 2;
 		}
 	}
-
-	return;
 }
 /* LCOV_EXCL_STOP */
 
@@ -220,8 +213,6 @@ void _util_wchar_ncpy(mtp_wchar *dest, const mtp_wchar *src, unsigned long n)
 			}
 		}
 	}
-
-	return;
 }
 
 /*
@@ -533,7 +524,6 @@ void _util_get_parent_path(const mtp_char *fullpath, mtp_char *p_path)
 	}
 
 	g_strlcpy(p_path, fullpath, (mtp_uint32)(ptr - fullpath) + 1);
-	return;
 }
 
 void _util_conv_wstr_to_guid(mtp_wchar *wstr, mtp_uint64 *guid)
@@ -564,8 +554,6 @@ void _util_conv_wstr_to_guid(mtp_wchar *wstr, mtp_uint64 *guid)
 		guid[0] += temp[0];
 		guid[1] += temp[1];
 	}
-
-	return;
 }
 
 mtp_bool _util_get_unique_dir_path(const mtp_char *exist_path,

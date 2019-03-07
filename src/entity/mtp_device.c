@@ -318,7 +318,6 @@ void _reset_mtp_device(void)
 
 	g_device->status = DEVICE_STATUSOK;
 	g_device->phase = DEVICE_PHASE_IDLE;
-	return;
 }
 /* LCOV_EXCL_STOP */
 

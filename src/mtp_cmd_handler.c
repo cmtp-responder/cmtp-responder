@@ -1004,7 +1004,6 @@ static void __get_partial_object(mtp_handler_t *hdlr)
 	_cmd_hdlr_send_response_code(hdlr, resp);
 
 	g_free(blk.data);
-	return;
 }
 
 #ifdef MTP_SUPPORT_SET_PROTECTION
@@ -1052,7 +1051,6 @@ static void __set_object_protection(mtp_handler_t *hdlr)
 	}
 
 	_cmd_hdlr_send_response_code(hdlr, resp);
-	return;
 }
 #endif /* MTP_SUPPORT_SET_PROTECTION */
 
@@ -1070,7 +1068,6 @@ static void __power_down(mtp_handler_t *hdlr)
 	_cmd_hdlr_send_response_code(hdlr, PTP_RESPONSE_OK);
 	usleep(1000);
 	_cmd_hdlr_reset_cmd(hdlr);
-	return;
 }
 
 /* Vendor-specific operations */
@@ -1085,7 +1082,6 @@ static void __vendor_command1(mtp_handler_t *hdlr)
 	}
 	/* Vendor command not properly handled*/
 	_cmd_hdlr_send_response_code(hdlr, PTP_RESPONSE_GEN_ERROR);
-	return;
 }
 
 static void __get_interdep_prop_desc(mtp_handler_t *hdlr)
@@ -1131,7 +1127,6 @@ static void __get_interdep_prop_desc(mtp_handler_t *hdlr)
 	}
 
 	g_free(blk.data);
-	return;
 }
 
 void __close_session(mtp_handler_t *hdlr)
@@ -1155,7 +1150,6 @@ void __close_session(mtp_handler_t *hdlr)
 				PTP_RESPONSE_SESSIONNOTOPEN);
 		ERR("PTP_RESPONSE_SESSIONNOTOPEN");
 	}
-	return;
 }
 /* LCOV_EXCL_STOP */
 
@@ -1261,8 +1255,6 @@ static void __print_command(mtp_uint16 code)
 		DBG("======== UNKNOWN COMMAND ==========");
 		break;
 	}
-
-	return;
 }
 #endif /*MTP_SUPPORT_PRINT_COMMAND*/
 
@@ -1399,7 +1391,6 @@ void _receive_mq_data_cb(mtp_char *buffer, mtp_int32 buf_len)
 		_device_set_phase(DEVICE_PHASE_IDLE);
 		_transport_set_mtp_operation_state(MTP_STATE_ONSERVICE);
 	}
-	return;
 }
 
 static mtp_bool __receive_temp_file_first_packet(mtp_char *data,
@@ -1557,7 +1548,5 @@ static void __finish_receiving_file_packets(mtp_char *data, mtp_int32 data_len)
 
 	DBG("MTP device phase[%d], processing Command is complete\n",
 			g_device->phase);
-
-	return;
 }
 /* LCOV_EXCL_STOP */

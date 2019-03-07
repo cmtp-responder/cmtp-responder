@@ -184,7 +184,6 @@ void _prop_init_ptparray(ptp_array_t *parray, data_type_t type)
 		parray->arr_size = INITIAL_ARRAY_SIZE;
 		memset(parray->array_entry, 0, size * INITIAL_ARRAY_SIZE);
 	}
-	return;
 }
 
 ptp_array_t *_prop_alloc_ptparray(data_type_t type)
@@ -459,7 +458,6 @@ void _prop_deinit_ptparray(ptp_array_t *parray)
 		g_free(parray->array_entry);
 
 	parray->array_entry = NULL;
-	return;
 }
 
 void _prop_destroy_ptparray(ptp_array_t *parray)
@@ -473,7 +471,6 @@ void _prop_destroy_ptparray(ptp_array_t *parray)
 	parray->arr_size = 0;
 	parray->num_ele = 0;
 	g_free(parray);
-	return;
 }
 /* LCOV_EXCL_STOP */
 
@@ -518,7 +515,6 @@ static ptp_string_t *__alloc_ptpstring(void)
 void _prop_init_ptpstring(ptp_string_t *pstring)
 {
 	pstring->num_chars = 0;
-	return;
 }
 
 static void __init_ptptimestring(ptp_time_string_t *pstring)
@@ -572,8 +568,6 @@ void _prop_copy_char_to_ptpstring(ptp_string_t *pstring, void *str,
 		pstring->num_chars = i + 1;
 
 	pstring->str[pstring->num_chars - 1] = (mtp_wchar)0;
-
-	return;
 }
 
 /* LCOV_EXCL_START */
@@ -603,7 +597,6 @@ void _prop_copy_time_to_ptptimestring(ptp_time_string_t *pstring,
 		pstring->num_chars = 17;
 		pstring->str[17] = '\0';
 	}
-	return;
 }
 /* LCOV_EXCL_STOP */
 
@@ -614,8 +607,6 @@ void _prop_copy_ptpstring(ptp_string_t *dst, ptp_string_t *src)
 	dst->num_chars = src->num_chars;
 	for (ii = 0; ii < src->num_chars; ii++)
 		dst->str[ii] = src->str[ii];
-
-	return;
 }
 
 /* LCOV_EXCL_START */
@@ -759,8 +750,6 @@ void _prop_destroy_ptpstring(ptp_string_t *pstring)
 {
 	if (pstring != NULL)
 		g_free(pstring);
-
-	return;
 }
 
 mtp_bool _prop_is_valid_integer(prop_info_t *prop_info, mtp_uint64 value)
@@ -1387,7 +1376,6 @@ static void __init_obj_propval(obj_prop_val_t *pval, obj_prop_desc_t *prop)
 
 		/* Add support for other array data types */
 	}
-	return;
 }
 
 obj_prop_val_t *_prop_get_prop_val(mtp_obj_t *obj, mtp_uint32 propcode)
@@ -1485,8 +1473,6 @@ void _prop_destroy_obj_propval(obj_prop_val_t *pval)
 		g_free(pval);
 		pval = NULL;
 	}
-
-	return;
 }
 /* LCOV_EXCL_STOP */
 
@@ -1563,8 +1549,6 @@ static void __init_obj_prop_desc(obj_prop_desc_t *prop, mtp_uint16 propcode,
 
 	prop->prop_forms.reg_exp = NULL;
 	prop->prop_forms.max_len = 0;
-
-	return;
 }
 
 /* LCOV_EXCL_START */

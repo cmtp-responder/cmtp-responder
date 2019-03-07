@@ -156,8 +156,6 @@ void _inoti_add_watch_for_fs_events(mtp_char *path)
 			IN_MOVED_FROM |
 			IN_MOVED_TO);
 	g_cnt_watch_folder++;
-
-	return;
 }
 
 mtp_bool _inoti_init_filesystem_evnts()
@@ -325,8 +323,6 @@ void _inoti_deinit_filesystem_events()
 
 	if (_util_thread_join(g_inoti_thrd, 0) == FALSE)
 		ERR("_util_thread_join() Fail");
-
-	return;
 }
 
 /* LCOV_EXCL_START */
@@ -351,7 +347,6 @@ static void __remove_inoti_watch(mtp_char *path)
 
 	if (i == g_cnt_watch_folder)
 		ERR("Path not found in g_noti_watches");
-	return;
 }
 
 static mtp_bool __add_file_to_inoti_open_files_list(mtp_int32 wd,
@@ -412,8 +407,6 @@ static void __remove_file_from_inoti_open_files_list(open_files_info_t *node)
 
 	g_free(node->name);
 	g_free(node);
-
-	return;
 }
 
 static mtp_int32 __get_inoti_watch_id(mtp_int32 iwd)
@@ -480,8 +473,6 @@ static void __remove_recursive_inoti_watch(mtp_char *path)
 		inotify_rm_watch(g_inoti_fd, g_inoti_watches[i].wd);
 		g_inoti_watches[i].wd = 0;
 	}
-
-	return;
 }
 
 static void __clean_up_inoti(void *data)
@@ -494,7 +485,6 @@ static void __clean_up_inoti(void *data)
 
 	close(g_inoti_fd);
 	g_inoti_fd = 0;
-	return;
 }
 
 /* LCOV_EXCL_START */
@@ -528,7 +518,6 @@ static void __delete_children_from_store_inoti(mtp_store_t *store,
 	}
 
 	_prop_deinit_ptparray(&child_arr);
-	return;
 }
 
 static void __process_object_added_event(mtp_char *fullpath,
@@ -625,8 +614,6 @@ static void __process_object_added_event(mtp_char *fullpath,
 
 	_eh_send_event_req_to_eh_thread(EVENT_OBJECT_ADDED,
 			obj->obj_handle, 0, NULL);
-
-	return;
 }
 
 static void __process_object_deleted_event(mtp_char *fullpath,
@@ -682,8 +669,6 @@ static void __process_object_deleted_event(mtp_char *fullpath,
 
 	_eh_send_event_req_to_eh_thread(EVENT_OBJECT_REMOVED, obj_handle,
 			0, NULL);
-
-	return;
 }
 /* LCOV_EXCL_STOP */
 
@@ -709,7 +694,6 @@ static void __destroy_inoti_open_files_list()
 	}
 
 	g_open_files_list = NULL;
-	return;
 	/* LCOV_EXCL_STOP */
 }
 #endif /*MTP_SUPPORT_OBJECTADDDELETE_EVENT*/

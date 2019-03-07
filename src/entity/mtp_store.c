@@ -48,8 +48,6 @@ static void __init_store_info(store_info_t *info)
 	info->capacity = MTP_MAX_STORAGE;
 	info->free_space = MTP_MAX_STORAGE - 1;
 	info->free_space_in_objs = MTP_MAX_STORAGE_IN_OBJTS;
-
-	return;
 }
 
 static void __init_store_info_params(store_info_t *info,
@@ -66,7 +64,6 @@ static void __init_store_info_params(store_info_t *info,
 
 	_prop_copy_char_to_ptpstring(&(info->store_desc), store_desc, WCHAR_TYPE);
 	_prop_copy_char_to_ptpstring(&(info->vol_label), label, WCHAR_TYPE);
-	return;
 }
 
 void _entity_update_store_info_run_time(store_info_t *info,
@@ -84,8 +81,6 @@ void _entity_update_store_info_run_time(store_info_t *info,
 
 	info->capacity = fs_info.disk_size;
 	info->free_space = fs_info.avail_size;
-
-	return;
 }
 
 /* LCOV_EXCL_START */
@@ -1011,7 +1006,6 @@ void _entity_destroy_mtp_store(mtp_store_t *store)
 	}
 
 	_util_init_list(&(store->obj_list));
-	return;
 }
 /* LCOV_EXCL_STOP */
 
@@ -1092,8 +1086,6 @@ NEXT:
 #ifdef MTP_SUPPORT_OBJECTADDDELETE_EVENT
 	_inoti_add_watch_for_fs_events(folder_name);
 #endif /*MTP_SUPPORT_OBJECTADDDELETE_EVENT*/
-
-	return;
 }
 
 /* LCOV_EXCL_START */
@@ -1107,7 +1099,5 @@ void _entity_copy_store_data(mtp_store_t *dst, mtp_store_t *src)
 	_entity_update_store_info_run_time(&(dst->store_info), dst->root_path);
 	_prop_copy_ptpstring(&(dst->store_info.store_desc), &(src->store_info.store_desc));
 	_prop_copy_ptpstring(&(dst->store_info.vol_label), &(src->store_info.vol_label));
-
-	return;
 }
 /* LCOV_EXCL_STOP */

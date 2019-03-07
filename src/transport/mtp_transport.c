@@ -63,7 +63,6 @@ void _transport_save_cmd_buffer(mtp_char *buffer, mtp_uint32 size)
 	memcpy(g_mgr->ftemp_st.cmd_buf, buffer, size);
 	g_mgr->ftemp_st.cmd_size = size;
 	g_mgr->ftemp_st.data_count = 0;
-	return;
 }
 /* LCOV_EXCL_STOP */
 
@@ -295,7 +294,6 @@ void _transport_send_zlp(void)
 			sizeof(msgq_ptr_t) - sizeof(long), 0);
 	if (resp == FALSE)
 		ERR("_util_msgq_send() Fail");
-	return;
 }
 
 static mtp_err_t __transport_init_io()
@@ -393,7 +391,6 @@ static void __transport_deinit_io()
 	g_tx_thrd = 0;
 
 	g_usb_threads_created = FALSE;
-	return;
 }
 
 mtp_bool _transport_init_interfaces(_cmd_handler_cb func)
@@ -469,8 +466,6 @@ void _transport_usb_finalize(void)
 		ERR("_transport_mq_deinit() Fail");
 
 	_transport_deinit_usb_device();
-
-	return;
 }
 
 static void *__transport_thread_data_rcv(void *func)
@@ -519,7 +514,6 @@ static void *__transport_thread_data_rcv(void *func)
 void _transport_init_status_info(void)
 {
 	memset((void *)&g_status, 0, sizeof(status_info_t));
-	return;
 }
 
 /* LCOV_EXCL_START */
@@ -550,14 +544,12 @@ mtp_state_t _transport_get_mtp_operation_state(void)
 void _transport_set_mtp_operation_state(mtp_state_t state)
 {
 	g_status.mtp_op_state = state;
-	return;
 }
 
 /* LCOV_EXCL_START */
 void _transport_set_usb_discon_state(mtp_bool is_usb_discon)
 {
 	g_status.is_usb_discon = is_usb_discon;
-	return;
 }
 /* LCOV_EXCL_STOP */
 

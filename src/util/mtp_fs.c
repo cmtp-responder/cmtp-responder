@@ -892,6 +892,5 @@ void FLOGD(const char *fmt, ...)
 	va_end(ap);
 
 	fclose(fp);
-	return;
 }
 /* LCOV_EXCL_STOP */

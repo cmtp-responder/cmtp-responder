@@ -283,7 +283,6 @@ void _eh_send_event_req_to_eh_thread(event_code_t action, mtp_ulong param1,
 		ERR("Event write over pipe Fail, status = [%d], pipefd = [%d], errno [%d]\n",
 				status, g_pipefd[1], errno);
 	}
-	return;
 }
 
 static mtp_bool __send_start_event_to_eh_thread(void)

@@ -98,6 +98,5 @@ mtp_bool _util_thread_cancel(pthread_t tid)
 void _util_thread_exit(void *val_ptr)
 {
 	pthread_exit(val_ptr);
-	return;
 }
 /* LCOV_EXCL_STOP */

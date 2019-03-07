@@ -161,8 +161,6 @@ void _entity_init_object_info_params(obj_info_t *info, mtp_uint32 store_id,
 
 	info->file_size = dir->attrs.fsize;
 	info->obj_fmt = _util_get_fmtcode(extn);
-
-	return;
 }
 
 mtp_uint32 _entity_parse_raw_obj_info(mtp_uchar *buf, mtp_uint32 buf_sz,
@@ -248,8 +246,6 @@ void _entity_copy_obj_info(obj_info_t *dst, obj_info_t *src)
 	/* Copy Object Props:thumb_file_size,h_parent, association_type */
 	memcpy(&(dst->thumb_file_size), &(src->thumb_file_size),
 			(2 * sizeof(mtp_uint32) + sizeof(mtp_uint16)));
-
-	return;
 }
 
 mtp_uint32 _entity_pack_obj_info(mtp_obj_t *obj, ptp_string_t *file_name,
@@ -411,7 +407,6 @@ void _entity_dealloc_obj_info(obj_info_t *info)
 {
 	g_free(info);
 	info = NULL;
-	return;
 }
 /* LCOV_EXCL_STOP */
 
@@ -705,8 +700,6 @@ void _entity_copy_mtp_object(mtp_obj_t *dst, mtp_obj_t *src)
 	_entity_copy_obj_info(dst->obj_info, src->obj_info);
 	dst->obj_handle = 0;
 	dst->file_path = NULL;
-
-	return;
 }
 
 mtp_bool _entity_remove_reference_child_array(mtp_obj_t *obj, mtp_uint32 handle)
@@ -744,6 +737,5 @@ void _entity_dealloc_mtp_obj(mtp_obj_t *obj)
 	g_free(obj->file_path);
 	g_free(obj);
 	obj = NULL;
-	return;
 }
 /* LCOV_EXCL_STOP */
