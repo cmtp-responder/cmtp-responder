@@ -517,8 +517,7 @@ mtp_int32 _transport_get_control_event(void)
 	event_code = g_status.ctrl_event_code;
 
 	/* initialize for next usage */
-	if (event_code != 0)
-		g_status.ctrl_event_code = 0;
+	g_status.ctrl_event_code = 0;
 
 	return event_code;
 }
