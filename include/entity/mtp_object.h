@@ -86,7 +86,6 @@ mtp_bool _entity_check_child_obj_path(mtp_obj_t *obj, mtp_char *src_path,
 mtp_bool _entity_set_child_object_path(mtp_obj_t *obj, mtp_char *src_path,
 		mtp_char *dest_path);
 mtp_bool _entity_add_reference_child_array(mtp_obj_t *obj, mtp_uint32 handle);
-ptp_array_t* _entity_get_reference_child_array(mtp_obj_t *obj);
 mtp_bool _entity_set_reference_child_array(mtp_obj_t *obj, mtp_uchar *buf,
 		mtp_uint32 buf_sz);
 void _entity_copy_mtp_object(mtp_obj_t *dst, mtp_obj_t *src);

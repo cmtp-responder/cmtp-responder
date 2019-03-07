@@ -663,11 +663,6 @@ mtp_bool _entity_add_reference_child_array(mtp_obj_t *obj, mtp_uint32 handle)
 }
 
 /* LCOV_EXCL_START */
-ptp_array_t *_entity_get_reference_child_array(mtp_obj_t *obj)
-{
-	return &(obj->child_array);
-}
-
 mtp_bool _entity_set_reference_child_array(mtp_obj_t *obj, mtp_uchar *buf,
 		mtp_uint32 buf_sz)
 {
