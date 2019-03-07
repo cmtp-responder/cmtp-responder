@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-#define __USE_STDIO__
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <fcntl.h>
@@ -53,7 +52,6 @@ extern mtp_uint32 g_next_obj_handle;
 FILE* _util_file_open(const mtp_char *filename, file_mode_t mode,
 		mtp_int32 *error)
 {
-#ifdef __USE_STDIO__
 	FILE *fhandle = NULL;
 	char *fmode = NULL;
 
@@ -98,57 +96,6 @@ FILE* _util_file_open(const mtp_char *filename, file_mode_t mode,
 	fcntl(fileno(fhandle), F_SETFL, O_NOATIME);
 
 	return fhandle;
-
-#else /* __USE_STDIO__ */
-
-	mtp_int32 fhandle = 0;
-	mtp_int32 flags = 0;
-	mode_t perm = 0;
-
-	switch ((int)mode) {
-	case MTP_FILE_READ:
-		flags = O_RDONLY;
-		break;
-
-	case MTP_FILE_WRITE:
-		flags = O_WRONLY | O_CREAT | O_TRUNC;
-		perm = 0644;
-		break;
-
-	case MTP_FILE_APPEND:
-		flags = O_WRONLY | O_APPEND | O_CREAT;
-		perm = 0644;
-		break;
-
-	case MTP_FILE_READ | MTP_FILE_WRITE:
-		flags = O_RDWR;
-		break;
-
-	case MTP_FILE_READ | MTP_FILE_WRITE | MTP_FILE_APPEND:
-		flags = O_RDWR | O_APPEND | O_CREAT;
-		perm = 0644;
-		break;
-
-	default:
-		ERR("Invalid mode : %d\n", mode);
-		*error = EINVAL;
-		return NULL;
-	}
-
-	if (perm)
-		fhandle = open(filename, flags, perm);
-	else
-		fhandle = open(filename, flags);
-
-	if (fhandle < 0) {
-		ERR("File open Fail:mode[0x%x], errno [%d]\n", mode, errno);
-		ERR_SECURE("filename[%s]\n", filename);
-		*error = errno;
-		return NULL;
-	}
-
-	return fhandle;
-#endif /* __USE_STDIO__ */
 }
 
 /*
@@ -168,11 +115,7 @@ void _util_file_read(FILE* fhandle, void *bufptr, mtp_uint32 size,
 {
 	mtp_uint32 bytes_read = 0;
 
-#ifdef __USE_STDIO__
 	bytes_read = fread_unlocked(bufptr, sizeof(mtp_char), size, fhandle);
-#else /* __USE_STDIO__ */
-	bytes_read = read(fhandle, bufptr, size);
-#endif /* __USE_STDIO__ */
 
 	*read_count = bytes_read;
 }
@@ -191,17 +134,7 @@ mtp_uint32 _util_file_write(FILE* fhandle, void *bufptr, mtp_uint32 size)
 {
 	mtp_uint32 bytes_written = 0;
 
-#ifdef __USE_STDIO__
 	bytes_written = fwrite_unlocked(bufptr, sizeof(mtp_char), size, fhandle);
-#else /* __USE_STDIO__ */
-	mtp_int32 ret = 0;
-
-	ret = write(fhandle, bufptr, size);
-	if (ret < 0)
-		ret = 0;
-
-	bytes_written = ret;
-#endif /* __USE_STDIO__ */
 
 	return bytes_written;
 }
@@ -215,11 +148,7 @@ mtp_uint32 _util_file_write(FILE* fhandle, void *bufptr, mtp_uint32 size)
  */
 mtp_int32 _util_file_close(FILE* fhandle)
 {
-#ifdef __USE_STDIO__
 	return fclose(fhandle);
-#else /* __USE_STDIO__ */
-	return close(fhandle);
-#endif /* __USE_STDIO__ */
 }
 
 /*
@@ -234,13 +163,7 @@ mtp_bool _util_file_seek(FILE* handle, off_t offset, mtp_int32 whence)
 {
 	mtp_int64 ret_val = 0;
 
-#ifdef __USE_STDIO__
 	ret_val = fseek(handle, offset, whence);
-#else /* __USE_STDIO__ */
-	ret_val = lseek(handle, offset, whence);
-	if (ret_val > 0)
-		ret_val = 0;
-#endif /* __USE_STDIO__ */
 	if (ret_val < 0) {
 		ERR(" _util_file_seek error errno [%d]\n", errno);
 		return FALSE;
@@ -252,7 +175,6 @@ mtp_bool _util_file_seek(FILE* handle, off_t offset, mtp_int32 whence)
 mtp_bool _util_file_copy(const mtp_char *origpath, const mtp_char *newpath,
 		mtp_int32 *error)
 {
-#ifdef __USE_STDIO__
 	FILE *fold = NULL;
 	FILE *fnew = NULL;
 	size_t nmemb = 0;
@@ -298,41 +220,6 @@ mtp_bool _util_file_copy(const mtp_char *origpath, const mtp_char *newpath,
 
 	fclose(fnew);
 	fclose(fold);
-#else /* __USE_STDIO__ */
-	mtp_int32 in_fd = 0;
-	mtp_int32 out_fd = 0;
-	mtp_int32 ret = 0;
-	off_t offset = 0;
-
-	if ((in_fd = open(origpath, O_RDONLY)) < 0) {
-		ERR("In-file open Fail, errno [%d]\n", errno);
-		*error = errno;
-		return FALSE;
-	}
-
-	if ((out_fd = open(newpath, O_WRONLY | O_CREAT | O_TRUNC, 0644)) < 0) {
-		ERR("Out-file open Fail errno [%d] \n", errno);
-		*error = errno;
-		close(in_fd);
-		return FALSE;
-	}
-
-	do {
-		ret = sendfile(out_fd, in_fd, &offset, BUFSIZ);
-		if (ret < 0) {
-			ERR("sendfile Fail errno [%d]\n", errno);
-			*error = errno;
-			close(out_fd);
-			close(in_fd);
-			if (remove(newpath) < 0)
-				ERR("Remove Fail");
-			return FALSE;
-		}
-	} while (ret == BUFSIZ);
-
-	close(out_fd);
-	close(in_fd);
-#endif /* __USE_STDIO__ */
 
 	return TRUE;
 }
