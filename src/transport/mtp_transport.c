@@ -37,7 +37,6 @@ extern mtp_mgr_t g_mtp_mgr;
 /*
  * STATIC VARIABLES
  */
-static mtp_mgr_t *g_mgr = &g_mtp_mgr;
 static mtp_bool g_usb_threads_created = FALSE;
 static pthread_t g_tx_thrd = 0;
 static pthread_t g_rx_thrd = 0;
@@ -60,9 +59,9 @@ static void __transport_deinit_io();
 /* LCOV_EXCL_START */
 void _transport_save_cmd_buffer(mtp_char *buffer, mtp_uint32 size)
 {
-	memcpy(g_mgr->ftemp_st.cmd_buf, buffer, size);
-	g_mgr->ftemp_st.cmd_size = size;
-	g_mgr->ftemp_st.data_count = 0;
+	memcpy(g_mtp_mgr.ftemp_st.cmd_buf, buffer, size);
+	g_mtp_mgr.ftemp_st.cmd_size = size;
+	g_mtp_mgr.ftemp_st.data_count = 0;
 }
 /* LCOV_EXCL_STOP */
 
@@ -74,16 +73,16 @@ mtp_err_t _transport_rcv_temp_file_data(mtp_byte *buffer, mtp_uint32 size,
 	mtp_uint32 data_sz;
 
 
-	h_file = _util_file_open(g_mgr->ftemp_st.filepath,
+	h_file = _util_file_open(g_mtp_mgr.ftemp_st.filepath,
 			MTP_FILE_READ, &error);
 	if (h_file == NULL) {
-		DBG_SECURE("_util_file_open(%s) Fail", g_mgr->ftemp_st.filepath);
+		DBG_SECURE("_util_file_open(%s) Fail", g_mtp_mgr.ftemp_st.filepath);
 		return MTP_ERROR_NONE;
 	}
 
 	/*copy header */
 	/* LCOV_EXCL_START */
-	memcpy(buffer, g_mgr->ftemp_st.header_buf,
+	memcpy(buffer, g_mtp_mgr.ftemp_st.header_buf,
 			sizeof(header_container_t));
 
 	/*copy body packet */
@@ -103,18 +102,18 @@ mtp_err_t _transport_rcv_temp_file_data(mtp_byte *buffer, mtp_uint32 size,
 	}
 
 	/* delete temp file, it have to be called in receive_data fn */
-	if (g_mgr->ftemp_st.filepath != NULL) {
-		if (remove(g_mgr->ftemp_st.filepath) < 0) {
-			ERR_SECURE("remove(%s) Fail", g_mgr->ftemp_st.filepath);
+	if (g_mtp_mgr.ftemp_st.filepath != NULL) {
+		if (remove(g_mtp_mgr.ftemp_st.filepath) < 0) {
+			ERR_SECURE("remove(%s) Fail", g_mtp_mgr.ftemp_st.filepath);
 			_util_print_error();
 		}
 
-		g_free(g_mgr->ftemp_st.filepath);
-		g_mgr->ftemp_st.filepath = NULL;
+		g_free(g_mtp_mgr.ftemp_st.filepath);
+		g_mtp_mgr.ftemp_st.filepath = NULL;
 	}
 
-	g_mgr->ftemp_st.data_size = 0;
-	g_mgr->ftemp_st.data_count = 0;
+	g_mtp_mgr.ftemp_st.data_size = 0;
+	g_mtp_mgr.ftemp_st.data_count = 0;
 
 	return MTP_ERROR_NONE;
 }
@@ -125,28 +124,28 @@ mtp_err_t _transport_rcv_temp_file_info(mtp_byte *buf, char *filepath,
 	file_attr_t atttrs = { 0 };
 	mtp_bool ret = FALSE;
 
-	memcpy(buf, g_mgr->ftemp_st.header_buf,
+	memcpy(buf, g_mtp_mgr.ftemp_st.header_buf,
 			sizeof(header_container_t));
 
-	ret = _util_get_file_attrs(g_mgr->ftemp_st.filepath, &atttrs);
+	ret = _util_get_file_attrs(g_mtp_mgr.ftemp_st.filepath, &atttrs);
 	if (FALSE == ret) {
-		ERR_SECURE("_util_get_file_attrs(%s) Fail", g_mgr->ftemp_st.filepath);
+		ERR_SECURE("_util_get_file_attrs(%s) Fail", g_mtp_mgr.ftemp_st.filepath);
 		return MTP_ERROR_GENERAL;
 	}
 
 	*t_size = sizeof(header_container_t) + atttrs.fsize;
-	g_strlcpy(filepath, g_mgr->ftemp_st.filepath, filepath_len);
+	g_strlcpy(filepath, g_mtp_mgr.ftemp_st.filepath, filepath_len);
 
-	g_mgr->ftemp_st.data_size = 0;
-	g_mgr->ftemp_st.data_count = 0;
+	g_mtp_mgr.ftemp_st.data_size = 0;
+	g_mtp_mgr.ftemp_st.data_count = 0;
 
-	if (g_mgr->ftemp_st.filepath != NULL) {
-		g_free(g_mgr->ftemp_st.filepath);
-		g_mgr->ftemp_st.filepath = NULL;
+	if (g_mtp_mgr.ftemp_st.filepath != NULL) {
+		g_free(g_mtp_mgr.ftemp_st.filepath);
+		g_mtp_mgr.ftemp_st.filepath = NULL;
 	}
 
-	g_mgr->ftemp_st.fhandle = NULL;
-	g_mgr->ftemp_st.file_size = 0;
+	g_mtp_mgr.ftemp_st.fhandle = NULL;
+	g_mtp_mgr.ftemp_st.file_size = 0;
 
 	return MTP_ERROR_NONE;
 }
