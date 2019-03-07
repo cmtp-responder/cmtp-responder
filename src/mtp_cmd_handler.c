@@ -50,10 +50,6 @@ static mtp_mgr_t *g_mgr = &g_mtp_mgr;
 
 #define LEN 20
 
-/*
- * STATIC FUNCTIONS
- */
-
 #define _device_set_phase(_phase) 			\
 	do {						\
 		DBG("Devie phase is set [%d]\n", (_phase));\
@@ -62,35 +58,6 @@ static mtp_mgr_t *g_mgr = &g_mtp_mgr;
 
 #define _transport_get_control_event(...)		\
 	({mtp_uint32 event_code = g_status->ctrl_event_code; g_status->ctrl_event_code = 0; event_code;})
-
-static void __process_commands(mtp_handler_t *hdlr, cmd_blk_t *cmd);
-static void __open_session(mtp_handler_t *hdlr);
-static void __get_device_info(mtp_handler_t *hdlr);
-static void __get_storage_ids(mtp_handler_t *hdlr);
-static void __get_storage_info(mtp_handler_t *hdlr);
-static void __get_object_handles(mtp_handler_t *hdlr);
-static void __get_object_info(mtp_handler_t *hdlr);
-static void __get_object(mtp_handler_t *hdlr);
-static void __send_object_info(mtp_handler_t *hdlr);
-static void __send_object(mtp_handler_t *hdlr);
-static void __delete_object(mtp_handler_t *hdlr);
-static void __reset_device(mtp_handler_t *hdlr);
-static void __get_partial_object(mtp_handler_t *hdlr);
-#ifdef MTP_SUPPORT_SET_PROTECTION
-static void __set_object_protection(mtp_handler_t *hdlr);
-#endif /* MTP_SUPPORT_SET_PROTECTION */
-static void __power_down(mtp_handler_t *hdlr);
-static void __vendor_command1(mtp_handler_t *hdlr);
-static void __get_interdep_prop_desc(mtp_handler_t *hdlr);
-static void __close_session(mtp_handler_t *hdlr);
-#ifdef MTP_SUPPORT_PRINT_COMMAND
-static void __print_command(mtp_uint16 code);
-#endif /* MTP_SUPPORT_PRINT_COMMAND */
-static mtp_bool __receive_temp_file_first_packet(mtp_char *data,
-		mtp_int32 data_len);
-static mtp_bool __receive_temp_file_next_packets(mtp_char *data,
-		mtp_int32 data_len);
-static void __finish_receiving_file_packets(mtp_char *data, mtp_int32 data_len);
 
 /*
  * FUNCTIONS
@@ -101,167 +68,6 @@ void _cmd_hdlr_reset_cmd(mtp_handler_t *hdlr)
 		_entity_dealloc_mtp_obj(hdlr->data4_send_obj.obj);
 
 	memset(hdlr, 0x00, sizeof(mtp_handler_t));
-}
-
-/* LCOV_EXCL_START */
-static void __process_commands(mtp_handler_t *hdlr, cmd_blk_t *cmd)
-{
-	mtp_store_t *store = NULL;
-
-	/* Keep a local copy for this command */
-	_hdlr_copy_cmd_container(cmd, &(hdlr->usb_cmd));
-
-	if (hdlr->usb_cmd.code == PTP_OPCODE_GETDEVICEINFO) {
-		DBG("COMMAND CODE = [0x%4x]!!\n", hdlr->usb_cmd.code);
-#ifdef MTP_SUPPORT_PRINT_COMMAND
-		__print_command(hdlr->usb_cmd.code);
-#endif /*MTP_SUPPORT_PRINT_COMMAND*/
-		__get_device_info(hdlr);
-		goto DONE;
-	}
-
-	/*  Process OpenSession Command */
-	if (hdlr->usb_cmd.code == PTP_OPCODE_OPENSESSION) {
-		DBG("COMMAND CODE = [0x%4X]!!\n", hdlr->usb_cmd.code);
-#ifdef MTP_SUPPORT_PRINT_COMMAND
-		__print_command(hdlr->usb_cmd.code);
-#endif /*MTP_SUPPORT_PRINT_COMMAND*/
-		__open_session(hdlr);
-		goto DONE;
-	}
-
-	/* Check if session is open or not, if not respond */
-	if (hdlr->session_id == 0) {
-		_cmd_hdlr_send_response_code(hdlr, PTP_RESPONSE_SESSIONNOTOPEN);
-		_device_set_phase(DEVICE_PHASE_IDLE);
-		goto DONE;
-	}
-	DBG("COMMAND CODE = [0x%4x]!!\n", hdlr->usb_cmd.code);
-#ifdef MTP_SUPPORT_PRINT_COMMAND
-	__print_command(hdlr->usb_cmd.code);
-#endif /* MTP_SUPPORT_PRINT_COMMAND */
-
-	switch (hdlr->usb_cmd.code) {
-	case PTP_OPCODE_CLOSESESSION:
-		__close_session(hdlr);
-		break;
-	case PTP_OPCODE_GETSTORAGEIDS:
-		__get_storage_ids(hdlr);
-		break;
-	case PTP_OPCODE_GETSTORAGEINFO:
-		__get_storage_info(hdlr);
-		break;
-	case PTP_OPCODE_GETOBJECTHANDLES:
-		__get_object_handles(hdlr);
-		break;
-	case PTP_OPCODE_GETOBJECTINFO:
-		__get_object_info(hdlr);
-		break;
-	case PTP_OPCODE_GETOBJECT:
-		_eh_send_event_req_to_eh_thread(EVENT_START_DATAIN, 0, 0, NULL);
-		__get_object(hdlr);
-		_eh_send_event_req_to_eh_thread(EVENT_DONE_DATAIN, 0, 0, NULL);
-		break;
-	case PTP_OPCODE_DELETEOBJECT:
-		__delete_object(hdlr);
-		break;
-	case PTP_OPCODE_GETPARTIALOBJECT:
-		__get_partial_object(hdlr);
-		break;
-	case PTP_OPCODE_RESETDEVICE:
-		__reset_device(hdlr);
-		break;
-#ifdef MTP_SUPPORT_SET_PROTECTION
-	case PTP_OPCODE_SETOBJECTPROTECTION:
-		__set_object_protection(hdlr);
-		break;
-#endif /* MTP_SUPPORT_SET_PROTECTION */
-	case PTP_OPCODE_POWERDOWN:
-		__power_down(hdlr);
-		break;
-	case MTP_OPCODE_GETINTERDEPPROPDESC:
-		__get_interdep_prop_desc(hdlr);
-		break;
-	case PTP_CODE_VENDOR_OP1:	/* Vendor-specific operations */
-		__vendor_command1(hdlr);
-		break;
-
-	case PTP_OPCODE_SENDOBJECTINFO:
-	case PTP_OPCODE_SENDOBJECT:
-		/* DATA_HANDLE_PHASE: Send operation will be blocked
-		 * until data packet is received
-		 */
-		if (g_device->phase == DEVICE_PHASE_IDLE) {
-			DBG("DATAOUT COMMAND PHASE!!");
-			if (hdlr->usb_cmd.code == PTP_OPCODE_SENDOBJECT) {
-				mtp_char parent_path[MTP_MAX_PATHNAME_SIZE + 1] = { 0 };
-
-				if (g_mgr->ftemp_st.filepath) {
-					_util_get_parent_path(g_mgr->ftemp_st.filepath, parent_path);
-					DBG("g_mgr->ftemp_st.filepath:[%s], parent_path[%s]\n", g_mgr->ftemp_st.filepath,  parent_path);
-
-					if ((g_strcmp0(parent_path, "/tmp")) != 0)
-						g_is_send_object = TRUE;
-				}
-
-				_eh_send_event_req_to_eh_thread(EVENT_START_DATAOUT,
-					0, 0, NULL);
-			}
-
-			if (hdlr->usb_cmd.code == PTP_OPCODE_SENDOBJECT)
-				_eh_send_event_req_to_eh_thread(EVENT_START_DATAOUT,
-						0, 0, NULL);
-			_device_set_phase(DEVICE_PHASE_DATAOUT);
-			return;	/* in command phase, just return and wait next data */
-		}
-		switch (hdlr->usb_cmd.code) {
-		case PTP_OPCODE_SENDOBJECTINFO:
-			__send_object_info(hdlr);
-			break;
-		case PTP_OPCODE_SENDOBJECT:
-			__send_object(hdlr);
-			g_is_send_object = FALSE;
-
-			_eh_send_event_req_to_eh_thread(EVENT_DONE_DATAOUT,
-					0, 0, NULL);
-			break;
-		}
-		break;
-
-	default:
-		_cmd_hdlr_send_response_code(hdlr,
-				PTP_RESPONSE_OP_NOT_SUPPORTED);
-		DBG("Unsupported COMMAND[%d]\n", hdlr->usb_cmd.code);
-		break;
-	}
-DONE:
-	if ((hdlr->last_opcode == PTP_OPCODE_SENDOBJECTINFO) &&
-			((hdlr->last_fmt_code != PTP_FMT_ASSOCIATION) &&
-			 (hdlr->last_fmt_code != PTP_FMT_UNDEF))) {
-		DBG("Processed, last_opcode[0x%x], last_fmt_code[%d]\n",
-				hdlr->last_opcode, hdlr->last_fmt_code);
-
-		if ((hdlr->usb_cmd.code != PTP_OPCODE_SENDOBJECT) &&
-				hdlr->data4_send_obj.is_valid &&
-				hdlr->data4_send_obj.is_data_sent) {
-
-			DBG("Processed, COMMAND[0x%x]!!\n", hdlr->usb_cmd.code);
-			store = _device_get_store(hdlr->data4_send_obj.store_id);
-			if (store != NULL) {
-				/*Restore reserved space*/
-				store->store_info.free_space +=
-					hdlr->data4_send_obj.file_size;
-			}
-
-			if (hdlr->data4_send_obj.obj) {
-				_entity_dealloc_mtp_obj(hdlr->data4_send_obj.obj);
-				hdlr->data4_send_obj.obj = NULL;
-			}
-			memset(&(hdlr->data4_send_obj), 0x00,
-					sizeof(hdlr->data4_send_obj));
-		}
-	}
-	hdlr->last_opcode = hdlr->usb_cmd.code;	/* Last operation code*/
 }
 
 static void __open_session(mtp_handler_t *hdlr)
@@ -1155,40 +961,6 @@ void __close_session(mtp_handler_t *hdlr)
 }
 /* LCOV_EXCL_STOP */
 
-mtp_bool _cmd_hdlr_send_response(mtp_handler_t *hdlr, mtp_uint16 resp,
-		mtp_uint32 num_param, mtp_uint32 *params)
-{
-	mtp_bool ret = FALSE;
-	resp_blk_t blk = { 0 };
-
-	if (hdlr == NULL)
-		return FALSE;
-	/* LCOV_EXCL_START */
-	_hdlr_resp_container_init(&blk, resp, hdlr->usb_cmd.tid);
-
-	ret = _hdlr_add_param_resp_container(&blk, num_param, params);
-
-	_device_set_phase(DEVICE_PHASE_RESPONSE);
-	ret = _hdlr_send_resp_container(&blk);
-	_device_set_phase(DEVICE_PHASE_IDLE);
-
-	if ((resp == PTP_RESPONSE_OK) && (ret == TRUE)) {
-		DBG("[%s], Opcode[0x%4x], ResponseCode[0x%4x], NumParams[%d]\n",
-				"SUCCESS", hdlr->usb_cmd.code, resp, num_param);
-	} else {
-		ERR("[%s], Opcode = [0x%4x] ResponseCode[0x%4x], NumParams[%u]\n",
-				"FAIL", hdlr->usb_cmd.code, resp, num_param);
-	}
-	/* LCOV_EXCL_STOP */
-	return ret;
-}
-
-mtp_bool _cmd_hdlr_send_response_code(mtp_handler_t *hdlr, mtp_uint16 resp)
-{
-	return _cmd_hdlr_send_response(hdlr, resp, 0, NULL);
-}
-
-/* LCOV_EXCL_START */
 #ifdef MTP_SUPPORT_PRINT_COMMAND
 static void __print_command(mtp_uint16 code)
 {
@@ -1259,6 +1031,357 @@ static void __print_command(mtp_uint16 code)
 	}
 }
 #endif /*MTP_SUPPORT_PRINT_COMMAND*/
+
+/* LCOV_EXCL_START */
+static void __process_commands(mtp_handler_t *hdlr, cmd_blk_t *cmd)
+{
+	mtp_store_t *store = NULL;
+
+	/* Keep a local copy for this command */
+	_hdlr_copy_cmd_container(cmd, &(hdlr->usb_cmd));
+
+	if (hdlr->usb_cmd.code == PTP_OPCODE_GETDEVICEINFO) {
+		DBG("COMMAND CODE = [0x%4x]!!\n", hdlr->usb_cmd.code);
+#ifdef MTP_SUPPORT_PRINT_COMMAND
+		__print_command(hdlr->usb_cmd.code);
+#endif /*MTP_SUPPORT_PRINT_COMMAND*/
+		__get_device_info(hdlr);
+		goto DONE;
+	}
+
+	/*  Process OpenSession Command */
+	if (hdlr->usb_cmd.code == PTP_OPCODE_OPENSESSION) {
+		DBG("COMMAND CODE = [0x%4X]!!\n", hdlr->usb_cmd.code);
+#ifdef MTP_SUPPORT_PRINT_COMMAND
+		__print_command(hdlr->usb_cmd.code);
+#endif /*MTP_SUPPORT_PRINT_COMMAND*/
+		__open_session(hdlr);
+		goto DONE;
+	}
+
+	/* Check if session is open or not, if not respond */
+	if (hdlr->session_id == 0) {
+		_cmd_hdlr_send_response_code(hdlr, PTP_RESPONSE_SESSIONNOTOPEN);
+		_device_set_phase(DEVICE_PHASE_IDLE);
+		goto DONE;
+	}
+	DBG("COMMAND CODE = [0x%4x]!!\n", hdlr->usb_cmd.code);
+#ifdef MTP_SUPPORT_PRINT_COMMAND
+	__print_command(hdlr->usb_cmd.code);
+#endif /* MTP_SUPPORT_PRINT_COMMAND */
+
+	switch (hdlr->usb_cmd.code) {
+	case PTP_OPCODE_CLOSESESSION:
+		__close_session(hdlr);
+		break;
+	case PTP_OPCODE_GETSTORAGEIDS:
+		__get_storage_ids(hdlr);
+		break;
+	case PTP_OPCODE_GETSTORAGEINFO:
+		__get_storage_info(hdlr);
+		break;
+	case PTP_OPCODE_GETOBJECTHANDLES:
+		__get_object_handles(hdlr);
+		break;
+	case PTP_OPCODE_GETOBJECTINFO:
+		__get_object_info(hdlr);
+		break;
+	case PTP_OPCODE_GETOBJECT:
+		_eh_send_event_req_to_eh_thread(EVENT_START_DATAIN, 0, 0, NULL);
+		__get_object(hdlr);
+		_eh_send_event_req_to_eh_thread(EVENT_DONE_DATAIN, 0, 0, NULL);
+		break;
+	case PTP_OPCODE_DELETEOBJECT:
+		__delete_object(hdlr);
+		break;
+	case PTP_OPCODE_GETPARTIALOBJECT:
+		__get_partial_object(hdlr);
+		break;
+	case PTP_OPCODE_RESETDEVICE:
+		__reset_device(hdlr);
+		break;
+#ifdef MTP_SUPPORT_SET_PROTECTION
+	case PTP_OPCODE_SETOBJECTPROTECTION:
+		__set_object_protection(hdlr);
+		break;
+#endif /* MTP_SUPPORT_SET_PROTECTION */
+	case PTP_OPCODE_POWERDOWN:
+		__power_down(hdlr);
+		break;
+	case MTP_OPCODE_GETINTERDEPPROPDESC:
+		__get_interdep_prop_desc(hdlr);
+		break;
+	case PTP_CODE_VENDOR_OP1:	/* Vendor-specific operations */
+		__vendor_command1(hdlr);
+		break;
+
+	case PTP_OPCODE_SENDOBJECTINFO:
+	case PTP_OPCODE_SENDOBJECT:
+		/* DATA_HANDLE_PHASE: Send operation will be blocked
+		 * until data packet is received
+		 */
+		if (g_device->phase == DEVICE_PHASE_IDLE) {
+			DBG("DATAOUT COMMAND PHASE!!");
+			if (hdlr->usb_cmd.code == PTP_OPCODE_SENDOBJECT) {
+				mtp_char parent_path[MTP_MAX_PATHNAME_SIZE + 1] = { 0 };
+
+				if (g_mgr->ftemp_st.filepath) {
+					_util_get_parent_path(g_mgr->ftemp_st.filepath, parent_path);
+					DBG("g_mgr->ftemp_st.filepath:[%s], parent_path[%s]\n", g_mgr->ftemp_st.filepath,  parent_path);
+
+					if ((g_strcmp0(parent_path, "/tmp")) != 0)
+						g_is_send_object = TRUE;
+				}
+
+				_eh_send_event_req_to_eh_thread(EVENT_START_DATAOUT,
+					0, 0, NULL);
+			}
+
+			if (hdlr->usb_cmd.code == PTP_OPCODE_SENDOBJECT)
+				_eh_send_event_req_to_eh_thread(EVENT_START_DATAOUT,
+						0, 0, NULL);
+			_device_set_phase(DEVICE_PHASE_DATAOUT);
+			return;	/* in command phase, just return and wait next data */
+		}
+		switch (hdlr->usb_cmd.code) {
+		case PTP_OPCODE_SENDOBJECTINFO:
+			__send_object_info(hdlr);
+			break;
+		case PTP_OPCODE_SENDOBJECT:
+			__send_object(hdlr);
+			g_is_send_object = FALSE;
+
+			_eh_send_event_req_to_eh_thread(EVENT_DONE_DATAOUT,
+					0, 0, NULL);
+			break;
+		}
+		break;
+
+	default:
+		_cmd_hdlr_send_response_code(hdlr,
+				PTP_RESPONSE_OP_NOT_SUPPORTED);
+		DBG("Unsupported COMMAND[%d]\n", hdlr->usb_cmd.code);
+		break;
+	}
+DONE:
+	if ((hdlr->last_opcode == PTP_OPCODE_SENDOBJECTINFO) &&
+			((hdlr->last_fmt_code != PTP_FMT_ASSOCIATION) &&
+			 (hdlr->last_fmt_code != PTP_FMT_UNDEF))) {
+		DBG("Processed, last_opcode[0x%x], last_fmt_code[%d]\n",
+				hdlr->last_opcode, hdlr->last_fmt_code);
+
+		if ((hdlr->usb_cmd.code != PTP_OPCODE_SENDOBJECT) &&
+				hdlr->data4_send_obj.is_valid &&
+				hdlr->data4_send_obj.is_data_sent) {
+
+			DBG("Processed, COMMAND[0x%x]!!\n", hdlr->usb_cmd.code);
+			store = _device_get_store(hdlr->data4_send_obj.store_id);
+			if (store != NULL) {
+				/*Restore reserved space*/
+				store->store_info.free_space +=
+					hdlr->data4_send_obj.file_size;
+			}
+
+			if (hdlr->data4_send_obj.obj) {
+				_entity_dealloc_mtp_obj(hdlr->data4_send_obj.obj);
+				hdlr->data4_send_obj.obj = NULL;
+			}
+			memset(&(hdlr->data4_send_obj), 0x00,
+					sizeof(hdlr->data4_send_obj));
+		}
+	}
+	hdlr->last_opcode = hdlr->usb_cmd.code;	/* Last operation code*/
+}
+
+mtp_bool _cmd_hdlr_send_response(mtp_handler_t *hdlr, mtp_uint16 resp,
+		mtp_uint32 num_param, mtp_uint32 *params)
+{
+	mtp_bool ret = FALSE;
+	resp_blk_t blk = { 0 };
+
+	if (hdlr == NULL)
+		return FALSE;
+	/* LCOV_EXCL_START */
+	_hdlr_resp_container_init(&blk, resp, hdlr->usb_cmd.tid);
+
+	ret = _hdlr_add_param_resp_container(&blk, num_param, params);
+
+	_device_set_phase(DEVICE_PHASE_RESPONSE);
+	ret = _hdlr_send_resp_container(&blk);
+	_device_set_phase(DEVICE_PHASE_IDLE);
+
+	if ((resp == PTP_RESPONSE_OK) && (ret == TRUE)) {
+		DBG("[%s], Opcode[0x%4x], ResponseCode[0x%4x], NumParams[%d]\n",
+				"SUCCESS", hdlr->usb_cmd.code, resp, num_param);
+	} else {
+		ERR("[%s], Opcode = [0x%4x] ResponseCode[0x%4x], NumParams[%u]\n",
+				"FAIL", hdlr->usb_cmd.code, resp, num_param);
+	}
+	/* LCOV_EXCL_STOP */
+	return ret;
+}
+
+mtp_bool _cmd_hdlr_send_response_code(mtp_handler_t *hdlr, mtp_uint16 resp)
+{
+	return _cmd_hdlr_send_response(hdlr, resp, 0, NULL);
+}
+
+/* LCOV_EXCL_START */
+static void __finish_receiving_file_packets(mtp_char *data, mtp_int32 data_len)
+{
+	cmd_blk_t cmd = { 0 };
+	mtp_uchar *cmd_buf = NULL;
+
+	g_mgr->ftemp_st.data_count = 0;
+	cmd_buf = (mtp_uchar *)data;
+
+	if (!_hdlr_validate_cmd_container(cmd_buf, (mtp_uint32)data_len)) {
+		cmd_buf = (mtp_uchar *)g_mgr->ftemp_st.cmd_buf;
+		if (!_hdlr_validate_cmd_container(cmd_buf,
+					g_mgr->ftemp_st.cmd_size)) {
+			_device_set_phase(DEVICE_PHASE_IDLE);
+			ERR("DATA PROCESS, device phase[%d], invalid Command\
+					block\n", g_device->phase);
+			return;
+		}
+	}
+
+	g_status->mtp_op_state = MTP_STATE_ONSERVICE;
+	_hdlr_copy_cmd_container_unknown_params((cmd_container_t *)cmd_buf,
+			&cmd);
+
+#ifdef __BIG_ENDIAN__
+	_hdlr_conv_cmd_container_byte_order(&cmd);
+#endif /* __BIG_ENDIAN__ */
+
+	UTIL_LOCK_MUTEX(&g_cmd_inoti_mutex);
+	__process_commands(&g_mtp_mgr.hdlr, &cmd);
+	UTIL_UNLOCK_MUTEX(&g_cmd_inoti_mutex);
+
+	DBG("MTP device phase[%d], processing Command is complete\n",
+			g_device->phase);
+}
+static mtp_bool __receive_temp_file_first_packet(mtp_char *data,
+		mtp_int32 data_len)
+{
+	temp_file_struct_t *t = &g_mgr->ftemp_st;
+	mtp_int32 error = 0;
+	mtp_uint32 *data_sz = &g_mgr->ftemp_st.data_size;
+	mtp_char *buffer = g_mgr->ftemp_st.temp_buff;
+	mtp_char buff[LEN], *ptr;
+	mtp_char filename[MTP_MAX_FILENAME_SIZE] = {0};
+	mtp_uint32 i, num, start, range;
+	unsigned int seed;
+
+	g_status->mtp_op_state = MTP_STATE_DATA_TRANSFER_DL;
+	if (!g_is_send_object) {
+		/*create a unique filename for /tmp/.mtptemp.tmp only if
+		 is_send_object = 0. If is_send_object = 0 implies t->filepath
+		 is set in send_object_proplist command to receive the
+		 incoming file */
+		start = 'A';
+		range = 'Z' - 'A';
+
+		seed = time(NULL);
+		for (ptr = buff, i = 1; i < LEN; ++ptr, ++i) {
+			num = rand_r(&seed) % range;
+			*ptr = num+start;
+		}
+		*ptr = '\0';
+
+		g_snprintf(filename, MTP_MAX_FILENAME_SIZE, "%s%s%s", "/tmp/.mtptemp", buff, ".tmp");
+
+		if (t->filepath != NULL) {
+			g_free(t->filepath);
+			t->filepath = NULL;
+		}
+
+		t->filepath = g_strdup(filename);
+	}
+
+	DBG("t->filepath :%s\n", t->filepath);
+
+	if (access(t->filepath, F_OK) == 0) {
+		if (g_mgr->ftemp_st.fhandle != NULL) {
+			_util_file_close(g_mgr->ftemp_st.fhandle);
+			g_mgr->ftemp_st.fhandle = NULL;	/* initialize */
+		}
+
+		if (remove(t->filepath) < 0) {
+			ERR_SECURE("remove(%s) Fail", t->filepath);
+			__finish_receiving_file_packets(data, data_len);
+			return FALSE;
+		}
+	}
+
+	g_mgr->ftemp_st.fhandle = _util_file_open(t->filepath, MTP_FILE_WRITE, &error);
+	if (g_mgr->ftemp_st.fhandle == NULL) {
+		ERR("First file handle is invalid!!");
+		__finish_receiving_file_packets(data, data_len);
+		return FALSE;
+	}
+	/* consider header size */
+	memcpy(&g_mgr->ftemp_st.header_buf, data, sizeof(header_container_t));
+
+	g_mgr->ftemp_st.file_size = ((header_container_t *)data)->len -
+		sizeof(header_container_t);
+	*data_sz = data_len - sizeof(header_container_t);
+
+	/* check whether last data packet */
+	if (*data_sz == g_mgr->ftemp_st.file_size) {
+		if (_util_file_write(g_mgr->ftemp_st.fhandle, &data[sizeof(header_container_t)],
+					data_len - sizeof(header_container_t)) !=
+				data_len - sizeof(header_container_t)) {
+			ERR("fwrite error!");
+		}
+		*data_sz = 0;
+		_util_file_close(g_mgr->ftemp_st.fhandle);
+		g_mgr->ftemp_st.fhandle = NULL;	/* initialize */
+		__finish_receiving_file_packets(data, data_len);
+	} else {
+		g_mgr->ftemp_st.data_count++;
+		g_mgr->ftemp_st.size_remaining = *data_sz;
+
+		memcpy(buffer, data + sizeof(header_container_t), *data_sz);
+	}
+	return TRUE;
+}
+
+static mtp_bool __receive_temp_file_next_packets(mtp_char *data,
+		mtp_int32 data_len)
+{
+	mtp_uint32 rx_size = _get_rx_pkt_size();
+	mtp_uint32 *data_sz = &g_mgr->ftemp_st.data_size;
+	mtp_char *buffer = g_mgr->ftemp_st.temp_buff;
+
+	g_mgr->ftemp_st.data_count++;
+	g_mgr->ftemp_st.size_remaining += data_len;
+
+	if ((*data_sz + (mtp_uint32)data_len) > g_conf.write_file_size) {
+		/* copy oversized packet to temp file */
+		if (_util_file_write(g_mgr->ftemp_st.fhandle, buffer, *data_sz) != *data_sz)
+			ERR("fwrite error writeSize=[%u]\n", *data_sz);
+
+		*data_sz = 0;
+	}
+
+	memcpy(&buffer[*data_sz], data, data_len);
+	*data_sz += data_len;
+
+	/*Complete file is recieved, so close the file*/
+	if (data_len < rx_size ||
+			g_mgr->ftemp_st.size_remaining == g_mgr->ftemp_st.file_size) {
+
+		if (_util_file_write(g_mgr->ftemp_st.fhandle, buffer, *data_sz) != *data_sz)
+			ERR("fwrite error write size=[%u]\n", *data_sz);
+
+		*data_sz = 0;
+		_util_file_close(g_mgr->ftemp_st.fhandle);
+		g_mgr->ftemp_st.fhandle = NULL;
+		__finish_receiving_file_packets(data, data_len);
+	}
+	return TRUE;
+}
 
 void _receive_mq_data_cb(mtp_char *buffer, mtp_int32 buf_len)
 {
@@ -1395,160 +1518,4 @@ void _receive_mq_data_cb(mtp_char *buffer, mtp_int32 buf_len)
 	}
 }
 
-static mtp_bool __receive_temp_file_first_packet(mtp_char *data,
-		mtp_int32 data_len)
-{
-	temp_file_struct_t *t = &g_mgr->ftemp_st;
-	mtp_int32 error = 0;
-	mtp_uint32 *data_sz = &g_mgr->ftemp_st.data_size;
-	mtp_char *buffer = g_mgr->ftemp_st.temp_buff;
-	mtp_char buff[LEN], *ptr;
-	mtp_char filename[MTP_MAX_FILENAME_SIZE] = {0};
-	mtp_uint32 i, num, start, range;
-	unsigned int seed;
-
-	g_status->mtp_op_state = MTP_STATE_DATA_TRANSFER_DL;
-	if (!g_is_send_object) {
-		/*create a unique filename for /tmp/.mtptemp.tmp only if
-		 is_send_object = 0. If is_send_object = 0 implies t->filepath
-		 is set in send_object_proplist command to receive the
-		 incoming file */
-		start = 'A';
-		range = 'Z' - 'A';
-
-		seed = time(NULL);
-		for (ptr = buff, i = 1; i < LEN; ++ptr, ++i) {
-			num = rand_r(&seed) % range;
-			*ptr = num+start;
-		}
-		*ptr = '\0';
-
-		g_snprintf(filename, MTP_MAX_FILENAME_SIZE, "%s%s%s", "/tmp/.mtptemp", buff, ".tmp");
-
-		if (t->filepath != NULL) {
-			g_free(t->filepath);
-			t->filepath = NULL;
-		}
-
-		t->filepath = g_strdup(filename);
-	}
-
-	DBG("t->filepath :%s\n", t->filepath);
-
-	if (access(t->filepath, F_OK) == 0) {
-		if (g_mgr->ftemp_st.fhandle != NULL) {
-			_util_file_close(g_mgr->ftemp_st.fhandle);
-			g_mgr->ftemp_st.fhandle = NULL;	/* initialize */
-		}
-
-		if (remove(t->filepath) < 0) {
-			ERR_SECURE("remove(%s) Fail", t->filepath);
-			__finish_receiving_file_packets(data, data_len);
-			return FALSE;
-		}
-	}
-
-	g_mgr->ftemp_st.fhandle = _util_file_open(t->filepath, MTP_FILE_WRITE, &error);
-	if (g_mgr->ftemp_st.fhandle == NULL) {
-		ERR("First file handle is invalid!!");
-		__finish_receiving_file_packets(data, data_len);
-		return FALSE;
-	}
-	/* consider header size */
-	memcpy(&g_mgr->ftemp_st.header_buf, data, sizeof(header_container_t));
-
-	g_mgr->ftemp_st.file_size = ((header_container_t *)data)->len -
-		sizeof(header_container_t);
-	*data_sz = data_len - sizeof(header_container_t);
-
-	/* check whether last data packet */
-	if (*data_sz == g_mgr->ftemp_st.file_size) {
-		if (_util_file_write(g_mgr->ftemp_st.fhandle, &data[sizeof(header_container_t)],
-					data_len - sizeof(header_container_t)) !=
-				data_len - sizeof(header_container_t)) {
-			ERR("fwrite error!");
-		}
-		*data_sz = 0;
-		_util_file_close(g_mgr->ftemp_st.fhandle);
-		g_mgr->ftemp_st.fhandle = NULL;	/* initialize */
-		__finish_receiving_file_packets(data, data_len);
-	} else {
-		g_mgr->ftemp_st.data_count++;
-		g_mgr->ftemp_st.size_remaining = *data_sz;
-
-		memcpy(buffer, data + sizeof(header_container_t), *data_sz);
-	}
-	return TRUE;
-}
-
-static mtp_bool __receive_temp_file_next_packets(mtp_char *data,
-		mtp_int32 data_len)
-{
-	mtp_uint32 rx_size = _get_rx_pkt_size();
-	mtp_uint32 *data_sz = &g_mgr->ftemp_st.data_size;
-	mtp_char *buffer = g_mgr->ftemp_st.temp_buff;
-
-	g_mgr->ftemp_st.data_count++;
-	g_mgr->ftemp_st.size_remaining += data_len;
-
-	if ((*data_sz + (mtp_uint32)data_len) > g_conf.write_file_size) {
-		/* copy oversized packet to temp file */
-		if (_util_file_write(g_mgr->ftemp_st.fhandle, buffer, *data_sz) != *data_sz)
-			ERR("fwrite error writeSize=[%u]\n", *data_sz);
-
-		*data_sz = 0;
-	}
-
-	memcpy(&buffer[*data_sz], data, data_len);
-	*data_sz += data_len;
-
-	/*Complete file is recieved, so close the file*/
-	if (data_len < rx_size ||
-			g_mgr->ftemp_st.size_remaining == g_mgr->ftemp_st.file_size) {
-
-		if (_util_file_write(g_mgr->ftemp_st.fhandle, buffer, *data_sz) != *data_sz)
-			ERR("fwrite error write size=[%u]\n", *data_sz);
-
-		*data_sz = 0;
-		_util_file_close(g_mgr->ftemp_st.fhandle);
-		g_mgr->ftemp_st.fhandle = NULL;
-		__finish_receiving_file_packets(data, data_len);
-	}
-	return TRUE;
-}
-
-static void __finish_receiving_file_packets(mtp_char *data, mtp_int32 data_len)
-{
-	cmd_blk_t cmd = { 0 };
-	mtp_uchar *cmd_buf = NULL;
-
-	g_mgr->ftemp_st.data_count = 0;
-	cmd_buf = (mtp_uchar *)data;
-
-	if (!_hdlr_validate_cmd_container(cmd_buf, (mtp_uint32)data_len)) {
-		cmd_buf = (mtp_uchar *)g_mgr->ftemp_st.cmd_buf;
-		if (!_hdlr_validate_cmd_container(cmd_buf,
-					g_mgr->ftemp_st.cmd_size)) {
-			_device_set_phase(DEVICE_PHASE_IDLE);
-			ERR("DATA PROCESS, device phase[%d], invalid Command\
-					block\n", g_device->phase);
-			return;
-		}
-	}
-
-	g_status->mtp_op_state = MTP_STATE_ONSERVICE;
-	_hdlr_copy_cmd_container_unknown_params((cmd_container_t *)cmd_buf,
-			&cmd);
-
-#ifdef __BIG_ENDIAN__
-	_hdlr_conv_cmd_container_byte_order(&cmd);
-#endif /* __BIG_ENDIAN__ */
-
-	UTIL_LOCK_MUTEX(&g_cmd_inoti_mutex);
-	__process_commands(&g_mtp_mgr.hdlr, &cmd);
-	UTIL_UNLOCK_MUTEX(&g_cmd_inoti_mutex);
-
-	DBG("MTP device phase[%d], processing Command is complete\n",
-			g_device->phase);
-}
 /* LCOV_EXCL_STOP */

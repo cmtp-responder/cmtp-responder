@@ -44,7 +44,6 @@ mtp_bool _util_add_node(slist_t *l_ptr, void *data);
 slist_node_t *_util_delete_node(slist_t *l_ptr, void *data);
 slist_iterator *_util_init_list_iterator(slist_t *l_ptr);
 void *_util_get_list_next(slist_iterator *iter);
-void _util_deinit_list_iterator(slist_iterator *iter);
 
 #ifdef __cplusplus
 }

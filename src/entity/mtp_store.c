@@ -306,13 +306,13 @@ mtp_obj_t *_entity_get_object_from_store(mtp_store_t *store, mtp_uint32 handle)
 		obj = (mtp_obj_t *)_util_get_list_next(iter);
 
 		if (obj && obj->obj_handle == handle) {
-			_util_deinit_list_iterator(iter);
+			g_free(iter);
 			return obj;
 		}
 	}
 
 	ERR("Object not found in the list handle [%d] in store[0x%x]\n", handle, store->store_id);
-	_util_deinit_list_iterator(iter);
+	g_free(iter);
 	return NULL;
 }
 
@@ -339,7 +339,7 @@ mtp_obj_t *_entity_get_last_object_from_store(mtp_store_t *store,
 			obj = temp_obj;
 	}
 
-	_util_deinit_list_iterator(iter);
+	g_free(iter);
 	return obj;
 }
 
@@ -365,12 +365,12 @@ mtp_obj_t *_entity_get_object_from_store_by_path(mtp_store_t *store,
 		}
 
 		if (!g_strcmp0(file_path, obj->file_path)) {
-			_util_deinit_list_iterator(iter);
+			g_free(iter);
 			return obj;
 		}
 	}
 	ERR_SECURE("Object [%s] not found in the list\n", file_path);
-	_util_deinit_list_iterator(iter);
+	g_free(iter);
 	return NULL;
 }
 
@@ -412,7 +412,7 @@ mtp_uint32 _entity_get_objects_from_store(mtp_store_t *store,
 			_prop_append_ele_ptparray(obj_arr, obj->obj_handle);
 		}
 	}
-	_util_deinit_list_iterator(iter);
+	g_free(iter);
 	return obj_arr->num_ele;
 }
 
@@ -496,7 +496,7 @@ mtp_uint32 _entity_get_objects_from_store_by_format(mtp_store_t *store,
 
 	}
 
-	_util_deinit_list_iterator(iter);
+	g_free(iter);
 	return (obj_arr->num_ele);
 }
 
@@ -533,7 +533,7 @@ mtp_uint32 _entity_get_child_handles(mtp_store_t *store, mtp_uint32 h_parent,
 			_prop_append_ele_ptparray(child_arr, obj->obj_handle);
 	}
 
-	_util_deinit_list_iterator(iter);
+	g_free(iter);
 	return child_arr->num_ele;
 }
 
@@ -567,7 +567,7 @@ mtp_uint32 _entity_get_child_handles_with_same_format(mtp_store_t *store,
 
 	}
 
-	_util_deinit_list_iterator(iter);
+	g_free(iter);
 	return child_arr->num_ele;
 }
 
