@@ -35,18 +35,164 @@ pthread_t g_eh_thrd;	/* event handler thread */
 mtp_int32 g_pipefd[2];
 
 /*
- * STATIC FUNCTIONS
- */
-static mtp_bool __process_event_request(mtp_event_t *evt);
-static void *__thread_event_handler(void *arg);
-static mtp_bool __send_events_from_device_to_pc(mtp_dword store_id,
-		mtp_uint16 ptp_event, mtp_uint32 param1, mtp_uint32 param2);
-static mtp_bool __send_start_event_to_eh_thread(void);
-
-/*
  * FUNCTIONS
  */
 /* LCOV_EXCL_START */
+static mtp_bool __send_events_from_device_to_pc(mtp_dword store_id,
+		mtp_uint16 ptp_event, mtp_uint32 param1, mtp_uint32 param2)
+{
+	cmd_container_t event = { 0, };
+
+	memset(&event, 0, sizeof(cmd_container_t));
+
+	switch (ptp_event) {
+	case PTP_EVENTCODE_OBJECTADDED:
+		DBG("case PTP_EVENTCODE_OBJECTADDED");
+		DBG("param1 : [0x%x]\n", param1);
+		_hdlr_init_event_container(&event, PTP_EVENTCODE_OBJECTADDED,
+				0, param1, 0);
+		break;
+
+	case PTP_EVENTCODE_OBJECTREMOVED:
+		DBG("case PTP_EVENTCODE_OBJECTREMOVED");
+		DBG("param1 [0x%x]\n", param1);
+		_hdlr_init_event_container(&event, PTP_EVENTCODE_OBJECTREMOVED,
+				0, param1 , 0);
+		break;
+
+	default:
+		DBG("Event not supported");
+		return FALSE;
+	}
+
+	return _hdlr_send_event_container(&event);
+}
+
+static mtp_bool __process_event_request(mtp_event_t *evt)
+{
+	retv_if(evt == NULL, FALSE);
+
+	switch (evt->action) {
+	case EVENT_CANCEL_INITIALIZATION:
+		DBG("EVENT_CANCEL_INITIALIZATION entered.");
+		_device_uninstall_storage();
+		break;
+
+	case EVENT_START_MAIN_OP:
+		DBG("EVENT_START_MAIN_OP entered.");
+
+		/* start MTP */
+		g_status->cancel_intialization = FALSE;
+		g_status->mtp_op_state = MTP_STATE_INITIALIZING;
+
+		_mtp_init();
+		g_status->mtp_op_state = MTP_STATE_READY_SERVICE;
+		if (FALSE == _transport_init_interfaces(_receive_mq_data_cb)) {
+			ERR("USB init fail");
+			kill(getpid(), SIGTERM);
+			break;
+		}
+		g_status->mtp_op_state = MTP_STATE_ONSERVICE;
+		break;
+
+	case EVENT_USB_REMOVED:
+		_eh_handle_usb_events(USB_REMOVED);
+		break;
+
+	case EVENT_OBJECT_ADDED:
+		__send_events_from_device_to_pc(0, PTP_EVENTCODE_OBJECTADDED,
+				evt->param1, 0);
+		break;
+
+	case EVENT_OBJECT_REMOVED:
+		__send_events_from_device_to_pc(0,
+				PTP_EVENTCODE_OBJECTREMOVED, evt->param1, 0);
+		break;
+
+	case EVENT_CLOSE:
+		break;
+
+	default:
+		ERR("Unknown action");
+		break;
+	}
+	return TRUE;
+}
+
+static void *__thread_event_handler(void *arg)
+{
+	DBG("__thread_event_handler is started ");
+
+	mtp_int32 flag = 1;
+	mtp_event_t evt;
+
+	while (flag) {
+		mtp_int32 status = 0;
+		status = read(g_pipefd[0], &evt, sizeof(mtp_event_t));
+		if ((status == -1) && errno == EINTR) {
+			ERR("read() Fail");
+			continue;
+		}
+
+		__process_event_request(&evt);
+
+		if (evt.action == EVENT_CLOSE) {
+			/* USB removed, terminate the thread */
+			flag = 0;
+		}
+	}
+
+	DBG("Event handler terminated");
+	close(g_pipefd[0]);
+	close(g_pipefd[1]);
+	mtp_end_event();
+
+	_util_thread_exit("__thread_event_handler thread is over.");
+	return NULL;
+}
+
+static mtp_bool __send_start_event_to_eh_thread(void)
+{
+	mtp_event_t event;
+	mtp_int32 status;
+
+	event.action = EVENT_START_MAIN_OP;
+	event.param1 = 0;
+	event.param2 = 0;
+	event.param3 = 0;
+
+	DBG("Action : START MTP OPERATION");
+
+	status = write(g_pipefd[1], &event, sizeof(mtp_event_t));
+	if (status == -1 || errno == EINTR) {
+		ERR("Event write over pipe Fail, status= [%d],pipefd = [%d], errno [%d]\n",
+				status, g_pipefd[1], errno);
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+void _eh_send_event_req_to_eh_thread(event_code_t action, mtp_ulong param1,
+		mtp_ulong param2, void *param3)
+{
+	mtp_event_t event = { 0 };
+	mtp_int32 status;
+
+	event.action = action;
+	event.param1 = param1;
+	event.param2 = param2;
+	event.param3 = (mtp_ulong)param3;
+
+	DBG("action[%d], param1[%ld], param2[%ld]\n", action, param1, param2);
+
+	status = write(g_pipefd[1], &event, sizeof(mtp_event_t));
+	if (status == -1 || errno == EINTR) {
+		ERR("Event write over pipe Fail, status = [%d], pipefd = [%d], errno [%d]\n",
+				status, g_pipefd[1], errno);
+	}
+}
+
 mtp_bool _eh_handle_usb_events(mtp_uint32 type)
 {
 	mtp_state_t state;
@@ -147,158 +293,4 @@ mtp_bool _eh_handle_usb_events(mtp_uint32 type)
 	return TRUE;
 }
 
-static mtp_bool __process_event_request(mtp_event_t *evt)
-{
-	retv_if(evt == NULL, FALSE);
-
-	switch (evt->action) {
-	case EVENT_CANCEL_INITIALIZATION:
-		DBG("EVENT_CANCEL_INITIALIZATION entered.");
-		_device_uninstall_storage();
-		break;
-
-	case EVENT_START_MAIN_OP:
-		DBG("EVENT_START_MAIN_OP entered.");
-
-		/* start MTP */
-		g_status->cancel_intialization = FALSE;
-		g_status->mtp_op_state = MTP_STATE_INITIALIZING;
-
-		_mtp_init();
-		g_status->mtp_op_state = MTP_STATE_READY_SERVICE;
-		if (FALSE == _transport_init_interfaces(_receive_mq_data_cb)) {
-			ERR("USB init fail");
-			kill(getpid(), SIGTERM);
-			break;
-		}
-		g_status->mtp_op_state = MTP_STATE_ONSERVICE;
-		break;
-
-	case EVENT_USB_REMOVED:
-		_eh_handle_usb_events(USB_REMOVED);
-		break;
-
-	case EVENT_OBJECT_ADDED:
-		__send_events_from_device_to_pc(0, PTP_EVENTCODE_OBJECTADDED,
-				evt->param1, 0);
-		break;
-
-	case EVENT_OBJECT_REMOVED:
-		__send_events_from_device_to_pc(0,
-				PTP_EVENTCODE_OBJECTREMOVED, evt->param1, 0);
-		break;
-
-	case EVENT_CLOSE:
-		break;
-
-	default:
-		ERR("Unknown action");
-		break;
-	}
-	return TRUE;
-}
-
-static void *__thread_event_handler(void *arg)
-{
-	DBG("__thread_event_handler is started ");
-
-	mtp_int32 flag = 1;
-	mtp_event_t evt;
-
-	while (flag) {
-		mtp_int32 status = 0;
-		status = read(g_pipefd[0], &evt, sizeof(mtp_event_t));
-		if ((status == -1) && errno == EINTR) {
-			ERR("read() Fail");
-			continue;
-		}
-
-		__process_event_request(&evt);
-
-		if (evt.action == EVENT_CLOSE) {
-			/* USB removed, terminate the thread */
-			flag = 0;
-		}
-	}
-
-	DBG("Event handler terminated");
-	close(g_pipefd[0]);
-	close(g_pipefd[1]);
-	mtp_end_event();
-
-	_util_thread_exit("__thread_event_handler thread is over.");
-	return NULL;
-}
-
-static mtp_bool __send_events_from_device_to_pc(mtp_dword store_id,
-		mtp_uint16 ptp_event, mtp_uint32 param1, mtp_uint32 param2)
-{
-	cmd_container_t event = { 0, };
-
-	memset(&event, 0, sizeof(cmd_container_t));
-
-	switch (ptp_event) {
-	case PTP_EVENTCODE_OBJECTADDED:
-		DBG("case PTP_EVENTCODE_OBJECTADDED");
-		DBG("param1 : [0x%x]\n", param1);
-		_hdlr_init_event_container(&event, PTP_EVENTCODE_OBJECTADDED,
-				0, param1, 0);
-		break;
-
-	case PTP_EVENTCODE_OBJECTREMOVED:
-		DBG("case PTP_EVENTCODE_OBJECTREMOVED");
-		DBG("param1 [0x%x]\n", param1);
-		_hdlr_init_event_container(&event, PTP_EVENTCODE_OBJECTREMOVED,
-				0, param1 , 0);
-		break;
-
-	default:
-		DBG("Event not supported");
-		return FALSE;
-	}
-
-	return _hdlr_send_event_container(&event);
-}
-
-void _eh_send_event_req_to_eh_thread(event_code_t action, mtp_ulong param1,
-		mtp_ulong param2, void *param3)
-{
-	mtp_event_t event = { 0 };
-	mtp_int32 status;
-
-	event.action = action;
-	event.param1 = param1;
-	event.param2 = param2;
-	event.param3 = (mtp_ulong)param3;
-
-	DBG("action[%d], param1[%ld], param2[%ld]\n", action, param1, param2);
-
-	status = write(g_pipefd[1], &event, sizeof(mtp_event_t));
-	if (status == -1 || errno == EINTR) {
-		ERR("Event write over pipe Fail, status = [%d], pipefd = [%d], errno [%d]\n",
-				status, g_pipefd[1], errno);
-	}
-}
-
-static mtp_bool __send_start_event_to_eh_thread(void)
-{
-	mtp_event_t event;
-	mtp_int32 status;
-
-	event.action = EVENT_START_MAIN_OP;
-	event.param1 = 0;
-	event.param2 = 0;
-	event.param3 = 0;
-
-	DBG("Action : START MTP OPERATION");
-
-	status = write(g_pipefd[1], &event, sizeof(mtp_event_t));
-	if (status == -1 || errno == EINTR) {
-		ERR("Event write over pipe Fail, status= [%d],pipefd = [%d], errno [%d]\n",
-				status, g_pipefd[1], errno);
-		return FALSE;
-	}
-
-	return TRUE;
-}
 /* LCOV_EXCL_STOP */
