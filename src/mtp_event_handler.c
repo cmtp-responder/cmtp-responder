@@ -35,11 +35,6 @@ pthread_t g_eh_thrd;	/* event handler thread */
 mtp_int32 g_pipefd[2];
 
 /*
- * STATIC VARIABLES
- */
-static mtp_mgr_t *g_mgr = &g_mtp_mgr;
-
-/*
  * STATIC FUNCTIONS
  */
 static mtp_bool __process_event_request(mtp_event_t *evt);
@@ -122,22 +117,22 @@ mtp_bool _eh_handle_usb_events(mtp_uint32 type)
 		 * are terminated. Because data receive thread tries to
 		 * write the temp file until sink thread is terminated.
 		 */
-		if (g_mgr->ftemp_st.filepath != NULL &&
-				(access(g_mgr->ftemp_st.filepath, F_OK) == 0)) {
+		if (g_mtp_mgr.ftemp_st.filepath != NULL &&
+				(access(g_mtp_mgr.ftemp_st.filepath, F_OK) == 0)) {
 			DBG("USB disconnected but temp file is remaind.\
 					It will be deleted.");
 
-			if (g_mgr->ftemp_st.fhandle != NULL) {
+			if (g_mtp_mgr.ftemp_st.fhandle != NULL) {
 				DBG("handle is found. At first close file");
-				_util_file_close(g_mgr->ftemp_st.fhandle);
-				g_mgr->ftemp_st.fhandle = NULL;
+				_util_file_close(g_mtp_mgr.ftemp_st.fhandle);
+				g_mtp_mgr.ftemp_st.fhandle = NULL;
 			}
-			if (remove(g_mgr->ftemp_st.filepath) < 0) {
-				ERR_SECURE("remove(%s) Fail", g_mgr->ftemp_st.filepath);
+			if (remove(g_mtp_mgr.ftemp_st.filepath) < 0) {
+				ERR_SECURE("remove(%s) Fail", g_mtp_mgr.ftemp_st.filepath);
 				_util_print_error();
 			}
-			g_free(g_mgr->ftemp_st.filepath);
-			g_mgr->ftemp_st.filepath = NULL;
+			g_free(g_mtp_mgr.ftemp_st.filepath);
+			g_mtp_mgr.ftemp_st.filepath = NULL;
 		}
 
 		_mtp_deinit();
