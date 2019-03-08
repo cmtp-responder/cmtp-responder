@@ -44,151 +44,15 @@ mtp_mgr_t g_mtp_mgr;
 mtp_config_t g_conf;
 
 /*
- * STATIC VARIABLES AND FUNCTIONS
+ * STATIC VARIABLES
  */
 static GMainLoop *g_mainloop = NULL;
 static mtp_mgr_t *g_mgr = &g_mtp_mgr;
-static void __read_mtp_conf(void);
-static void __init_mtp_info(void);
-static void __mtp_exit(void);
 /*
  * FUNCTIONS
  */
 
-/*
- * static void __mtp_exit(void)
- * This function send MTP stopped state to event handler thread and MTP UI
- * @param[in]		None.
- * @param[out]		None.
- * @return		None.
- */
 /* LCOV_EXCL_START */
-static void __mtp_exit(void)
-{
-	DBG("## Terminate all threads");
-	if (g_eh_thrd && g_eh_thrd != pthread_self()) {
-		_eh_send_event_req_to_eh_thread(EVENT_USB_REMOVED, 0, 0, NULL);
-		if (_util_thread_join(g_eh_thrd, NULL) == FALSE)
-			ERR("_util_thread_join() Fail");
-
-		g_eh_thrd = 0;
-	}
-
-	DBG("## Terminate main loop");
-
-	g_main_loop_quit(g_mainloop);
-
-	if (g_eh_thrd == pthread_self())
-		_util_thread_exit("Event handler stopped itself");
-}
-
-/* LCOV_EXCL_STOP */
-
-static void _features_supported_info(void)
-{
-	DBG("***********************************************************");
-	DBG("### MTP Information ###");
-	DBG("### 1. Solution		: SLP");
-	DBG("### 2. MTP Version		: 1.0");
-
-	DBG("***********************************************************");
-	DBG("### Extension ###");
-	if (_get_oma_drm_status() == TRUE)
-		DBG("### 2. OMADRM		: [ON]");
-	else
-		DBG("### 2. OMADRM		: [OFF]");
-
-	DBG("***********************************************************");
-	DBG("### Feature ###");
-
-#ifdef MTP_SUPPORT_SET_PROTECTION
-	DBG("### 3. MTP_SUPPORT_SET_PROTECTION	: [ON]");
-#else /* MTP_SUPPORT_SET_PROTECTION */
-	DBG("### 3. MTP_SUPPORT_SET_PROTECTION	: [OFF]");
-#endif /* MTP_SUPPORT_SET_PROTECTION */
-	DBG("***********************************************************");
-}
-
-void _mtp_init(void)
-{
-	mtp_int32 error = 0;
-
-	DBG("Initialization start!");
-
-	__read_mtp_conf();
-
-	if (g_conf.mmap_threshold) {
-		if (!mallopt(M_MMAP_THRESHOLD, g_conf.mmap_threshold))
-			ERR("mallopt(M_MMAP_THRESHOLD) Fail");
-
-		if (!mallopt(M_TRIM_THRESHOLD, g_conf.mmap_threshold * 2))
-			ERR("mallopt(M_TRIM_THRESHOLD) Fail");
-	}
-
-	__init_mtp_info();
-
-	memset((void *)g_status, 0, sizeof(status_info_t));
-	g_status->mtp_op_state = MTP_STATE_INITIALIZING;
-
-	if (g_mgr->ftemp_st.temp_buff == NULL) {
-		/* Allocate memory for temporary */
-		g_mgr->ftemp_st.temp_buff = (mtp_char *)g_malloc(g_conf.write_file_size);
-		if (g_mgr->ftemp_st.temp_buff == NULL) {
-			ERR("memory allocation fail");
-			goto MTP_INIT_FAIL;
-		}
-	}
-
-	/* External Storage */
-	{
-	/* LCOV_EXCL_START */
-		char ext_path[MTP_MAX_PATHNAME_SIZE + 1] = { 0 };
-		_util_get_external_path(ext_path);
-		if (access(ext_path, F_OK) < 0) {
-			if (FALSE == _util_dir_create((const mtp_char *)ext_path, &error)) {
-				ERR("Cannot make directory!! [%s]\n",
-						ext_path);
-				goto MTP_INIT_FAIL;
-			}
-		}
-	/* LCOV_EXCL_STOP */
-	}
-
-	/* Set mtpdeviceinfo */
-	_init_mtp_device();
-
-	_features_supported_info();
-
-	/* Install storage */
-	_device_install_storage();
-
-#ifdef MTP_SUPPORT_OBJECTADDDELETE_EVENT
-	_inoti_init_filesystem_evnts();
-#endif /*MTP_SUPPORT_OBJECTADDDELETE_EVENT*/
-
-	return;
-
-MTP_INIT_FAIL:
-	/* Set MTP state to stopped */
-	g_status->mtp_op_state = MTP_STATE_STOPPED;
-	mtp_end_event();
-}
-
-void _mtp_deinit(void)
-{
-	_cmd_hdlr_reset_cmd(&g_mgr->hdlr);
-
-	/* initialize MTP_USE_FILE_BUFFER*/
-	if (g_mgr->ftemp_st.temp_buff != NULL) {
-		g_free(g_mgr->ftemp_st.temp_buff);
-		g_mgr->ftemp_st.temp_buff = NULL;
-	}
-
-#ifdef MTP_SUPPORT_OBJECTADDDELETE_EVENT
-	_inoti_deinit_filesystem_events();
-#endif /*MTP_SUPPORT_OBJECTADDDELETE_EVENT*/
-}
-
 static void __print_mtp_conf(void)
 {
 	if (g_conf.is_init == false) {
@@ -396,6 +260,59 @@ static void __read_mtp_conf(void)
 	__print_mtp_conf();
 }
 
+/*
+ * static void __mtp_exit(void)
+ * This function send MTP stopped state to event handler thread and MTP UI
+ * @param[in]		None.
+ * @param[out]		None.
+ * @return		None.
+ */
+static void __mtp_exit(void)
+{
+	DBG("## Terminate all threads");
+	if (g_eh_thrd && g_eh_thrd != pthread_self()) {
+		_eh_send_event_req_to_eh_thread(EVENT_USB_REMOVED, 0, 0, NULL);
+		if (_util_thread_join(g_eh_thrd, NULL) == FALSE)
+			ERR("_util_thread_join() Fail");
+
+		g_eh_thrd = 0;
+	}
+
+	DBG("## Terminate main loop");
+
+	g_main_loop_quit(g_mainloop);
+
+	if (g_eh_thrd == pthread_self())
+		_util_thread_exit("Event handler stopped itself");
+}
+
+/* LCOV_EXCL_STOP */
+
+static void _features_supported_info(void)
+{
+	DBG("***********************************************************");
+	DBG("### MTP Information ###");
+	DBG("### 1. Solution		: SLP");
+	DBG("### 2. MTP Version		: 1.0");
+
+	DBG("***********************************************************");
+	DBG("### Extension ###");
+	if (_get_oma_drm_status() == TRUE)
+		DBG("### 2. OMADRM		: [ON]");
+	else
+		DBG("### 2. OMADRM		: [OFF]");
+
+	DBG("***********************************************************");
+	DBG("### Feature ###");
+
+#ifdef MTP_SUPPORT_SET_PROTECTION
+	DBG("### 3. MTP_SUPPORT_SET_PROTECTION	: [ON]");
+#else /* MTP_SUPPORT_SET_PROTECTION */
+	DBG("### 3. MTP_SUPPORT_SET_PROTECTION	: [OFF]");
+#endif /* MTP_SUPPORT_SET_PROTECTION */
+	DBG("***********************************************************");
+}
+
 void __init_mtp_info(void)
 {
 	/* initialize struct one time*/
@@ -404,6 +321,86 @@ void __init_mtp_info(void)
 	memset(&g_mgr->meta_info, 0, sizeof(g_mgr->meta_info));
 
 	return ;
+}
+
+void _mtp_init(void)
+{
+	mtp_int32 error = 0;
+
+	DBG("Initialization start!");
+
+	__read_mtp_conf();
+
+	if (g_conf.mmap_threshold) {
+		if (!mallopt(M_MMAP_THRESHOLD, g_conf.mmap_threshold))
+			ERR("mallopt(M_MMAP_THRESHOLD) Fail");
+
+		if (!mallopt(M_TRIM_THRESHOLD, g_conf.mmap_threshold * 2))
+			ERR("mallopt(M_TRIM_THRESHOLD) Fail");
+	}
+
+	__init_mtp_info();
+
+	memset((void *)g_status, 0, sizeof(status_info_t));
+	g_status->mtp_op_state = MTP_STATE_INITIALIZING;
+
+	if (g_mgr->ftemp_st.temp_buff == NULL) {
+		/* Allocate memory for temporary */
+		g_mgr->ftemp_st.temp_buff = (mtp_char *)g_malloc(g_conf.write_file_size);
+		if (g_mgr->ftemp_st.temp_buff == NULL) {
+			ERR("memory allocation fail");
+			goto MTP_INIT_FAIL;
+		}
+	}
+
+	/* External Storage */
+	{
+	/* LCOV_EXCL_START */
+		char ext_path[MTP_MAX_PATHNAME_SIZE + 1] = { 0 };
+		_util_get_external_path(ext_path);
+		if (access(ext_path, F_OK) < 0) {
+			if (FALSE == _util_dir_create((const mtp_char *)ext_path, &error)) {
+				ERR("Cannot make directory!! [%s]\n",
+						ext_path);
+				goto MTP_INIT_FAIL;
+			}
+		}
+	/* LCOV_EXCL_STOP */
+	}
+
+	/* Set mtpdeviceinfo */
+	_init_mtp_device();
+
+	_features_supported_info();
+
+	/* Install storage */
+	_device_install_storage();
+
+#ifdef MTP_SUPPORT_OBJECTADDDELETE_EVENT
+	_inoti_init_filesystem_evnts();
+#endif /*MTP_SUPPORT_OBJECTADDDELETE_EVENT*/
+
+	return;
+
+MTP_INIT_FAIL:
+	/* Set MTP state to stopped */
+	g_status->mtp_op_state = MTP_STATE_STOPPED;
+	mtp_end_event();
+}
+
+void _mtp_deinit(void)
+{
+	_cmd_hdlr_reset_cmd(&g_mgr->hdlr);
+
+	/* initialize MTP_USE_FILE_BUFFER*/
+	if (g_mgr->ftemp_st.temp_buff != NULL) {
+		g_free(g_mgr->ftemp_st.temp_buff);
+		g_mgr->ftemp_st.temp_buff = NULL;
+	}
+
+#ifdef MTP_SUPPORT_OBJECTADDDELETE_EVENT
+	_inoti_deinit_filesystem_events();
+#endif /*MTP_SUPPORT_OBJECTADDDELETE_EVENT*/
 }
 
 /*
