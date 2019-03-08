@@ -203,7 +203,6 @@ static void __process_commands(mtp_handler_t *hdlr, cmd_blk_t *cmd)
 
 	case PTP_OPCODE_SENDOBJECTINFO:
 	case PTP_OPCODE_SENDOBJECT:
-	case PTP_OPCODE_SETDEVICEPROPVALUE:
 		/* DATA_HANDLE_PHASE: Send operation will be blocked
 		 * until data packet is received
 		 */
@@ -1428,9 +1427,6 @@ static void __print_command(mtp_uint16 code)
 		break;
 	case PTP_OPCODE_GETDEVICEPROPVALUE:
 		DBG("COMMAND ======== GET DEVICE PROP VALUE ===========");
-		break;
-	case PTP_OPCODE_SETDEVICEPROPVALUE:
-		DBG("COMMAND ======== SET DEVICE PROP VALUE ===========");
 		break;
 	case PTP_OPCODE_TERMINATECAPTURE:
 		DBG("COMMAND ======== TERMINATE CAPTURE ===========");
