@@ -131,10 +131,6 @@ typedef struct {
 } usb_status_req_t;
 
 void _util_print_error();
-phone_status_t _util_get_local_usb_status(void);
-void _util_set_local_usb_status(const phone_status_t val);
-phone_status_t _util_get_local_usbmode_status(void);
-void _util_set_local_usbmode_status(const phone_status_t val);
 void _util_get_external_path(char *external_path);
 
 #ifdef __cplusplus

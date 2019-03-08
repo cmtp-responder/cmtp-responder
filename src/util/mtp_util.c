@@ -36,8 +36,8 @@
 /* time to wait for user session creation, in ms */
 #define WAIT_FOR_USER_TIMEOUT 10000
 
-static phone_state_t g_ph_status = { 0 };
-
+static phone_state_t _g_ph_status = { 0 };
+phone_state_t *g_ph_status = &_g_ph_status;
 
 /* LCOV_EXCL_START */
 void _util_print_error()
@@ -49,33 +49,6 @@ void _util_print_error()
 	strerror_r(errno, buff, sizeof(buff));
 	ERR("Error: [%d]:[%s]\n", errno, buff);
 }
-/* LCOV_EXCL_STOP */
-
-/* LCOV_EXCL_START */
-phone_status_t _util_get_local_usb_status(void)
-{
-	return g_ph_status.usb_state;
-}
-
-void _util_set_local_usb_status(const phone_status_t val)
-{
-	g_ph_status.usb_state = val;
-}
-
-/* LCOV_EXCL_STOP */
-
-/* LCOV_EXCL_START */
-phone_status_t _util_get_local_usbmode_status(void)
-{
-	return g_ph_status.usb_mode_state;
-}
-
-void _util_set_local_usbmode_status(const phone_status_t val)
-{
-	g_ph_status.usb_mode_state = val;
-}
-
-/* LCOV_EXCL_STOP */
 
 void _util_get_external_path(char *external_path)
 {
@@ -83,5 +56,4 @@ void _util_get_external_path(char *external_path)
 	strncpy(external_path, MTP_EXTERNAL_PATH_CHAR, sizeof(MTP_EXTERNAL_PATH_CHAR));
 	external_path[sizeof(MTP_EXTERNAL_PATH_CHAR) - 1] = 0;
 }
-
 /* LCOV_EXCL_STOP */

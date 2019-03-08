@@ -39,6 +39,7 @@
  * GLOBAL AND EXTERN VARIABLES
  */
 extern mtp_config_t g_conf;
+extern phone_state_t *g_ph_status;
 
 /*
  * STATIC VARIABLES AND FUNCTIONS
@@ -384,11 +385,11 @@ static void *ffs_transport_thread_usb_control(void *arg)
 			break;
 		case FUNCTIONFS_ENABLE:
 			DBG("ENABLE");
-			_util_set_local_usb_status(MTP_PHONE_USB_CONNECTED);
+			g_ph_status->usb_state = MTP_PHONE_USB_CONNECTED;
 			break;
 		case FUNCTIONFS_DISABLE:
 			DBG("DISABLE");
-			_util_set_local_usb_status(MTP_PHONE_USB_DISCONNECTED);
+			g_ph_status->usb_state = MTP_PHONE_USB_DISCONNECTED;
 			_eh_send_event_req_to_eh_thread(EVENT_USB_REMOVED, 0, 0, NULL);
 			break;
 		}
@@ -415,7 +416,7 @@ static mtp_int32 __handle_usb_read_err(mtp_int32 err,
 			DBG("EIO");
 
 			if (MTP_PHONE_USB_CONNECTED !=
-			    _util_get_local_usb_status()) {
+			    g_ph_status->usb_state) {
 				ERR("USB is disconnected");
 				break;
 			}

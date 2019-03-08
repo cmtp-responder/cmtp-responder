@@ -34,6 +34,7 @@ extern mtp_char g_last_moved[MTP_MAX_PATHNAME_SIZE + 1];
 extern mtp_char g_last_copied[MTP_MAX_PATHNAME_SIZE + 1];
 extern mtp_char g_last_deleted[MTP_MAX_PATHNAME_SIZE + 1];
 extern mtp_uint32 g_next_obj_handle;
+extern phone_state_t *g_ph_status;
 
 /*
  * STATIC VARIABLES
@@ -1057,7 +1058,7 @@ mtp_err_t _hutil_construct_object_entry_prop_list(mtp_uint32 store_id,
 	 * is not finished
 	 */
 	for (index = 0; index < num_elem; index++) {
-		if (MTP_PHONE_USB_DISCONNECTED == _util_get_local_usb_status() ||
+		if (MTP_PHONE_USB_DISCONNECTED == g_ph_status->usb_state ||
 				TRUE == g_status->is_usb_discon) {
 			/* seems usb is disconnected, stop */
 			_entity_dealloc_obj_info(obj_info);

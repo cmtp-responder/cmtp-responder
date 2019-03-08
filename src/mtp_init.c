@@ -39,6 +39,7 @@
 extern pthread_t g_eh_thrd;
 extern pthread_mutex_t g_cmd_inoti_mutex;
 extern mtp_bool g_is_sync_estab;
+extern phone_state_t *g_ph_status;
 
 mtp_mgr_t g_mtp_mgr;
 mtp_config_t g_conf;
@@ -439,11 +440,11 @@ int main(int argc, char *argv[])
 	mtp_int32 ret;
 
 	DBG("Using FFS transport, assuming established connection");
-	_util_set_local_usb_status(MTP_PHONE_USB_DISCONNECTED);
-	_util_set_local_usbmode_status(1);
+	g_ph_status->usb_state = MTP_PHONE_USB_DISCONNECTED;
+	g_ph_status->usb_mode_state = 1;
 	DBG("Phone status: USB = [%d] MMC = [%d] USB_MODE = [%d] LOCK_STATUS = [%d]\n",
-			_util_get_local_usb_status(), MTP_PHONE_MMC_INSERTED,
-			_util_get_local_usbmode_status(), MTP_PHONE_LOCK_OFF);
+			g_ph_status->usb_state, MTP_PHONE_MMC_INSERTED,
+			g_ph_status->usb_mode_state, MTP_PHONE_LOCK_OFF);
 
 	ret = _main_init();
 	retvm_if(MTP_ERROR_NONE != ret, MTP_ERROR_GENERAL, "_main_init() Fail(%d)", ret);
