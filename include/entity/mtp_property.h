@@ -216,7 +216,6 @@ mtp_bool _prop_is_valid_string(prop_info_t *prop, ptp_string_t *str);
 mtp_bool _prop_is_equal_ptpstring(ptp_string_t *dst, ptp_string_t *src);
 mtp_bool _prop_set_current_integer(device_prop_desc_t *prop, mtp_uint32 val);
 mtp_bool _prop_set_current_string(device_prop_desc_t *prop, ptp_string_t *str);
-mtp_bool _prop_set_current_array(device_prop_desc_t *prop, mtp_uchar *arr);
 mtp_bool _prop_set_current_integer_val(obj_prop_val_t *propval, mtp_uint64 val);
 mtp_bool _prop_set_current_string_val(obj_prop_val_t *propval, ptp_string_t *str);
 mtp_bool _prop_set_current_array_val(obj_prop_val_t *propval, mtp_uchar *arr,
