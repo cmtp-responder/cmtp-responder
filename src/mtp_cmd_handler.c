@@ -228,7 +228,6 @@ static void __process_commands(mtp_handler_t *hdlr, cmd_blk_t *cmd)
 	case PTP_OPCODE_SETDEVICEPROPVALUE:
 	case MTP_OPCODE_SETOBJECTREFERENCES:
 	case MTP_OPCODE_SETOBJECTPROPVALUE:
-	case MTP_OPCODE_SETOBJECTPROPLIST:
 		/* DATA_HANDLE_PHASE: Send operation will be blocked
 		 * until data packet is received
 		 */
@@ -1832,9 +1831,6 @@ static void __print_command(mtp_uint16 code)
 		break;
 	case MTP_OPCODE_GETOBJECTPROPLIST:
 		DBG("COMMAND ======== GET OBJECT PROP LIST ==========");
-		break;
-	case MTP_OPCODE_SETOBJECTPROPLIST:
-		DBG("COMMAND ======== SET OBJECT PROP LIST ==========");
 		break;
 	case MTP_OPCODE_GETINTERDEPPROPDESC:
 		DBG("COMMAND ======== GET INTERDEP PROP DESC ==========");
