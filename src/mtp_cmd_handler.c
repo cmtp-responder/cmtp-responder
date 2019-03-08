@@ -216,7 +216,6 @@ static void __process_commands(mtp_handler_t *hdlr, cmd_blk_t *cmd)
 	case PTP_OPCODE_SENDOBJECTINFO:
 	case PTP_OPCODE_SENDOBJECT:
 	case PTP_OPCODE_SETDEVICEPROPVALUE:
-	case MTP_OPCODE_SETOBJECTREFERENCES:
 		/* DATA_HANDLE_PHASE: Send operation will be blocked
 		 * until data packet is received
 		 */
@@ -1625,9 +1624,6 @@ static void __print_command(mtp_uint16 code)
 		break;
 	case MTP_OPCODE_GETOBJECTREFERENCES:
 		DBG("COMMAND ======== GET OBJECT REFERENCES ==========");
-		break;
-	case MTP_OPCODE_SETOBJECTREFERENCES:
-		DBG("COMMAND ======== SET OBJECT REFERENCES ==========");
 		break;
 	case MTP_OPCODE_PLAYBACK_SKIP:
 		DBG("COMMAND ======== PLAYBACK SKIP ==========");
