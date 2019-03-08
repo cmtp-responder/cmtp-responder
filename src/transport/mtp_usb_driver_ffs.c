@@ -518,13 +518,13 @@ static void __handle_control_request(mtp_int32 request)
 			statusreq_data.len = 0x08;
 			statusreq_data.code = PTP_RESPONSE_DEVICEBUSY;
 			host_cancel = FALSE;
-		} else if (_device_get_phase() == DEVICE_PHASE_NOTREADY) {
+		} else if (g_device->phase == DEVICE_PHASE_NOTREADY) {
 			statusreq_data.code =
 				PTP_RESPONSE_TRANSACTIONCANCELLED;
 			DBG("PTP_RESPONSE_TRANSACTIONCANCELLED");
 			statusreq_data.len = (mtp_word)(sizeof(usb_status_req_t) +
 							(num_param - 2) * sizeof(mtp_dword));
-		} else if (_device_get_status() == DEVICE_STATUSOK) {
+		} else if (g_device->status == DEVICE_STATUSOK) {
 			DBG("PTP_RESPONSE_OK");
 			statusreq_data.len = 0x08;
 			statusreq_data.code = PTP_RESPONSE_OK;

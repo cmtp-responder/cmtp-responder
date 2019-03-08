@@ -551,39 +551,3 @@ mtp_store_t *_device_get_store_at_index(mtp_uint32 index)
 
 	return &(g_device->store_list[index]);
 }
-
-/* LCOV_EXCL_START */
-void _device_set_phase(device_phase_t phase)
-{
-	DBG("Devie phase is set [%d]\n", phase);
-	g_device->phase = phase;
-	return;
-}
-
-device_phase_t _device_get_phase(void)
-{
-	return g_device->phase;
-}
-/* LCOV_EXCL_STOP */
-
-mtp_uint32 _device_get_default_store_id(void)
-{
-	return g_device->default_store_id;
-}
-
-mtp_uint32 _device_get_default_parent_handle(void)
-{
-	return g_device->default_hparent;
-}
-
-mtp_uint32 _device_get_num_stores(void)
-{
-	return g_device->num_stores;
-}
-
-/* LCOV_EXCL_START */
-device_status_t _device_get_status(void)
-{
-	return g_device->status;
-}
-/* LCOV_EXCL_STOP */

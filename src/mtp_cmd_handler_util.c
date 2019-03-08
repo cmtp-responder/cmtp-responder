@@ -81,7 +81,7 @@ mtp_err_t _hutil_get_storage_ids(ptp_array_t *store_ids)
 	mtp_uint32 num_stores = 0;
 
 	num_elem = _device_get_store_ids(store_ids);
-	num_stores = _device_get_num_stores();
+	num_stores = g_device->num_stores;
 	if (num_elem == num_stores)
 		return MTP_ERROR_NONE;
 
@@ -854,7 +854,7 @@ mtp_err_t _hutil_get_object_handles(mtp_uint32 store_id, mtp_uint32 format,
 	mtp_int32 i = 0;
 
 	if (h_parent == PTP_OBJECTHANDLE_ALL || h_parent == PTP_OBJECTHANDLE_ROOT) {
-		for (i = 0; i < _device_get_num_stores(); i++) {
+		for (i = 0; i < g_device->num_stores; i++) {
 			store = _device_get_store_at_index(i);
 			if (store && store->obj_list.nnodes == 0)
 				_entity_store_recursive_enum_folder_objects(store, NULL);
@@ -863,7 +863,7 @@ mtp_err_t _hutil_get_object_handles(mtp_uint32 store_id, mtp_uint32 format,
 	}
 
 	if (store_id == PTP_STORAGEID_ALL && h_parent == PTP_OBJECTHANDLE_ROOT) {
-		for (i = 0; i < _device_get_num_stores(); i++) {	//	LCOV_EXCL_LINE
+		for (i = 0; i < g_device->num_stores; i++) {	//	LCOV_EXCL_LINE
 			store = _device_get_store_at_index(i);	//	LCOV_EXCL_LINE
 			_entity_get_objects_from_store_by_format(store, format, handle_arr);	//	LCOV_EXCL_LINE
 		}
@@ -871,7 +871,7 @@ mtp_err_t _hutil_get_object_handles(mtp_uint32 store_id, mtp_uint32 format,
 
 	} else if (store_id == PTP_STORAGEID_ALL && h_parent == PTP_OBJECTHANDLE_ALL) {
 		h_parent = PTP_OBJECTHANDLE_ROOT;
-		for (i = 0; i < _device_get_num_stores(); i++) {	//	LCOV_EXCL_LINE
+		for (i = 0; i < g_device->num_stores; i++) {	//	LCOV_EXCL_LINE
 			store = _device_get_store_at_index(i);	//	LCOV_EXCL_LINE
 			_entity_get_child_handles_with_same_format(store, h_parent, format, handle_arr);	//	LCOV_EXCL_LINE
 		}
@@ -921,11 +921,11 @@ mtp_err_t _hutil_construct_object_entry(mtp_uint32 store_id,
 
 	if (store_id) {
 		if (!h_parent)
-			h_parent = _device_get_default_parent_handle();
+			h_parent = g_device->default_hparent;
 		else if (h_parent == 0xFFFFFFFF)
 			h_parent = PTP_OBJECTHANDLE_ROOT;
 	} else {
-		store_id = _device_get_default_store_id();
+		store_id = g_device->default_store_id;
 
 		if (!store_id) {
 			ERR("_device_get_default_store_id Fail");
@@ -938,7 +938,7 @@ mtp_err_t _hutil_construct_object_entry(mtp_uint32 store_id,
 			 */
 			return MTP_ERROR_INVALID_PARAM;
 		} else {
-			h_parent = _device_get_default_parent_handle();
+			h_parent = g_device->default_hparent;
 		}
 	}
 
@@ -1521,7 +1521,7 @@ mtp_err_t _hutil_get_object_prop_list(mtp_uint32 obj_handle, mtp_uint32 format,
 		_entity_get_objects_from_store_till_depth(store, obj_handle,
 				format, depth, obj_arr);
 	} else {
-		for (ii = 0; ii < _device_get_num_stores(); ii++) {
+		for (ii = 0; ii < g_device->num_stores; ii++) {
 			store = _device_get_store_at_index(ii);
 			_entity_get_objects_from_store_till_depth(store,
 					obj_handle, format, depth, obj_arr);

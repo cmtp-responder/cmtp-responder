@@ -181,14 +181,6 @@ mtp_uint16 _device_delete_object(mtp_uint32 obj_handle, mtp_uint32 fmt);
 mtp_store_t *_device_get_store_containing_obj(mtp_uint32 obj_handle);
 mtp_store_t *_device_get_store_at_index(mtp_uint32 index);
 
-void _device_set_phase(device_phase_t phase);
-device_phase_t _device_get_phase(void);
-mtp_uint32 _device_get_default_store_id(void);
-mtp_uint32 _device_get_default_parent_handle(void);
-mtp_uint32 _device_get_num_stores(void);
-device_status_t _device_get_status(void);
-
-
 #ifdef __cplusplus
 }
 #endif

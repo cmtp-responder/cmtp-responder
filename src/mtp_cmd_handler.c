@@ -53,6 +53,14 @@ static mtp_mgr_t *g_mgr = &g_mtp_mgr;
 /*
  * STATIC FUNCTIONS
  */
+
+#define _device_set_phase(_phase) 			\
+	do {						\
+		DBG("Devie phase is set [%d]\n", (_phase));\
+		g_device->phase = (_phase);		\
+	} while (0)
+
+
 static void __process_commands(mtp_handler_t *hdlr, cmd_blk_t *cmd);
 static void __open_session(mtp_handler_t *hdlr);
 static void __get_device_info(mtp_handler_t *hdlr);
@@ -181,7 +189,7 @@ static void __process_commands(mtp_handler_t *hdlr, cmd_blk_t *cmd)
 		/* DATA_HANDLE_PHASE: Send operation will be blocked
 		 * until data packet is received
 		 */
-		if (_device_get_phase() == DEVICE_PHASE_IDLE) {
+		if (g_device->phase == DEVICE_PHASE_IDLE) {
 			DBG("DATAOUT COMMAND PHASE!!");
 			if (hdlr->usb_cmd.code == PTP_OPCODE_SENDOBJECT) {
 				mtp_char parent_path[MTP_MAX_PATHNAME_SIZE + 1] = { 0 };
@@ -679,13 +687,13 @@ static void __send_object_info(mtp_handler_t *hdlr)
 
 	store_id = _hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 0);
 	if (store_id == 0)
-		store_id = _device_get_default_store_id();
+		store_id = g_device->default_store_id;
 
 	h_parent = _hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 1);
 
 	if (_hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 2)) {
 		resp = PTP_RESPONSE_PARAM_NOTSUPPORTED;
-		if (_device_get_phase() != DEVICE_PHASE_NOTREADY)
+		if (g_device->phase != DEVICE_PHASE_NOTREADY)
 			_cmd_hdlr_send_response_code(hdlr, resp);
 
 		return;
@@ -775,7 +783,7 @@ static void __send_object_info(mtp_handler_t *hdlr)
 	}
 
 	g_free(blk.data);
-	if (_device_get_phase() != DEVICE_PHASE_NOTREADY) {
+	if (g_device->phase != DEVICE_PHASE_NOTREADY) {
 		if (resp == PTP_RESPONSE_OK) {
 			hdlr->last_fmt_code = obj->obj_info->obj_fmt;
 			resp_param[0] = hdlr->data4_send_obj.store_id;
@@ -1359,7 +1367,7 @@ void _receive_mq_data_cb(mtp_char *buffer, mtp_int32 buf_len)
 #endif/* MTP_SUPPORT_CONTROL_REQUEST */
 
 	/* main processing */
-	if (_device_get_phase() == DEVICE_PHASE_IDLE) {
+	if (g_device->phase == DEVICE_PHASE_IDLE) {
 		if (_hdlr_validate_cmd_container((mtp_uchar *)buffer, buf_len)
 				== FALSE) {
 			_device_set_phase(DEVICE_PHASE_NOTREADY);
@@ -1377,7 +1385,7 @@ void _receive_mq_data_cb(mtp_char *buffer, mtp_int32 buf_len)
 		UTIL_LOCK_MUTEX(&g_cmd_inoti_mutex);
 		__process_commands(&g_mtp_mgr.hdlr, &cmd);
 		UTIL_UNLOCK_MUTEX(&g_cmd_inoti_mutex);
-	} else if (_device_get_phase() == DEVICE_PHASE_DATAOUT) {
+	} else if (g_device->phase == DEVICE_PHASE_DATAOUT) {
 		if (g_mgr->ftemp_st.data_count == 0)
 			__receive_temp_file_first_packet(buffer, buf_len);
 		else
@@ -1386,7 +1394,7 @@ void _receive_mq_data_cb(mtp_char *buffer, mtp_int32 buf_len)
 	} else {
 		/* ignore other case */
 		ERR("MTP device phase[%d], unknown device PHASE\n",
-				_device_get_phase());
+				g_device->phase);
 		ERR("PhaseUnknown-> pData[0x%p], length=[%d]", buffer, buf_len);
 		_device_set_phase(DEVICE_PHASE_IDLE);
 		_transport_set_mtp_operation_state(MTP_STATE_ONSERVICE);
@@ -1530,7 +1538,7 @@ static void __finish_receiving_file_packets(mtp_char *data, mtp_int32 data_len)
 					g_mgr->ftemp_st.cmd_size)) {
 			_device_set_phase(DEVICE_PHASE_IDLE);
 			ERR("DATA PROCESS, device phase[%d], invalid Command\
-					block\n", _device_get_phase());
+					block\n", g_device->phase);
 			return;
 		}
 	}
@@ -1548,7 +1556,7 @@ static void __finish_receiving_file_packets(mtp_char *data, mtp_int32 data_len)
 	UTIL_UNLOCK_MUTEX(&g_cmd_inoti_mutex);
 
 	DBG("MTP device phase[%d], processing Command is complete\n",
-			_device_get_phase());
+			g_device->phase);
 
 	return;
 }
