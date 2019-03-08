@@ -89,8 +89,6 @@ mtp_bool _util_ifind_next(char *dir_name, DIR *dirp, dir_entry_t *dir_info);
 mtp_bool _util_ifind_first(char *dir_name, DIR **dirp, dir_entry_t *dir_info);
 mtp_bool _util_is_file_opened(const mtp_char *fullpath);
 mtp_bool _util_get_filesystem_info(mtp_char *storepath, fs_info_t *fs_info);
-void _util_fill_guid_array(void *guidarray, mtp_uint32 start_index, FILE* fhandle,
-		mtp_uint32 size);
 void FLOGD(const char *fmt, ...);
 
 #ifdef __cplusplus
