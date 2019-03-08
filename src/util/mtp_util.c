@@ -84,29 +84,4 @@ void _util_get_external_path(char *external_path)
 	external_path[sizeof(MTP_EXTERNAL_PATH_CHAR) - 1] = 0;
 }
 
-int _util_wait_for_user()
-{
-	__attribute__((cleanup(sd_login_monitor_unrefp))) sd_login_monitor *monitor = NULL;
-	int ret;
-	struct pollfd fds;
-
-	ret = sd_login_monitor_new("uid", &monitor);
-	if (ret < 0) {
-		char buf[256] = {0,};
-		strerror_r(-ret, buf, sizeof(buf));
-		ERR("Failed to allocate login monitor object: [%d]:[%s]", ret, buf);
-		return ret;
-	}
-
-	fds.fd = sd_login_monitor_get_fd(monitor);
-	fds.events = sd_login_monitor_get_events(monitor);
-
-	ret = poll(&fds, 1, WAIT_FOR_USER_TIMEOUT);
-	if (ret < 0) {
-		ERR("Error polling: %m");
-		return -1;
-	}
-
-	return 0;
-}
 /* LCOV_EXCL_STOP */
