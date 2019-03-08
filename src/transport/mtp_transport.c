@@ -133,10 +133,8 @@ mtp_err_t _transport_rcv_temp_file_info(mtp_byte *buf, char *filepath,
 	g_mtp_mgr.ftemp_st.data_size = 0;
 	g_mtp_mgr.ftemp_st.data_count = 0;
 
-	if (g_mtp_mgr.ftemp_st.filepath != NULL) {
-		g_free(g_mtp_mgr.ftemp_st.filepath);
-		g_mtp_mgr.ftemp_st.filepath = NULL;
-	}
+	g_free(g_mtp_mgr.ftemp_st.filepath);
+	g_mtp_mgr.ftemp_st.filepath = NULL;
 
 	g_mtp_mgr.ftemp_st.fhandle = NULL;
 	g_mtp_mgr.ftemp_st.file_size = 0;

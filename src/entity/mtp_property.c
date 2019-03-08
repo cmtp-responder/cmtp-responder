@@ -1241,10 +1241,8 @@ void _prop_destroy_obj_propval(obj_prop_val_t *pval)
 		pval->current_val.array = NULL;
 	}
 
-	if (pval != NULL) {
-		g_free(pval);
-		pval = NULL;
-	}
+	g_free(pval);
+	pval = NULL;
 }
 /* LCOV_EXCL_STOP */
 

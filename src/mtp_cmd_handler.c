@@ -1286,10 +1286,8 @@ static mtp_bool __receive_temp_file_first_packet(mtp_char *data,
 
 		g_snprintf(filename, MTP_MAX_FILENAME_SIZE, "%s%s%s", "/tmp/.mtptemp", buff, ".tmp");
 
-		if (t->filepath != NULL) {
-			g_free(t->filepath);
-			t->filepath = NULL;
-		}
+		g_free(t->filepath);
+		t->filepath = NULL;
 
 		t->filepath = g_strdup(filename);
 	}

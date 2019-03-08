@@ -393,10 +393,8 @@ void _mtp_deinit(void)
 	_cmd_hdlr_reset_cmd(&g_mgr->hdlr);
 
 	/* initialize MTP_USE_FILE_BUFFER*/
-	if (g_mgr->ftemp_st.temp_buff != NULL) {
-		g_free(g_mgr->ftemp_st.temp_buff);
-		g_mgr->ftemp_st.temp_buff = NULL;
-	}
+	g_free(g_mgr->ftemp_st.temp_buff);
+	g_mgr->ftemp_st.temp_buff = NULL;
 
 #ifdef MTP_SUPPORT_OBJECTADDDELETE_EVENT
 	_inoti_deinit_filesystem_events();
