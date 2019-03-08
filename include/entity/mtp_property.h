@@ -27,18 +27,9 @@ extern "C" {
 #include "mtp_list.h"
 #include "mtp_object.h"
 
-#define MAX_SIZE_IN_BYTES_OF_PROP_VALUE		16000
 #define ELEMENT_NOT_FOUND			-1
 #define INITIAL_ARRAY_SIZE			100
-#define NUM_OBJECT_PROP_DESC			38
 #define NUM_OBJECT_PROP_DESC_DEFAULT		13
-#define NUM_OBJECT_PROP_DESC_MP3		14
-#define NUM_OBJECT_PROP_DESC_WMA		14
-#define MTP_HEAP_CAL_INTERVAL			100
-
-#define NUM_OBJECT_PROP_DESC_WMV		22
-
-#define NUM_OBJECT_PROP_DESC_ALBUM		2
 
 typedef struct _interdep_prop_config {
 	mtp_uint32 format_code;

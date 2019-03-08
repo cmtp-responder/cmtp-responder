@@ -27,16 +27,9 @@ extern "C" {
 #include "mtp_datatype.h"
 #include "mtp_fs.h"
 
-#define ACTIVE_USER	0
 #define MODEL "DUMMY_MODEL"
 #define DEVICE_VERSION "devv_DUMMY_VERSION"
 #define SERIAL "DUMMY_SERIAL"
-#define FIND_CMD_LEN				300
-#define FIND_CMD	"/usr/bin/find %s \\( -iname '*.jpg' -o -iname '*.gif' " \
-	"-o -iname '*.exif' -o -iname '*.png' " \
-	"-o -iname '*.mpeg' -o -iname '*.asf' " \
-	"-o -iname '*.wmv' -o -iname '*.avi' -o -iname '*.wma' " \
-	"-o -iname '*.mp3' \\) -mmin -%d >> %s"
 
 #define DBG(format, args...) FLOGD(format, ##args)
 #define ERR(format, args...) FLOGD(format, ##args)

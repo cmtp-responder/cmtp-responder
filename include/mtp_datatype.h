@@ -20,11 +20,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#ifndef _MTP_USE_OWNTYPES
-#define _MTP_USE_OWNTYPES
-#endif
-#ifdef _MTP_USE_OWNTYPES
-
 typedef unsigned char mtp_byte;
 typedef unsigned char mtp_bool;
 typedef unsigned char mtp_uchar;
@@ -44,8 +39,6 @@ typedef unsigned long mtp_dword ;
 
 typedef unsigned long long  mtp_uint64;
 typedef long long mtp_int64;
-
-#endif
 
 #ifndef FALSE
 #define FALSE  0

@@ -73,23 +73,11 @@
 #define MTP_MAX_REG_STRING		128
 
 #define MTP_SERIAL_LEN_MAX		32
-#define MD5_HASH_LEN			16
-#define MTP_MODEL_NAME_LEN_MAX		32
 
 /*
  *  User defined Configureations
  */
 #define MTP_SUPPORT_OMADRM_EXTENSION
-
-/* Image Height/Width */
-#define MTP_MAX_IMG_WIDTH		32672
-#define MTP_MAX_IMG_HEIGHT		32672
-
-#define MTP_MAX_VIDEO_WIDTH		1920
-#define MTP_MAX_VIDEO_HEIGHT		1080
-
-#define MTP_MIN_VIDEO_WIDTH		0
-#define MTP_MIN_VIDEO_HEIGHT		0
 
 #define MTP_VENDOR_EXTENSIONDESC_CHAR	\
 	"microsoft.com:1.0;android.com:1.0; "

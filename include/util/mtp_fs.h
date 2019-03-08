@@ -25,7 +25,6 @@ extern "C" {
 #include "mtp_datatype.h"
 #include "mtp_config.h"
 
-#define LINUX_MAX_PATHNAME_LENGTH	4096
 #define MTP_FILE_ATTR_INVALID		0xFFFFFFFF
 #define MTP_LOG_FILE			"/var/log/mtp.log"
 #define MTP_LOG_MAX_SIZE		5 * 1024 * 1024 /*5MB*/

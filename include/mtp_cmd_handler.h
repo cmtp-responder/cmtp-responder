@@ -29,10 +29,6 @@ extern "C" {
 #include "ptp_container.h"
 #include "mtp_event_handler.h"
 
-#ifdef MTP_SUPPORT_PRINT_COMMAND
-#define MTP_MAX_CMD_LENGTH 40
-#endif /* MTP_SUPPORT_PRINT_COMMAND */
-
 /*
  * A structure for containing the object infomation. It is used for saving
  * information in between paired operations like send_obj_info

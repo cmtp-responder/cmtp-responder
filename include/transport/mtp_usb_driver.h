@@ -26,20 +26,6 @@ extern "C" {
 #include "mtp_datatype.h"
 #include "mtp_msgq.h"
 
-/* These values come from f_mtp_slp.h of kernel source */
-#define MTP_IOCTL_LETTER		'Z'
-#define MTP_GET_HIGH_FULL_SPEED		_IOR(MTP_IOCTL_LETTER, 1, int)
-#define MTP_DISABLE			_IO(MTP_IOCTL_LETTER, 2)
-#define MTP_CLEAR_HALT			_IO(MTP_IOCTL_LETTER, 3)
-#define MTP_WRITE_INT_DATA		_IOW(MTP_IOCTL_LETTER, 4, char *)
-#define MTP_SET_USER_PID		_IOW(MTP_IOCTL_LETTER, 5, int)
-#define MTP_GET_SETUP_DATA		_IOR(MTP_IOCTL_LETTER, 6, char *)
-#define MTP_SET_SETUP_DATA		_IOW(MTP_IOCTL_LETTER, 7, char *)
-#define MTP_SEND_RESET_ACK		_IO(MTP_IOCTL_LETTER, 8)
-#define MTP_SET_ZLP_DATA		_IO(MTP_IOCTL_LETTER, 9)
-#define MTP_GET_MAX_PKT_SIZE		_IOR(MTP_IOCTL_LETTER, 22, void *)
-
-#define SIG_SETUP			44
 /* End of driver related defines */
 
 typedef struct mtp_max_pkt_size {
