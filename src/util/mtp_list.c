@@ -38,10 +38,7 @@ mtp_bool _util_add_node(slist_t *l_ptr, void *data)
 	slist_node_t *node = NULL;
 
 	node = (slist_node_t *)g_malloc(sizeof(slist_node_t));
-	if (node == NULL) {
-		ERR("g_malloc() Fail");	//	LCOV_EXCL_LINE
-		return FALSE;	//	LCOV_EXCL_LINE
-	}
+	retvm_if(!node, FALSE, "g_malloc() Fail");
 
 	node->value = data;
 	node->link = NULL;
@@ -75,10 +72,7 @@ slist_node_t* _util_delete_node(slist_t *l_ptr, void *data)
 		nptr = nptr->link;
 	}
 
-	if (nptr->link == NULL) {
-		ERR("Node not found in the list");
-		return NULL;
-	}
+	retvm_if(!nptr->link, NULL, "Node not found in the list");
 
 	temp = nptr->link;
 	nptr->link = nptr->link->link;
@@ -113,10 +107,7 @@ slist_iterator* _util_init_list_iterator(slist_t *l_ptr)
 	retv_if(l_ptr->start == NULL, NULL);
 
 	temp = (slist_iterator *)g_malloc(sizeof(slist_iterator));
-	if (temp == NULL) {
-		ERR("g_malloc() Fail");	//	LCOV_EXCL_LINE
-		return NULL;	//	LCOV_EXCL_LINE
-	}
+	retvm_if(!temp, NULL, "g_malloc() Fail");
 
 	temp->node_ptr = l_ptr->start;
 	return temp;

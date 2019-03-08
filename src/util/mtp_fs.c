@@ -141,10 +141,7 @@ mtp_bool _util_file_seek(FILE* handle, off_t offset, mtp_int32 whence)
 	mtp_int64 ret_val = 0;
 
 	ret_val = fseek(handle, offset, whence);
-	if (ret_val < 0) {
-		ERR(" _util_file_seek error errno [%d]\n", errno);
-		return FALSE;
-	}
+	retvm_if(ret_val < 0, FALSE, " _util_file_seek error errno [%d]\n", errno);
 
 	return TRUE;
 }
@@ -506,10 +503,8 @@ mtp_bool _util_get_file_attrs(const mtp_char *filename, file_attr_t *attrs)
 {
 	struct stat fileinfo = { 0 };
 
-	if (stat(filename, &fileinfo) < 0) {
-		ERR_SECURE("%s : stat Fail errno [%d]\n", filename, errno);
-		return FALSE;
-	}
+	retvm_if(stat(filename, &fileinfo) < 0, FALSE,
+		"%s : stat Fail errno [%d]\n", filename, errno);
 
 	memset(attrs, 0, sizeof(file_attr_t));
 	attrs->fsize = (mtp_uint64)fileinfo.st_size;
@@ -692,10 +687,7 @@ mtp_bool _util_get_filesystem_info(mtp_char *storepath,
 		mtp_uint64 capacity = 0;
 		mtp_uint64 used_size = 0;
 
-		if (statfs(storepath, &buf) != 0) {
-			ERR("statfs is failed\n");
-			return FALSE;
-		}
+		retvm_if(statfs(storepath, &buf) != 0, FALSE, "statfs is failed\n");
 
 		capacity = used_size = avail_size = (mtp_uint64)buf.f_bsize;
 		DBG("Block size : %lu\n", (unsigned long)buf.f_bsize);

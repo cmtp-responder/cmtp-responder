@@ -68,10 +68,8 @@ mtp_bool _util_msgq_receive(msgq_id_t mq_id, void *buf, mtp_uint32 size,
 
 mtp_bool _util_msgq_deinit(msgq_id_t *msgq_id)
 {
-	if (-1 == msgctl(*msgq_id, IPC_RMID, 0)) {
-		ERR("msgctl(IPC_RMID) Fail");
-		return FALSE;
-	}
+	retvm_if(msgctl(*msgq_id, IPC_RMID, 0) == -1, FALSE, "msgctl(IPC_RMID) Fail");
+
 	return TRUE;
 }
 
@@ -80,18 +78,13 @@ mtp_bool _util_msgq_set_size(msgq_id_t mq_id, mtp_uint32 nbytes)
 	struct msqid_ds attr;
 
 	/* Getting the attributes of Message Queue */
-	if (msgctl(mq_id, MSG_STAT, &attr) == -1) {
-		ERR("msgctl(MSG_STAT) Fail");
-		return FALSE;
-	}
+	retvm_if(msgctl(mq_id, MSG_STAT, &attr) == -1, FALSE, "msgctl(MSG_STAT) Fail");
 
 	attr.msg_qbytes = nbytes;
 
 	/* Setting the message queue size */
-	if (msgctl(mq_id, IPC_SET, &attr) == -1) {
-		ERR("msgctl(IPC_SET) Fail");
-		return FALSE;
-	}
+	retvm_if(msgctl(mq_id, IPC_SET, &attr) == -1, FALSE, "msgctl(IPC_SET) Fail");
+
 	return TRUE;
 }
 
@@ -110,11 +103,9 @@ mtp_bool _util_rcv_msg_from_mq(msgq_id_t mq_id, unsigned char **pkt,
 	msgq_ptr_t msg = { 0 };
 	mtp_int32 nbytes = 0;
 
-	if (FALSE == _util_msgq_receive(mq_id, (void *)&msg,
-				sizeof(msgq_ptr_t) - sizeof(long), 0, &nbytes)) {
-		ERR("_util_msgq_receive() Fail : mq_id = [%d]", mq_id);
-		return FALSE;
-	}
+	retvm_if(!_util_msgq_receive(mq_id, (void *)&msg,
+		sizeof(msgq_ptr_t) - sizeof(long), 0, &nbytes), FALSE,
+		"_util_msgq_receive() Fail : mq_id = [%d]", mq_id);
 
 	*pkt_len = msg.length;
 	*pkt = msg.buffer;

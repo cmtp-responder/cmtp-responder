@@ -407,10 +407,7 @@ mtp_bool _util_get_file_name_wo_extn(const mtp_char *fullpath, mtp_char *f_name)
 
 	fname_ptr = strrchr(fullpath, '/');
 
-	if (fname_ptr == NULL) {
-		ERR("Invalid File Name");
-		return FALSE;
-	}
+	retvm_if(!fname_ptr, FALSE, "Invalid File Name");
 
 	fname_ptr = fname_ptr + sizeof(char);
 	fname_len = strlen(fname_ptr);
@@ -464,10 +461,8 @@ mtp_bool _util_is_path_len_valid(const mtp_char *path)
 	/* MTP_MAX_PATHNAME_SIZE includes maximum length of root path */
 	limit = MTP_MAX_PATHNAME_SIZE - max_store_len;
 
-	if (mtp_path_len > limit) {
-		ERR("Too long path : [%u] > [%u]\n", mtp_path_len, limit);
-		return FALSE;
-	}
+	retvm_if(mtp_path_len > limit, FALSE,
+		"Too long path : [%u] > [%u]\n", mtp_path_len, limit);
 
 	return TRUE;
 }
@@ -483,23 +478,13 @@ mtp_bool _util_create_path(mtp_char *path, mtp_uint32 size, const mtp_char *dir,
 	retv_if(filename == NULL, FALSE);
 
 	len = strlen(filename);
-	if (len > MTP_MAX_FILENAME_SIZE) {
-	/* LCOV_EXCL_START */
-		ERR("filename is too long :[%u] > [%u]\n", len,
-				MTP_MAX_FILENAME_SIZE);
-		return FALSE;
-	}
+	retvm_if(len > MTP_MAX_FILENAME_SIZE, FALSE,
+		"filename is too long :[%u] > [%u]\n", len, MTP_MAX_FILENAME_SIZE);
 
 	ret = g_snprintf(path, size, "%s/%s", dir, filename);
-	if (ret > size) {
-		ERR("path is truncated");
-		return FALSE;
-	}
+	retvm_if(ret > size, FALSE, "path is truncated");
 
-	if (_util_is_path_len_valid(path) == FALSE) {
-		ERR("path length exceeds the limit");
-		return FALSE;
-	}
+	retvm_if(!_util_is_path_len_valid(path), FALSE, "path length exceeds the limit");
 
 	return TRUE;
 }
@@ -518,10 +503,7 @@ void _util_get_parent_path(const mtp_char *fullpath, mtp_char *p_path)
 	ret_if(NULL == fullpath);
 
 	ptr = strrchr(fullpath, '/');
-	if (!ptr) {
-		ERR("Path does not have parent path");
-		return;
-	}
+	retm_if(!ptr, "Path does not have parent path");
 
 	g_strlcpy(p_path, fullpath, (mtp_uint32)(ptr - fullpath) + 1);
 }
@@ -571,10 +553,7 @@ mtp_bool _util_get_unique_dir_path(const mtp_char *exist_path,
 
 	/* Excluding '_' */
 	num_bytes = new_path_buf_len - len - 1;
-	if (num_bytes <= 0) {
-		ERR("No space to append data[%d]\n", num_bytes);
-		return FALSE;
-	}
+	retvm_if(num_bytes <= 0, FALSE, "No space to append data[%d]\n", num_bytes);
 
 	if (num_bytes >= MTP_BUF_SIZE_FOR_INT - 1) {
 		max_value = UINT_MAX;
@@ -587,10 +566,8 @@ mtp_bool _util_get_unique_dir_path(const mtp_char *exist_path,
 	}
 
 	buf = (mtp_char *)g_malloc(new_path_buf_len);
-	if (buf == NULL) {
-		ERR("g_malloc Fail");
-		return FALSE;
-	}
+	retvm_if(!buf, FALSE, "g_malloc Fail");
+
 	g_strlcpy(buf, exist_path, new_path_buf_len);
 	while (val < max_value) {
 		/* Including NUL and '_' */
