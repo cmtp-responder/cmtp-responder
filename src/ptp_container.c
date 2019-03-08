@@ -110,11 +110,8 @@ mtp_bool _hdlr_validate_cmd_container(mtp_uchar *blk, mtp_uint32 size)
 
 	ptr = (cmd_container_t *)blk;
 
-	if (ptr->len != size || ptr->type != CONTAINER_CMD_BLK) {
-		ERR("size = [%d] length[%d] type[%d]\n", size, ptr->len,
-				ptr->type);
-		return FALSE;
-	}
+	retvm_if(ptr->len != size || ptr->type != CONTAINER_CMD_BLK, FALSE, 
+		"size = [%d] length[%d] type[%d]\n", size, ptr->len, ptr->type);
 
 	return TRUE;
 	/* LCOV_EXCL_STOP */
@@ -145,10 +142,7 @@ mtp_uchar *_hdlr_alloc_buf_data_container(data_container_t *dst,
 
 	blk_len = bufsz + sizeof(header_container_t);
 	dst->data = (mtp_uchar *)g_malloc(blk_len);
-	if (dst->data == NULL) {
-		ERR("g_malloc() Fail");
-		return NULL;
-	}
+	retvm_if(!dst->data, NULL, "g_malloc() Fail");
 
 	memset(dst->data, 0, blk_len);
 	dst->len = bufsz + sizeof(header_container_t);
@@ -339,11 +333,8 @@ mtp_bool _hdlr_send_resp_container(cmd_container_t *dst)
 
 	sent = _transport_send_pkt_to_tx_mq((mtp_uchar *)dst, dst->len);
 #endif
-	if (sent != dst->len) {
-		ERR("_transport_send_pkt_to_tx_mq() Fail: dst->len(%u), sent(%u)",
-			dst->len, sent);
-		return FALSE;
-	}
+	retvm_if(sent != dst->len, FALSE,
+		"_transport_send_pkt_to_tx_mq() Fail: dst->len(%u), sent(%u)", dst->len, sent);
 
 	return TRUE;
 }

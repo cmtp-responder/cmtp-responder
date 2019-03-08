@@ -55,10 +55,7 @@ static mtp_mgr_t *g_mgr = &g_mtp_mgr;
 /* LCOV_EXCL_START */
 static void __print_mtp_conf(void)
 {
-	if (g_conf.is_init == false) {
-		ERR("g_conf is not initialized");
-		return;
-	}
+	retm_if(g_conf.is_init == false, "g_conf is not initialized");
 
 	DBG("MMAP_THRESHOLD : %d\n", g_conf.mmap_threshold);
 	DBG("INIT_RX_IPC_SIZE : %d\n", g_conf.init_rx_ipc_size);
@@ -428,16 +425,11 @@ static inline int _main_init()
 	}
 	pthread_mutexattr_destroy(&mutex_attr);
 
-	if (_eh_handle_usb_events(USB_INSERTED) == FALSE) {
-		ERR("_eh_handle_usb_events() Fail");
-		return MTP_ERROR_GENERAL;
-	}
+	retvm_if(!_eh_handle_usb_events(USB_INSERTED), MTP_ERROR_GENERAL,
+		"_eh_handle_usb_events() Fail");
 
 	g_mainloop = g_main_loop_new(NULL, FALSE);
-	if (g_mainloop == NULL) {
-		ERR("g_mainloop is NULL");
-		return MTP_ERROR_GENERAL;
-	}
+	retvm_if(!g_mainloop, MTP_ERROR_GENERAL, "g_mainloop is NULL");
 
 	return MTP_ERROR_NONE;
 }
@@ -454,10 +446,8 @@ int main(int argc, char *argv[])
 			_util_get_local_usbmode_status(), MTP_PHONE_LOCK_OFF);
 
 	ret = _main_init();
-	if (MTP_ERROR_NONE != ret) {
-		ERR("_main_init() Fail(%d)", ret);
-		return MTP_ERROR_GENERAL;
-	}
+	retvm_if(MTP_ERROR_NONE != ret, MTP_ERROR_GENERAL, "_main_init() Fail(%d)", ret);
+
 	DBG("MTP UID = [%u] and GID = [%u]\n", getuid(), getgid());
 
 	g_main_loop_run(g_mainloop);

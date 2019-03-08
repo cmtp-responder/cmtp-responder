@@ -164,11 +164,9 @@ static mtp_bool __send_start_event_to_eh_thread(void)
 	DBG("Action : START MTP OPERATION");
 
 	status = write(g_pipefd[1], &event, sizeof(mtp_event_t));
-	if (status == -1 || errno == EINTR) {
-		ERR("Event write over pipe Fail, status= [%d],pipefd = [%d], errno [%d]\n",
-				status, g_pipefd[1], errno);
-		return FALSE;
-	}
+	retvm_if(status == -1 || errno == EINTR, FALSE,
+		"Event write over pipe Fail, status= [%d],pipefd = [%d], errno [%d]\n",
+		status, g_pipefd[1], errno);
 
 	return TRUE;
 }
@@ -205,10 +203,7 @@ mtp_bool _eh_handle_usb_events(mtp_uint32 type)
 
 	switch (type) {
 	case USB_INSERTED:
-		if (is_usb_inserted == 1) {
-			ERR("USB is already connected");
-			return TRUE;
-		}
+		retvm_if(is_usb_inserted == 1, TRUE, "USB is already connected");
 
 		/* check USB connection state */
 		is_usb_inserted = 1;
@@ -231,20 +226,14 @@ mtp_bool _eh_handle_usb_events(mtp_uint32 type)
 		res = _util_thread_create(&g_eh_thrd,
 				"Mtp Event Request Handler", PTHREAD_CREATE_JOINABLE,
 				__thread_event_handler, NULL);
-		if (FALSE == res) {
-			ERR("_util_thread_create() Fail");
-			return FALSE;
-		}
+		retvm_if(!res, FALSE, "_util_thread_create() Fail");
 
 		__send_start_event_to_eh_thread();
 
 		break;
 
 	case USB_REMOVED:
-		if (is_usb_removed == 1) {
-			ERR("USB is already removed");
-			return TRUE;
-		}
+		retvm_if(is_usb_removed == 1, TRUE, "USB is already removed");
 
 		is_usb_removed = 1;
 		DBG("USB is disconnected");
