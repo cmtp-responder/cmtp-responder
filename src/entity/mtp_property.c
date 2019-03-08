@@ -195,10 +195,7 @@ mtp_uint32 _prop_get_size_ptparray(ptp_array_t *parray)
 {
 	mtp_uint16 size = 0;
 
-	if (parray == NULL) {
-		ERR("ptp_array_t is NULL");
-		return 0;
-	}
+	retvm_if(!parray, 0, "ptp_array_t is NULL");
 
 	size = __get_ptp_array_elem_size(parray->type);
 	if (size == 0)
@@ -357,12 +354,9 @@ mtp_bool _prop_copy_ptparray(ptp_array_t *dst, ptp_array_t *src)
 mtp_uint32 _prop_pack_ptparray(ptp_array_t *parray, mtp_uchar *buf,
 		mtp_uint32 bufsize)
 {
-	if (parray == NULL || buf == NULL) {
-		ERR("pArray or buf is NULL");
-		return 0;
-	}
-
 	mtp_uint16 size = 1;
+
+	retvm_if(!parray || !buf, 0, "pArray or buf is NULL");
 
 	size = __get_ptp_array_elem_size(parray->type);
 	if (size == 0)
@@ -968,12 +962,8 @@ mtp_bool _prop_set_current_array_val(obj_prop_val_t *pval, mtp_uchar *arr,
 		memcpy(&num_ele, arr, sizeof(mtp_uint32));
 		DBG("parsed array num [%d]\n", num_ele);
 
-		if (size < sizeof(mtp_uint32) +
-				num_ele * (propinfo->dts_size)) {
-
-			ERR("buffer size is not enough [%d]\n", size);
-			return FALSE;
-		}
+		retvm_if(size < sizeof(mtp_uint32) + num_ele * (propinfo->dts_size),
+			FALSE, "buffer size is not enough [%d]\n", size);
 
 		value = arr + sizeof(mtp_uint32);
 
@@ -1903,10 +1893,7 @@ mtp_bool _prop_build_supp_props_default(void)
 	mtp_uchar i = 0;
 	mtp_uint32 default_val;
 
-	if (initialized == TRUE) {
-		DBG("already supported list is in there. just return!!");
-		return TRUE;
-	}
+	retvm_if(initialized, TRUE, "already supported list is in there. just return!!");
 
 	/*
 	 * MTP_OBJ_PROPERTYCODE_STORAGEID (1)

@@ -37,10 +37,8 @@ mtp_bool _entity_get_file_times(mtp_obj_t *obj, ptp_time_string_t *create_tm,
 	system_time_t local_time = {0};
 	struct tm new_time = {0};
 
-	if (FALSE == _util_get_file_attrs(obj->file_path, &attrs)) {
-		ERR("_util_get_file_attrs Fail");
-		return FALSE;
-	}
+	retvm_if(!_util_get_file_attrs(obj->file_path, &attrs), FALSE,
+		"_util_get_file_attrs Fail");
 
 	if (NULL != localtime_r((time_t*)&attrs.ctime, &new_time)) {
 		local_time.year = new_time.tm_year + 1900;
@@ -83,10 +81,7 @@ obj_info_t *_entity_alloc_object_info(void)
 	obj_info_t *info = NULL;
 
 	info = (obj_info_t *)g_malloc(sizeof(obj_info_t));
-	if (NULL == info) {
-		ERR("Memory allocation Fail");
-		return NULL;
-	}
+	retvm_if(!info, NULL, "Memory allocation Fail");
 
 	_entity_init_object_info(info);
 
@@ -112,10 +107,7 @@ mtp_uint32 _entity_get_object_info_size(mtp_obj_t *obj, ptp_string_t *file_name)
 	retv_if(obj == NULL, 0);
 
 	ret = _entity_get_file_times(obj, &create_time_str, &modify_time_str);
-	if (FALSE == ret) {
-		ERR("_entity_get_file_times() Fail");
-		return 0;
-	}
+	retvm_if(!ret, 0, "_entity_get_file_times() Fail");
 
 	_prop_copy_char_to_ptpstring(&keywords, (mtp_wchar *)"", WCHAR_TYPE);
 
@@ -140,10 +132,8 @@ void _entity_init_object_info_params(obj_info_t *info, mtp_uint32 store_id,
 
 	_util_get_file_extn(file_name, extn);
 
-	if (dir->attrs.attribute == MTP_FILE_ATTR_INVALID) {
-		ERR("File attribute invalid");
-		return;
-	}
+	retm_if(dir->attrs.attribute == MTP_FILE_ATTR_INVALID, "File attribute invalid");
+
 #ifndef MTP_SUPPORT_SET_PROTECTION
 	info->protcn_status = PTP_PROTECTIONSTATUS_NOPROTECTION;
 #else /* MTP_SUPPORT_SET_PROTECTION */
@@ -266,17 +256,12 @@ mtp_uint32 _entity_pack_obj_info(mtp_obj_t *obj, ptp_string_t *file_name,
 	retv_if(obj == NULL, 0);
 
 	ret = _entity_get_file_times(obj, &create_time_str, &modify_time_str);
-	if (FALSE == ret) {
-		ERR("_entity_get_file_times() Fail");
-		return 0;
-	}
+	retvm_if(!ret, 0, "_entity_get_file_times() Fail");
 
 	_prop_copy_char_to_ptpstring(&keywords, (mtp_wchar *)"", WCHAR_TYPE);
 
-	if (buf_sz < _entity_get_object_info_size(obj, file_name)) {
-		ERR("Buffer size is less than object info size");
-		return 0;
-	}
+	retvm_if(buf_sz < _entity_get_object_info_size(obj, file_name), 0,
+		"Buffer size is less than object info size");
 
 	/* As per Spec ObjectCompressedSize field in ObjectInfo dataset is
 	 * 4 bytes. In case file size greater than 4Gb, value 0xFFFFFFFF is sent
@@ -467,21 +452,14 @@ mtp_bool _entity_check_child_obj_path(mtp_obj_t *obj,
 
 	retv_if(obj == NULL, FALSE);
 
-	if (strlen(dest_path) > MTP_MAX_PATHNAME_SIZE - 1) {
-		ERR("dest_path is too long[%zu]\n", strlen(dest_path));
-		return FALSE;
-	}
+	retvm_if(strlen(dest_path) > MTP_MAX_PATHNAME_SIZE - 1, FALSE,
+		"dest_path is too long[%zu]\n", strlen(dest_path));
 
-	if (strlen(src_path) > MTP_MAX_PATHNAME_SIZE - 1) {
-		ERR("src_path is too long[%zu]\n", strlen(src_path));
-		return FALSE;
-	}
+	retvm_if(strlen(src_path) > MTP_MAX_PATHNAME_SIZE - 1, FALSE,
+		"src_path is too long[%zu]\n", strlen(src_path));
 
 	src_store = _device_get_store_containing_obj(obj->obj_handle);
-	if (NULL == src_store) {
-		ERR("Object not present in store");
-		return FALSE;
-	}
+	retvm_if(!src_store, FALSE, "Object not present in store");
 
 	_prop_init_ptparray(&child_arr, UINT32_TYPE);
 	_entity_get_child_handles(src_store, obj->obj_handle, &child_arr);
@@ -575,10 +553,7 @@ mtp_bool _entity_set_child_object_path(mtp_obj_t *obj, mtp_char *src_path,
 	retv_if(NULL == dest_path, FALSE);
 
 	src_store = _device_get_store_containing_obj(obj->obj_handle);
-	if (NULL == src_store) {
-		ERR("Object not present in store");
-		return FALSE;
-	}
+	retvm_if(!src_store, FALSE, "Object not present in store");
 
 	_prop_init_ptparray(&child_arr, UINT32_TYPE);
 	_entity_get_child_handles(src_store, obj->obj_handle, &child_arr);
@@ -682,10 +657,8 @@ void _entity_copy_mtp_object(mtp_obj_t *dst, mtp_obj_t *src)
 {
 	/*Copy same information*/
 	dst->obj_info = _entity_alloc_object_info();
-	if (dst->obj_info == NULL) {
-		ERR("Object info allocation Fail.");
-		return;
-	}
+	retm_if(!dst->obj_info, "Object info allocation Fail.");
+
 	_entity_copy_obj_info(dst->obj_info, src->obj_info);
 	dst->obj_handle = 0;
 	dst->file_path = NULL;

@@ -74,10 +74,8 @@ void _entity_update_store_info_run_time(store_info_t *info,
 	ret_if(info == NULL);
 	ret_if(root_path == NULL);
 
-	if (FALSE == _util_get_filesystem_info(root_path, &fs_info)) {
-		ERR("_util_get_filesystem_info fail [%s]\n", root_path);
-		return;
-	}
+	retm_if(!_util_get_filesystem_info(root_path, &fs_info),
+		"_util_get_filesystem_info fail [%s]\n", root_path);
 
 	info->capacity = fs_info.disk_size;
 	info->free_space = fs_info.avail_size;
@@ -101,10 +99,9 @@ mtp_uint32 _entity_pack_store_info(store_info_t *info, mtp_uchar *buf,
 
 	retv_if(buf == NULL, 0);
 
-	if (buf_sz < _entity_get_store_info_size(info)) {
-		ERR("Buffer size is less [%u]\n", buf_sz);
-		return 0;
-	}
+	retvm_if(buf_sz < _entity_get_store_info_size(info), 0,
+		"Buffer size is less [%u]\n", buf_sz);
+
 #ifdef __BIG_ENDIAN__
 	memcpy(&(buf[num_bytes]), &(info->store_type),
 			sizeof(info->StorageType));
@@ -221,10 +218,7 @@ mtp_obj_t *_entity_add_file_to_store(mtp_store_t *store, mtp_uint32 h_parent,
 	retv_if(NULL == store, NULL);
 
 	obj = _entity_alloc_mtp_object();
-	if (NULL == obj) {
-		ERR("Memory allocation Fail");
-		return NULL;
-	}
+	retvm_if(!obj, NULL, "Memory allocation Fail");
 
 	if (_entity_init_mtp_object_params(obj, store->store_id, h_parent,
 				file_path, file_name, file_info) == FALSE) {
@@ -247,10 +241,7 @@ mtp_obj_t *_entity_add_folder_to_store(mtp_store_t *store, mtp_uint32 h_parent,
 	retv_if(NULL == store, NULL);
 
 	obj = _entity_alloc_mtp_object();
-	if (NULL == obj) {
-		ERR("Memory allocation Fail");
-		return NULL;
-	}
+	retvm_if(!obj, NULL, "Memory allocation Fail");
 
 	if (_entity_init_mtp_object_params(obj, store->store_id, h_parent,
 				file_path, file_name, file_info) == FALSE) {
@@ -274,10 +265,8 @@ mtp_bool _entity_add_object_to_store(mtp_store_t *store, mtp_obj_t *obj)
 	retv_if(NULL == store, FALSE);
 	retv_if(obj->obj_info == NULL, FALSE);
 
-	if (_util_add_node(&(store->obj_list), obj) == FALSE) {
-		ERR("Node add to list Fail");
-		return FALSE;
-	}
+	retvm_if(!_util_add_node(&(store->obj_list), obj), FALSE,
+		"Node add to list Fail");
 
 	/* references */
 	if (PTP_OBJECTHANDLE_ROOT != obj->obj_info->h_parent) {
@@ -297,10 +286,7 @@ mtp_obj_t *_entity_get_object_from_store(mtp_store_t *store, mtp_uint32 handle)
 	retv_if(NULL == store, NULL);
 
 	iter = (slist_iterator *)_util_init_list_iterator(&(store->obj_list));
-	if (iter == NULL) {
-		ERR("Iterator init Fail, Store id = [0x%x]\n", store->store_id);
-		return NULL;
-	}
+	retvm_if(!iter, NULL, "Iterator init Fail, Store id = [0x%x]\n", store->store_id);
 
 	while (UTIL_CHECK_LIST_NEXT(iter) == TRUE) {
 		obj = (mtp_obj_t *)_util_get_list_next(iter);
@@ -327,10 +313,7 @@ mtp_obj_t *_entity_get_last_object_from_store(mtp_store_t *store,
 	retv_if(NULL == store, NULL);
 
 	iter = (slist_iterator *)_util_init_list_iterator(&(store->obj_list));
-	if (iter == NULL) {
-		ERR("Iterator init Fail Store id = [0x%x]\n", store->store_id);
-		return NULL;
-	}
+	retvm_if(!iter, NULL, "Iterator init Fail Store id = [0x%x]\n", store->store_id);
 
 	while (UTIL_CHECK_LIST_NEXT(iter) == TRUE) {
 
@@ -352,10 +335,7 @@ mtp_obj_t *_entity_get_object_from_store_by_path(mtp_store_t *store,
 	retv_if(NULL == store, NULL);
 
 	iter = (slist_iterator *)_util_init_list_iterator(&(store->obj_list));
-	if (iter == NULL) {
-		ERR("Iterator init Fail Store id = [0x%x]\n", store->store_id);
-		return NULL;
-	}
+	retvm_if(!iter, NULL, "Iterator init Fail Store id = [0x%x]\n", store->store_id);
 
 	while (UTIL_CHECK_LIST_NEXT(iter) == TRUE) {
 		obj = (mtp_obj_t *)_util_get_list_next(iter);
@@ -388,16 +368,11 @@ mtp_uint32 _entity_get_objects_from_store(mtp_store_t *store,
 	retv_if(store == NULL, 0);
 	retv_if(obj_arr == NULL, 0);
 
-	if (obj_handle != PTP_OBJECTHANDLE_ALL) {
-		ERR("Object Handle is not PTP_OBJECTHANDLE_ALL");
-		return 0;
-	}
+	retvm_if(obj_handle != PTP_OBJECTHANDLE_ALL, 0, 
+		"Object Handle is not PTP_OBJECTHANDLE_ALL");
 
 	iter = (slist_iterator *)_util_init_list_iterator(&(store->obj_list));
-	if (iter == NULL) {
-		ERR("Iterator init Fail Store id = [0x%x]\n", store->store_id);
-		return 0;
-	}
+	retvm_if(!iter, 0, "Iterator init Fail Store id = [0x%x]\n", store->store_id);
 
 	while (UTIL_CHECK_LIST_NEXT(iter) == TRUE) {
 
@@ -475,10 +450,7 @@ mtp_uint32 _entity_get_objects_from_store_by_format(mtp_store_t *store,
 	retv_if(obj_arr == NULL, 0);
 
 	iter = (slist_iterator *)_util_init_list_iterator(&(store->obj_list));
-	if (iter == NULL) {
-		ERR("Iterator init Fail Store id = [0x%x]\n", store->store_id);
-		return 0;
-	}
+	retvm_if(!iter, 0, "Iterator init Fail Store id = [0x%x]\n", store->store_id);
 
 	while (UTIL_CHECK_LIST_NEXT(iter) == TRUE) {
 
@@ -512,16 +484,10 @@ mtp_uint32 _entity_get_child_handles(mtp_store_t *store, mtp_uint32 h_parent,
 
 	parent_obj = _entity_get_object_from_store(store, h_parent);
 
-	if (NULL == parent_obj) {
-		ERR("parent object is NULL");
-		return FALSE;
-	}
+	retvm_if(!parent_obj, FALSE, "parent object is NULL");
 
 	iter = (slist_iterator *)_util_init_list_iterator(&(store->obj_list));
-	if (iter == NULL) {
-		ERR("Iterator init Fail Store id = [0x%x]\n", store->store_id);
-		return 0;
-	}
+	retvm_if(!iter, 0, "Iterator init Fail Store id = [0x%x]\n", store->store_id);
 
 	while (UTIL_CHECK_LIST_NEXT(iter) == TRUE) {
 
@@ -547,10 +513,7 @@ mtp_uint32 _entity_get_child_handles_with_same_format(mtp_store_t *store,
 	retv_if(child_arr == NULL, 0);
 
 	iter = (slist_iterator *)_util_init_list_iterator(&(store->obj_list));
-	if (iter == NULL) {
-		ERR("Iterator init Fail Store id = [0x%x]\n", store->store_id);
-		return 0;
-	}
+	retvm_if(!iter, 0, "Iterator init Fail Store id = [0x%x]\n", store->store_id);
 
 	while (UTIL_CHECK_LIST_NEXT(iter) == TRUE) {
 
@@ -788,10 +751,8 @@ mtp_uint16 _entity_delete_obj_mtp_store(mtp_store_t *store,
 
 	retv_if(store == NULL, PTP_RESPONSE_GEN_ERROR);
 
-	if (PTP_STORAGEACCESS_R == store->store_info.access) {
-		ERR("Read only store");
-		return PTP_RESPONSE_STORE_READONLY;
-	}
+	retvm_if(PTP_STORAGEACCESS_R == store->store_info.access,
+		PTP_RESPONSE_STORE_READONLY, "Read only store");
 
 	if (PTP_OBJECTHANDLE_ALL == obj_handle) {
 		slist_node_t *node = NULL;
@@ -984,15 +945,10 @@ void _entity_store_recursive_enum_folder_objects(mtp_store_t *store,
 		h_parent = pobj->obj_handle;
 	}
 
-	if (folder_name == NULL || folder_name[0] != '/') {
-		ERR("foldername has no root slash!!");
-		return;
-	}
+	retm_if(folder_name == NULL || folder_name[0] != '/',
+		"foldername has no root slash!!");
 
-	if (FALSE == _util_ifind_first(folder_name, &h_dir, &entry)) {
-		DBG("No more files");
-		return;
-	}
+	retm_if(!_util_ifind_first(folder_name, &h_dir, &entry), "No more files");
 
 	do {
 		if (TRUE == g_status->is_usb_discon) {

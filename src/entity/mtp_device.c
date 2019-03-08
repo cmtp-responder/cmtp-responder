@@ -190,10 +190,8 @@ mtp_uint32 _pack_device_info(mtp_uchar *buf, mtp_uint32 buf_sz)
 
 	retv_if(NULL == buf, 0);
 
-	if (buf_sz < _get_device_info_size()) {
-		ERR("buffer size [%d] is less than device_info Size\n", buf_sz);
-		return 0;
-	}
+	retvm_if(buf_sz < _get_device_info_size(), 0,
+		"buffer size [%d] is less than device_info Size\n", buf_sz);
 
 	memcpy(ptr, &info->std_version, sizeof(info->std_version));
 #ifdef __BIG_ENDIAN__
@@ -337,30 +335,20 @@ static mtp_bool __add_store_to_device(void)
 	storage_path = (mtp_char *)sto_path;
 	store_id = MTP_EXTERNAL_STORE_ID;
 
-	if (FALSE == _util_get_file_attrs(storage_path, &attrs)) {
-		ERR("_util_get_file_attrs() Fail");
-		return FALSE;
-	}
+	retvm_if(!_util_get_file_attrs(storage_path, &attrs), FALSE,
+		"_util_get_file_attrs() Fail");
 
-	if (MTP_FILE_ATTR_INVALID == attrs.attribute ||
-			!(attrs.attribute & MTP_FILE_ATTR_MODE_DIR)) {
-		ERR("attribute [0x%x], dir[0x%x]\n",
-				attrs.attribute, MTP_FILE_ATTR_MODE_DIR);
-		ERR("Storage [%d]\n", store_id);
-		return FALSE;
-	}
+	retvm_if(MTP_FILE_ATTR_INVALID == attrs.attribute ||
+		!(attrs.attribute & MTP_FILE_ATTR_MODE_DIR), FALSE,
+		"attribute [0x%x], dir[0x%x]\nStorage [%d]\n",
+		attrs.attribute, MTP_FILE_ATTR_MODE_DIR, store_id);
 
+	retvm_if(g_device->num_stores + 1 > MAX_NUM_DEVICE_STORES, FALSE,
+		"reached to max [%d]\n", MAX_NUM_DEVICE_STORES);
 
-	if (g_device->num_stores + 1 > MAX_NUM_DEVICE_STORES) {
-		ERR("reached to max [%d]\n", MAX_NUM_DEVICE_STORES);
-		return FALSE;
-	}
-
-	if (FALSE == _entity_init_mtp_store(&(g_device->store_list[g_device->num_stores]),
-				store_id, storage_path)) {
-		ERR("_entity_init_mtp_store() Fail");
-		return FALSE;
-	}
+	retvm_if(!_entity_init_mtp_store(&(g_device->store_list[g_device->num_stores]),
+		store_id, storage_path), FALSE,
+		"_entity_init_mtp_store() Fail");
 
 	g_device->num_stores++;
 	g_device->is_mounted[0] = TRUE;
@@ -543,10 +531,7 @@ mtp_store_t *_device_get_store_containing_obj(mtp_uint32 obj_handle)
 
 mtp_store_t *_device_get_store_at_index(mtp_uint32 index)
 {
-	if (index >= g_device->num_stores) {
-		ERR("Index not valid");
-		return NULL;
-	}
+	retvm_if(index >= g_device->num_stores, NULL, "Index not valid");
 
 	return &(g_device->store_list[index]);
 }
