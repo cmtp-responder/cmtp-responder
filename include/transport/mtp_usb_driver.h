@@ -33,22 +33,6 @@ typedef struct mtp_max_pkt_size {
 	mtp_uint32 rx;
 } mtp_max_pkt_size_t;
 
-/* Transport driver interface */
-typedef struct mtp_usb_driver {
-	mtp_bool (*transport_init_usb_device)(void);
-	void (*transport_deinit_usb_device)(void);
-	void *(*transport_thread_usb_write)(void *arg);
-	void *(*transport_thread_usb_read)(void *arg);
-	void *(*transport_thread_usb_control)(void *arg);
-	mtp_int32 (*transport_mq_init)(msgq_id_t *rx_ipc, msgq_id_t *tx_ipc);
-	mtp_bool (*transport_mq_deinit)(msgq_id_t *rx_ipc, msgq_id_t *tx_ipc);
-	mtp_uint32 (*transport_get_usb_packet_len)(void);
-	mtp_uint32 (*get_tx_pkt_size)(void);
-	mtp_uint32 (*get_rx_pkt_size)(void);
-} mtp_usb_driver_t;
-
-extern const mtp_usb_driver_t mtp_usb_driver_ffs;
-
 /* Maximum repeat count for USB error recovery */
 #define MTP_USB_ERROR_MAX_RETRY		5
 
