@@ -1,0 +1,31 @@
+attrs :
+{
+    idVendor = 0x1D6B;
+    idProduct = 0x0100;
+};
+strings = (
+	{
+		lang = 0x409;
+		manufacturer = "Collabora";
+		product = "MTP Gadget";
+		serialnumber="000000001";
+	}
+);
+functions :
+{
+    ffs_mtp :
+    {
+        instance = "mtp";
+        type = "ffs";
+    };
+};
+configs = (
+    {
+        id = 1;
+        name = "c";
+        functions = (
+            {
+                name = "ffs.mtp";
+                function = "ffs_mtp";
+            } );
+    } );
