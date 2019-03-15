@@ -1,0 +1,15 @@
+[Unit]
+Description=Mount FunctionFS instance
+Requires=usb-gadget.service
+After=usb-gadget.service
+Before=ffs.socket
+
+[Mount]
+What=mtp
+Where=/run/ffs_mtp
+Type=functionfs
+Options=defaults
+TimeoutSec=5
+
+[Install]
+WantedBy=usb-gadget.target

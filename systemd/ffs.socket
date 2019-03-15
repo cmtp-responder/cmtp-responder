@@ -1,0 +1,14 @@
+[Unit]
+Description=USB function fs socket
+Requires=run-ffs_mtp.mount
+After=run-ffs_mtp.mount
+DefaultDependencies=no
+
+[Socket]
+ListenUSBFunction=/run/ffs_mtp
+Service=functionfs-daemon.service
+ExecStartPost=/bin/gt enable mtp-ffs
+TriggerLimitIntervalSec=0
+
+[Install]
+WantedBy=usb-gadget.target

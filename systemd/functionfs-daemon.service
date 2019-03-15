@@ -1,0 +1,12 @@
+[Unit]
+Description=MTP responder
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+ExecStart=/root/cmtp-responder
+USBFunctionDescriptors=/root/mtp-descriptors-hs.bin
+USBFunctionStrings=/root/mtp-strings.bin
+KillMode=process
+RestartSec=3
+Restart=on-failure
