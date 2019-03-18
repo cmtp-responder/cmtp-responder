@@ -707,14 +707,14 @@ mtp_bool _util_get_filesystem_info(mtp_char *storepath,
 
 /* LCOV_EXCL_START */
 /*
- * void FLOGD(const char *fmt, ...)
+ * void _FLOGD(const char *fmt, ...)
  * This function writes MTP debug message to MTP log file
  *
  * @param[in]		fmt Formatted debug message.
  * @param[out]		None.
  * @return		None.
  */
-void FLOGD(const char *fmt, ...)
+void _FLOGD(const char *file, const char *fmt, ...)
 {
 	static mtp_int64 written_bytes = 0;
 	FILE *fp = NULL;
@@ -730,7 +730,7 @@ void FLOGD(const char *fmt, ...)
 	if (fp == NULL)
 		return;
 
-	written_bytes += fprintf(fp, "%s ", __FILE__ + SRC_PATH_LEN);
+	written_bytes += fprintf(fp, "%s ", file + SRC_PATH_LEN) - SRC_PATH_LEN;
 	va_start(ap, fmt);
 	written_bytes += vfprintf(fp, fmt, ap);
 	va_end(ap);
