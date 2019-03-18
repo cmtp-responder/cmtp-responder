@@ -33,8 +33,6 @@
 #include <pwd.h>
 #include <poll.h>
 
-/* time to wait for user session creation, in ms */
-#define WAIT_FOR_USER_TIMEOUT 10000
 
 static phone_state_t _g_ph_status = { 0 };
 phone_state_t *g_ph_status = &_g_ph_status;
