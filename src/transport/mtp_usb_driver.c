@@ -59,7 +59,6 @@ static mtp_int32 g_usb_ep_in = -1;     /* write (g_usb_ep_in, ...) */
 static mtp_int32 g_usb_ep_out = -1;    /* read (g_usb_ep_out, ...) */
 static mtp_int32 g_usb_ep_status = -1; /* write (g_usb_ep_status, ...) */
 
-static mtp_max_pkt_size_t pkt_size;
 static mtp_uint32 rx_mq_sz;
 static mtp_uint32 tx_mq_sz;
 static mtp_int32 __handle_usb_read_err(mtp_int32 err,
@@ -72,24 +71,8 @@ static void __handle_control_request(mtp_int32 request);
  */
 
 /* LCOV_EXCL_START */
-static mtp_bool __io_init()
-{
-	if (sd_listen_fds(0) >= 4) {
-		DBG("socket-activated\n");
-		g_usb_ep0 = SD_LISTEN_FDS_START;
-		g_usb_ep_in = SD_LISTEN_FDS_START + 1;
-		g_usb_ep_out = SD_LISTEN_FDS_START + 2;
-		g_usb_ep_status = SD_LISTEN_FDS_START + 3;
-
-		return TRUE;
-	}
-
-	return FALSE;
-}
-
 mtp_bool _transport_init_usb_device(void)
 {
-	mtp_int32 status = 0;
 	int msg_size;
 
 	if (g_usb_ep0 > 0) {
@@ -97,18 +80,19 @@ mtp_bool _transport_init_usb_device(void)
 		return TRUE;
 	}
 
-	status = __io_init();
-	if (!status) {
+	if (sd_listen_fds(0) < 4) {
 		char error[256];
 		ERR("Inheriting FunctionFS descriptors from systemd failed, errno [%s]\n",
 		    strerror_r(errno, error, sizeof(error)));
 		return FALSE;
 	}
+	DBG("socket-activated\n");
+	g_usb_ep0 = SD_LISTEN_FDS_START;
+	g_usb_ep_in = SD_LISTEN_FDS_START + 1;
+	g_usb_ep_out = SD_LISTEN_FDS_START + 2;
+	g_usb_ep_status = SD_LISTEN_FDS_START + 3;
 
-	pkt_size.rx = g_conf.read_usb_size;
-	pkt_size.tx = g_conf.write_usb_size;
-
-	DBG("Final : Tx pkt size:[%u], Rx pkt size:[%u]\n", pkt_size.tx, pkt_size.rx);
+	DBG("Final : Tx pkt size:[%u], Rx pkt size:[%u]\n", g_conf.write_usb_size, g_conf.read_usb_size);
 
 	msg_size = sizeof(msgq_ptr_t) - sizeof(long);
 	rx_mq_sz = (g_conf.max_io_buf_size / g_conf.max_rx_ipc_size) * msg_size;
@@ -138,16 +122,6 @@ void _transport_deinit_usb_device(void)
 	g_usb_ep_status = -1;
 
 	return;
-}
-
-mtp_uint32 _get_tx_pkt_size(void)
-{
-	return pkt_size.tx;
-}
-
-mtp_uint32 _get_rx_pkt_size(void)
-{
-	return pkt_size.rx;
 }
 
 /*
@@ -314,7 +288,7 @@ void *_transport_thread_usb_read(void *arg)
 	mtp_int32 status = 0;
 	msgq_ptr_t pkt = {MTP_DATA_PACKET, 0, 0, NULL};
 	msgq_id_t *mqid = (msgq_id_t *)arg;
-	mtp_uint32 rx_size = _get_rx_pkt_size();
+	mtp_uint32 rx_size = g_conf.read_usb_size;
 
 	pthread_cleanup_push(__clean_up_msg_queue, mqid);
 

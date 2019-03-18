@@ -1343,7 +1343,7 @@ static mtp_bool __receive_temp_file_first_packet(mtp_char *data,
 static mtp_bool __receive_temp_file_next_packets(mtp_char *data,
 		mtp_int32 data_len)
 {
-	mtp_uint32 rx_size = _get_rx_pkt_size();
+	mtp_uint32 rx_size = g_conf.read_usb_size;
 	mtp_uint32 *data_sz = &g_mtp_mgr.ftemp_st.data_size;
 	mtp_char *buffer = g_mtp_mgr.ftemp_st.temp_buff;
 
@@ -1379,7 +1379,7 @@ static mtp_bool __receive_temp_file_next_packets(mtp_char *data,
 void _receive_mq_data_cb(mtp_char *buffer, mtp_int32 buf_len)
 {
 	cmd_blk_t cmd = { 0 };
-	mtp_uint32 rx_size = _get_rx_pkt_size();
+	mtp_uint32 rx_size = g_conf.read_usb_size;
 
 	retm_if(g_status->mtp_op_state < MTP_STATE_READY_SERVICE,
 		"MTP is stopped or initializing. ignore all\n");

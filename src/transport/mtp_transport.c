@@ -145,8 +145,8 @@ mtp_err_t _transport_send_event(mtp_byte *buf, mtp_uint32 size,
 	msgq_ptr_t pkt = { 0 };
 
 	retv_if(buf == NULL, MTP_ERROR_INVALID_PARAM);
-	retvm_if(size > _get_tx_pkt_size(), MTP_ERROR_INVALID_PARAM,
-			"size = %d, _get_tx_pkt_size() = (%d)\n", size, _get_tx_pkt_size());
+	retvm_if(size > g_conf.write_usb_size, MTP_ERROR_INVALID_PARAM,
+			"size = %d, tx pkt size = (%d)\n", size, g_conf.write_usb_size);
 
 	pkt.mtype = MTP_EVENT_PACKET;
 	pkt.signal = 0x0000;
@@ -178,7 +178,7 @@ mtp_uint32 _transport_send_pkt_to_tx_mq(const mtp_byte *buf,
 	mtp_uint32 len = pkt_len;
 	mtp_uint32 sent_len = 0;
 	msgq_ptr_t pkt = { 0 };
-	mtp_uint32 tx_size = _get_tx_pkt_size();
+	mtp_uint32 tx_size = g_conf.write_usb_size;
 	const mtp_uchar *temp = (const mtp_uchar *)buf;
 
 	retv_if(buf == NULL, 0);
@@ -217,7 +217,7 @@ mtp_uint32 _transport_send_bulk_pkt_to_tx_mq(const mtp_byte *buf,
 		mtp_uint32 pkt_len)
 {
 	mtp_uint32 sent_len = 0;
-	mtp_uint32 tx_size = _get_tx_pkt_size();
+	mtp_uint32 tx_size = g_conf.write_usb_size;
 	msgq_ptr_t pkt = {MTP_BULK_PACKET, 0, 0, NULL};
 
 	retv_if(buf == NULL, 0);
@@ -452,7 +452,7 @@ void _transport_usb_finalize(void)
 	mtp_int32 res = 0;
 	void *th_result = NULL;
 	msgq_ptr_t pkt;
-	mtp_uint32 rx_size = _get_rx_pkt_size();
+	mtp_uint32 rx_size = g_conf.read_usb_size;
 
 	__transport_deinit_io();
 
