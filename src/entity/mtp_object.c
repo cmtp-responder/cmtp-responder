@@ -638,10 +638,8 @@ mtp_bool _entity_set_reference_child_array(mtp_obj_t *obj, mtp_uchar *buf,
 	_entity_remove_reference_child_array(obj, PTP_OBJECTHANDLE_ALL);
 
 	/* Grow the array to accommodate all references*/
-	if (_prop_grow_ptparray(&(obj->child_array), no_ref) == FALSE) {
-		ERR("grow ptp Array Fail\n");
-		return FALSE;
-	}
+	retvm_if(!_prop_grow_ptparray(&(obj->child_array), no_ref), FALSE,
+		"grow ptp Array Fail\n");
 
 	ref_handle = 0;
 	for (i = 0; i < no_ref; i++) {

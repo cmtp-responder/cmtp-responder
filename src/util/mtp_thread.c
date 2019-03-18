@@ -29,10 +29,7 @@ mtp_bool _util_thread_create(pthread_t *tid, const mtp_char *tname,
 	retv_if(thread_func == NULL, FALSE);
 
 	error = pthread_attr_init(&attr);
-	if (error != 0) {
-		ERR("pthread_attr_init Fail [%d], errno [%d]\n", error, errno);	//	LCOV_EXCL_LINE
-		return FALSE;
-	}
+	retvm_if(error, FALSE, "pthread_attr_init Fail [%d], errno [%d]\n", error, errno);
 
 	if (thread_state == PTHREAD_CREATE_JOINABLE) {
 		error = pthread_attr_setdetachstate(&attr,
@@ -67,11 +64,8 @@ mtp_bool _util_thread_join(pthread_t tid, void **data)
 	mtp_int32 res = 0;
 
 	res = pthread_join(tid, data);
-	if (res != 0) {
-		ERR("pthread_join Fail res = [%d] for thread [%lu] errno [%d]\n",
-				res, tid, errno);	//	LCOV_EXCL_LINE
-		return FALSE;	//	LCOV_EXCL_LINE
-	}
+	retvm_if(res, FALSE, "pthread_join Fail res = [%d] for thread [%lu] errno [%d]\n",
+				res, tid, errno);
 
 	return TRUE;
 }
@@ -80,16 +74,10 @@ mtp_bool _util_thread_cancel(pthread_t tid)
 {
 	mtp_int32 res;
 
-	if (tid == 0) {
-		ERR("tid is NULL\n");
-		return FALSE;
-	}
+	retvm_if(!tid, FALSE, "tid is NULL\n");
 
 	res = pthread_cancel(tid);
-	if (res != 0) {
-		ERR("pthread_cancel Fail [%lu] errno [%d]\n", tid, errno);
-		return FALSE;
-	}
+	retvm_if(res, FALSE, "pthread_cancel Fail [%lu] errno [%d]\n", tid, errno);
 
 	return TRUE;
 }

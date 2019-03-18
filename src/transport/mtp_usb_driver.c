@@ -160,10 +160,7 @@ mtp_uint32 _get_rx_pkt_size(void)
  */
 mtp_int32 _transport_mq_init(msgq_id_t *rx_mqid, msgq_id_t *tx_mqid)
 {
-	if (_util_msgq_init(rx_mqid, 0) == FALSE) {
-		ERR("RX MQ init Fail [%d]\n", errno);
-		return FALSE;
-	}
+	retvm_if(!_util_msgq_init(rx_mqid, 0), FALSE, "RX MQ init Fail [%d]\n", errno);
 
 	if (_util_msgq_set_size(*rx_mqid, rx_mq_sz) == FALSE)
 		ERR("RX MQ setting size Fail [%d]\n", errno);
@@ -604,10 +601,8 @@ mtp_uint32 _transport_get_usb_packet_len(void)
 	if (usb_speed == 0) {
 
 		//status = ioctl(g_usb_fd, MTP_GET_HIGH_FULL_SPEED, &usb_speed);
-		if (status < 0) {
-			ERR("MTP_GET_HIGH_FULL_SPEED Failed [%d]\n", status);
-			return MTP_MAX_PACKET_SIZE_SEND_FS;
-		}
+		retvm_if(status < 0, MTP_MAX_PACKET_SIZE_SEND_FS,
+			"MTP_GET_HIGH_FULL_SPEED Failed [%d]\n", status);
 	}
 
 	if (usb_speed % MTP_MAX_PACKET_SIZE_SEND_HS) {

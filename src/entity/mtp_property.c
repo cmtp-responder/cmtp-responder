@@ -1576,12 +1576,10 @@ mtp_uint32 _prop_get_obj_proplist(mtp_obj_t *obj, mtp_uint32 propcode,
 	slist_node_t *node = NULL;
 	mtp_uint32 ii = 0;
 
-	if (obj->propval_list.nnodes == 0) {
-		if (FALSE == _prop_update_property_values_list(obj)) {
-			ERR("update Property Values FAIL!!\n");
-			return 0;
-		}
-	}
+	if (obj->propval_list.nnodes == 0)
+		retvm_if(!_prop_update_property_values_list(obj), 0,
+			"update Property Values FAIL!!\n");
+
 	for (ii = 0, node = obj->propval_list.start;
 			ii < obj->propval_list.nnodes;
 			ii++, node = node->link) {
