@@ -52,7 +52,7 @@ static mtp_int32 __get_inoti_watch_id(mtp_int32 iwd)
 			break;
 	}
 
-	retvm_if(i >= INOTI_FOLDER_COUNT_MAX, -1, "inoti_folder is not found");
+	retvm_if(i >= INOTI_FOLDER_COUNT_MAX, -1, "inoti_folder is not found\n");
 
 	return i;
 }
@@ -96,7 +96,7 @@ static open_files_info_t *__find_file_in_inoti_open_files_list(mtp_int32 wd,
 		current_node = current_node->previous;
 	}
 
-	ERR("Cannot find file in open file's list");
+	ERR("Cannot find file in open file's list\n");
 	return NULL;
 }
 
@@ -106,7 +106,7 @@ static mtp_bool __add_file_to_inoti_open_files_list(mtp_int32 wd,
 	open_files_info_t *new_node = NULL;
 
 	new_node = (open_files_info_t *)g_malloc(sizeof(open_files_info_t));
-	retvm_if(!new_node, FALSE, "new_node is null malloc fail");
+	retvm_if(!new_node, FALSE, "new_node is null malloc fail\n");
 
 	new_node->name = g_strdup(event_name);
 	new_node->wd = wd;
@@ -151,12 +151,12 @@ static void __process_object_added_event(mtp_char *fullpath,
 	mtp_int32 ret = 0;
 	dir_entry_t dir_info = { { 0 }, 0 };
 
-	retm_if(g_strrstr(file_name, MTP_TEMP_FILE), "File is a temp file");
+	retm_if(g_strrstr(file_name, MTP_TEMP_FILE), "File is a temp file\n");
 	retm_if(file_name[0] == '.', "Hidden file filename=[%s]\n", file_name);
 
 	store_id = _entity_get_store_id_by_path(fullpath);
 	store = _device_get_store(store_id);
-	retm_if(!store, "store is NULL so return");
+	retm_if(!store, "store is NULL so return\n");
 
 	parent_obj = _entity_get_object_from_store_by_path(store, parent_path);
 	if (NULL == parent_obj) {
@@ -164,10 +164,10 @@ static void __process_object_added_event(mtp_char *fullpath,
 		_util_get_external_path(ext_path);
 
 		if (!g_strcmp0(parent_path, ext_path)) {
-			DBG("parent is the root folder");
+			DBG("parent is the root folder\n");
 			h_parent = 0;
 		} else {
-			DBG("Cannot find the parent, return");
+			DBG("Cannot find the parent, return\n");
 			return;
 		}
 	} else {
@@ -176,7 +176,7 @@ static void __process_object_added_event(mtp_char *fullpath,
 
 	ret = stat(fullpath, &stat_buf);
 	if (ret < 0) {
-		ERR("stat() Fail");
+		ERR("stat() Fail\n");
 		_util_print_error();
 		return;
 	}
@@ -204,13 +204,13 @@ static void __process_object_added_event(mtp_char *fullpath,
 
 		obj = _entity_add_file_to_store(store, h_parent, fullpath,
 				file_name, &dir_info);
-		retm_if(!obj, "_entity_add_file_to_store fail.");
+		retm_if(!obj, "_entity_add_file_to_store fail.\n");
 	} else if (S_ISDIR(stat_buf.st_mode)) {
 		dir_info.type = MTP_DIR_TYPE;
 		dir_info.attrs.attribute  |= MTP_FILE_ATTR_MODE_DIR;
 		obj = _entity_add_folder_to_store(store, h_parent, fullpath,
 				file_name, &dir_info);
-		retm_if(!obj, "_entity_add_folder_to_store fail.");
+		retm_if(!obj, "_entity_add_folder_to_store fail.\n");
 	} else {
 		ERR("%s type is neither DIR nor FILE.\n", fullpath);
 		return;
@@ -241,7 +241,7 @@ static void __remove_inoti_watch(mtp_char *path)
 	}
 
 	if (i == g_cnt_watch_folder)
-		ERR("Path not found in g_noti_watches");
+		ERR("Path not found in g_noti_watches\n");
 }
 
 /* LCOV_EXCL_STOP */
@@ -289,15 +289,15 @@ static void __process_object_deleted_event(mtp_char *fullpath,
 	mtp_uint32 obj_handle = 0;
 	slist_node_t *node = NULL;
 
-	retm_if(strstr(fullpath, MTP_TEMP_FILE), "File is a temp file, need to ignore");
+	retm_if(strstr(fullpath, MTP_TEMP_FILE), "File is a temp file, need to ignore\n");
 	retm_if(file_name[0] == '.', "Hidden file filename=[%s], Ignore\n", file_name);
 
 	storageid = _entity_get_store_id_by_path(fullpath);
 	store = _device_get_store(storageid);
-	retm_if(!store, "store is NULL so return");
+	retm_if(!store, "store is NULL so return\n");
 
 	obj = _entity_get_object_from_store_by_path(store, fullpath);
-	retm_if(!obj, "object is NULL so return");
+	retm_if(!obj, "object is NULL so return\n");
 
 	obj_handle = obj->obj_handle;
 	h_parent = obj->obj_info->h_parent;
@@ -340,9 +340,9 @@ static mtp_bool __process_inoti_event(struct inotify_event *event)
 	/* start of one event */
 	res = __get_inoti_event_full_path(event->wd, event->name, full_path,
 			sizeof(full_path), parentpath);
-	retvm_if(!res, FALSE, "__get_inoti_event_full_path() Fail");
+	retvm_if(!res, FALSE, "__get_inoti_event_full_path() Fail\n");
 
-	retvm_if(!_util_is_path_len_valid(full_path), FALSE, "path len is invalid");
+	retvm_if(!_util_is_path_len_valid(full_path), FALSE, "path len is invalid\n");
 
 	DBG_SECURE("Event full path = %s\n", full_path);
 	if (event->mask & IN_MOVED_FROM) {
@@ -353,13 +353,13 @@ static mtp_bool __process_inoti_event(struct inotify_event *event)
 					MTP_MAX_PATHNAME_SIZE + 1);
 			last_moved_cookie = event->cookie;
 		} else if (event->mask & IN_ISDIR) {
-			DBG("IN_MOVED_FROM --> IN_ISDIR");
+			DBG("IN_MOVED_FROM --> IN_ISDIR\n");
 			UTIL_LOCK_MUTEX(&g_cmd_inoti_mutex);
 			__process_object_deleted_event(full_path,
 					event->name, TRUE);
 			UTIL_UNLOCK_MUTEX(&g_cmd_inoti_mutex);
 		} else {
-			DBG("IN_MOVED_FROM --> NOT IN_ISDIR");
+			DBG("IN_MOVED_FROM --> NOT IN_ISDIR\n");
 			UTIL_LOCK_MUTEX(&g_cmd_inoti_mutex);
 			__process_object_deleted_event(full_path,
 					event->name, FALSE);
@@ -379,7 +379,7 @@ static mtp_bool __process_inoti_event(struct inotify_event *event)
 		}
 	} else if (event->mask & IN_CREATE) {
 		if (event->mask & IN_ISDIR) {
-			DBG("IN_CREATE --> IN_ISDIR");
+			DBG("IN_CREATE --> IN_ISDIR\n");
 			if (!g_strcmp0(g_last_created_dir, full_path)) {
 				/* Ignore this case as this is generated due to MTP*/
 				DBG("%s folder is generated by MTP\n",
@@ -398,7 +398,7 @@ static mtp_bool __process_inoti_event(struct inotify_event *event)
 				DBG_SECURE("__add_file_to_inoti_open_files_list fail\
 						%s\n", event->name);
 			}
-			DBG("IN_CREATE --> NOT IN_ISDIR");
+			DBG("IN_CREATE --> NOT IN_ISDIR\n");
 		}
 	} else if (event->mask &  IN_DELETE) {
 		if (!g_strcmp0(g_last_deleted, full_path)) {
@@ -407,13 +407,13 @@ static mtp_bool __process_inoti_event(struct inotify_event *event)
 			memset(g_last_deleted, 0,
 					MTP_MAX_PATHNAME_SIZE + 1);
 		} else if (event->mask & IN_ISDIR) {
-			DBG("IN_DELETE --> IN_ISDIR");
+			DBG("IN_DELETE --> IN_ISDIR\n");
 			UTIL_LOCK_MUTEX(&g_cmd_inoti_mutex);
 			__process_object_deleted_event(full_path,
 					event->name, TRUE);
 			UTIL_UNLOCK_MUTEX(&g_cmd_inoti_mutex);
 		} else {
-			DBG("IN_DELETE --> NOT IN_ISDIR");
+			DBG("IN_DELETE --> NOT IN_ISDIR\n");
 			UTIL_LOCK_MUTEX(&g_cmd_inoti_mutex);
 			__process_object_deleted_event(full_path,
 					event->name, FALSE);
@@ -440,7 +440,7 @@ static mtp_bool __process_inoti_event(struct inotify_event *event)
 			}
 		}
 	} else {
-		DBG("This case is ignored");
+		DBG("This case is ignored\n");
 		return FALSE;
 	}
 
@@ -514,7 +514,7 @@ void *_thread_inoti(void *arg)
 
 	pthread_cleanup_push(__clean_up_inoti, NULL);
 
-	DBG("START INOTIFY SYSTEM");
+	DBG("START INOTIFY SYSTEM\n");
 
 	while (1) {
 		pthread_testcancel();
@@ -523,7 +523,7 @@ void *_thread_inoti(void *arg)
 		length = read(g_inoti_fd, buffer, sizeof(buffer));
 		/* LCOV_EXCL_START */
 		if (length < 0) {
-			ERR("read() Fail");
+			ERR("read() Fail\n");
 			_util_print_error();
 			break;
 		}
@@ -539,7 +539,7 @@ void *_thread_inoti(void *arg)
 		}
 	}
 
-	DBG("Inoti thread exited");
+	DBG("Inoti thread exited\n");
 	pthread_cleanup_pop(1);
 
 	return NULL;
@@ -564,7 +564,7 @@ void _inoti_add_watch_for_fs_events(mtp_char *path)
 		}
 
 		retm_if(i == INOTI_FOLDER_COUNT_MAX,
-			"no empty space for a new inotify watch.");
+			"no empty space for a new inotify watch.\n");
 
 		DBG("g_watch_folders[%d] add watch : %s\n", i, path);
 		g_inoti_watches[i].forlder_name = g_strdup(path);
@@ -593,13 +593,13 @@ mtp_bool _inoti_init_filesystem_evnts()
 	mtp_bool ret = FALSE;
 
 	g_inoti_fd = inotify_init();
-	retvm_if(g_inoti_fd < 0, FALSE, "inotify_init() Fail : g_inoti_fd = %d", g_inoti_fd);
+	retvm_if(g_inoti_fd < 0, FALSE, "inotify_init() Fail : g_inoti_fd = %d\n", g_inoti_fd);
 
 	ret = _util_thread_create(&g_inoti_thrd, "File system inotify thread\n",
 			PTHREAD_CREATE_JOINABLE, _thread_inoti, NULL);
 	if (FALSE == ret) {
 		/* LCOV_EXCL_START */
-		ERR("_util_thread_create() Fail");
+		ERR("_util_thread_create() Fail\n");
 		_util_print_error();
 		close(g_inoti_fd);
 		return FALSE;
@@ -612,10 +612,10 @@ mtp_bool _inoti_init_filesystem_evnts()
 
 void _inoti_deinit_filesystem_events()
 {
-	retm_if(!_util_thread_cancel(g_inoti_thrd), "thread cancel fail.");
+	retm_if(!_util_thread_cancel(g_inoti_thrd), "thread cancel fail.\n");
 
 	if (_util_thread_join(g_inoti_thrd, 0) == FALSE)
-		ERR("_util_thread_join() Fail");
+		ERR("_util_thread_join() Fail\n");
 }
 
 #endif /*MTP_SUPPORT_OBJECTADDDELETE_EVENT*/

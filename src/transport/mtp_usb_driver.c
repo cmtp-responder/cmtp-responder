@@ -75,7 +75,7 @@ static void __handle_control_request(mtp_int32 request);
 static mtp_bool __io_init()
 {
 	if (sd_listen_fds(0) >= 4) {
-		DBG("socket-activated");
+		DBG("socket-activated\n");
 		g_usb_ep0 = SD_LISTEN_FDS_START;
 		g_usb_ep_in = SD_LISTEN_FDS_START + 1;
 		g_usb_ep_out = SD_LISTEN_FDS_START + 2;
@@ -253,7 +253,7 @@ static int __setup(int ep0, struct usb_ctrlrequest *ctrl)
 	int status = 0;
 
 	if ((ctrl->bRequestType & 0x7f) != (USB_TYPE_CLASS | USB_RECIP_INTERFACE)) {
-		DBG(__FILE__ "(%s):%d: Invalid request type: %d",
+		DBG(__FILE__ "(%s):%d: Invalid request type: %d\n",
 		    __func__, __LINE__, ctrl->bRequestType);
 		goto stall;
 	}
@@ -261,7 +261,7 @@ static int __setup(int ep0, struct usb_ctrlrequest *ctrl)
 	switch (((ctrl->bRequestType & 0x80) << 8) | ctrl->bRequest) {
 	case ((USB_DIR_OUT << 8) | USB_PTPREQUEST_CANCELIO):
 
-		DBG(__FILE__ "(%s):%d: USB_PTPREQUEST_%s",
+		DBG(__FILE__ "(%s):%d: USB_PTPREQUEST_%s\n",
 		    __func__, __LINE__, requests[ctrl->bRequest-0x64]);
 		if (wValue != 0 || wIndex != 0 || wLength != 6) {
 			DBG("Invalid request parameters: wValue:%hu wIndex:%hu wLength:%hu\n", wIndex, wValue, wLength);
@@ -274,7 +274,7 @@ static int __setup(int ep0, struct usb_ctrlrequest *ctrl)
 	case ((USB_DIR_IN << 8) | USB_PTPREQUEST_GETSTATUS):
 	case ((USB_DIR_OUT << 8) | USB_PTPREQUEST_RESET):
 
-		DBG(__FILE__ "(%s):%d: USB_PTPREQUEST_%s",
+		DBG(__FILE__ "(%s):%d: USB_PTPREQUEST_%s\n",
 		    __func__, __LINE__, requests[ctrl->bRequest-0x64]);
 		__handle_control_request(ctrl->bRequest);
 		break;
@@ -282,14 +282,14 @@ static int __setup(int ep0, struct usb_ctrlrequest *ctrl)
 	case ((USB_DIR_IN << 8) | USB_PTPREQUEST_GETEVENT):
 
 		/* Optional, may stall */
-		DBG(__FILE__ "(%s):%d: USB_PTPREQUEST_%s",
+		DBG(__FILE__ "(%s):%d: USB_PTPREQUEST_%s\n",
 		    __func__, __LINE__, requests[ctrl->bRequest-0x64]);
 		rc = -EOPNOTSUPP;
 		goto stall;
 		break;
 
 	default:
-		DBG(__FILE__ "(%s):%d: Invalid request: %d", __func__,
+		DBG(__FILE__ "(%s):%d: Invalid request: %d\n", __func__,
 		    __LINE__, ctrl->bRequest);
 		goto stall;
 	}
@@ -343,7 +343,7 @@ void *_transport_thread_usb_read(void *arg)
 		pkt.length = status;
 		if (FALSE == _util_msgq_send(*mqid, (void *)&pkt,
 					     sizeof(msgq_ptr_t) - sizeof(long), 0)) {
-			ERR("msgsnd Fail");
+			ERR("msgsnd Fail\n");
 			g_free(pkt.buffer);
 		}
 	} while (status > 0);
@@ -368,11 +368,11 @@ void *_transport_thread_usb_control(void *arg)
 		status = read(g_usb_ep0, &event, sizeof(event));
 		if (status < 0) {
 			char error[256];
-			ERR("read from ep0 failed: %s",
+			ERR("read from ep0 failed: %s\n",
 			    strerror_r(errno, error, sizeof(error)));
 			continue;
 		}
-		DBG("FUNCTIONFS event received: %d", event.type);
+		DBG("FUNCTIONFS event received: %d\n", event.type);
 
 		switch (event.type) {
 		case FUNCTIONFS_SETUP:
@@ -385,11 +385,11 @@ void *_transport_thread_usb_control(void *arg)
 			__setup(g_usb_ep0, &event.u.setup);
 			break;
 		case FUNCTIONFS_ENABLE:
-			DBG("ENABLE");
+			DBG("ENABLE\n");
 			g_ph_status->usb_state = MTP_PHONE_USB_CONNECTED;
 			break;
 		case FUNCTIONFS_DISABLE:
-			DBG("DISABLE");
+			DBG("DISABLE\n");
 			g_ph_status->usb_state = MTP_PHONE_USB_DISCONNECTED;
 			_eh_send_event_req_to_eh_thread(EVENT_USB_REMOVED, 0, 0, NULL);
 			break;
@@ -410,28 +410,28 @@ static mtp_int32 __handle_usb_read_err(mtp_int32 err,
 
 	while (retry++ < MTP_USB_ERROR_MAX_RETRY) {
 		if (err == 0) {
-			DBG("ZLP(Zero Length Packet). Skip");
+			DBG("ZLP(Zero Length Packet). Skip\n");
 		} else if (err < 0 && errno == EINTR) {
-			DBG("read () is interrupted. Skip");
+			DBG("read () is interrupted. Skip\n");
 		} else if (err < 0 && errno == EIO) {
-			DBG("EIO");
+			DBG("EIO\n");
 
 			if (MTP_PHONE_USB_CONNECTED !=
 			    g_ph_status->usb_state) {
-				ERR("USB is disconnected");
+				ERR("USB is disconnected\n");
 				break;
 			}
 
 			_transport_deinit_usb_device();
 			ret = _transport_init_usb_device();
 			if (ret == FALSE) {
-				ERR("_transport_init_usb_device Fail");
+				ERR("_transport_init_usb_device Fail\n");
 				continue;
 			}
 		} else if (err < 0 && errno == ESHUTDOWN) {
-			DBG("ESHUTDOWN");
+			DBG("ESHUTDOWN\n");
 		} else {
-			ERR("Unknown error : %d, errno [%d] \n", err, errno);
+			ERR("Unknown error : %d, errno [%d]\n", err, errno);
 			break;
 		}
 
@@ -441,7 +441,7 @@ static mtp_int32 __handle_usb_read_err(mtp_int32 err,
 	}
 
 	if (err <= 0)
-		ERR("USB error handling Fail");
+		ERR("USB error handling Fail\n");
 
 	return err;
 }
@@ -504,7 +504,7 @@ static void __handle_control_request(mtp_int32 request)
 		break;
 	case USB_PTPREQUEST_GETSTATUS:
 
-		DBG("USB_PTPREQUEST_GETSTATUS");
+		DBG("USB_PTPREQUEST_GETSTATUS\n");
 
 		/* Send busy status response just once. This flag is also for
 		 * the case that mtp misses the cancel request packet.
@@ -516,25 +516,25 @@ static void __handle_control_request(mtp_int32 request)
 		memset(&statusreq_data, 0x00, sizeof(usb_status_req_t));
 		if (host_cancel == TRUE || (sent_busy == FALSE &&
 					    kernel_reset == FALSE)) {
-			DBG("Send busy response, set host_cancel to FALSE");
+			DBG("Send busy response, set host_cancel to FALSE\n");
 			statusreq_data.len = 0x08;
 			statusreq_data.code = PTP_RESPONSE_DEVICEBUSY;
 			host_cancel = FALSE;
 		} else if (g_device->phase == DEVICE_PHASE_NOTREADY) {
 			statusreq_data.code =
 				PTP_RESPONSE_TRANSACTIONCANCELLED;
-			DBG("PTP_RESPONSE_TRANSACTIONCANCELLED");
+			DBG("PTP_RESPONSE_TRANSACTIONCANCELLED\n");
 			statusreq_data.len = (mtp_word)(sizeof(usb_status_req_t) +
 							(num_param - 2) * sizeof(mtp_dword));
 		} else if (g_device->status == DEVICE_STATUSOK) {
-			DBG("PTP_RESPONSE_OK");
+			DBG("PTP_RESPONSE_OK\n");
 			statusreq_data.len = 0x08;
 			statusreq_data.code = PTP_RESPONSE_OK;
 
 			if (kernel_reset == TRUE)
 				kernel_reset = FALSE;
 		} else {
-			DBG("PTP_RESPONSE_GEN_ERROR");
+			DBG("PTP_RESPONSE_GEN_ERROR\n");
 			statusreq_data.len = 0x08;
 			statusreq_data.code = PTP_RESPONSE_GEN_ERROR;
 		}
@@ -555,11 +555,11 @@ static void __handle_control_request(mtp_int32 request)
 		break;
 
 	case USB_PTPREQUEST_GETEVENT:
-		DBG("USB_PTPREQUEST_GETEVENT");
+		DBG("USB_PTPREQUEST_GETEVENT\n");
 		break;
 
 	default:
-		DBG("Invalid class specific setup request");
+		DBG("Invalid class specific setup request\n");
 		break;
 	}
 	return;

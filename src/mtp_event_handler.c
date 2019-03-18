@@ -47,21 +47,21 @@ static mtp_bool __send_events_from_device_to_pc(mtp_dword store_id,
 
 	switch (ptp_event) {
 	case PTP_EVENTCODE_OBJECTADDED:
-		DBG("case PTP_EVENTCODE_OBJECTADDED");
+		DBG("case PTP_EVENTCODE_OBJECTADDED\n");
 		DBG("param1 : [0x%x]\n", param1);
 		_hdlr_init_event_container(&event, PTP_EVENTCODE_OBJECTADDED,
 				0, param1, 0);
 		break;
 
 	case PTP_EVENTCODE_OBJECTREMOVED:
-		DBG("case PTP_EVENTCODE_OBJECTREMOVED");
+		DBG("case PTP_EVENTCODE_OBJECTREMOVED\n");
 		DBG("param1 [0x%x]\n", param1);
 		_hdlr_init_event_container(&event, PTP_EVENTCODE_OBJECTREMOVED,
 				0, param1 , 0);
 		break;
 
 	default:
-		DBG("Event not supported");
+		DBG("Event not supported\n");
 		return FALSE;
 	}
 
@@ -74,12 +74,12 @@ static mtp_bool __process_event_request(mtp_event_t *evt)
 
 	switch (evt->action) {
 	case EVENT_CANCEL_INITIALIZATION:
-		DBG("EVENT_CANCEL_INITIALIZATION entered.");
+		DBG("EVENT_CANCEL_INITIALIZATION entered.\n");
 		_device_uninstall_storage();
 		break;
 
 	case EVENT_START_MAIN_OP:
-		DBG("EVENT_START_MAIN_OP entered.");
+		DBG("EVENT_START_MAIN_OP entered.\n");
 
 		/* start MTP */
 		g_status->cancel_intialization = FALSE;
@@ -88,7 +88,7 @@ static mtp_bool __process_event_request(mtp_event_t *evt)
 		_mtp_init();
 		g_status->mtp_op_state = MTP_STATE_READY_SERVICE;
 		if (FALSE == _transport_init_interfaces(_receive_mq_data_cb)) {
-			ERR("USB init fail");
+			ERR("USB init fail\n");
 			kill(getpid(), SIGTERM);
 			break;
 		}
@@ -113,7 +113,7 @@ static mtp_bool __process_event_request(mtp_event_t *evt)
 		break;
 
 	default:
-		ERR("Unknown action");
+		ERR("Unknown action\n");
 		break;
 	}
 	return TRUE;
@@ -121,7 +121,7 @@ static mtp_bool __process_event_request(mtp_event_t *evt)
 
 static void *__thread_event_handler(void *arg)
 {
-	DBG("__thread_event_handler is started ");
+	DBG("__thread_event_handler is started\n");
 
 	mtp_int32 flag = 1;
 	mtp_event_t evt;
@@ -130,7 +130,7 @@ static void *__thread_event_handler(void *arg)
 		mtp_int32 status = 0;
 		status = read(g_pipefd[0], &evt, sizeof(mtp_event_t));
 		if ((status == -1) && errno == EINTR) {
-			ERR("read() Fail");
+			ERR("read() Fail\n");
 			continue;
 		}
 
@@ -142,7 +142,7 @@ static void *__thread_event_handler(void *arg)
 		}
 	}
 
-	DBG("Event handler terminated");
+	DBG("Event handler terminated\n");
 	close(g_pipefd[0]);
 	close(g_pipefd[1]);
 	mtp_end_event();
@@ -161,7 +161,7 @@ static mtp_bool __send_start_event_to_eh_thread(void)
 	event.param2 = 0;
 	event.param3 = 0;
 
-	DBG("Action : START MTP OPERATION");
+	DBG("Action : START MTP OPERATION\n");
 
 	status = write(g_pipefd[1], &event, sizeof(mtp_event_t));
 	retvm_if(status == -1 || errno == EINTR, FALSE,
@@ -203,7 +203,7 @@ mtp_bool _eh_handle_usb_events(mtp_uint32 type)
 
 	switch (type) {
 	case USB_INSERTED:
-		retvm_if(is_usb_inserted == 1, TRUE, "USB is already connected");
+		retvm_if(is_usb_inserted == 1, TRUE, "USB is already connected\n");
 
 		/* check USB connection state */
 		is_usb_inserted = 1;
@@ -212,13 +212,13 @@ mtp_bool _eh_handle_usb_events(mtp_uint32 type)
 		g_status->cancel_intialization = FALSE;
 
 		if (state == MTP_STATE_INITIALIZING) {
-			ERR("MTP is already being initialized");
+			ERR("MTP is already being initialized\n");
 			break;
 		}
 
 		res = pipe(g_pipefd);
 		if (res < 0) {
-			ERR("pipe() Fail");
+			ERR("pipe() Fail\n");
 			_util_print_error();
 			return FALSE;
 		}
@@ -226,17 +226,17 @@ mtp_bool _eh_handle_usb_events(mtp_uint32 type)
 		res = _util_thread_create(&g_eh_thrd,
 				"Mtp Event Request Handler", PTHREAD_CREATE_JOINABLE,
 				__thread_event_handler, NULL);
-		retvm_if(!res, FALSE, "_util_thread_create() Fail");
+		retvm_if(!res, FALSE, "_util_thread_create() Fail\n");
 
 		__send_start_event_to_eh_thread();
 
 		break;
 
 	case USB_REMOVED:
-		retvm_if(is_usb_removed == 1, TRUE, "USB is already removed");
+		retvm_if(is_usb_removed == 1, TRUE, "USB is already removed\n");
 
 		is_usb_removed = 1;
-		DBG("USB is disconnected");
+		DBG("USB is disconnected\n");
 
 		g_status->is_usb_discon = TRUE;
 		g_status->cancel_intialization = TRUE;
@@ -255,15 +255,15 @@ mtp_bool _eh_handle_usb_events(mtp_uint32 type)
 		if (g_mtp_mgr.ftemp_st.filepath != NULL &&
 				(access(g_mtp_mgr.ftemp_st.filepath, F_OK) == 0)) {
 			DBG("USB disconnected but temp file is remaind.\
-					It will be deleted.");
+					It will be deleted.\n");
 
 			if (g_mtp_mgr.ftemp_st.fhandle != NULL) {
-				DBG("handle is found. At first close file");
+				DBG("handle is found. At first close file\n");
 				_util_file_close(g_mtp_mgr.ftemp_st.fhandle);
 				g_mtp_mgr.ftemp_st.fhandle = NULL;
 			}
 			if (remove(g_mtp_mgr.ftemp_st.filepath) < 0) {
-				ERR_SECURE("remove(%s) Fail", g_mtp_mgr.ftemp_st.filepath);
+				ERR_SECURE("remove(%s) Fail\n", g_mtp_mgr.ftemp_st.filepath);
 				_util_print_error();
 			}
 			g_free(g_mtp_mgr.ftemp_st.filepath);

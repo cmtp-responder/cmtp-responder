@@ -201,7 +201,7 @@ mtp_bool _entity_init_mtp_store(mtp_store_t *store, mtp_uint32 store_id,
 		break;
 
 	default:
-		ERR("store initialization Fail");
+		ERR("store initialization Fail\n");
 		return FALSE;
 	}
 	/* LCOV_EXCL_STOP */
@@ -218,12 +218,12 @@ mtp_obj_t *_entity_add_file_to_store(mtp_store_t *store, mtp_uint32 h_parent,
 	retv_if(NULL == store, NULL);
 
 	obj = _entity_alloc_mtp_object();
-	retvm_if(!obj, NULL, "Memory allocation Fail");
+	retvm_if(!obj, NULL, "Memory allocation Fail\n");
 
 	if (_entity_init_mtp_object_params(obj, store->store_id, h_parent,
 				file_path, file_name, file_info) == FALSE) {
 		/* LCOV_EXCL_START */
-		ERR("_entity_init_mtp_object_params Fail");
+		ERR("_entity_init_mtp_object_params Fail\n");
 		g_free(obj);
 		return NULL;
 		/* LCOV_EXCL_STOP */
@@ -241,12 +241,12 @@ mtp_obj_t *_entity_add_folder_to_store(mtp_store_t *store, mtp_uint32 h_parent,
 	retv_if(NULL == store, NULL);
 
 	obj = _entity_alloc_mtp_object();
-	retvm_if(!obj, NULL, "Memory allocation Fail");
+	retvm_if(!obj, NULL, "Memory allocation Fail\n");
 
 	if (_entity_init_mtp_object_params(obj, store->store_id, h_parent,
 				file_path, file_name, file_info) == FALSE) {
 		/* LCOV_EXCL_START */
-		ERR("_entity_init_mtp_object_params Fail");
+		ERR("_entity_init_mtp_object_params Fail\n");
 		g_free(obj);
 		return NULL;
 		/* LCOV_EXCL_STOP */
@@ -266,7 +266,7 @@ mtp_bool _entity_add_object_to_store(mtp_store_t *store, mtp_obj_t *obj)
 	retv_if(obj->obj_info == NULL, FALSE);
 
 	retvm_if(!_util_add_node(&(store->obj_list), obj), FALSE,
-		"Node add to list Fail");
+		"Node add to list Fail\n");
 
 	/* references */
 	if (PTP_OBJECTHANDLE_ROOT != obj->obj_info->h_parent) {
@@ -340,7 +340,7 @@ mtp_obj_t *_entity_get_object_from_store_by_path(mtp_store_t *store,
 	while (UTIL_CHECK_LIST_NEXT(iter) == TRUE) {
 		obj = (mtp_obj_t *)_util_get_list_next(iter);
 		if (obj == NULL) {
-			ERR("Object is NULL");
+			ERR("Object is NULL\n");
 			continue;
 		}
 
@@ -369,7 +369,7 @@ mtp_uint32 _entity_get_objects_from_store(mtp_store_t *store,
 	retv_if(obj_arr == NULL, 0);
 
 	retvm_if(obj_handle != PTP_OBJECTHANDLE_ALL, 0, 
-		"Object Handle is not PTP_OBJECTHANDLE_ALL");
+		"Object Handle is not PTP_OBJECTHANDLE_ALL\n");
 
 	iter = (slist_iterator *)_util_init_list_iterator(&(store->obj_list));
 	retvm_if(!iter, 0, "Iterator init Fail Store id = [0x%x]\n", store->store_id);
@@ -378,7 +378,7 @@ mtp_uint32 _entity_get_objects_from_store(mtp_store_t *store,
 
 		obj = (mtp_obj_t *)_util_get_list_next(iter);
 		if (obj == NULL) {
-			ERR("Object is NULL");
+			ERR("Object is NULL\n");
 			continue;
 		}
 		if ((fmt == obj->obj_info->obj_fmt) ||
@@ -484,7 +484,7 @@ mtp_uint32 _entity_get_child_handles(mtp_store_t *store, mtp_uint32 h_parent,
 
 	parent_obj = _entity_get_object_from_store(store, h_parent);
 
-	retvm_if(!parent_obj, FALSE, "parent object is NULL");
+	retvm_if(!parent_obj, FALSE, "parent object is NULL\n");
 
 	iter = (slist_iterator *)_util_init_list_iterator(&(store->obj_list));
 	retvm_if(!iter, 0, "Iterator init Fail Store id = [0x%x]\n", store->store_id);
@@ -548,7 +548,7 @@ mtp_bool _entity_remove_object_mtp_store(mtp_store_t *store, mtp_obj_t *obj,
 
 	if (TRUE == g_status->cancel_intialization ||
 			TRUE == g_status->is_usb_discon) {
-		ERR("Delete operation cancelled or USB is disconnected");
+		ERR("Delete operation cancelled or USB is disconnected\n");
 		*response = PTP_RESPONSE_PARTIAL_DELETION;
 		return FALSE;
 	}
@@ -600,7 +600,7 @@ mtp_bool _entity_remove_object_mtp_store(mtp_store_t *store, mtp_obj_t *obj,
 				if (g_status->cancel_intialization == TRUE ||
 						g_status->is_usb_discon == TRUE) {
 					ERR("child handle. USB is disconnected \
-							format operation is cancelled.");
+							format operation is cancelled.\n");
 					*response =
 						PTP_RESPONSE_PARTIAL_DELETION;
 					_prop_deinit_ptparray(&child_arr);
@@ -627,7 +627,7 @@ mtp_bool _entity_remove_object_mtp_store(mtp_store_t *store, mtp_obj_t *obj,
 					if (TRUE == g_status->cancel_intialization ||
 							TRUE ==	g_status->is_usb_discon) {
 						ERR("USB is disconnected format\
-								operation is cancelled.");
+								operation is cancelled.\n");
 						*response =
 							PTP_RESPONSE_PARTIAL_DELETION;
 						_prop_deinit_ptparray(&child_arr);
@@ -686,7 +686,7 @@ mtp_bool _entity_remove_object_mtp_store(mtp_store_t *store, mtp_obj_t *obj,
 				return FALSE;
 			}
 		} else {
-			ERR("all member in this folder is not deleted.");
+			ERR("all member in this folder is not deleted.\n");
 		}
 	} else {
 #ifdef MTP_SUPPORT_SET_PROTECTION
@@ -752,7 +752,7 @@ mtp_uint16 _entity_delete_obj_mtp_store(mtp_store_t *store,
 	retv_if(store == NULL, PTP_RESPONSE_GEN_ERROR);
 
 	retvm_if(PTP_STORAGEACCESS_R == store->store_info.access,
-		PTP_RESPONSE_STORE_READONLY, "Read only store");
+		PTP_RESPONSE_STORE_READONLY, "Read only store\n");
 
 	if (PTP_OBJECTHANDLE_ALL == obj_handle) {
 		slist_node_t *node = NULL;
@@ -761,7 +761,7 @@ mtp_uint16 _entity_delete_obj_mtp_store(mtp_store_t *store,
 			if (TRUE == g_status->cancel_intialization ||
 					TRUE == g_status->is_usb_discon) {
 				ERR("USB is disconnected format\
-						operation is cancelled.");
+						operation is cancelled.\n");
 				response = PTP_RESPONSE_GEN_ERROR;
 				return response;
 			}
@@ -946,16 +946,16 @@ void _entity_store_recursive_enum_folder_objects(mtp_store_t *store,
 	}
 
 	retm_if(folder_name == NULL || folder_name[0] != '/',
-		"foldername has no root slash!!");
+		"foldername has no root slash!!\n");
 
-	retm_if(!_util_ifind_first(folder_name, &h_dir, &entry), "No more files");
+	retm_if(!_util_ifind_first(folder_name, &h_dir, &entry), "No more files\n");
 
 	do {
 		if (TRUE == g_status->is_usb_discon) {
 			/* LCOV_EXCL_START */
-			DBG("USB is disconnected");
+			DBG("USB is disconnected\n");
 			if (closedir(h_dir) < 0)
-				ERR("Close directory Fail");
+				ERR("Close directory Fail\n");
 
 			return;
 			/* LCOV_EXCL_STOP */
@@ -963,7 +963,7 @@ void _entity_store_recursive_enum_folder_objects(mtp_store_t *store,
 
 		_util_get_file_name(entry.filename, file_name);
 		if (0 == strlen(file_name)) {
-			ERR("szFilename size is 0");
+			ERR("szFilename size is 0\n");
 			goto NEXT;
 		}
 
@@ -974,7 +974,7 @@ void _entity_store_recursive_enum_folder_objects(mtp_store_t *store,
 					entry.filename, file_name, &entry);
 
 			if (NULL == obj) {
-				ERR("pObject is NULL");
+				ERR("pObject is NULL\n");
 				goto NEXT;
 			}
 
@@ -983,7 +983,7 @@ void _entity_store_recursive_enum_folder_objects(mtp_store_t *store,
 			_entity_add_file_to_store(store, h_parent,
 					entry.filename, file_name, &entry);
 		} else {
-			DBG("UNKNOWN TYPE");
+			DBG("UNKNOWN TYPE\n");
 		}
 NEXT:
 		status = (mtp_bool)_util_ifind_next(folder_name, h_dir,
@@ -991,7 +991,7 @@ NEXT:
 	} while (status);
 
 	if (closedir(h_dir) < 0)
-		ERR("close directory fail");
+		ERR("close directory fail\n");
 
 #ifdef MTP_SUPPORT_OBJECTADDDELETE_EVENT
 	_inoti_add_watch_for_fs_events(folder_name);

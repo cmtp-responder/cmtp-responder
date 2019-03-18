@@ -76,10 +76,7 @@ static mtp_bool __create_prop_integer(mtp_obj_t *obj,
 	retv_if(obj->obj_info == NULL, FALSE);
 
 	prop = _prop_get_obj_prop_desc(fmt_code, propcode);
-	if (NULL == prop) {
-		ERR("Create property Fail.. Prop = [0x%X]\n", propcode);
-		return FALSE;
-	}
+	retvm_if(!prop, FALSE, "Create property Fail.. Prop = [0x%X]\n", propcode);
 
 	propvalue_alloc_and_check(prop_val);
 	_prop_set_current_integer_val(prop_val, value);
@@ -100,10 +97,7 @@ static mtp_bool __create_prop_string(mtp_obj_t *obj, mtp_uint16 propcode,
 	retv_if(obj->obj_info == NULL, FALSE);
 
 	prop = _prop_get_obj_prop_desc(fmt_code, propcode);
-	if (NULL == prop) {
-		ERR("Create property Fail.. Prop = [0x%X]\n", propcode);
-		return FALSE;
-	}
+	retvm_if(!prop, FALSE, "Create property Fail.. Prop = [0x%X]\n", propcode);
 
 	propvalue_alloc_and_check(prop_val);
 	_prop_copy_char_to_ptpstring(&ptp_str, value, WCHAR_TYPE);
@@ -124,10 +118,7 @@ static mtp_bool __create_prop_timestring(mtp_obj_t *obj,
 	retv_if(obj->obj_info == NULL, FALSE);
 
 	prop = _prop_get_obj_prop_desc(fmt_code, propcode);
-	if (NULL == prop) {
-		ERR("Create property Fail.. Prop = [0x%X]\n", propcode);
-		return FALSE;
-	}
+	retvm_if(!prop, FALSE, "Create property Fail.. Prop = [0x%X]\n", propcode);
 
 	propvalue_alloc_and_check(prop_val);
 	_prop_set_current_string_val(prop_val, (ptp_string_t *)value);
@@ -147,10 +138,7 @@ static mtp_bool __create_prop_array(mtp_obj_t *obj, mtp_uint16 propcode,
 	retv_if(obj->obj_info == NULL, FALSE);
 
 	prop = _prop_get_obj_prop_desc(fmt_code, propcode);
-	if (NULL == prop) {
-		ERR("Create property Fail.. Prop = [0x%X]\n", propcode);
-		return FALSE;
-	}
+	retvm_if(!prop, FALSE, "Create property Fail.. Prop = [0x%X]\n", propcode);
 
 	propvalue_alloc_and_check(prop_val);
 	_prop_set_current_array_val(prop_val, (mtp_uchar *)arr, size);
@@ -195,7 +183,7 @@ mtp_uint32 _prop_get_size_ptparray(ptp_array_t *parray)
 {
 	mtp_uint16 size = 0;
 
-	retvm_if(!parray, 0, "ptp_array_t is NULL");
+	retvm_if(!parray, 0, "ptp_array_t is NULL\n");
 
 	size = __get_ptp_array_elem_size(parray->type);
 	if (size == 0)
@@ -356,7 +344,7 @@ mtp_uint32 _prop_pack_ptparray(ptp_array_t *parray, mtp_uchar *buf,
 {
 	mtp_uint16 size = 1;
 
-	retvm_if(!parray || !buf, 0, "pArray or buf is NULL");
+	retvm_if(!parray || !buf, 0, "pArray or buf is NULL\n");
 
 	size = __get_ptp_array_elem_size(parray->type);
 	if (size == 0)
@@ -738,10 +726,9 @@ mtp_bool _prop_is_valid_string(prop_info_t *prop_info, ptp_string_t *pstring)
 		return TRUE;
 	} else if (prop_info->form_flag == DATE_TIME_FORM) {
 		mtp_wchar *date_time = pstring->str;
-		if ((date_time[8] != L'T') && (pstring->num_chars > 9)) {
-			ERR("invalid data time format");
-			return FALSE;
-		}
+		retvm_if((date_time[8] != L'T') && (pstring->num_chars > 9), FALSE,
+			"invalid data time format\n");
+
 		/* LCOV_EXCL_STOP */
 		return TRUE;
 	} else if (prop_info->form_flag == REGULAR_EXPRESSION_FORM) {
@@ -1087,7 +1074,7 @@ ERROR_CATCH:
 			return prop_val;
 		}
 	}
-	ERR("node or node->value is null. try again but not found");
+	ERR("node or node->value is null. try again but not found\n");
 	return NULL;
 }
 
@@ -1591,7 +1578,7 @@ mtp_uint32 _prop_get_obj_proplist(mtp_obj_t *obj, mtp_uint32 propcode,
 
 	if (obj->propval_list.nnodes == 0) {
 		if (FALSE == _prop_update_property_values_list(obj)) {
-			ERR("update Property Values FAIL!!");
+			ERR("update Property Values FAIL!!\n");
 			return 0;
 		}
 	}
@@ -1652,11 +1639,8 @@ mtp_bool _prop_update_property_values_list(mtp_obj_t *obj)
 	}
 
 	/* Populate Object Info to Object properties */
-	if (obj->file_path == NULL || obj->file_path[0] != '/') {
-		ERR_SECURE("Path is not valid.. path = [%s]\n",
-				obj->file_path);
-		return FALSE;
-	}
+	retvm_if(obj->file_path == NULL || obj->file_path[0] != '/', FALSE,
+		"Path is not valid.. path = [%s]\n", obj->file_path);
 
 	/*STORAGE ID*/
 	retv_if(FALSE == __create_prop_integer(obj,
@@ -1760,7 +1744,7 @@ mtp_bool _prop_add_supp_string_val(prop_info_t *prop_info, mtp_wchar *val)
 		_prop_copy_char_to_ptpstring(str, val, WCHAR_TYPE);
 		ret = _util_add_node(&(prop_info->supp_value_list), (void *)str);
 		if (ret == FALSE) {
-			ERR("List add Fail");
+			ERR("List add Fail\n");
 			g_free(str);
 			return FALSE;
 		}
@@ -1800,7 +1784,7 @@ mtp_bool _prop_build_supp_props_default(void)
 	mtp_uchar i = 0;
 	mtp_uint32 default_val;
 
-	retvm_if(initialized, TRUE, "already supported list is in there. just return!!");
+	retvm_if(initialized, TRUE, "already supported list is in there. just return!!\n");
 
 	/*
 	 * MTP_OBJ_PROPERTYCODE_STORAGEID (1)

@@ -27,7 +27,7 @@ mtp_bool _util_msgq_init(msgq_id_t *mq_id, mtp_uint32 flags)
 {
 	*mq_id = msgget(IPC_PRIVATE, 0666 | IPC_CREAT);
 	if (*mq_id == -1) {
-		ERR("msgget() Fail");
+		ERR("msgget() Fail\n");
 		_util_print_error();
 		return FALSE;
 	}
@@ -38,7 +38,7 @@ mtp_bool _util_msgq_send(msgq_id_t mq_id, void *buf, mtp_uint32 size,
 		mtp_uint32 flags)
 {
 	if (-1 == msgsnd(mq_id, buf, size, flags)) {
-		ERR("msgsnd() Fail : mq_id = [%d]", mq_id);
+		ERR("msgsnd() Fail : mq_id = [%d]\n", mq_id);
 		_util_print_error();
 		return FALSE;
 	}
@@ -56,7 +56,7 @@ mtp_bool _util_msgq_receive(msgq_id_t mq_id, void *buf, mtp_uint32 size,
 		ret = msgrcv(mq_id, buf, size, 0, 0);
 
 	if (ret == -1) {
-		ERR("msgrcv() Fail");
+		ERR("msgrcv() Fail\n");
 		_util_print_error();
 		*nbytes = 0;
 		return FALSE;
@@ -68,7 +68,7 @@ mtp_bool _util_msgq_receive(msgq_id_t mq_id, void *buf, mtp_uint32 size,
 
 mtp_bool _util_msgq_deinit(msgq_id_t *msgq_id)
 {
-	retvm_if(msgctl(*msgq_id, IPC_RMID, 0) == -1, FALSE, "msgctl(IPC_RMID) Fail");
+	retvm_if(msgctl(*msgq_id, IPC_RMID, 0) == -1, FALSE, "msgctl(IPC_RMID) Fail\n");
 
 	return TRUE;
 }
@@ -78,12 +78,12 @@ mtp_bool _util_msgq_set_size(msgq_id_t mq_id, mtp_uint32 nbytes)
 	struct msqid_ds attr;
 
 	/* Getting the attributes of Message Queue */
-	retvm_if(msgctl(mq_id, MSG_STAT, &attr) == -1, FALSE, "msgctl(MSG_STAT) Fail");
+	retvm_if(msgctl(mq_id, MSG_STAT, &attr) == -1, FALSE, "msgctl(MSG_STAT) Fail\n");
 
 	attr.msg_qbytes = nbytes;
 
 	/* Setting the message queue size */
-	retvm_if(msgctl(mq_id, IPC_SET, &attr) == -1, FALSE, "msgctl(IPC_SET) Fail");
+	retvm_if(msgctl(mq_id, IPC_SET, &attr) == -1, FALSE, "msgctl(IPC_SET) Fail\n");
 
 	return TRUE;
 }
@@ -105,7 +105,7 @@ mtp_bool _util_rcv_msg_from_mq(msgq_id_t mq_id, unsigned char **pkt,
 
 	retvm_if(!_util_msgq_receive(mq_id, (void *)&msg,
 		sizeof(msgq_ptr_t) - sizeof(long), 0, &nbytes), FALSE,
-		"_util_msgq_receive() Fail : mq_id = [%d]", mq_id);
+		"_util_msgq_receive() Fail : mq_id = [%d]\n", mq_id);
 
 	*pkt_len = msg.length;
 	*pkt = msg.buffer;

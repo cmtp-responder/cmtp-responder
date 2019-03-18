@@ -72,7 +72,7 @@ slist_node_t* _util_delete_node(slist_t *l_ptr, void *data)
 		nptr = nptr->link;
 	}
 
-	retvm_if(!nptr->link, NULL, "Node not found in the list");
+	retvm_if(!nptr->link, NULL, "Node not found in the list\n");
 
 	temp = nptr->link;
 	nptr->link = nptr->link->link;
@@ -107,7 +107,7 @@ slist_iterator* _util_init_list_iterator(slist_t *l_ptr)
 	retv_if(l_ptr->start == NULL, NULL);
 
 	temp = (slist_iterator *)g_malloc(sizeof(slist_iterator));
-	retvm_if(!temp, NULL, "g_malloc() Fail");
+	retvm_if(!temp, NULL, "g_malloc() Fail\n");
 
 	temp->node_ptr = l_ptr->start;
 	return temp;

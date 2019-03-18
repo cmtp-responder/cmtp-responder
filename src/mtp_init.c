@@ -56,7 +56,7 @@ static mtp_mgr_t *g_mgr = &g_mtp_mgr;
 /* LCOV_EXCL_START */
 static void __print_mtp_conf(void)
 {
-	retm_if(g_conf.is_init == false, "g_conf is not initialized");
+	retm_if(g_conf.is_init == false, "g_conf is not initialized\n");
 
 	DBG("MMAP_THRESHOLD : %d\n", g_conf.mmap_threshold);
 	DBG("INIT_RX_IPC_SIZE : %d\n", g_conf.init_rx_ipc_size);
@@ -111,7 +111,7 @@ static void __read_mtp_conf(void)
 	fp = fopen(MTP_CONFIG_FILE_PATH, "r");
 	if (fp == NULL) {
 		/* LCOV_EXCL_START */
-		DBG("Default configuration is used");
+		DBG("Default configuration is used\n");
 		g_conf.is_init = true;
 
 		__print_mtp_conf();
@@ -125,7 +125,7 @@ static void __read_mtp_conf(void)
 
 		token = strrchr(buf, '\n');
 		if (token == NULL) {
-			ERR("g_conf is too long");
+			ERR("g_conf is too long\n");
 			break;
 		}
 		*token = '\0';
@@ -267,16 +267,16 @@ static void __read_mtp_conf(void)
  */
 static void __mtp_exit(void)
 {
-	DBG("## Terminate all threads");
+	DBG("## Terminate all threads\n");
 	if (g_eh_thrd && g_eh_thrd != pthread_self()) {
 		_eh_send_event_req_to_eh_thread(EVENT_USB_REMOVED, 0, 0, NULL);
 		if (_util_thread_join(g_eh_thrd, NULL) == FALSE)
-			ERR("_util_thread_join() Fail");
+			ERR("_util_thread_join() Fail\n");
 
 		g_eh_thrd = 0;
 	}
 
-	DBG("## Terminate main loop");
+	DBG("## Terminate main loop\n");
 
 	g_main_loop_quit(g_mainloop);
 
@@ -288,27 +288,27 @@ static void __mtp_exit(void)
 
 static void _features_supported_info(void)
 {
-	DBG("***********************************************************");
-	DBG("### MTP Information ###");
-	DBG("### 1. Solution		: SLP");
-	DBG("### 2. MTP Version		: 1.0");
+	DBG("***********************************************************\n");
+	DBG("### MTP Information ###\n");
+	DBG("### 1. Solution		: SLP\n");
+	DBG("### 2. MTP Version		: 1.0\n");
 
-	DBG("***********************************************************");
-	DBG("### Extension ###");
+	DBG("***********************************************************\n");
+	DBG("### Extension ###\n");
 	if (_get_oma_drm_status() == TRUE)
-		DBG("### 2. OMADRM		: [ON]");
+		DBG("### 2. OMADRM		: [ON]\n");
 	else
-		DBG("### 2. OMADRM		: [OFF]");
+		DBG("### 2. OMADRM		: [OFF]\n");
 
-	DBG("***********************************************************");
-	DBG("### Feature ###");
+	DBG("***********************************************************\n");
+	DBG("### Feature ###\n");
 
 #ifdef MTP_SUPPORT_SET_PROTECTION
-	DBG("### 3. MTP_SUPPORT_SET_PROTECTION	: [ON]");
+	DBG("### 3. MTP_SUPPORT_SET_PROTECTION	: [ON]\n");
 #else /* MTP_SUPPORT_SET_PROTECTION */
-	DBG("### 3. MTP_SUPPORT_SET_PROTECTION	: [OFF]");
+	DBG("### 3. MTP_SUPPORT_SET_PROTECTION	: [OFF]\n");
 #endif /* MTP_SUPPORT_SET_PROTECTION */
-	DBG("***********************************************************");
+	DBG("***********************************************************\n");
 }
 
 void __init_mtp_info(void)
@@ -325,16 +325,16 @@ void _mtp_init(void)
 {
 	mtp_int32 error = 0;
 
-	DBG("Initialization start!");
+	DBG("Initialization start!\n");
 
 	__read_mtp_conf();
 
 	if (g_conf.mmap_threshold) {
 		if (!mallopt(M_MMAP_THRESHOLD, g_conf.mmap_threshold))
-			ERR("mallopt(M_MMAP_THRESHOLD) Fail");
+			ERR("mallopt(M_MMAP_THRESHOLD) Fail\n");
 
 		if (!mallopt(M_TRIM_THRESHOLD, g_conf.mmap_threshold * 2))
-			ERR("mallopt(M_TRIM_THRESHOLD) Fail");
+			ERR("mallopt(M_TRIM_THRESHOLD) Fail\n");
 	}
 
 	__init_mtp_info();
@@ -346,7 +346,7 @@ void _mtp_init(void)
 		/* Allocate memory for temporary */
 		g_mgr->ftemp_st.temp_buff = (mtp_char *)g_malloc(g_conf.write_file_size);
 		if (g_mgr->ftemp_st.temp_buff == NULL) {
-			ERR("memory allocation fail");
+			ERR("memory allocation fail\n");
 			goto MTP_INIT_FAIL;
 		}
 	}
@@ -419,7 +419,7 @@ static inline int _main_init()
 	pthread_mutexattr_init(&mutex_attr);
 	pthread_mutexattr_settype(&mutex_attr, PTHREAD_MUTEX_RECURSIVE);
 	if (0 != pthread_mutex_init(&g_cmd_inoti_mutex, &mutex_attr)) {
-		ERR("pthread_mutex_init() Fail");
+		ERR("pthread_mutex_init() Fail\n");
 		_util_print_error();
 		pthread_mutexattr_destroy(&mutex_attr);
 		return MTP_ERROR_GENERAL;
@@ -427,10 +427,10 @@ static inline int _main_init()
 	pthread_mutexattr_destroy(&mutex_attr);
 
 	retvm_if(!_eh_handle_usb_events(USB_INSERTED), MTP_ERROR_GENERAL,
-		"_eh_handle_usb_events() Fail");
+		"_eh_handle_usb_events() Fail\n");
 
 	g_mainloop = g_main_loop_new(NULL, FALSE);
-	retvm_if(!g_mainloop, MTP_ERROR_GENERAL, "g_mainloop is NULL");
+	retvm_if(!g_mainloop, MTP_ERROR_GENERAL, "g_mainloop is NULL\n");
 
 	return MTP_ERROR_NONE;
 }
@@ -439,7 +439,7 @@ int main(int argc, char *argv[])
 {
 	mtp_int32 ret;
 
-	DBG("Using FFS transport, assuming established connection");
+	DBG("Using FFS transport, assuming established connection\n");
 	g_ph_status->usb_state = MTP_PHONE_USB_DISCONNECTED;
 	g_ph_status->usb_mode_state = 1;
 	DBG("Phone status: USB = [%d] MMC = [%d] USB_MODE = [%d] LOCK_STATUS = [%d]\n",
@@ -447,13 +447,13 @@ int main(int argc, char *argv[])
 			g_ph_status->usb_mode_state, MTP_PHONE_LOCK_OFF);
 
 	ret = _main_init();
-	retvm_if(MTP_ERROR_NONE != ret, MTP_ERROR_GENERAL, "_main_init() Fail(%d)", ret);
+	retvm_if(MTP_ERROR_NONE != ret, MTP_ERROR_GENERAL, "_main_init() Fail(%d)\n", ret);
 
 	DBG("MTP UID = [%u] and GID = [%u]\n", getuid(), getgid());
 
 	g_main_loop_run(g_mainloop);
 
-	DBG("######### MTP TERMINATED #########");
+	DBG("######### MTP TERMINATED #########\n");
 
 	return MTP_ERROR_NONE;
 }

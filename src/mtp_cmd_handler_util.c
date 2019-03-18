@@ -57,7 +57,7 @@ mtp_err_t _hutil_get_storage_entry(mtp_uint32 store_id, store_info_t *info)
 	mtp_store_t *store = NULL;
 
 	store = _device_get_store(store_id);
-	retvm_if(!store, MTP_ERROR_GENERAL, "Not able to retrieve store");
+	retvm_if(!store, MTP_ERROR_GENERAL, "Not able to retrieve store\n");
 
 	/* LCOV_EXCL_START */
 	_entity_update_store_info_run_time(&(store->store_info),
@@ -119,7 +119,7 @@ mtp_err_t _hutil_add_object_entry(obj_info_t *obj_info, mtp_char *file_name,
 		/* LCOV_EXCL_START */
 		par_obj = _device_get_object_with_handle(obj_info->h_parent);
 		if (par_obj == NULL) {
-			ERR("parent is not existed.");
+			ERR("parent is not existed.\n");
 			_entity_dealloc_obj_info(obj_info);
 			return MTP_ERROR_INVALID_OBJECTHANDLE;
 		}
@@ -136,7 +136,7 @@ mtp_err_t _hutil_add_object_entry(obj_info_t *obj_info, mtp_char *file_name,
 
 	store = _device_get_store(obj_info->store_id);
 	if (store == NULL) {
-		ERR("store is null");
+		ERR("store is null\n");
 		_entity_dealloc_obj_info(obj_info);
 		return MTP_ERROR_GENERAL;
 	}
@@ -150,7 +150,7 @@ mtp_err_t _hutil_add_object_entry(obj_info_t *obj_info, mtp_char *file_name,
 
 	obj = _entity_alloc_mtp_object();
 	if (obj == NULL) {
-		ERR("allocation memory Fail");
+		ERR("allocation memory Fail\n");
 		_entity_dealloc_obj_info(obj_info);
 		return MTP_ERROR_GENERAL;
 	}
@@ -221,14 +221,14 @@ mtp_err_t _hutil_add_object_entry(obj_info_t *obj_info, mtp_char *file_name,
 		path_len = strlen(store->root_path) + strlen(MTP_TEMP_FILE) + 2;
 		g_mgr->ftemp_st.filepath = (mtp_char*)g_malloc0(path_len);
 		if (g_mgr->ftemp_st.filepath == NULL) {
-			ERR("g_realloc Fail");
+			ERR("g_realloc Fail\n");
 			_entity_dealloc_mtp_obj(obj);
 			return MTP_ERROR_GENERAL;
 		}
 
 		if (_util_create_path(g_mgr->ftemp_st.filepath, path_len,
 					store->root_path, MTP_TEMP_FILE) == FALSE) {
-			ERR("Tempfile fullPath is too long");
+			ERR("Tempfile fullPath is too long\n");
 			_entity_dealloc_mtp_obj(obj);
 			return MTP_ERROR_GENERAL;
 		}
@@ -290,7 +290,7 @@ mtp_err_t _hutil_add_object_entry(obj_info_t *obj_info, mtp_char *file_name,
 			h_abs_file = _util_file_open(new_f_path,
 					MTP_FILE_WRITE, &error);
 			if (h_abs_file == NULL) {
-				ERR("create file fail!!");
+				ERR("create file fail!!\n");
 				_entity_dealloc_mtp_obj(obj);
 				return MTP_ERROR_GENERAL;
 			}
@@ -300,7 +300,7 @@ mtp_err_t _hutil_add_object_entry(obj_info_t *obj_info, mtp_char *file_name,
 					MTP_MAX_PATHNAME_SIZE + 1, "%s", new_f_path);
 			if (_util_dir_create(new_f_path, &error) == FALSE) {
 				/* We failed to create the folder */
-				ERR("create directory Fail");
+				ERR("create directory Fail\n");
 				memset(g_last_created_dir, 0,
 						sizeof(g_last_created_dir));
 				_entity_dealloc_mtp_obj(obj);
@@ -310,7 +310,7 @@ mtp_err_t _hutil_add_object_entry(obj_info_t *obj_info, mtp_char *file_name,
 
 		_entity_set_object_file_path(obj, new_f_path, CHAR_TYPE);
 		if (_entity_add_object_to_store(store, obj) == FALSE) {
-			ERR("_entity_add_object_to_store Fail");
+			ERR("_entity_add_object_to_store Fail\n");
 			_entity_dealloc_mtp_obj(obj);
 			return MTP_ERROR_STORE_FULL;
 		}
@@ -427,7 +427,7 @@ mtp_err_t _hutil_copy_object_entries(mtp_uint32 dst_store_id,
 	dst = _device_get_store(dst_store_id);
 	obj = _device_get_object_with_handle(obj_handle);
 
-	retvm_if(!src || !dst || !obj, MTP_ERROR_GENERAL, "NULL!!");
+	retvm_if(!src || !dst || !obj, MTP_ERROR_GENERAL, "NULL!!\n");
 
 	/* LCOV_EXCL_START */
 	if (h_parent > 0)	{
@@ -448,17 +448,17 @@ mtp_err_t _hutil_copy_object_entries(mtp_uint32 dst_store_id,
 	if (par_obj == NULL) {
 		/* Parent is the root of this store */
 		retvm_if(!_util_create_path(fpath, sizeof(fpath), dst->root_path,
-				utf8_temp), MTP_ERROR_GENERAL, "new path is too LONG");
+				utf8_temp), MTP_ERROR_GENERAL, "new path is too LONG\n");
 	} else {
 		retvm_if(!_util_create_path(fpath, sizeof(fpath), par_obj->file_path,
-				utf8_temp), MTP_ERROR_GENERAL, "New path is too LONG!!");
+				utf8_temp), MTP_ERROR_GENERAL, "New path is too LONG!!\n");
 	}
 
 	retvm_if(!strcasecmp(fpath, obj->file_path), MTP_ERROR_GENERAL,
 		"Identical path of source and destination[%s]\n", fpath);
 
 	new_obj = _entity_alloc_mtp_object();
-	retvm_if(!new_obj, MTP_ERROR_GENERAL, "_entity_alloc_mtp_object Fail");
+	retvm_if(!new_obj, MTP_ERROR_GENERAL, "_entity_alloc_mtp_object Fail\n");
 
 	memset(new_obj, 0, sizeof(mtp_obj_t));
 	new_obj->child_array.type = UINT32_TYPE;
@@ -483,13 +483,13 @@ mtp_err_t _hutil_copy_object_entries(mtp_uint32 dst_store_id,
 		par_obj->obj_handle;
 
 	if (new_obj->obj_info->obj_fmt != PTP_FMT_ASSOCIATION) {
-		DBG("Non-association type!!");
+		DBG("Non-association type!!\n");
 		g_snprintf(g_last_copied, MTP_MAX_PATHNAME_SIZE + 1, "%s",
 				new_obj->file_path);
 		if (_util_file_copy(obj->file_path, new_obj->file_path,
 					&error) == FALSE) {
 			memset(g_last_copied, 0, MTP_MAX_PATHNAME_SIZE + 1);
-			ERR("Copy file Fail");
+			ERR("Copy file Fail\n");
 			_entity_dealloc_mtp_obj(new_obj);
 			if (EACCES == error)
 				return MTP_ERROR_ACCESS_DENIED;
@@ -526,7 +526,7 @@ mtp_err_t _hutil_copy_object_entries(mtp_uint32 dst_store_id,
 		return MTP_ERROR_NONE;
 	}
 
-	DBG("Association type!!");
+	DBG("Association type!!\n");
 	if (access(new_obj->file_path, F_OK) == 0) {
 		if (TRUE == keep_handle) {
 			/*generate unique_path*/
@@ -542,7 +542,7 @@ mtp_err_t _hutil_copy_object_entries(mtp_uint32 dst_store_id,
 			if (_util_dir_create(new_obj->file_path, &error) == FALSE) {
 				memset(g_last_created_dir, 0,
 						MTP_MAX_PATHNAME_SIZE + 1);
-				ERR("Creating folder Fail!!");
+				ERR("Creating folder Fail!!\n");
 				_entity_dealloc_mtp_obj(new_obj);
 				if (ENOSPC == error)
 					return MTP_ERROR_STORE_FULL;
@@ -552,10 +552,10 @@ mtp_err_t _hutil_copy_object_entries(mtp_uint32 dst_store_id,
 			/* Add the new object to this store's object list */
 			_entity_add_object_to_store(dst, new_obj);
 		} else {
-			DBG("Already existed association type!!");
+			DBG("Already existed association type!!\n");
 			_entity_dealloc_mtp_obj(new_obj);
 			new_obj = _entity_get_object_from_store_by_path(dst, fpath);
-			retvm_if(!new_obj, MTP_ERROR_GENERAL, "But object is not registered!!");
+			retvm_if(!new_obj, MTP_ERROR_GENERAL, "But object is not registered!!\n");
 		}
 	} else {
 		g_snprintf(g_last_created_dir, MTP_MAX_PATHNAME_SIZE + 1,
@@ -563,7 +563,7 @@ mtp_err_t _hutil_copy_object_entries(mtp_uint32 dst_store_id,
 		if (_util_dir_create(new_obj->file_path, &error) == FALSE) {
 			memset(g_last_created_dir, 0,
 					MTP_MAX_PATHNAME_SIZE + 1);
-			ERR("Creating folder Fail!!");
+			ERR("Creating folder Fail!!\n");
 			_entity_dealloc_mtp_obj(new_obj);
 			if (ENOSPC == error)
 				return MTP_ERROR_STORE_FULL;
@@ -580,7 +580,7 @@ mtp_err_t _hutil_copy_object_entries(mtp_uint32 dst_store_id,
 	if (FALSE == keep_handle) {
 		if (FALSE == _util_copy_dir_children_recursive(obj->file_path,
 					new_obj->file_path, dst_store_id, &error)) {
-			ERR_SECURE("Recursive copy Fail  [%s]->[%s]",
+			ERR_SECURE("Recursive copy Fail  [%s]->[%s]\n",
 					obj->file_path, new_obj->file_path);
 			ret = MTP_ERROR_GENERAL;
 			if (EACCES == error)
@@ -622,7 +622,7 @@ mtp_err_t _hutil_copy_object_entries(mtp_uint32 dst_store_id,
 				new_obj->obj_handle, child_obj->obj_handle,
 				new_hobj, keep_handle);
 		if (ret != MTP_ERROR_NONE) {
-			ERR("Copy file Fail");
+			ERR("Copy file Fail\n");
 			_prop_deinit_ptparray(&child_arr);
 			return ret;
 		}
@@ -634,7 +634,7 @@ mtp_err_t _hutil_copy_object_entries(mtp_uint32 dst_store_id,
 	if (!((child_arr.num_ele > 0) ||
 				_util_copy_dir_children_recursive(obj->file_path,
 					new_obj->file_path, dst_store_id, &error))) {
-		ERR_SECURE("Recursive copy Fail [%d], [%s]->[%s]",
+		ERR_SECURE("Recursive copy Fail [%d], [%s]->[%s]\n",
 				child_arr.num_ele,
 				obj->file_path, new_obj->file_path);
 		_prop_deinit_ptparray(&child_arr);
@@ -672,12 +672,12 @@ mtp_err_t _hutil_read_file_data_from_offset(mtp_uint32 obj_handle, off_t offset,
 
 	obj = _device_get_object_with_handle(obj_handle);
 	retvm_if(!obj, MTP_ERROR_INVALID_OBJECTHANDLE,
-		"_device_get_object_with_handle returned NULL object");
+		"_device_get_object_with_handle returned NULL object\n");
 
 	/* LCOV_EXCL_START */
 	retvm_if(obj->obj_info->protcn_status ==
 			MTP_PROTECTIONSTATUS_NONTRANSFERABLE_DATA,
-			MTP_ERROR_GENERAL, "protection data, NONTRANSFERABLE_OBJECT");
+			MTP_ERROR_GENERAL, "protection data, NONTRANSFERABLE_OBJECT\n");
 
 	g_strlcpy(fname, obj->file_path, MTP_MAX_PATHNAME_SIZE + 1);
 	h_file = _util_file_open(fname, MTP_FILE_READ, &error);
@@ -717,13 +717,13 @@ mtp_err_t _hutil_write_file_data(mtp_uint32 store_id, mtp_obj_t *obj,
 	/* LCOV_EXCL_START */
 	store = _device_get_store(store_id);
 	if (store == NULL) {
-		ERR("destination store is not valid");
+		ERR("destination store is not valid\n");
 		return MTP_ERROR_INVALID_OBJECT_INFO;
 	}
 
 	g_strlcpy(fname, obj->file_path, MTP_MAX_PATHNAME_SIZE + 1);
 	if (access(fpath, F_OK) < 0) {
-		ERR("temp file does not exist");
+		ERR("temp file does not exist\n");
 		return MTP_ERROR_GENERAL;
 	}
 
@@ -742,7 +742,7 @@ mtp_err_t _hutil_write_file_data(mtp_uint32 store_id, mtp_obj_t *obj,
 			 MTP_PROTECTIONSTATUS_READONLY_DATA)) {
 		file_attr_t attrs;
 		if (_util_get_file_attrs(fname, &attrs) == FALSE) {
-			ERR("real file get attributes Fail");
+			ERR("real file get attributes Fail\n");
 			_entity_dealloc_mtp_obj(obj);
 			return MTP_ERROR_GENERAL;
 		}
@@ -753,7 +753,7 @@ mtp_err_t _hutil_write_file_data(mtp_uint32 store_id, mtp_obj_t *obj,
 
 #ifndef MTP_USE_RUNTIME_GETOBJECTPROPVALUE
 	if (updatePropertyValuesMtpObject(obj) == FALSE) {
-		ERR("update property values mtp obj Fail");
+		ERR("update property values mtp obj Fail\n");
 		_entity_dealloc_mtp_obj(obj);
 		return MTP_ERROR_GENERAL;
 	}
@@ -771,7 +771,7 @@ mtp_err_t _hutil_get_object_entry_size(mtp_uint32 obj_handle,
 
 	obj = _device_get_object_with_handle(obj_handle);
 	retvm_if(!obj, MTP_ERROR_INVALID_OBJECTHANDLE,
-		"_device_get_object_with_handle returned Null object");
+		"_device_get_object_with_handle returned Null object\n");
 
 	*obj_sz = obj->obj_info->file_size;
 	return MTP_ERROR_NONE;
@@ -789,7 +789,7 @@ mtp_err_t _hutil_set_protection(mtp_uint32 obj_handle, mtp_uint16 prot_status)
 		return MTP_ERROR_INVALID_OBJECTHANDLE;
 
 	retvm_if(obj->obj_info->store_id == MTP_EXTERNAL_STORE_ID,
-		MTP_ERROR_OPERATION_NOT_SUPPORTED, "Storage is external");
+		MTP_ERROR_OPERATION_NOT_SUPPORTED, "Storage is external\n");
 
 	g_strlcpy(fname, obj->file_path, MTP_MAX_PATHNAME_SIZE + 1);
 	obj->obj_info->protcn_status = prot_status;
@@ -885,7 +885,7 @@ mtp_err_t _hutil_construct_object_entry(mtp_uint32 store_id,
 		store_id = g_device->default_store_id;
 
 		if (!store_id) {
-			ERR("_device_get_default_store_id Fail");
+			ERR("_device_get_default_store_id Fail\n");
 			return MTP_ERROR_STORE_NOT_AVAILABLE;
 		}
 
@@ -902,7 +902,7 @@ mtp_err_t _hutil_construct_object_entry(mtp_uint32 store_id,
 	if (objdata != NULL) {
 		store = _device_get_store(objdata->store_id);
 		if (store != NULL) {
-			DBG("check free size instead of re-calculation");
+			DBG("check free size instead of re-calculation\n");
 			_entity_update_store_info_run_time(&(store->store_info),
 					(store->root_path));
 		}
@@ -914,12 +914,12 @@ mtp_err_t _hutil_construct_object_entry(mtp_uint32 store_id,
 
 	store = _device_get_store(store_id);
 	if (store == NULL) {
-		ERR("Store not found");
+		ERR("Store not found\n");
 		return MTP_ERROR_INVALID_STORE;
 	}
 
 	if (store->store_info.access == PTP_STORAGEACCESS_R) {
-		ERR("Read only storage");
+		ERR("Read only storage\n");
 		return MTP_ERROR_STORE_READ_ONLY;
 	}
 
@@ -934,14 +934,14 @@ mtp_err_t _hutil_construct_object_entry(mtp_uint32 store_id,
 
 	obj_info = _entity_alloc_object_info();
 	if (obj_info == NULL) {
-		ERR("_entity_alloc_object_info Fail");
+		ERR("_entity_alloc_object_info Fail\n");
 		return MTP_ERROR_GENERAL;
 	}
 
 	if (_entity_parse_raw_obj_info(data, data_sz, obj_info, file_name,
 				sizeof(file_name)) != data_sz) {
 		/* wrong object info sent from Host.*/
-		ERR("Invalid objet info");
+		ERR("Invalid objet info\n");
 		_entity_dealloc_obj_info(obj_info);
 		return MTP_ERROR_INVALID_OBJECT_INFO;
 	}
@@ -995,7 +995,7 @@ mtp_err_t _hutil_construct_object_entry_prop_list(mtp_uint32 store_id,
 		/* LCOV_EXCL_START */
 		store = _device_get_store(obj_data->store_id);
 		if (store != NULL) {
-			DBG("check free size instead of re-calculation");
+			DBG("check free size instead of re-calculation\n");
 			_entity_update_store_info_run_time(&(store->store_info),
 					(store->root_path));
 		}
@@ -1005,13 +1005,13 @@ mtp_err_t _hutil_construct_object_entry_prop_list(mtp_uint32 store_id,
 
 	store = _device_get_store(store_id);
 	if (store == NULL) {
-		ERR("Could not get the store");
+		ERR("Could not get the store\n");
 		return MTP_ERROR_INVALID_STORE;
 	}
 
 	/* LCOV_EXCL_START */
 	if (store->store_info.access == PTP_STORAGEACCESS_R) {
-		ERR("Only read access allowed on store");
+		ERR("Only read access allowed on store\n");
 		return MTP_ERROR_STORE_READ_ONLY;
 	}
 
@@ -1030,7 +1030,7 @@ mtp_err_t _hutil_construct_object_entry_prop_list(mtp_uint32 store_id,
 
 	obj_info = _entity_alloc_object_info();
 	if (obj_info == NULL) {
-		ERR("_entity_alloc_object_info Fail");
+		ERR("_entity_alloc_object_info Fail\n");
 		return MTP_ERROR_GENERAL;
 	}
 
@@ -1097,7 +1097,7 @@ mtp_err_t _hutil_construct_object_entry_prop_list(mtp_uint32 store_id,
 		prop_desc = _prop_get_obj_prop_desc(obj_info->obj_fmt, prop_code);
 		if (prop_desc == NULL) {
 			_entity_dealloc_obj_info(obj_info);
-			ERR("property may be unsupported!!");
+			ERR("property may be unsupported!!\n");
 			resp = MTP_ERROR_INVALID_OBJ_PROP_CODE;
 			goto ERROR_EXIT;
 		}
@@ -1279,7 +1279,7 @@ mtp_err_t _hutil_update_object_property(mtp_uint32 obj_handle,
 
 	obj = _device_get_object_with_handle(obj_handle);
 	if ((NULL == obj) || (NULL == obj->obj_info)) {
-		ERR("Object not found");
+		ERR("Object not found\n");
 		return MTP_ERROR_INVALID_OBJECTHANDLE;
 	}
 
@@ -1293,19 +1293,19 @@ mtp_err_t _hutil_update_object_property(mtp_uint32 obj_handle,
 
 	prp_dev = _prop_get_obj_prop_desc(obj_info->obj_fmt, prop_code);
 	if (prp_dev == NULL) {
-		ERR("_prop_get_obj_prop_desc Fail");
+		ERR("_prop_get_obj_prop_desc Fail\n");
 		return MTP_ERROR_INVALID_OBJ_PROP_CODE;
 	}
 
 #ifdef MTP_SUPPORT_SET_PROTECTION
 	if (obj_info->protcn_status == PTP_PROTECTIONSTATUS_READONLY) {
-		ERR("protection is PTP_PROTECTIONSTATUS_READONLY");
+		ERR("protection is PTP_PROTECTIONSTATUS_READONLY\n");
 		return MTP_ERROR_ACCESS_DENIED;
 	}
 #endif /* MTP_SUPPORT_SET_PROTECTION */
 
 	if (prp_dev->propinfo.get_set == PTP_PROPGETSET_GETONLY) {
-		ERR("property type is GETONLY");
+		ERR("property type is GETONLY\n");
 		return MTP_ERROR_ACCESS_DENIED;
 	}
 
@@ -1330,7 +1330,7 @@ mtp_err_t _hutil_update_object_property(mtp_uint32 obj_handle,
 
 		if (_util_create_path(dest_fpath, sizeof(dest_fpath),
 					orig_pfpath, temp_buf) == FALSE) {
-			ERR("Path is too long");
+			ERR("Path is too long\n");
 			return MTP_ERROR_ACCESS_DENIED;
 		}
 		_util_utf8_to_utf16(mov_fpath,
@@ -1354,7 +1354,7 @@ mtp_err_t _hutil_update_object_property(mtp_uint32 obj_handle,
 			/* FILE RENAME */
 			if (_entity_check_child_obj_path(obj, orig_fpath,
 						dest_fpath) == FALSE) {
-				ERR("_entity_check_child_obj_path FALSE. ");
+				ERR("_entity_check_child_obj_path FALSE.\n");
 				return MTP_ERROR_GENERAL;
 			}
 			g_snprintf(g_last_moved, MTP_MAX_PATHNAME_SIZE + 1,
@@ -1373,7 +1373,7 @@ mtp_err_t _hutil_update_object_property(mtp_uint32 obj_handle,
 			/* FILE RENAME */
 			if (_entity_set_child_object_path(obj, orig_fpath,
 						dest_fpath) == FALSE) {
-				ERR("failed to set the full path!!");
+				ERR("failed to set the full path!!\n");
 				return MTP_ERROR_INVALID_OBJECT_PROP_FORMAT;
 			}
 
@@ -1403,7 +1403,7 @@ mtp_err_t _hutil_get_prop_desc(mtp_uint32 format, mtp_uint32 prop_code,
 
 	prop = _prop_get_obj_prop_desc(format, prop_code);
 	if (prop == NULL) {
-		ERR("pProperty is NULL");
+		ERR("pProperty is NULL\n");
 		return MTP_ERROR_GENERAL;
 	}
 
@@ -1442,7 +1442,7 @@ mtp_err_t _hutil_get_object_prop_list(mtp_uint32 obj_handle, mtp_uint32 format,
 		/* LCOV_EXCL_START */
 		store = _device_get_store_containing_obj(obj_handle);
 		if (store == NULL) {
-			ERR("invalid object handle");
+			ERR("invalid object handle\n");
 			return MTP_ERROR_INVALID_OBJECTHANDLE;
 		}
 		/* LCOV_EXCL_STOP */
@@ -1453,7 +1453,7 @@ mtp_err_t _hutil_get_object_prop_list(mtp_uint32 obj_handle, mtp_uint32 format,
 		 * is not specified.
 		 * */
 		if (group_code == 0x0) {
-			ERR("PropGroupCode is zero");
+			ERR("PropGroupCode is zero\n");
 			return MTP_ERROR_INVALID_PARAM;
 		}
 	}
@@ -1464,7 +1464,7 @@ mtp_err_t _hutil_get_object_prop_list(mtp_uint32 obj_handle, mtp_uint32 format,
 			!(format == PTP_FORMATCODE_NOTUSED ||
 				format == PTP_FORMATCODE_ALL)) {
 		ERR("both object handle and format code is specified!\
-				return nospecification by format");
+				return nospecification by format\n");
 		return MTP_ERROR_NO_SPEC_BY_FORMAT;
 	}
 
@@ -1495,7 +1495,7 @@ mtp_err_t _hutil_get_object_prop_list(mtp_uint32 obj_handle, mtp_uint32 format,
 
 			if (_prop_get_obj_proplist(obj, prop_code, group_code,
 						prop_list) == FALSE) {
-				ERR("Fail to create Proplist");
+				ERR("Fail to create Proplist\n");
 #ifndef MTP_USE_RUNTIME_GETOBJECTPROPVALUE
 				_prop_deinit_ptparray(&obj_arr);
 #endif /*MTP_USE_RUNTIME_GETOBJECTPROPVALUE*/
@@ -1524,7 +1524,7 @@ mtp_err_t _hutil_remove_object_reference(mtp_uint32 obj_handle,
 	}
 
 	if (_entity_remove_reference_child_array(obj, ref_handle) == FALSE)
-		ERR("_entity_remove_reference_child_array Fail");
+		ERR("_entity_remove_reference_child_array Fail\n");
 
 	return MTP_ERROR_NONE;
 }
@@ -1541,7 +1541,7 @@ mtp_err_t _hutil_add_object_references_enhanced(mtp_uint32 obj_handle,
 	}
 
 	if (_entity_set_reference_child_array(obj, buffer, buf_sz) == FALSE) {
-		ERR("_entity_set_reference_child_array Fail");
+		ERR("_entity_set_reference_child_array Fail\n");
 		return MTP_ERROR_GENERAL;
 	}
 
@@ -1612,7 +1612,7 @@ mtp_err_t _hutil_get_interdep_prop_config_list_data(void *data,
 		return MTP_ERROR_NONE;
 	}
 
-	ERR("packet and requested size do not match");
+	ERR("packet and requested size do not match\n");
 	return MTP_ERROR_GENERAL;
 }
 

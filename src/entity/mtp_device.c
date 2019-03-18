@@ -336,7 +336,7 @@ static mtp_bool __add_store_to_device(void)
 	store_id = MTP_EXTERNAL_STORE_ID;
 
 	retvm_if(!_util_get_file_attrs(storage_path, &attrs), FALSE,
-		"_util_get_file_attrs() Fail");
+		"_util_get_file_attrs() Fail\n");
 
 	retvm_if(MTP_FILE_ATTR_INVALID == attrs.attribute ||
 		!(attrs.attribute & MTP_FILE_ATTR_MODE_DIR), FALSE,
@@ -348,7 +348,7 @@ static mtp_bool __add_store_to_device(void)
 
 	retvm_if(!_entity_init_mtp_store(&(g_device->store_list[g_device->num_stores]),
 		store_id, storage_path), FALSE,
-		"_entity_init_mtp_store() Fail");
+		"_entity_init_mtp_store() Fail\n");
 
 	g_device->num_stores++;
 	g_device->is_mounted[0] = TRUE;
@@ -377,7 +377,7 @@ static mtp_bool __remove_store_from_device(void)
 
 mtp_bool _device_install_storage(void)
 {
-	DBG(" ADD Storage");
+	DBG("ADD Storage\n");
 	/* LCOV_EXCL_START */
 	if (g_device->is_mounted[0] == FALSE)
 		__add_store_to_device();
@@ -531,7 +531,7 @@ mtp_store_t *_device_get_store_containing_obj(mtp_uint32 obj_handle)
 
 mtp_store_t *_device_get_store_at_index(mtp_uint32 index)
 {
-	retvm_if(index >= g_device->num_stores, NULL, "Index not valid");
+	retvm_if(index >= g_device->num_stores, NULL, "Index not valid\n");
 
 	return &(g_device->store_list[index]);
 }

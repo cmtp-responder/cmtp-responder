@@ -69,7 +69,7 @@ mtp_err_t _transport_rcv_temp_file_data(mtp_byte *buffer, mtp_uint32 size,
 
 	h_file = _util_file_open(g_mtp_mgr.ftemp_st.filepath,
 			MTP_FILE_READ, &error);
-	retvm_if(!h_file, MTP_ERROR_NONE, "_util_file_open(%s) Fail",
+	retvm_if(!h_file, MTP_ERROR_NONE, "_util_file_open(%s) Fail\n",
 		g_mtp_mgr.ftemp_st.filepath);
 
 	/*copy header */
@@ -89,14 +89,14 @@ mtp_err_t _transport_rcv_temp_file_data(mtp_byte *buffer, mtp_uint32 size,
 	*count += sizeof(header_container_t);
 
 	if (_util_file_close(h_file) != 0) {
-		ERR("_util_file_close Fail");
+		ERR("_util_file_close Fail\n");
 		_util_print_error();
 	}
 
 	/* delete temp file, it have to be called in receive_data fn */
 	if (g_mtp_mgr.ftemp_st.filepath != NULL) {
 		if (remove(g_mtp_mgr.ftemp_st.filepath) < 0) {
-			ERR_SECURE("remove(%s) Fail", g_mtp_mgr.ftemp_st.filepath);
+			ERR_SECURE("remove(%s) Fail\n", g_mtp_mgr.ftemp_st.filepath);
 			_util_print_error();
 		}
 
@@ -120,7 +120,7 @@ mtp_err_t _transport_rcv_temp_file_info(mtp_byte *buf, char *filepath,
 			sizeof(header_container_t));
 
 	ret = _util_get_file_attrs(g_mtp_mgr.ftemp_st.filepath, &atttrs);
-	retvm_if(!ret, MTP_ERROR_GENERAL, "_util_get_file_attrs(%s) Fail",
+	retvm_if(!ret, MTP_ERROR_GENERAL, "_util_get_file_attrs(%s) Fail\n",
 		g_mtp_mgr.ftemp_st.filepath);
 
 	*t_size = sizeof(header_container_t) + atttrs.fsize;
@@ -146,19 +146,19 @@ mtp_err_t _transport_send_event(mtp_byte *buf, mtp_uint32 size,
 
 	retv_if(buf == NULL, MTP_ERROR_INVALID_PARAM);
 	retvm_if(size > _get_tx_pkt_size(), MTP_ERROR_INVALID_PARAM,
-			"size = %d, _get_tx_pkt_size() = (%d)", size, _get_tx_pkt_size());
+			"size = %d, _get_tx_pkt_size() = (%d)\n", size, _get_tx_pkt_size());
 
 	pkt.mtype = MTP_EVENT_PACKET;
 	pkt.signal = 0x0000;
 	pkt.length = size;
 
 	pkt.buffer = (mtp_uchar *)g_malloc(size);
-	retvm_if(!pkt.buffer, MTP_ERROR_GENERAL, "g_malloc() Fail");
+	retvm_if(!pkt.buffer, MTP_ERROR_GENERAL, "g_malloc() Fail\n");
 
 	memcpy(pkt.buffer, buf, size);
 	resp = _util_msgq_send(mtp_to_usb_mqid, (void *)&pkt,
 			sizeof(msgq_ptr_t) - sizeof(long), 0);
-	retvm_if(!resp, MTP_ERROR_GENERAL, "_util_msgq_send() Fail");
+	retvm_if(!resp, MTP_ERROR_GENERAL, "_util_msgq_send() Fail\n");
 
 	*count = size;
 	return MTP_ERROR_NONE;
@@ -193,7 +193,7 @@ mtp_uint32 _transport_send_pkt_to_tx_mq(const mtp_byte *buf,
 		pkt.length = sent_len;
 		pkt.buffer = (mtp_uchar *)g_malloc(sent_len);
 		if (NULL == pkt.buffer) {
-			ERR("g_malloc() Fail");
+			ERR("g_malloc() Fail\n");
 			return 0;
 		}
 
@@ -201,7 +201,7 @@ mtp_uint32 _transport_send_pkt_to_tx_mq(const mtp_byte *buf,
 		ret = _util_msgq_send(mtp_to_usb_mqid, (void *)&pkt,
 				sizeof(msgq_ptr_t) - sizeof(long), 0);
 		if (ret == FALSE) {
-			ERR("_util_msgq_send() Fail");
+			ERR("_util_msgq_send() Fail\n");
 			g_free(pkt.buffer);
 			return 0;
 		}
@@ -226,13 +226,13 @@ mtp_uint32 _transport_send_bulk_pkt_to_tx_mq(const mtp_byte *buf,
 	pkt.length = tx_size;
 	while (pkt_len > tx_size) {
 		pkt.buffer = (mtp_uchar *)g_malloc(pkt.length);
-		retvm_if(!pkt.buffer, 0, "g_malloc() Fail");
+		retvm_if(!pkt.buffer, 0, "g_malloc() Fail\n");
 
 		memcpy(pkt.buffer, &buf[sent_len], pkt.length);
 
 		if (!_util_msgq_send(mtp_to_usb_mqid, (void *)&pkt,
 					sizeof(msgq_ptr_t) - sizeof(long), 0)) {
-			ERR("_util_msgq_send() Fail");
+			ERR("_util_msgq_send() Fail\n");
 			g_free(pkt.buffer);
 			return 0;
 		}
@@ -243,13 +243,13 @@ mtp_uint32 _transport_send_bulk_pkt_to_tx_mq(const mtp_byte *buf,
 
 	pkt.length = pkt_len;
 	pkt.buffer = (mtp_uchar *)g_malloc(pkt.length);
-	retvm_if(!pkt.buffer, 0, "g_malloc() Fail");
+	retvm_if(!pkt.buffer, 0, "g_malloc() Fail\n");
 
 	memcpy(pkt.buffer, &buf[sent_len], pkt.length);
 
 	if (!_util_msgq_send(mtp_to_usb_mqid, (void *)&pkt,
 				sizeof(msgq_ptr_t) - sizeof(long), 0)) {
-		ERR("_util_msgq_send() Fail");
+		ERR("_util_msgq_send() Fail\n");
 		g_free(pkt.buffer);
 		return 0;
 	}
@@ -271,7 +271,7 @@ void _transport_send_zlp(void)
 	resp = _util_msgq_send(mtp_to_usb_mqid, (void *)&pkt,
 			sizeof(msgq_ptr_t) - sizeof(long), 0);
 	if (resp == FALSE)
-		ERR("_util_msgq_send() Fail");
+		ERR("_util_msgq_send() Fail\n");
 }
 
 static mtp_err_t __transport_init_io()
@@ -285,7 +285,7 @@ static mtp_err_t __transport_init_io()
 			PTHREAD_CREATE_JOINABLE, usb_write_thread,
 			(void *)&mtp_to_usb_mqid);
 	if (FALSE == res) {
-		ERR("_util_thread_create(TX) Fail");
+		ERR("_util_thread_create(TX) Fail\n");
 		goto cleanup;
 	}
 
@@ -293,7 +293,7 @@ static mtp_err_t __transport_init_io()
 			PTHREAD_CREATE_JOINABLE, usb_read_thread,
 			(void *)&g_usb_to_mtp_mqid);
 	if (FALSE == res) {
-		ERR("_util_thread_create(RX) Fail");
+		ERR("_util_thread_create(RX) Fail\n");
 		goto cleanup;
 	}
 
@@ -335,7 +335,7 @@ cleanup:
 
 static void __transport_deinit_io()
 {
-	retm_if(!g_usb_threads_created, "io threads are not created.");
+	retm_if(!g_usb_threads_created, "io threads are not created.\n");
 
 	errno = 0;
 
@@ -351,18 +351,18 @@ static void __transport_deinit_io()
 	g_ctrl_thrd = 0;
 
 	if (FALSE == _util_thread_cancel(g_rx_thrd))
-		ERR("_util_thread_cancel(rx) Fail");
+		ERR("_util_thread_cancel(rx) Fail\n");
 
 	if (_util_thread_join(g_rx_thrd, 0) == FALSE)
-		ERR("_util_thread_join(rx) Fail");
+		ERR("_util_thread_join(rx) Fail\n");
 
 	g_rx_thrd = 0;
 
 	if (FALSE == _util_thread_cancel(g_tx_thrd))
-		ERR("_util_thread_cancel(tx) Fail");
+		ERR("_util_thread_cancel(tx) Fail\n");
 
 	if (_util_thread_join(g_tx_thrd, 0) == FALSE)
-		ERR("_util_thread_join(tx) Fail");
+		ERR("_util_thread_join(tx) Fail\n");
 
 	g_tx_thrd = 0;
 
@@ -381,14 +381,14 @@ static void *__transport_thread_data_rcv(void *func)
 	while (flag) {
 		if (_util_msgq_receive(g_usb_to_mtp_mqid, (void *)&pkt,
 					sizeof(pkt) - sizeof(long), 0, &len) == FALSE) {
-			ERR("_util_msgq_receive() Fail");
+			ERR("_util_msgq_receive() Fail\n");
 			flag = 0;
 			break;
 		}
 		if (len == sizeof(msgq_ptr_t) - sizeof(long)) {
 			len = pkt.length;
 			if (pkt.length == 6 && pkt.signal == 0xABCD) {
-				ERR("Got NULL character in MQ");
+				ERR("Got NULL character in MQ\n");
 				flag = 0;
 				break;
 			}
@@ -402,7 +402,7 @@ static void *__transport_thread_data_rcv(void *func)
 		} else {
 			g_free(pkt.buffer);
 			pkt.buffer = NULL;
-			ERR("Received packet is less than real size");
+			ERR("Received packet is less than real size\n");
 		}
 	}
 
@@ -418,16 +418,16 @@ mtp_bool _transport_init_interfaces(_cmd_handler_cb func)
 
 	ret = _transport_init_usb_device();
 	/* mtp driver open failed */
-	retvm_if(!ret, FALSE, "_transport_init_usb_device() Fail");
+	retvm_if(!ret, FALSE, "_transport_init_usb_device() Fail\n");
 
 	if (_transport_mq_init(&g_usb_to_mtp_mqid, &mtp_to_usb_mqid) == FALSE) {
-		ERR("_transport_mq_init() Fail");
+		ERR("_transport_mq_init() Fail\n");
 		_transport_deinit_usb_device();
 		return FALSE;
 	}
 
 	if (__transport_init_io() != MTP_ERROR_NONE) {
-		ERR("__transport_init_io() Fail");
+		ERR("__transport_init_io() Fail\n");
 		_transport_mq_deinit(&g_usb_to_mtp_mqid, &mtp_to_usb_mqid);
 		_transport_deinit_usb_device();
 		return FALSE;
@@ -437,7 +437,7 @@ mtp_bool _transport_init_interfaces(_cmd_handler_cb func)
 			PTHREAD_CREATE_JOINABLE, __transport_thread_data_rcv,
 			(void *)func);
 	if (res == FALSE) {
-		ERR("_util_thread_create(data_rcv) Fail");
+		ERR("_util_thread_create(data_rcv) Fail\n");
 		__transport_deinit_io();
 		_transport_mq_deinit(&g_usb_to_mtp_mqid, &mtp_to_usb_mqid);
 		_transport_deinit_usb_device();
@@ -458,7 +458,7 @@ void _transport_usb_finalize(void)
 
 	if (g_data_rcv != 0) {
 		pkt.buffer = (mtp_uchar *)g_malloc(rx_size);
-		retm_if(!pkt.buffer, "g_malloc() Fail");
+		retm_if(!pkt.buffer, "g_malloc() Fail\n");
 
 		pkt.mtype = MTP_DATA_PACKET;
 		pkt.signal = 0xABCD;
@@ -466,17 +466,17 @@ void _transport_usb_finalize(void)
 		memset(pkt.buffer, 0, rx_size);
 		if (FALSE == _util_msgq_send(g_usb_to_mtp_mqid, (void *)&pkt,
 					sizeof(msgq_ptr_t) - sizeof(long), 0)) {
-			ERR("_util_msgq_send() Fail");
+			ERR("_util_msgq_send() Fail\n");
 		}
 		g_free(pkt.buffer);
 
 		res = _util_thread_join(g_data_rcv, &th_result);
 		if (res == FALSE)
-			ERR("_util_thread_join(data_rcv) Fail");
+			ERR("_util_thread_join(data_rcv) Fail\n");
 	}
 
 	if (_transport_mq_deinit(&g_usb_to_mtp_mqid, &mtp_to_usb_mqid) == FALSE)
-		ERR("_transport_mq_deinit() Fail");
+		ERR("_transport_mq_deinit() Fail\n");
 
 	_transport_deinit_usb_device();
 }

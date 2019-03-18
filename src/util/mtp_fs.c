@@ -171,12 +171,12 @@ mtp_bool _util_file_copy(const mtp_char *origpath, const mtp_char *newpath,
 	do {
 		nmemb = fread(buf, sizeof(mtp_char), BUFSIZ, fold);
 		if (nmemb < BUFSIZ && ferror(fold)) {
-			ERR("fread Fail errno [%d] \n", errno);
+			ERR("fread Fail errno [%d]\n", errno);
 			*error = errno;
 			fclose(fnew);
 			fclose(fold);
 			if (remove(newpath) < 0)
-				ERR("Remove Fail");
+				ERR("Remove Fail\n");
 			return FALSE;
 		}
 
@@ -187,7 +187,7 @@ mtp_bool _util_file_copy(const mtp_char *origpath, const mtp_char *newpath,
 			fclose(fnew);
 			fclose(fold);
 			if (remove(newpath) < 0)
-				ERR("Remove Fail");
+				ERR("Remove Fail\n");
 			return FALSE;
 		}
 	} while (!feof(fold));
@@ -215,7 +215,7 @@ mtp_bool _util_copy_dir_children_recursive(const mtp_char *origpath,
 	/* Open the given directory */
 	dir = opendir(origpath);
 	if (dir == NULL) {
-		ERR("opendir(%s) Fail", origpath);
+		ERR("opendir(%s) Fail\n", origpath);
 		_util_print_error();
 		return FALSE;
 	}
@@ -243,28 +243,28 @@ mtp_bool _util_copy_dir_children_recursive(const mtp_char *origpath,
 		/* Create new mtp object */
 		mtp_store_t *store = _device_get_store(store_id);
 		if (store == NULL) {
-			ERR("store is NULL");
+			ERR("store is NULL\n");
 			closedir(dir);
 			return FALSE;
 		}
 
 		mtp_obj_t *orig_obj = _entity_get_object_from_store_by_path(store, old_pathname);
 		if (orig_obj == NULL) {
-			ERR("orig_obj is NULL");
+			ERR("orig_obj is NULL\n");
 			closedir(dir);
 			return FALSE;
 		}
 
 		mtp_obj_t *parent_obj = _entity_get_object_from_store_by_path(store, newpath);
 		if (parent_obj == NULL) {
-			ERR("orig_obj is NULL");
+			ERR("orig_obj is NULL\n");
 			closedir(dir);
 			return FALSE;
 		}
 
 		mtp_obj_t *new_obj = _entity_alloc_mtp_object();
 		if (new_obj == NULL) {
-			ERR("_entity_alloc_mtp_object Fail");
+			ERR("_entity_alloc_mtp_object Fail\n");
 			closedir(dir);
 			return FALSE;
 		}
@@ -355,7 +355,7 @@ mtp_bool _util_file_move(const mtp_char *origpath, const mtp_char *newpath,
 	if (ret < 0) {
 		if (errno == EXDEV) {
 			DBG("oldpath  and  newpath  are not on the same\
-					mounted file system.");
+					mounted file system.\n");
 			if (_util_file_copy(origpath, newpath, error) == FALSE) {
 				ERR("_util_file_copy Fail errno [%d]\n", errno);
 				return FALSE;
@@ -409,7 +409,7 @@ mtp_int32 _util_remove_dir_children_recursive(const mtp_char *dirname,
 	/* Open the given directory */
 	dir = opendir(dirname);
 	if (dir == NULL) {
-		ERR("Open directory Fail[%s], errno [%d]", dirname, errno);
+		ERR("Open directory Fail[%s], errno [%d]\n", dirname, errno);
 		return MTP_ERROR_GENERAL;
 	}
 
@@ -542,7 +542,7 @@ mtp_bool _util_set_file_attrs(const mtp_char *filename, mtp_dword attrib)
 			attrs |= (S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
 	} else {
 		/* do nothing for files other than File/Folder */
-		DBG("entered here nothing");
+		DBG("entered here nothing\n");
 		return FALSE;
 	}
 
@@ -578,14 +578,14 @@ mtp_bool _util_ifind_first(mtp_char *dirname, DIR **dirp, dir_entry_t *dir_info)
 	dir = opendir(dirname);
 	if (NULL == dir) {
 		/* LCOV_EXCL_START */
-		ERR("opendir(%s) Fail", dirname);
+		ERR("opendir(%s) Fail\n", dirname);
 		_util_print_error();
 
 		return FALSE;
 	}
 
 	if (_util_ifind_next(dirname, dir, dir_info) == FALSE) {
-		DBG("Stop enumeration");
+		DBG("Stop enumeration\n");
 		_util_print_error();
 		closedir(dir);
 		return FALSE;
@@ -623,7 +623,7 @@ mtp_bool _util_ifind_next(mtp_char *dir_name, DIR *dirp, dir_entry_t *dir_info)
 			ERR("readdir_r Fail : %d\n", ret);
 			return FALSE;
 		} else if (result == NULL) {
-			DBG("There is no more entry");
+			DBG("There is no more entry\n");
 			return FALSE;
 		}
 

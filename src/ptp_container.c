@@ -79,8 +79,8 @@ mtp_bool _hdlr_add_param_resp_container(resp_blk_t *dst, mtp_uint32 num,
 {
 	mtp_uint16 ii;
 
-	retvm_if(num > MAX_MTP_PARAMS, FALSE, "num(%d) exceed", num);
-	retvm_if(num != 0 && params == NULL, FALSE, "num = %d, params = %p", num, params);
+	retvm_if(num > MAX_MTP_PARAMS, FALSE, "num(%d) exceed\n", num);
+	retvm_if(num != 0 && params == NULL, FALSE, "num = %d, params = %p\n", num, params);
 
 	dst->no_param = num;
 	dst->len = sizeof(header_container_t) + sizeof(mtp_uint32) * (dst->no_param);
@@ -142,7 +142,7 @@ mtp_uchar *_hdlr_alloc_buf_data_container(data_container_t *dst,
 
 	blk_len = bufsz + sizeof(header_container_t);
 	dst->data = (mtp_uchar *)g_malloc(blk_len);
-	retvm_if(!dst->data, NULL, "g_malloc() Fail");
+	retvm_if(!dst->data, NULL, "g_malloc() Fail\n");
 
 	memset(dst->data, 0, blk_len);
 	dst->len = bufsz + sizeof(header_container_t);
@@ -334,7 +334,7 @@ mtp_bool _hdlr_send_resp_container(cmd_container_t *dst)
 	sent = _transport_send_pkt_to_tx_mq((mtp_uchar *)dst, dst->len);
 #endif
 	retvm_if(sent != dst->len, FALSE,
-		"_transport_send_pkt_to_tx_mq() Fail: dst->len(%u), sent(%u)", dst->len, sent);
+		"_transport_send_pkt_to_tx_mq() Fail: dst->len(%u), sent(%u)\n", dst->len, sent);
 
 	return TRUE;
 }

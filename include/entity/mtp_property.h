@@ -72,7 +72,7 @@ enum {
 		ret = _util_add_node(&(obj->propval_list), (void *)prop_val);\
 		if (FALSE == ret) {\
 			_prop_destroy_obj_propval(prop_val);\
-			ERR("_util_add_node() Fail");\
+			ERR("_util_add_node() Fail\n");\
 			return (FALSE);\
 		} \
 	} while (0);
@@ -81,7 +81,7 @@ enum {
 	do {\
 		prop_val = _prop_alloc_obj_propval(prop);\
 		if (prop_val == NULL) {\
-			ERR("prop_val == NULL");\
+			ERR("prop_val == NULL\n");\
 			return (FALSE);\
 		} \
 	} while (0);

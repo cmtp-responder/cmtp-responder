@@ -39,7 +39,7 @@ void _util_conv_byte_order(void *data, mtp_int32 size)
 	mtp_uchar *l_data = (mtp_uchar *)data;
 
 	ret_if(data == NULL);
-	retm_if(size <= 1, "size(%d) is invalid", size);
+	retm_if(size <= 1, "size(%d) is invalid\n", size);
 
 	h_size = size / 2;
 	for (idx = 0; idx < h_size; idx++) {
@@ -61,7 +61,7 @@ void _util_conv_byte_order_gen_str(void *str, mtp_int32 size, mtp_int32 elem_sz)
 	mtp_uchar *l_str = (mtp_uchar *)str;
 
 	ret_if(str == NULL);
-	retm_if(elem_sz <= 1, "elem_sz(%d) is invalid", elem_sz);
+	retm_if(elem_sz <= 1, "elem_sz(%d) is invalid\n", elem_sz);
 
 	for (idx = 0; idx < f_size; idx += elem_sz)
 		_util_conv_byte_order(&(l_str[idx]), elem_sz);
@@ -318,7 +318,7 @@ mtp_err_t _util_wchar_swprintf(mtp_wchar *mtp_wstr, mtp_int32 size,
 				break;
 
 			default:
-				DBG("swprintf not handling: %c", *(ptr + 1));
+				DBG("swprintf not handling: %c\n", *(ptr + 1));
 				break;
 			}
 		} else {
@@ -407,7 +407,7 @@ mtp_bool _util_get_file_name_wo_extn(const mtp_char *fullpath, mtp_char *f_name)
 
 	fname_ptr = strrchr(fullpath, '/');
 
-	retvm_if(!fname_ptr, FALSE, "Invalid File Name");
+	retvm_if(!fname_ptr, FALSE, "Invalid File Name\n");
 
 	fname_ptr = fname_ptr + sizeof(char);
 	fname_len = strlen(fname_ptr);
@@ -482,9 +482,9 @@ mtp_bool _util_create_path(mtp_char *path, mtp_uint32 size, const mtp_char *dir,
 		"filename is too long :[%u] > [%u]\n", len, MTP_MAX_FILENAME_SIZE);
 
 	ret = g_snprintf(path, size, "%s/%s", dir, filename);
-	retvm_if(ret > size, FALSE, "path is truncated");
+	retvm_if(ret > size, FALSE, "path is truncated\n");
 
-	retvm_if(!_util_is_path_len_valid(path), FALSE, "path length exceeds the limit");
+	retvm_if(!_util_is_path_len_valid(path), FALSE, "path length exceeds the limit\n");
 
 	return TRUE;
 }
@@ -503,7 +503,7 @@ void _util_get_parent_path(const mtp_char *fullpath, mtp_char *p_path)
 	ret_if(NULL == fullpath);
 
 	ptr = strrchr(fullpath, '/');
-	retm_if(!ptr, "Path does not have parent path");
+	retm_if(!ptr, "Path does not have parent path\n");
 
 	g_strlcpy(p_path, fullpath, (mtp_uint32)(ptr - fullpath) + 1);
 }
@@ -566,7 +566,7 @@ mtp_bool _util_get_unique_dir_path(const mtp_char *exist_path,
 	}
 
 	buf = (mtp_char *)g_malloc(new_path_buf_len);
-	retvm_if(!buf, FALSE, "g_malloc Fail");
+	retvm_if(!buf, FALSE, "g_malloc Fail\n");
 
 	g_strlcpy(buf, exist_path, new_path_buf_len);
 	while (val < max_value) {
@@ -577,7 +577,7 @@ mtp_bool _util_get_unique_dir_path(const mtp_char *exist_path,
 	}
 
 	g_free(buf);
-	ERR("Unable to generate Unique Dir Name");
+	ERR("Unable to generate Unique Dir Name\n");
 	return FALSE;
 
 SUCCESS:

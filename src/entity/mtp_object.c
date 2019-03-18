@@ -38,7 +38,7 @@ mtp_bool _entity_get_file_times(mtp_obj_t *obj, ptp_time_string_t *create_tm,
 	struct tm new_time = {0};
 
 	retvm_if(!_util_get_file_attrs(obj->file_path, &attrs), FALSE,
-		"_util_get_file_attrs Fail");
+		"_util_get_file_attrs Fail\n");
 
 	if (NULL != localtime_r((time_t*)&attrs.ctime, &new_time)) {
 		local_time.year = new_time.tm_year + 1900;
@@ -50,7 +50,7 @@ mtp_bool _entity_get_file_times(mtp_obj_t *obj, ptp_time_string_t *create_tm,
 		local_time.day_of_week = 0;
 		local_time.millisecond = 0;
 	} else {
-		ERR("localtime_r returned NULL");
+		ERR("localtime_r returned NULL\n");
 		_util_print_error();
 		return FALSE;
 	}
@@ -66,7 +66,7 @@ mtp_bool _entity_get_file_times(mtp_obj_t *obj, ptp_time_string_t *create_tm,
 		local_time.day_of_week = 0;
 		local_time.millisecond = 0;
 	} else {
-		ERR("localtime_r returned NULL");
+		ERR("localtime_r returned NULL\n");
 		_util_print_error();
 		return FALSE;
 	}
@@ -81,7 +81,7 @@ obj_info_t *_entity_alloc_object_info(void)
 	obj_info_t *info = NULL;
 
 	info = (obj_info_t *)g_malloc(sizeof(obj_info_t));
-	retvm_if(!info, NULL, "Memory allocation Fail");
+	retvm_if(!info, NULL, "Memory allocation Fail\n");
 
 	_entity_init_object_info(info);
 
@@ -107,7 +107,7 @@ mtp_uint32 _entity_get_object_info_size(mtp_obj_t *obj, ptp_string_t *file_name)
 	retv_if(obj == NULL, 0);
 
 	ret = _entity_get_file_times(obj, &create_time_str, &modify_time_str);
-	retvm_if(!ret, 0, "_entity_get_file_times() Fail");
+	retvm_if(!ret, 0, "_entity_get_file_times() Fail\n");
 
 	_prop_copy_char_to_ptpstring(&keywords, (mtp_wchar *)"", WCHAR_TYPE);
 
@@ -132,7 +132,7 @@ void _entity_init_object_info_params(obj_info_t *info, mtp_uint32 store_id,
 
 	_util_get_file_extn(file_name, extn);
 
-	retm_if(dir->attrs.attribute == MTP_FILE_ATTR_INVALID, "File attribute invalid");
+	retm_if(dir->attrs.attribute == MTP_FILE_ATTR_INVALID, "File attribute invalid\n");
 
 #ifndef MTP_SUPPORT_SET_PROTECTION
 	info->protcn_status = PTP_PROTECTIONSTATUS_NOPROTECTION;
@@ -161,7 +161,7 @@ mtp_uint32 _entity_parse_raw_obj_info(mtp_uchar *buf, mtp_uint32 buf_sz,
 	mtp_uint32 bytes_parsed = 0;
 
 	retv_if(buf == NULL, 0);
-	retvm_if(buf_sz < FIXED_LENGTH_MEMBERS_SIZE, 0, "buf_sz[%d] is less", buf_sz);
+	retvm_if(buf_sz < FIXED_LENGTH_MEMBERS_SIZE, 0, "buf_sz[%d] is less\n", buf_sz);
 
 	/* LCOV_EXCL_START */
 	/* Copy Obj Props from store_id till file_size */
@@ -256,12 +256,12 @@ mtp_uint32 _entity_pack_obj_info(mtp_obj_t *obj, ptp_string_t *file_name,
 	retv_if(obj == NULL, 0);
 
 	ret = _entity_get_file_times(obj, &create_time_str, &modify_time_str);
-	retvm_if(!ret, 0, "_entity_get_file_times() Fail");
+	retvm_if(!ret, 0, "_entity_get_file_times() Fail\n");
 
 	_prop_copy_char_to_ptpstring(&keywords, (mtp_wchar *)"", WCHAR_TYPE);
 
 	retvm_if(buf_sz < _entity_get_object_info_size(obj, file_name), 0,
-		"Buffer size is less than object info size");
+		"Buffer size is less than object info size\n");
 
 	/* As per Spec ObjectCompressedSize field in ObjectInfo dataset is
 	 * 4 bytes. In case file size greater than 4Gb, value 0xFFFFFFFF is sent
@@ -459,7 +459,7 @@ mtp_bool _entity_check_child_obj_path(mtp_obj_t *obj,
 		"src_path is too long[%zu]\n", strlen(src_path));
 
 	src_store = _device_get_store_containing_obj(obj->obj_handle);
-	retvm_if(!src_store, FALSE, "Object not present in store");
+	retvm_if(!src_store, FALSE, "Object not present in store\n");
 
 	_prop_init_ptparray(&child_arr, UINT32_TYPE);
 	_entity_get_child_handles(src_store, obj->obj_handle, &child_arr);
@@ -526,7 +526,7 @@ mtp_bool _entity_check_child_obj_path(mtp_obj_t *obj,
 
 		if (_entity_check_child_obj_path(child_obj,
 					temp_chld_path, dest_chld_path) == FALSE) {
-			ERR("set full path Fail");
+			ERR("set full path Fail\n");
 			_prop_deinit_ptparray(&child_arr);
 			return FALSE;
 		}
@@ -553,7 +553,7 @@ mtp_bool _entity_set_child_object_path(mtp_obj_t *obj, mtp_char *src_path,
 	retv_if(NULL == dest_path, FALSE);
 
 	src_store = _device_get_store_containing_obj(obj->obj_handle);
-	retvm_if(!src_store, FALSE, "Object not present in store");
+	retvm_if(!src_store, FALSE, "Object not present in store\n");
 
 	_prop_init_ptparray(&child_arr, UINT32_TYPE);
 	_entity_get_child_handles(src_store, obj->obj_handle, &child_arr);
@@ -580,7 +580,7 @@ mtp_bool _entity_set_child_object_path(mtp_obj_t *obj, mtp_char *src_path,
 		if (g_strlcat(dest_child_path, ptr, sizeof(dest_child_path)) >=
 				sizeof(dest_child_path)) {
 			ERR("g_strlcat truncation occured,failed to create\
-					dest_child_path");
+					dest_child_path\n");
 			_entity_remove_reference_child_array(obj,
 					child_obj->obj_handle);
 			_entity_dealloc_mtp_obj(child_obj);
@@ -590,14 +590,14 @@ mtp_bool _entity_set_child_object_path(mtp_obj_t *obj, mtp_char *src_path,
 		_entity_set_object_file_path(child_obj, dest_child_path, CHAR_TYPE);
 
 		if (child_obj->obj_info == NULL) {
-			ERR("obj_info is NULL");
+			ERR("obj_info is NULL\n");
 			continue;
 		}
 
 		if ((child_obj->obj_info->obj_fmt == PTP_FMT_ASSOCIATION)) {
 			if (_entity_set_child_object_path(child_obj, temp_child_path,
 						dest_child_path) == FALSE) {
-				ERR("Fail to set the full path!!");
+				ERR("Fail to set the full path!!\n");
 				_entity_remove_reference_child_array(obj,
 						child_obj->obj_handle);
 				_entity_dealloc_mtp_obj(child_obj);
@@ -639,7 +639,7 @@ mtp_bool _entity_set_reference_child_array(mtp_obj_t *obj, mtp_uchar *buf,
 
 	/* Grow the array to accommodate all references*/
 	if (_prop_grow_ptparray(&(obj->child_array), no_ref) == FALSE) {
-		ERR("grow ptp Array Fail");
+		ERR("grow ptp Array Fail\n");
 		return FALSE;
 	}
 
@@ -657,7 +657,7 @@ void _entity_copy_mtp_object(mtp_obj_t *dst, mtp_obj_t *src)
 {
 	/*Copy same information*/
 	dst->obj_info = _entity_alloc_object_info();
-	retm_if(!dst->obj_info, "Object info allocation Fail.");
+	retm_if(!dst->obj_info, "Object info allocation Fail.\n");
 
 	_entity_copy_obj_info(dst->obj_info, src->obj_info);
 	dst->obj_handle = 0;
