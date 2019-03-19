@@ -188,8 +188,9 @@ void *_transport_thread_usb_write(void *arg)
 			g_free(mtp_buf);
 			mtp_buf = NULL;
 		} else if (MTP_ZLP_PACKET == mtype) {
+			char dummy_buf;
 			DBG("Send ZLP data to kerne via g_usb_ep_in\n");
-			status = write(g_usb_ep_in, (void*)0xFEE1DEAD, 0);
+			status = write(g_usb_ep_in, &dummy_buf, 0);
 		} else {
 			DBG("mtype = %d is not valid\n", mtype);
 			status = -1;
