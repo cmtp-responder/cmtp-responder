@@ -466,8 +466,10 @@ static void __get_object(mtp_handler_t *hdlr)
 		sent += read_len;
 	}
 
+#ifdef MTP_SEND_ZLP_FROM_GET_OBJECT
 	if (total_len % ((mtp_uint64)_transport_get_usb_packet_len()) == 0)
 		_transport_send_zlp();
+#endif
 
 Done:
 	_util_file_close(h_file);
@@ -791,8 +793,10 @@ static void __get_partial_object(mtp_handler_t *hdlr)
 		_device_set_phase(DEVICE_PHASE_DATAIN);
 		if (_hdlr_send_data_container(&blk)) {
 			total_sz = send_bytes + sizeof(header_container_t);
+#ifdef MTP_SEND_ZLP_FROM_GET_PARTIAL_OBJECT
 			if (total_sz % _transport_get_usb_packet_len() == 0)
 				_transport_send_zlp();
+#endif
 			_cmd_hdlr_send_response(hdlr, resp, 1, &send_bytes);
 			g_free(blk.data);
 			return;
