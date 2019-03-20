@@ -83,7 +83,7 @@ mtp_obj_t *_entity_get_object_from_store(mtp_store_t *store, mtp_uint32 handle);
 mtp_obj_t *_entity_get_last_object_from_store(mtp_store_t *store,
 		mtp_uint32 handle);
 mtp_obj_t *_entity_get_object_from_store_by_path(mtp_store_t *store,
-		mtp_char *file_path);
+		const mtp_char *file_path);
 mtp_uint32 _entity_get_objects_from_store(mtp_store_t *store,
 		mtp_uint32 obj_handle, mtp_uint32 fmt, ptp_array_t *obj_arr);
 mtp_uint32 _entity_get_objects_from_store_till_depth(mtp_store_t *store,

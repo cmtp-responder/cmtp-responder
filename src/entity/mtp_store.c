@@ -327,7 +327,7 @@ mtp_obj_t *_entity_get_last_object_from_store(mtp_store_t *store,
 }
 
 mtp_obj_t *_entity_get_object_from_store_by_path(mtp_store_t *store,
-		mtp_char *file_path)
+		const mtp_char *file_path)
 {
 	mtp_obj_t *obj = NULL;
 	slist_iterator *iter = NULL;
