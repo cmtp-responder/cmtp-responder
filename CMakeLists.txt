@@ -33,12 +33,14 @@ TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${pkgs_LDFLAGS} pthread rt)
 INSTALL(TARGETS ${PROJECT_NAME} DESTINATION bin)
 INSTALL(FILES cmtp-responder.conf DESTINATION /etc)
 
-ADD_EXECUTABLE(extract_descs_strs ${CMAKE_SOURCE_DIR}/src/extract_descs/mtp_extract_descs_strs.c
-	${CMAKE_SOURCE_DIR}/src/transport/mtp_descs_strings.c)
-ADD_CUSTOM_COMMAND(OUTPUT descs strs
-	COMMAND ./extract_descs_strs
-	DEPENDS extract_descs_strs)
-ADD_CUSTOM_TARGET(descs_strs ALL DEPENDS descs strs)
+IF (DEFINED CMAKE_BUILD_DESCRIPTORS)
+	ADD_EXECUTABLE(extract_descs_strs ${CMAKE_SOURCE_DIR}/src/extract_descs/mtp_extract_descs_strs.c
+		${CMAKE_SOURCE_DIR}/src/transport/mtp_descs_strings.c)
+	ADD_CUSTOM_COMMAND(OUTPUT descs strs
+		COMMAND ./extract_descs_strs
+		DEPENDS extract_descs_strs)
+	ADD_CUSTOM_TARGET(descs_strs ALL DEPENDS descs strs)
+ENDIF ()
 
 INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/descs DESTINATION /etc/cmtp-responder)
 INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/strs DESTINATION /etc/cmtp-responder)
