@@ -198,6 +198,15 @@ mtp_bool _util_file_copy(const mtp_char *origpath, const mtp_char *newpath,
 	return TRUE;
 }
 
+/*
+ * A temporary wrapper to localize the warning about readdir_r usage.
+ * To be replaced by readdir_r emulated with readdir.
+ */
+static inline int do_readdir_r(DIR *dirp, struct dirent *entry, struct dirent **result)
+{
+	return readdir_r(dirp, entry, result);
+}
+
 mtp_bool _util_copy_dir_children_recursive(const mtp_char *origpath,
 		const mtp_char *newpath, mtp_uint32 store_id, mtp_int32 *error)
 {
@@ -220,13 +229,13 @@ mtp_bool _util_copy_dir_children_recursive(const mtp_char *origpath,
 		return FALSE;
 	}
 
-	retval = readdir_r(dir, &entry, &entryptr);
+	retval = do_readdir_r(dir, &entry, &entryptr);
 
 	while (retval == 0 && entryptr != NULL) {
 		/* Skip the names "." and ".." as we don't want to recurse on them. */
 		if (!g_strcmp0(entry.d_name, ".") ||
 				!g_strcmp0(entry.d_name, "..")) {
-			retval = readdir_r(dir, &entry, &entryptr);
+			retval = do_readdir_r(dir, &entry, &entryptr);
 			continue;
 		}
 		g_snprintf(old_pathname, MTP_MAX_PATHNAME_SIZE + 1,
@@ -339,7 +348,7 @@ mtp_bool _util_copy_dir_children_recursive(const mtp_char *origpath,
 			_entity_add_object_to_store(store, new_obj);
 		}
 DONE:
-		retval = readdir_r(dir, &entry, &entryptr);
+		retval = do_readdir_r(dir, &entry, &entryptr);
 	}
 
 	closedir(dir);
@@ -413,14 +422,14 @@ mtp_int32 _util_remove_dir_children_recursive(const mtp_char *dirname,
 		return MTP_ERROR_GENERAL;
 	}
 
-	retval = readdir_r(dir, &entry, &entryptr);
+	retval = do_readdir_r(dir, &entry, &entryptr);
 
 	while (retval == 0 && entryptr != NULL) {
 		/* Skip the names "." and ".."
 		   as we don't want to recurse on them. */
 		if (!g_strcmp0(entry.d_name, ".") ||
 				!g_strcmp0(entry.d_name, "..")) {
-			retval = readdir_r(dir, &entry, &entryptr);
+			retval = do_readdir_r(dir, &entry, &entryptr);
 			continue;
 		}
 		g_snprintf(pathname, MTP_MAX_PATHNAME_SIZE + 1,
@@ -478,7 +487,7 @@ mtp_int32 _util_remove_dir_children_recursive(const mtp_char *dirname,
 			*num_of_deleted_file += 1;
 		}
 DONE:
-		retval = readdir_r(dir, &entry, &entryptr);
+		retval = do_readdir_r(dir, &entry, &entryptr);
 		if (retval != 0) {
 			closedir(dir);
 			return MTP_ERROR_GENERAL;
@@ -618,9 +627,9 @@ mtp_bool _util_ifind_next(mtp_char *dir_name, DIR *dirp, dir_entry_t *dir_info)
 	retv_if(dir_info == NULL, FALSE);
 
 	do {
-		ret = readdir_r(dirp, &entry, &result);
+		ret = do_readdir_r(dirp, &entry, &result);
 		if (ret != 0) {
-			ERR("readdir_r Fail : %d\n", ret);
+			ERR("do_readdir_r Fail : %d\n", ret);
 			return FALSE;
 		} else if (result == NULL) {
 			DBG("There is no more entry\n");
