@@ -5,6 +5,9 @@
 # Author: Andrzej Pietrasiewicz <andrzej.p@collabora.com>
 #
 
-DISCONNECT_CONNECT_COUNT=1
-STORE_NAME=Card
-ADD_REMOVE_COUNT=10
+random_file()
+{
+	local NAME="${1}"
+
+	cat /dev/urandom | head -c$((($RANDOM % 2048 + 1) * $((RANDOM + 1)))) > "$NAME"
+}
