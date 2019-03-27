@@ -43,9 +43,6 @@ remove_file_from_store()
 	run mtp_retrieve_from_store "$STORE_NAME" / "$NAME" r_"$NAME"
 	[ $status -eq 1 ] || { echo "Unexpectedly retrieved file"; return 1; }
 
-	run mtp_store_empty
-	[ $status -eq 0 ] || { echo "Unexpectedly store not empty"; return 1; }
-
 	return 0
 }
 
@@ -67,6 +64,9 @@ teardown()
 @test "Remove a file from store" {
 	run remove_file_from_store test.bin
 	[ $status -eq 0 ]
+
+	run mtp_store_empty
+	[ $status -eq 0 ] || { echo "Unexpectedly store not empty"; return 1; }
 }
 
 @test "Add and remove a file to/from store a number of times" {
@@ -78,6 +78,47 @@ teardown()
 
 		run remove_file_from_store test.bin
 		[ $status -eq 0 ]
+
+		run mtp_store_empty
+		[ $status -eq 0 ] || { echo "Unexpectedly store not empty"; return 1; }
+
+		count=$(($count + 1))
+	done
+}
+
+@test "Add multiple files to store" {
+	for i in `seq $MULTIPLE_FILES`; do
+		run add_file_to_store test-$i.bin
+		[ $status -eq 0 ]
+	done
+}
+
+@test "Remove multiple files from store" {
+	for i in `seq $MULTIPLE_FILES`; do
+		run remove_file_from_store test-$i.bin
+		[ $status -eq 0 ]
+	done
+
+	run mtp_store_empty
+	[ $status -eq 0 ] || { echo "Unexpectedly store not empty"; return 1; }
+}
+
+@test "Add and remove multiple files to/from store a number of times" {
+	local count=0
+
+	while [ $count -lt $MULTIPLE_ADD_REMOVE_COUNT ]; do
+		for i in `seq $MULTIPLE_FILES`; do
+			run add_file_to_store test-$i.bin
+			[ $status -eq 0 ]
+		done
+
+		for i in `seq $MULTIPLE_FILES`; do
+			run remove_file_from_store test-$i.bin
+			[ $status -eq 0 ]
+		done
+
+		run mtp_store_empty
+		[ $status -eq 0 ] || { echo "Unexpectedly store not empty"; return 1; }
 		count=$(($count + 1))
 	done
 }
