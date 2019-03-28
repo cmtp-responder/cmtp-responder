@@ -214,6 +214,42 @@ teardown()
 	done
 }
 
+@test "Add multiple files to folder" {
+	for i in `seq $MULTIPLE_FILES`; do
+		run add_file_to_store folder test-$i.bin
+		[ $status -eq 0 ]
+	done
+}
+
+@test "Remove multiple files from folder" {
+	for i in `seq $MULTIPLE_FILES`; do
+		run remove_file_from_store folder test-$i.bin
+		[ $status -eq 0 ]
+	done
+
+	local FOLDERS=`mtp_list_folders "$STORE_NAME" ""`
+	[ `echo $FOLDERS | tr -d '[:blank:]'` == "folder" ] || { echo "Unexpected folders in store"; return 1; }
+}
+
+@test "Add and remove multiple files to/from folder a number of times" {
+	local count=0
+
+	while [ $count -lt $MULTIPLE_ADD_REMOVE_COUNT ]; do
+		for i in `seq $MULTIPLE_FILES`; do
+			run add_file_to_store folder test-$i.bin
+			[ $status -eq 0 ] || { echo "Adding a file to folder failed"; return 1; }
+		done
+
+		for i in `seq $MULTIPLE_FILES`; do
+			run remove_file_from_store folder test-$i.bin
+			[ $status -eq 0 ] || { echo "Removing a file from folder failed"; return 1; }
+		done
+		local FOLDERS=`mtp_list_folders "$STORE_NAME" ""`
+		[ `echo $FOLDERS | tr -d '[:blank:]'` == "folder" ] || { echo "Unexpected folders in store"; return 1; }
+		count=$(($count + 1))
+	done
+}
+
 @test "Remove a folder from store after transferring files to/from it" {
 	run mtp_remove_folder "$STORE_NAME" "/" folder
 	[ $status -eq 0 ]
