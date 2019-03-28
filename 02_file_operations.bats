@@ -304,6 +304,52 @@ teardown()
 	[ $status -eq 0 ] || { echo "Unexpectedly store not empty"; return 1; }
 }
 
+@test "Add a folder and a subfolder and a file to it" {
+	run add_single_folder_to_store_and_verify "" folder
+	[ $status -eq 0 ] || { echo "Adding a folder failed"; return 1; }
+
+	run mtp_create_folder "$STORE_NAME" folder subfolder
+	[ $status -eq 0 ] || { echo "Creating a folder failed"; return 1; }
+
+	local FOLDERS=`mtp_list_folders "$STORE_NAME" ""`
+	[ `echo $FOLDERS | tr -d '[:blank:]'` == "folderfolder/subfolder" ] || { echo "Unexpected folders in store"; return 1; }
+
+	run add_file_to_store folder/subfolder test.bin
+	[ $status -eq 0 ] || { echo "Adding a file to subfolder failed"; return 1; }
+}
+
+@test "Remove a file from a subfolder" {
+	run remove_file_from_store folder/subfolder test.bin
+	[ $status -eq 0 ] || { echo "Removing a file from folder failed"; return 1; }
+
+	local FOLDERS=`mtp_list_folders "$STORE_NAME" ""`
+	[ `echo $FOLDERS | tr -d '[:blank:]'` == "folderfolder/subfolder" ] || { echo "Unexpected folders in store"; return 1; }
+}
+
+@test "Add and remove a file from a subfolder a number of times" {
+	local count=0
+
+	while [ $count -lt $ADD_REMOVE_COUNT ]; do
+		run add_file_to_store folder/subfolder test.bin
+		[ $status -eq 0 ] || { echo "Adding a file to subfolder failed"; return 1; }
+
+		run remove_file_from_store folder/subfolder test.bin
+		[ $status -eq 0 ] || { echo "Removing a file from folder failed"; return 1; }
+
+		local FOLDERS=`mtp_list_folders "$STORE_NAME" ""`
+		[ `echo $FOLDERS | tr -d '[:blank:]'` == "folderfolder/subfolder" ] || { echo "Unexpected folders in store"; return 1; }
+		count=$(($count + 1))
+	done
+}
+
+@test "Remove a folder and subfolder from store after transferring files " {
+	run mtp_remove_folder "$STORE_NAME" "/" folder
+	[ $status -eq 0 ]
+
+	run store_empty
+	[ $status -eq 0 ] || { echo "Unexpectedly store not empty"; return 1; }
+}
+
 @test "Verify empty store at end" {
 	mkdir -p /tmp/"$STORE_NAME"
 	run store_empty
