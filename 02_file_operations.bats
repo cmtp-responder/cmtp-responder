@@ -135,3 +135,32 @@ teardown()
 		count=$(($count + 1))
 	done
 }
+
+@test "Add a folder to store" {
+	run mtp_create_folder "$STORE_NAME" "/" folder
+	[ $status -eq 0 ]
+}
+
+@test "Remove a folder from store" {
+	run mtp_remove_folder "$STORE_NAME" "/" folder
+	[ $status -eq 0 ]
+
+	run store_empty
+	[ $status -eq 0 ] || { echo "Unexpectedly store not empty"; return 1; }
+}
+
+@test "Add and remove a folder to/from store a number of times" {
+	local count=0
+
+	while [ $count -lt $ADD_REMOVE_COUNT ]; do
+		run mtp_create_folder "$STORE_NAME" "/" folder
+		[ $status -eq 0 ]
+
+		run mtp_remove_folder "$STORE_NAME" "/" folder
+		[ $status -eq 0 ]
+
+		run store_empty
+		[ $status -eq 0 ] || { echo "Unexpectedly store not empty"; return 1; }
+		count=$(($count + 1))
+	done
+}
