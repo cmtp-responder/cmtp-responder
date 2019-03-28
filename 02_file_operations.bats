@@ -64,6 +64,7 @@ teardown()
 
 @test "Verify empty store" {
 	rm -rf /tmp/"$STORE_NAME" # TODO: remove this line!
+	mkdir -p /tmp/"$STORE_NAME"
 	run store_empty
 	[ $status -eq 0 ]
 }
