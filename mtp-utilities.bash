@@ -11,8 +11,8 @@ mtp_list_files()
 	local PARENT="${2}"
 	# TODO: dummy
 	mkdir -p /tmp/"$STORE"
-	find /tmp/"$STORE"/"$PARENT" -type f
-	return $?
+	/usr/bin/find /tmp/"$STORE"/"$PARENT" -type f -printf "%P\n"
+	return 0
 }
 
 mtp_list_folders()
@@ -21,8 +21,8 @@ mtp_list_folders()
 	local PARENT="${2}"
 	# TODO: dummy
 	mkdir -p /tmp/"$STORE"
-	find /tmp/"$STORE"/"$PARENT" -type d
-	return $?
+	/usr/bin/find /tmp/"$STORE"/"$PARENT" -type d -printf "%P\n"
+	return 0
 }
 
 mtp_copy_to_store()

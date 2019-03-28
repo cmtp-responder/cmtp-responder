@@ -16,11 +16,10 @@ setup()
 store_empty()
 {
 	local FILES=`mtp_list_files "$STORE_NAME" ""`
-	[ x"$FILES" == "x" ] || return 1
+	[ x"$FILES" == "x" ] || { echo $FILES; return 1; }
 
 	local FOLDERS=`mtp_list_folders "$STORE_NAME" ""`
-	# TODO: adapt to real storage
-	[ "$FOLDERS" == /tmp/"$STORE_NAME"/ ] || return 1
+	[ x"$FOLDERS" == "x" ] || { echo $FOLDERS; return 1; }
 
 	return 0
 }
