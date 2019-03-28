@@ -57,6 +57,22 @@ remove_file_from_store()
 	return 0
 }
 
+add_single_folder_to_store_and_verify()
+{
+	local PARENT="${1}"
+	local NAME="${2}"
+
+	run mtp_create_folder "$STORE_NAME" "$PARENT" "$NAME"
+	[ $status -eq 0 ] || { echo "Creating a folder failed"; return 1; }
+
+	local FILES=`mtp_list_files "$STORE_NAME" ""`
+	[ x"$FILES" == "x" ] || { echo "Unexpected files in store"; return 1; }
+
+	local FOLDERS=`mtp_list_folders "$STORE_NAME" ""`
+
+	[ `echo $FOLDERS | tr -d '[:blank:]'` == "folder" ] || { echo "Unexpected folders in store"; return 1; }
+}
+
 teardown()
 {
 	rm -rf *.bin
@@ -137,15 +153,8 @@ teardown()
 }
 
 @test "Add a folder to store" {
-	run mtp_create_folder "$STORE_NAME" "" folder
-	[ $status -eq 0 ]
-
-	local FILES=`mtp_list_files "$STORE_NAME" ""`
-	[ x"$FILES" == "x" ] || { echo "Unexpected files in store"; return 1; }
-
-	local FOLDERS=`mtp_list_folders "$STORE_NAME" ""`
-
-	[ `echo $FOLDERS | tr -d '[:blank:]'` == "folder" ] || { echo "Unexpected folders in store"; return 1; }
+	run add_single_folder_to_store_and_verify "" folder
+	[ $status -eq 0 ] || { echo "Adding a folder failed"; return 1; }
 }
 
 @test "Remove a folder from store" {
@@ -160,15 +169,8 @@ teardown()
 	local count=0
 
 	while [ $count -lt $ADD_REMOVE_COUNT ]; do
-		run mtp_create_folder "$STORE_NAME" "/" folder
-		[ $status -eq 0 ]
-
-		local FILES=`mtp_list_files "$STORE_NAME" ""`
-		[ x"$FILES" == "x" ] || { echo "Unexpected files in store"; return 1; }
-
-		local FOLDERS=`mtp_list_folders "$STORE_NAME" ""`
-
-		[ `echo $FOLDERS | tr -d '[:blank:]'` == "folder" ] || { echo "Unexpected folders in store"; return 1; }
+		run add_single_folder_to_store_and_verify "" folder
+		[ $status -eq 0 ] || { echo "Adding a folder failed"; return 1; }
 
 		run mtp_remove_folder "$STORE_NAME" "/" folder
 		[ $status -eq 0 ]
