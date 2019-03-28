@@ -178,3 +178,9 @@ teardown()
 		count=$(($count + 1))
 	done
 }
+
+@test "Verify empty store at end" {
+	mkdir -p /tmp/"$STORE_NAME"
+	run store_empty
+	[ $status -eq 0 ] || { echo "Unexpectedly store not empty"; return 1; }
+}
