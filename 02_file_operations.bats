@@ -26,15 +26,16 @@ store_empty()
 
 add_file_to_store()
 {
-	local NAME="${1}"
+	local PARENT="${1}"
+	local NAME="${2}"
 	random_file "$NAME"
 
 	local ORIG_MD5=`md5sum "$NAME" | cut -f1 -d' '`
 
-	run mtp_copy_to_store "$STORE_NAME" / "$NAME"
+	run mtp_copy_to_store "$STORE_NAME" "$PARENT" "$NAME"
 	[ $status -eq 0 ] || { echo "Copying to store failed"; return 1; }
 
-	run mtp_retrieve_from_store "$STORE_NAME" / "$NAME" r_"$NAME"
+	run mtp_retrieve_from_store "$STORE_NAME" "$PARENT" "$NAME" r_"$NAME"
 	[ $status -eq 0 ] || { echo "Retrieving from store failed"; return 1; }
 
 	local R_MD5=`md5sum r_"$NAME" | cut -f1 -d' '`
@@ -86,7 +87,7 @@ teardown()
 }
 
 @test "Add a file to store" {
-	run add_file_to_store test.bin
+	run add_file_to_store / test.bin
 	[ $status -eq 0 ]
 }
 
@@ -102,7 +103,7 @@ teardown()
 	local count=0
 
 	while [ $count -lt $ADD_REMOVE_COUNT ]; do
-		run add_file_to_store test.bin
+		run add_file_to_store / test.bin
 		[ $status -eq 0 ]
 
 		run remove_file_from_store test.bin
@@ -117,7 +118,7 @@ teardown()
 
 @test "Add multiple files to store" {
 	for i in `seq $MULTIPLE_FILES`; do
-		run add_file_to_store test-$i.bin
+		run add_file_to_store / test-$i.bin
 		[ $status -eq 0 ]
 	done
 }
@@ -137,7 +138,7 @@ teardown()
 
 	while [ $count -lt $MULTIPLE_ADD_REMOVE_COUNT ]; do
 		for i in `seq $MULTIPLE_FILES`; do
-			run add_file_to_store test-$i.bin
+			run add_file_to_store / test-$i.bin
 			[ $status -eq 0 ]
 		done
 
@@ -179,6 +180,14 @@ teardown()
 		[ $status -eq 0 ] || { echo "Unexpectedly store not empty"; return 1; }
 		count=$(($count + 1))
 	done
+}
+
+@test "Add a folder to store and a file to folder" {
+	run add_single_folder_to_store_and_verify "" folder
+	[ $status -eq 0 ] || { echo "Adding a folder failed"; return 1; }
+
+	run add_file_to_store folder test.bin
+	[ $status -eq 0 ] || { echo "Adding a file to folder failed"; return 1; }
 }
 
 @test "Verify empty store at end" {
