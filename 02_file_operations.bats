@@ -46,13 +46,14 @@ add_file_to_store()
 
 remove_file_from_store()
 {
-	local NAME="${1}"
+	local PARENT="${1}"
+	local NAME="${2}"
 
-	run mtp_remove_from_store "$STORE_NAME" / "$NAME"
+	run mtp_remove_from_store "$STORE_NAME" "$PARENT" "$NAME"
 
 	[ $status -eq 0 ] || { echo "Removing from store failed"; return 1; }
 
-	run mtp_retrieve_from_store "$STORE_NAME" / "$NAME" r_"$NAME"
+	run mtp_retrieve_from_store "$STORE_NAME" "$PARENT" "$NAME" r_"$NAME"
 	[ $status -eq 1 ] || { echo "Unexpectedly retrieved file"; return 1; }
 
 	return 0
@@ -70,7 +71,6 @@ add_single_folder_to_store_and_verify()
 	[ x"$FILES" == "x" ] || { echo "Unexpected files in store"; return 1; }
 
 	local FOLDERS=`mtp_list_folders "$STORE_NAME" ""`
-
 	[ `echo $FOLDERS | tr -d '[:blank:]'` == "folder" ] || { echo "Unexpected folders in store"; return 1; }
 }
 
@@ -92,7 +92,7 @@ teardown()
 }
 
 @test "Remove a file from store" {
-	run remove_file_from_store test.bin
+	run remove_file_from_store / test.bin
 	[ $status -eq 0 ]
 
 	run store_empty
@@ -106,7 +106,7 @@ teardown()
 		run add_file_to_store / test.bin
 		[ $status -eq 0 ]
 
-		run remove_file_from_store test.bin
+		run remove_file_from_store / test.bin
 		[ $status -eq 0 ]
 
 		run store_empty
@@ -125,7 +125,7 @@ teardown()
 
 @test "Remove multiple files from store" {
 	for i in `seq $MULTIPLE_FILES`; do
-		run remove_file_from_store test-$i.bin
+		run remove_file_from_store / test-$i.bin
 		[ $status -eq 0 ]
 	done
 
@@ -143,7 +143,7 @@ teardown()
 		done
 
 		for i in `seq $MULTIPLE_FILES`; do
-			run remove_file_from_store test-$i.bin
+			run remove_file_from_store / test-$i.bin
 			[ $status -eq 0 ]
 		done
 
@@ -188,6 +188,14 @@ teardown()
 
 	run add_file_to_store folder test.bin
 	[ $status -eq 0 ] || { echo "Adding a file to folder failed"; return 1; }
+}
+
+@test "Remove a file from a folder" {
+	run remove_file_from_store folder test.bin
+	[ $status -eq 0 ] || { echo "Removing a file from folder failed"; return 1; }
+
+	local FOLDERS=`mtp_list_folders "$STORE_NAME" ""`
+	[ `echo $FOLDERS | tr -d '[:blank:]'` == "folder" ] || { echo "Unexpected folders in store"; return 1; }
 }
 
 @test "Verify empty store at end" {
