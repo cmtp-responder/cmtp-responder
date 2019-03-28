@@ -23,17 +23,6 @@ mtp_list_folders()
 	return 0
 }
 
-mtp_store_empty()
-{
-	local FILES=`mtp_list_files "$STORE_NAME" /`
-	[ x"$FILES" == "x" ] || return 1
-
-	local FOLDERS=`mtp_list_folders "$STORE_NAME" /`
-	[ x"$FOLDERS" == "x" ] || return 1
-
-	return 0
-}
-
 mtp_copy_to_store()
 {
 	local STORE="${1}"

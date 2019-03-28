@@ -13,6 +13,17 @@ setup()
 	load file-utilities
 }
 
+store_empty()
+{
+	local FILES=`mtp_list_files "$STORE_NAME" ""`
+	[ x"$FILES" == "x" ] || return 1
+
+	local FOLDERS=`mtp_list_folders "$STORE_NAME" ""`
+	[ x"$FOLDERS" == "x" ] || return 1
+
+	return 0
+}
+
 add_file_to_store()
 {
 	local NAME="${1}"
@@ -52,7 +63,7 @@ teardown()
 }
 
 @test "Verify empty store" {
-	run mtp_store_empty
+	run store_empty
 	[ $status -eq 0 ]
 }
 
@@ -65,7 +76,7 @@ teardown()
 	run remove_file_from_store test.bin
 	[ $status -eq 0 ]
 
-	run mtp_store_empty
+	run store_empty
 	[ $status -eq 0 ] || { echo "Unexpectedly store not empty"; return 1; }
 }
 
@@ -79,7 +90,7 @@ teardown()
 		run remove_file_from_store test.bin
 		[ $status -eq 0 ]
 
-		run mtp_store_empty
+		run store_empty
 		[ $status -eq 0 ] || { echo "Unexpectedly store not empty"; return 1; }
 
 		count=$(($count + 1))
@@ -99,7 +110,7 @@ teardown()
 		[ $status -eq 0 ]
 	done
 
-	run mtp_store_empty
+	run store_empty
 	[ $status -eq 0 ] || { echo "Unexpectedly store not empty"; return 1; }
 }
 
@@ -117,7 +128,7 @@ teardown()
 			[ $status -eq 0 ]
 		done
 
-		run mtp_store_empty
+		run store_empty
 		[ $status -eq 0 ] || { echo "Unexpectedly store not empty"; return 1; }
 		count=$(($count + 1))
 	done
