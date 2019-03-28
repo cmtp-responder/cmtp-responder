@@ -198,6 +198,22 @@ teardown()
 	[ `echo $FOLDERS | tr -d '[:blank:]'` == "folder" ] || { echo "Unexpected folders in store"; return 1; }
 }
 
+@test "Add and remove a file to folder a number of times" {
+	local count=0
+
+	while [ $count -lt $ADD_REMOVE_COUNT ]; do
+		run add_file_to_store folder test.bin
+		[ $status -eq 0 ] || { echo "Adding a file to folder failed"; return 1; }
+
+		run remove_file_from_store folder test.bin
+		[ $status -eq 0 ] || { echo "Removing a file from folder failed"; return 1; }
+
+		local FOLDERS=`mtp_list_folders "$STORE_NAME" ""`
+		[ `echo $FOLDERS | tr -d '[:blank:]'` == "folder" ] || { echo "Unexpected folders in store"; return 1; }
+		count=$(($count + 1))
+	done
+}
+
 @test "Verify empty store at end" {
 	mkdir -p /tmp/"$STORE_NAME"
 	run store_empty
