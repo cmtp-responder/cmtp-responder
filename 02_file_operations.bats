@@ -61,10 +61,10 @@ remove_file_from_store()
 
 add_single_folder_to_store_and_verify()
 {
-	local PARENT="${1}"
-	local NAME="${2}"
+	local PARENT="${1#p:}"
+	local NAME="${2#n:}"
 
-	run mtp_create_folder "$STORE_NAME" "$PARENT" "$NAME"
+	run mtp_create_folder s:"$STORE_NAME" p:"$PARENT" n:"$NAME"
 	[ $status -eq 0 ] || { echo "Creating a folder failed"; return 1; }
 
 	local FILES=`mtp_list_files "$STORE_NAME" ""`
@@ -157,12 +157,12 @@ teardown()
 }
 
 @test "Add a folder to store" {
-	run add_single_folder_to_store_and_verify "" folder
+	run add_single_folder_to_store_and_verify p:"" n:folder
 	[ $status -eq 0 ] || { echo "Adding a folder failed"; return 1; }
 }
 
 @test "Remove a folder from store" {
-	run mtp_remove_folder "$STORE_NAME" "/" folder
+	run mtp_remove_folder s:"$STORE_NAME" p:"/" n:folder
 	[ $status -eq 0 ]
 
 	run store_empty
@@ -173,10 +173,10 @@ teardown()
 	local count=0
 
 	while [ $count -lt $ADD_REMOVE_COUNT ]; do
-		run add_single_folder_to_store_and_verify "" folder
+		run add_single_folder_to_store_and_verify p:"" n:folder
 		[ $status -eq 0 ] || { echo "Adding a folder failed"; return 1; }
 
-		run mtp_remove_folder "$STORE_NAME" "/" folder
+		run mtp_remove_folder s:"$STORE_NAME" p:"/" n:folder
 		[ $status -eq 0 ]
 
 		run store_empty
@@ -186,7 +186,7 @@ teardown()
 }
 
 @test "Add a folder to store and a file to folder" {
-	run add_single_folder_to_store_and_verify "" folder
+	run add_single_folder_to_store_and_verify p:"" n:folder
 	[ $status -eq 0 ] || { echo "Adding a folder failed"; return 1; }
 
 	run add_file_to_store folder test.bin
@@ -254,7 +254,7 @@ teardown()
 }
 
 @test "Remove a folder from store after transferring files to/from it" {
-	run mtp_remove_folder "$STORE_NAME" "/" folder
+	run mtp_remove_folder s:"$STORE_NAME" p:"/" n:folder
 	[ $status -eq 0 ]
 
 	run store_empty
@@ -262,7 +262,7 @@ teardown()
 }
 
 @test "Add a folder and a subfolder" {
-	run add_single_folder_to_store_and_verify "" folder
+	run add_single_folder_to_store_and_verify p:"" n:folder
 	[ $status -eq 0 ] || { echo "Adding a folder failed"; return 1; }
 
 	run mtp_create_folder "$STORE_NAME" folder subfolder
@@ -273,7 +273,7 @@ teardown()
 }
 
 @test "Remove a folder from subfolder" {
-	run mtp_remove_folder "$STORE_NAME" folder subfolder
+	run mtp_remove_folder s:"$STORE_NAME" p:folder n:subfolder
 	[ $status -eq 0 ]
 
 	local FOLDERS=`mtp_list_folders "$STORE_NAME" ""`
@@ -290,7 +290,7 @@ teardown()
 		local FOLDERS=`mtp_list_folders "$STORE_NAME" ""`
 		[ `echo $FOLDERS | tr -d '[:blank:]'` == "folderfolder/subfolder" ] || { echo "Unexpected folders in store"; return 1; }
 
-		run mtp_remove_folder "$STORE_NAME" folder subfolder
+		run mtp_remove_folder s:"$STORE_NAME" p:folder n:subfolder
 		[ $status -eq 0 ]
 
 		local FOLDERS=`mtp_list_folders "$STORE_NAME" ""`
@@ -300,7 +300,7 @@ teardown()
 }
 
 @test "Remove a folder from store after creating/removing subfolders" {
-	run mtp_remove_folder "$STORE_NAME" "/" folder
+	run mtp_remove_folder s:"$STORE_NAME" p:"/" n:folder
 	[ $status -eq 0 ]
 
 	run store_empty
@@ -308,7 +308,7 @@ teardown()
 }
 
 @test "Add a folder and a subfolder and a file to it" {
-	run add_single_folder_to_store_and_verify "" folder
+	run add_single_folder_to_store_and_verify p:"" n:folder
 	[ $status -eq 0 ] || { echo "Adding a folder failed"; return 1; }
 
 	run mtp_create_folder "$STORE_NAME" folder subfolder
@@ -382,7 +382,7 @@ teardown()
 }
 
 @test "Remove a folder and subfolder from store after transferring files " {
-	run mtp_remove_folder "$STORE_NAME" "/" folder
+	run mtp_remove_folder s:"$STORE_NAME" p:"/" n:folder
 	[ $status -eq 0 ]
 
 	run store_empty

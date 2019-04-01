@@ -73,9 +73,9 @@ mtp_remove_from_store()
 
 mtp_create_folder()
 {
-	local STORE="${1}"
-	local PARENT="${2}"
-	local NAME="${3}"
+	local STORE="${1#s:}"
+	local PARENT="${2#p:}"
+	local NAME="${3#n:}"
 	# TODO: dummy
 	/bin/mkdir -p /tmp/"$STORE"
 	[ -d /tmp/"$STORE"/"$PARENT" ] || { echo "$PARENT does not exist"; return 1; }
@@ -84,9 +84,9 @@ mtp_create_folder()
 
 mtp_remove_folder()
 {
-	local STORE="${1}"
-	local PARENT="${2}"
-	local NAME="${3}"
+	local STORE="${1#s:}"
+	local PARENT="${2#p:}"
+	local NAME="${3#n:}"
 	# TODO: dummy
 	mkdir -p /tmp/"$STORE"
 	/bin/rm -rf /tmp/"$STORE"/"$PARENT"/"$NAME"
