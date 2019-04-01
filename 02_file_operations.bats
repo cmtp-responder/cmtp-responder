@@ -6,11 +6,17 @@
 # Author: Andrzej Pietrasiewicz <andrzej.p@collabora.com>
 #
 
+declare -a os_cookie
+
 setup()
 {
 	load config
+	load mtp-device-id
+	load os-setup
 	load mtp-utilities
 	load file-utilities
+
+	os_setup os_cookie
 }
 
 store_empty()
@@ -77,6 +83,7 @@ add_single_folder_to_store_and_verify()
 teardown()
 {
 	rm -rf *.bin
+	os_teardown os_cookie
 }
 
 @test "Prepare tests" {
