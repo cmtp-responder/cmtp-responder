@@ -19,7 +19,9 @@ os_setup_linux_gvfs()
 	__local_cookie+=(mtp://%5Busb%3A$BUS,$DEV%5D)
 
 	run gio mount -u ${__local_cookie[3]} 2>&1 > /dev/null
+	sleep 1
 	run gio mount ${__local_cookie[3]} 2>&1 > /dev/null
+	sleep 1
 }
 
 os_teardown_linux_gvfs()
@@ -27,4 +29,5 @@ os_teardown_linux_gvfs()
 	local -n __local_cookie=${1}
 
 	run gio mount -u ${__local_cookie[3]} 2>&1 > /dev/null
+	sleep 1
 }
