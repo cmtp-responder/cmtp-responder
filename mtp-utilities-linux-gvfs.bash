@@ -81,7 +81,8 @@ mtp_create_folder_linux_gvfs()
 	local NAME="${4#n:}"
 	local BASE=${__local_cookie[2]}
 	[ -d "$BASE"/"$STORE"/"$PARENT" ] || { echo "$PARENT does not exist"; return 1; }
-	mkdir "$BASE"/"$STORE"/"$PARENT"/"$NAME"
+	gio mkdir "$BASE"/"$STORE"/"$PARENT"/"$NAME"
+	return 0
 }
 
 mtp_remove_folder_linux_gvfs()
@@ -91,5 +92,7 @@ mtp_remove_folder_linux_gvfs()
 	local PARENT="${3#p:}"
 	local NAME="${4#n:}"
 	local BASE=${__local_cookie[2]}
-	/bin/rm -rf "$BASE"/"$STORE"/"$PARENT"/"$NAME"
+	find "$BASE"/"$STORE"/"$PARENT"/"$NAME" -type f -print0 | xargs -0 gio remove -f
+	find "$BASE"/"$STORE"/"$PARENT"/"$NAME" -type d -print0 | sort -r -z | xargs -0 gio remove -f
+	return 0
 }

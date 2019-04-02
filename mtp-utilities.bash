@@ -54,12 +54,12 @@ mtp_create_folder_vtbl=(mtp_create_folder_bash_dummy mtp_create_folder_linux_gvf
 
 mtp_create_folder()
 {
-	${mtp_create_folder_vtbl[0]} $@
+	${mtp_create_folder_vtbl[$HOST]} $@
 }
 
 mtp_remove_folder_vtbl=(mtp_remove_folder_bash_dummy mtp_remove_folder_linux_gvfs)
 
 mtp_remove_folder()
 {
-	${mtp_remove_folder_vtbl[0]} $@
+	${mtp_remove_folder_vtbl[$HOST]} $@
 }
