@@ -43,7 +43,7 @@ mtp_copy_to_store_linux_gvfs()
 	local NAME="${4}"
 	local BASE=${__local_cookie[2]}
 	[ -d "$BASE"/"$STORE"/"$PARENT" ] || { echo "$PARENT does not exist"; return 1; }
-	cp "$NAME" "$BASE"/"$STORE"/"$PARENT"
+	gio copy "$NAME" "$BASE"/"$STORE"/"$PARENT"
 	return $?
 }
 
@@ -58,7 +58,7 @@ mtp_retrieve_from_store_linux_gvfs()
 	[ -d "$BASE"/"$STORE"/"$PARENT" ] || { echo "$PARENT does not exist"; return 1; }
 	[ -f "$BASE"/"$STORE"/"$PARENT"/"$REMOTE_NAME" ] || { echo "$REMOTE_NAME does not exist" return 1; }
 	[ -r "$BASE"/"$STORE"/"$PARENT"/"$REMOTE_NAME" ] || { echo "$REMOTE_NAME is not readable"; return 1; }
-	/bin/cp "$BASE"/"$STORE"/"$PARENT"/"$REMOTE_NAME" "$LOCAL_NAME"
+	gio copy "$BASE"/"$STORE"/"$PARENT"/"$REMOTE_NAME" "$LOCAL_NAME"
 	return $?
 }
 
