@@ -69,7 +69,7 @@ mtp_remove_from_store_linux_gvfs()
 	local PARENT="${3}"
 	local NAME="${4}"
 	local BASE=${__local_cookie[2]}
-	/bin/rm -rf "$BASE"/"$STORE"/"$PARENT"/"$NAME"
+	gio remove -f "$BASE"/"$STORE"/"$PARENT"/"$NAME"
 	return 0
 }
 
