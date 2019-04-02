@@ -21,10 +21,10 @@ setup()
 
 store_empty()
 {
-	local FILES=`mtp_list_files "$STORE_NAME" ""`
+	local FILES=`mtp_list_files os_cookie "$STORE_NAME" ""`
 	[ x"$FILES" == "x" ] || { echo $FILES; return 1; }
 
-	local FOLDERS=`mtp_list_folders "$STORE_NAME" ""`
+	local FOLDERS=`mtp_list_folders os_cookie "$STORE_NAME" ""`
 	[ x"$FOLDERS" == "x" ] || { echo $FOLDERS; return 1; }
 
 	return 0
@@ -38,10 +38,10 @@ add_file_to_store()
 
 	local ORIG_MD5=`md5sum "$NAME" | cut -f1 -d' '`
 
-	run mtp_copy_to_store "$STORE_NAME" "$PARENT" "$NAME"
+	run mtp_copy_to_store os_cookie "$STORE_NAME" "$PARENT" "$NAME"
 	[ $status -eq 0 ] || { echo "Copying to store failed"; return 1; }
 
-	run mtp_retrieve_from_store "$STORE_NAME" "$PARENT" "$NAME" r_"$NAME"
+	run mtp_retrieve_from_store os_cookie "$STORE_NAME" "$PARENT" "$NAME" r_"$NAME"
 	[ $status -eq 0 ] || { echo "Retrieving from store failed"; return 1; }
 
 	local R_MD5=`md5sum r_"$NAME" | cut -f1 -d' '`
@@ -55,11 +55,11 @@ remove_file_from_store()
 	local PARENT="${1}"
 	local NAME="${2}"
 
-	run mtp_remove_from_store "$STORE_NAME" "$PARENT" "$NAME"
+	run mtp_remove_from_store os_cookie "$STORE_NAME" "$PARENT" "$NAME"
 
 	[ $status -eq 0 ] || { echo "Removing from store failed"; return 1; }
 
-	run mtp_retrieve_from_store "$STORE_NAME" "$PARENT" "$NAME" r_"$NAME"
+	run mtp_retrieve_from_store os_cookie "$STORE_NAME" "$PARENT" "$NAME" r_"$NAME"
 	[ $status -eq 1 ] || { echo "Unexpectedly retrieved file"; return 1; }
 
 	return 0
@@ -70,13 +70,13 @@ add_single_folder_to_store_and_verify()
 	local PARENT="${1#p:}"
 	local NAME="${2#n:}"
 
-	run mtp_create_folder s:"$STORE_NAME" p:"$PARENT" n:"$NAME"
+	run mtp_create_folder os_cookie s:"$STORE_NAME" p:"$PARENT" n:"$NAME"
 	[ $status -eq 0 ] || { echo "Creating a folder failed"; return 1; }
 
-	local FILES=`mtp_list_files "$STORE_NAME" ""`
+	local FILES=`mtp_list_files os_cookie "$STORE_NAME" ""`
 	[ x"$FILES" == "x" ] || { echo "Unexpected files in store"; return 1; }
 
-	local FOLDERS=`mtp_list_folders "$STORE_NAME" ""`
+	local FOLDERS=`mtp_list_folders os_cookie "$STORE_NAME" ""`
 	[ `echo $FOLDERS | tr -d '[:blank:]'` == "folder" ] || { echo "Unexpected folders in store"; return 1; }
 }
 
@@ -87,7 +87,7 @@ teardown()
 }
 
 @test "Prepare tests" {
-	run mtp_prepare_tests "$STORE_NAME"
+	run mtp_prepare_tests os_cookie "$STORE_NAME"
 	[ $status -eq 0 ]
 }
 
@@ -169,7 +169,7 @@ teardown()
 }
 
 @test "Remove a folder from store" {
-	run mtp_remove_folder s:"$STORE_NAME" p:"/" n:folder
+	run mtp_remove_folder os_cookie s:"$STORE_NAME" p:"/" n:folder
 	[ $status -eq 0 ]
 
 	run store_empty
@@ -183,7 +183,7 @@ teardown()
 		run add_single_folder_to_store_and_verify p:"" n:folder
 		[ $status -eq 0 ] || { echo "Adding a folder failed"; return 1; }
 
-		run mtp_remove_folder s:"$STORE_NAME" p:"/" n:folder
+		run mtp_remove_folder os_cookie s:"$STORE_NAME" p:"/" n:folder
 		[ $status -eq 0 ]
 
 		run store_empty
@@ -204,7 +204,7 @@ teardown()
 	run remove_file_from_store folder test.bin
 	[ $status -eq 0 ] || { echo "Removing a file from folder failed"; return 1; }
 
-	local FOLDERS=`mtp_list_folders "$STORE_NAME" ""`
+	local FOLDERS=`mtp_list_folders os_cookie "$STORE_NAME" ""`
 	[ `echo $FOLDERS | tr -d '[:blank:]'` == "folder" ] || { echo "Unexpected folders in store"; return 1; }
 }
 
@@ -218,7 +218,7 @@ teardown()
 		run remove_file_from_store folder test.bin
 		[ $status -eq 0 ] || { echo "Removing a file from folder failed"; return 1; }
 
-		local FOLDERS=`mtp_list_folders "$STORE_NAME" ""`
+		local FOLDERS=`mtp_list_folders os_cookie "$STORE_NAME" ""`
 		[ `echo $FOLDERS | tr -d '[:blank:]'` == "folder" ] || { echo "Unexpected folders in store"; return 1; }
 		count=$(($count + 1))
 	done
@@ -237,7 +237,7 @@ teardown()
 		[ $status -eq 0 ]
 	done
 
-	local FOLDERS=`mtp_list_folders "$STORE_NAME" ""`
+	local FOLDERS=`mtp_list_folders os_cookie "$STORE_NAME" ""`
 	[ `echo $FOLDERS | tr -d '[:blank:]'` == "folder" ] || { echo "Unexpected folders in store"; return 1; }
 }
 
@@ -254,14 +254,14 @@ teardown()
 			run remove_file_from_store folder test-$i.bin
 			[ $status -eq 0 ] || { echo "Removing a file from folder failed"; return 1; }
 		done
-		local FOLDERS=`mtp_list_folders "$STORE_NAME" ""`
+		local FOLDERS=`mtp_list_folders os_cookie "$STORE_NAME" ""`
 		[ `echo $FOLDERS | tr -d '[:blank:]'` == "folder" ] || { echo "Unexpected folders in store"; return 1; }
 		count=$(($count + 1))
 	done
 }
 
 @test "Remove a folder from store after transferring files to/from it" {
-	run mtp_remove_folder s:"$STORE_NAME" p:"/" n:folder
+	run mtp_remove_folder os_cookie s:"$STORE_NAME" p:"/" n:folder
 	[ $status -eq 0 ]
 
 	run store_empty
@@ -272,18 +272,18 @@ teardown()
 	run add_single_folder_to_store_and_verify p:"" n:folder
 	[ $status -eq 0 ] || { echo "Adding a folder failed"; return 1; }
 
-	run mtp_create_folder "$STORE_NAME" folder subfolder
+	run mtp_create_folder os_cookie "$STORE_NAME" folder subfolder
 	[ $status -eq 0 ] || { echo "Creating a folder failed"; return 1; }
 
-	local FOLDERS=`mtp_list_folders "$STORE_NAME" ""`
+	local FOLDERS=`mtp_list_folders os_cookie "$STORE_NAME" ""`
 	[ `echo $FOLDERS | tr -d '[:blank:]'` == "folderfolder/subfolder" ] || { echo "Unexpected folders in store"; return 1; }
 }
 
 @test "Remove a folder from subfolder" {
-	run mtp_remove_folder s:"$STORE_NAME" p:folder n:subfolder
+	run mtp_remove_folder os_cookie s:"$STORE_NAME" p:folder n:subfolder
 	[ $status -eq 0 ]
 
-	local FOLDERS=`mtp_list_folders "$STORE_NAME" ""`
+	local FOLDERS=`mtp_list_folders os_cookie "$STORE_NAME" ""`
 	[ `echo $FOLDERS | tr -d '[:blank:]'` == "folder" ] || { echo "Unexpected folders in store"; return 1; }
 }
 
@@ -291,23 +291,23 @@ teardown()
 	local count=0
 
 	while [ $count -lt $ADD_REMOVE_COUNT ]; do
-		run mtp_create_folder "$STORE_NAME" folder subfolder
+		run mtp_create_folder os_cookie "$STORE_NAME" folder subfolder
 		[ $status -eq 0 ] || { echo "Creating a folder failed"; return 1; }
 
-		local FOLDERS=`mtp_list_folders "$STORE_NAME" ""`
+		local FOLDERS=`mtp_list_folders os_cookie "$STORE_NAME" ""`
 		[ `echo $FOLDERS | tr -d '[:blank:]'` == "folderfolder/subfolder" ] || { echo "Unexpected folders in store"; return 1; }
 
-		run mtp_remove_folder s:"$STORE_NAME" p:folder n:subfolder
+		run mtp_remove_folder os_cookie s:"$STORE_NAME" p:folder n:subfolder
 		[ $status -eq 0 ]
 
-		local FOLDERS=`mtp_list_folders "$STORE_NAME" ""`
+		local FOLDERS=`mtp_list_folders os_cookie "$STORE_NAME" ""`
 		[ `echo $FOLDERS | tr -d '[:blank:]'` == "folder" ] || { echo "Unexpected folders in store"; return 1; }
 		count=$(($count + 1))
 	done
 }
 
 @test "Remove a folder from store after creating/removing subfolders" {
-	run mtp_remove_folder s:"$STORE_NAME" p:"/" n:folder
+	run mtp_remove_folder os_cookie s:"$STORE_NAME" p:"/" n:folder
 	[ $status -eq 0 ]
 
 	run store_empty
@@ -318,10 +318,10 @@ teardown()
 	run add_single_folder_to_store_and_verify p:"" n:folder
 	[ $status -eq 0 ] || { echo "Adding a folder failed"; return 1; }
 
-	run mtp_create_folder "$STORE_NAME" folder subfolder
+	run mtp_create_folder os_cookie "$STORE_NAME" folder subfolder
 	[ $status -eq 0 ] || { echo "Creating a folder failed"; return 1; }
 
-	local FOLDERS=`mtp_list_folders "$STORE_NAME" ""`
+	local FOLDERS=`mtp_list_folders os_cookie "$STORE_NAME" ""`
 	[ `echo $FOLDERS | tr -d '[:blank:]'` == "folderfolder/subfolder" ] || { echo "Unexpected folders in store"; return 1; }
 
 	run add_file_to_store folder/subfolder test.bin
@@ -332,7 +332,7 @@ teardown()
 	run remove_file_from_store folder/subfolder test.bin
 	[ $status -eq 0 ] || { echo "Removing a file from folder failed"; return 1; }
 
-	local FOLDERS=`mtp_list_folders "$STORE_NAME" ""`
+	local FOLDERS=`mtp_list_folders os_cookie "$STORE_NAME" ""`
 	[ `echo $FOLDERS | tr -d '[:blank:]'` == "folderfolder/subfolder" ] || { echo "Unexpected folders in store"; return 1; }
 }
 
@@ -346,7 +346,7 @@ teardown()
 		run remove_file_from_store folder/subfolder test.bin
 		[ $status -eq 0 ] || { echo "Removing a file from folder failed"; return 1; }
 
-		local FOLDERS=`mtp_list_folders "$STORE_NAME" ""`
+		local FOLDERS=`mtp_list_folders os_cookie "$STORE_NAME" ""`
 		[ `echo $FOLDERS | tr -d '[:blank:]'` == "folderfolder/subfolder" ] || { echo "Unexpected folders in store"; return 1; }
 		count=$(($count + 1))
 	done
@@ -365,7 +365,7 @@ teardown()
 		[ $status -eq 0 ]
 	done
 
-	local FOLDERS=`mtp_list_folders "$STORE_NAME" ""`
+	local FOLDERS=`mtp_list_folders os_cookie "$STORE_NAME" ""`
 	[ `echo $FOLDERS | tr -d '[:blank:]'` == "folderfolder/subfolder" ] || { echo "Unexpected folders in store"; return 1; }
 }
 
@@ -382,14 +382,14 @@ teardown()
 			run remove_file_from_store folder/subfolder test-$i.bin
 			[ $status -eq 0 ] || { echo "Removing a file from folder failed"; return 1; }
 		done
-		local FOLDERS=`mtp_list_folders "$STORE_NAME" ""`
+		local FOLDERS=`mtp_list_folders os_cookie "$STORE_NAME" ""`
 		[ `echo $FOLDERS | tr -d '[:blank:]'` == "folderfolder/subfolder" ] || { echo "Unexpected folders in store"; return 1; }
 		count=$(($count + 1))
 	done
 }
 
 @test "Remove a folder and subfolder from store after transferring files " {
-	run mtp_remove_folder s:"$STORE_NAME" p:"/" n:folder
+	run mtp_remove_folder os_cookie s:"$STORE_NAME" p:"/" n:folder
 	[ $status -eq 0 ]
 
 	run store_empty
