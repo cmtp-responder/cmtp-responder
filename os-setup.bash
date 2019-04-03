@@ -12,12 +12,12 @@ os_setup_vtbl=(os_setup_bash_dummy os_setup_linux_gvfs)
 
 os_setup()
 {
-	${os_setup_vtbl[$HOST]} $@
+	${os_setup_vtbl[$MTP_VARIANT]} $@
 }
 
 os_teardown_vtbl=(os_teardown_bash_dummy os_teardown_linux_gvfs)
 
 os_teardown()
 {
-	${os_teardown_vtbl[$HOST]} $@
+	${os_teardown_vtbl[$MTP_VARIANT]} $@
 }
