@@ -9,5 +9,5 @@ random_file()
 {
 	local NAME="${1}"
 
-	cat /dev/urandom | head -c$((($RANDOM % 2048 + 1) * $((RANDOM + 1)))) > "$NAME"
+	cat /dev/urandom | head -c$((($RANDOM % 128 + 1) * $((RANDOM + 1)))) > "$NAME"
 }
