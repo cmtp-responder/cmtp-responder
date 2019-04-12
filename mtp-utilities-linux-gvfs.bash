@@ -74,7 +74,7 @@ mtp_remove_from_store_linux_gvfs()
 	local NAME="${4}"
 	local BASE=${__local_cookie[2]}
 	gio remove -f "$BASE"/"$STORE"/"$PARENT"/"$NAME"
-	return 0
+	return $?
 }
 
 mtp_create_folder_linux_gvfs()
@@ -86,7 +86,7 @@ mtp_create_folder_linux_gvfs()
 	local BASE=${__local_cookie[2]}
 	[ -d "$BASE"/"$STORE"/"$PARENT" ] || { echo "$PARENT does not exist"; return 1; }
 	gio mkdir "$BASE"/"$STORE"/"$PARENT"/"$NAME"
-	return 0
+	return $?
 }
 
 mtp_remove_folder_linux_gvfs()
@@ -107,5 +107,6 @@ mtp_finish_tests_linux_gvfs()
 
 	run gio mount -u ${__local_cookie[3]} 2>&1 > /dev/null
 	sleep 1
-	return 0
+
+	return $?
 }
