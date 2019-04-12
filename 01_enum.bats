@@ -6,6 +6,9 @@
 # Author: Andrzej Pietrasiewicz <andrzej.p@collabora.com>
 #
 
+#
+# executed before each test case
+#
 setup()
 {
 	load mtp-device-id
