@@ -8,6 +8,9 @@
 
 declare -a os_cookie
 
+#
+# executed before each test case
+#
 setup()
 {
 	load config
@@ -17,6 +20,15 @@ setup()
 	load file-utilities
 
 	os_setup os_cookie
+}
+
+#
+# executed after each test case
+#
+teardown()
+{
+	rm -rf *.bin
+	os_teardown os_cookie
 }
 
 store_empty()
@@ -78,12 +90,6 @@ add_single_folder_to_store_and_verify()
 
 	local FOLDERS=`mtp_list_folders os_cookie "$STORE_NAME" ""`
 	[ `echo $FOLDERS | tr -d '[:blank:]'` == "folder" ] || { echo "Unexpected folders in store"; return 1; }
-}
-
-teardown()
-{
-	rm -rf *.bin
-	os_teardown os_cookie
 }
 
 @test "Prepare tests" {
