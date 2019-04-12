@@ -10,6 +10,14 @@ mtp_prepare_tests_windows_power_shell()
 	local -n __local_cookie=${1}
 	local STORE="${2}"
 
+	powershell.exe "c:\\Users\\Administrator\\cmtp-responder-tests\\rmdir.ps1" -dir \'${__local_cookie[0]}\'
+	[ $? -eq 0 ] || return 1
+	powershell.exe "c:\\Users\\Administrator\\cmtp-responder-tests\\mkdir.ps1" -dir \'${__local_cookie[0]}\'
+	[ $? -eq 0 ] || return 1
+	powershell.exe "c:\\Users\\Administrator\\cmtp-responder-tests\\rmdir.ps1" -dir \'${__local_cookie[1]}\'
+	[ $? -eq 0 ] || return 1
+	powershell.exe "c:\\Users\\Administrator\\cmtp-responder-tests\\mkdir.ps1" -dir \'${__local_cookie[1]}\'
+	[ $? -eq 0 ] || return 1
 	powershell.exe "c:\\Users\\Administrator\\cmtp-responder-tests\\empty-store.ps1" -mtpDeviceName \'${__local_cookie[2]}\' -storeName \'$STORE\' -removalsDir \'${__local_cookie[1]}\'
 
 	[ $? -eq 0 ] || return 1
@@ -130,5 +138,11 @@ mtp_remove_folder_windows_power_shell()
 
 mtp_finish_tests_windows_power_shell()
 {
+	local -n __local_cookie=${1}
+
+	powershell.exe "c:\\Users\\Administrator\\cmtp-responder-tests\\rmdir.ps1" -dir \'${__local_cookie[0]}\'
+	[ $? -eq 0 ] || return 1
+	powershell.exe "c:\\Users\\Administrator\\cmtp-responder-tests\\rmdir.ps1" -dir \'${__local_cookie[1]}\'
+	[ $? -eq 0 ] || return 1
 	return 0
 }
