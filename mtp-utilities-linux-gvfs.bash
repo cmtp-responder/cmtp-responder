@@ -10,6 +10,10 @@ mtp_prepare_tests_linux_gvfs()
 	local -n __local_cookie=${1}
 	local STORE="${2}"
 	local BASE=${__local_cookie[2]}
+	run gio mount -u ${__local_cookie[3]} 2>&1 > /dev/null
+	sleep 1
+	run gio mount ${__local_cookie[3]} 2>&1 > /dev/null
+	sleep 1
 	find "$BASE"/"$STORE"/ -type f -print0 | xargs -0 gio remove -f
 	find "$BASE"/"$STORE"/ -type d -print0 | sort -r -z | xargs -0 gio remove -f
 	return 0
@@ -99,5 +103,9 @@ mtp_remove_folder_linux_gvfs()
 
 mtp_finish_tests_linux_gvfs()
 {
+	local -n __local_cookie=${1}
+
+	run gio mount -u ${__local_cookie[3]} 2>&1 > /dev/null
+	sleep 1
 	return 0
 }
