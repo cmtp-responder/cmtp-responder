@@ -5,6 +5,14 @@
 # Author: Andrzej Pietrasiewicz <andrzej.p@collabora.com>
 #
 
+mtp_prepare_tests()
+{
+	local STORE="${1}"
+	# TODO: dummy
+	rm -rf /tmp/"$STORE"
+	mkdir -p /tmp/"$STORE"
+}
+
 mtp_list_files()
 {
 	local STORE="${1}"
