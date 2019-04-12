@@ -36,7 +36,7 @@ if ($file -eq $null) {
 
 $removalsFolder = $shell.Namespace($removalsDir).self
 $removalsFolder.GetFolder.MoveHere($file, 1564)
-Start-Sleep -s 1
+Start-Sleep -m 200
 Remove-Item $removalsDir -Recurse -Confirm:$false -Force
-Start-Sleep -s 1
+Start-Sleep -m 200
 $create = New-Item -itemtype directory -path $removalsDir

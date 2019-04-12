@@ -32,9 +32,9 @@ if ($storeRootFolder.Items) {
 	foreach ($i in $items) {
 		$destinationFolder = $shell.Namespace($removalsDir).self
 		$destinationFolder.GetFolder.MoveHere($i)
-		Start-Sleep -s 1
+		Start-Sleep -m 200
 		Remove-Item $removalsDir -Recurse -Confirm:$false -Force
-		Start-Sleep -s 1
+		Start-Sleep -m 200
 		$create = New-Item -itemtype directory -path $removalsDir
 	}
 }
