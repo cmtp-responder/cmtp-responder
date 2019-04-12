@@ -146,5 +146,6 @@ mtp_finish_tests_windows_power_shell()
 	[ $? -eq 0 ] || return 1
 	powershell.exe "ps1\\rmdir.ps1" -dir \'${__local_cookie[1]}\'
 	[ $? -eq 0 ] || return 1
+	powershell.exe "ps1\\close-windows.ps1" -store \'${__local_cookie[3]}\'
 	return 0
 }

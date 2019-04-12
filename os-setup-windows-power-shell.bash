@@ -14,6 +14,7 @@ os_setup_windows_power_shell()
 	__local_cookie+=("$TMP_DIR""\\cmtp-responder-tests\\")
 	__local_cookie+=("$TMP_DIR""\\cmtp-responder-tests-removals\\")
 	__local_cookie+=("$PRODUCT_WINDOWS")
+	__local_cookie+=("$STORE_NAME")
 
 	return 0
 }
