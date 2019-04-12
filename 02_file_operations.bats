@@ -409,6 +409,6 @@ add_single_folder_to_store_and_verify()
 }
 
 @test "Finish test cases" {
-	run mtp_finish_tests
+	run mtp_finish_tests os_cookie
 	[ $status -eq 0 ]
 }
