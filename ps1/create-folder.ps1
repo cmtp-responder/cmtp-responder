@@ -32,4 +32,4 @@ $destinationFolder=$shell.Namespace($destination).self
 $destinationFolder.GetFolder.NewFolder($folderName)
 
 $shell.open($destinationFolder)
-Start-Sleep -s 3
+Start-Sleep -s 1
