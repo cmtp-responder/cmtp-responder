@@ -22,5 +22,4 @@ os_setup_linux_gvfs()
 os_teardown_linux_gvfs()
 {
 	local -n __local_cookie=${1}
-
 }
