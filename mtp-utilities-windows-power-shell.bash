@@ -18,9 +18,11 @@ mtp_prepare_tests_windows_power_shell()
 	[ $? -eq 0 ] || return 1
 	powershell.exe "c:\\Users\\Administrator\\cmtp-responder-tests\\mkdir.ps1" -dir \'${__local_cookie[1]}\'
 	[ $? -eq 0 ] || return 1
-	powershell.exe "c:\\Users\\Administrator\\cmtp-responder-tests\\empty-store.ps1" -mtpDeviceName \'${__local_cookie[2]}\' -storeName \'$STORE\' -removalsDir \'${__local_cookie[1]}\'
-
+	powershell.exe "c:\\Users\\Administrator\\cmtp-responder-tests\\open-store-window.ps1" -mtpDeviceName \'${__local_cookie[2]}\' -storeName \'$STORE\'
 	[ $? -eq 0 ] || return 1
+	powershell.exe "c:\\Users\\Administrator\\cmtp-responder-tests\\empty-store.ps1" -mtpDeviceName \'${__local_cookie[2]}\' -storeName \'$STORE\' -removalsDir \'${__local_cookie[1]}\'
+	[ $? -eq 0 ] || return 1
+
 	return 0
 }
 
