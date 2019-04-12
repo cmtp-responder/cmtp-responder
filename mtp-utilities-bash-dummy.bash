@@ -91,3 +91,8 @@ mtp_remove_folder_bash_dummy()
 	mkdir -p /tmp/"$STORE"
 	/bin/rm -rf /tmp/"$STORE"/"$PARENT"/"$NAME"
 }
+
+mtp_finish_tests_bash_dummy()
+{
+	return 0
+}

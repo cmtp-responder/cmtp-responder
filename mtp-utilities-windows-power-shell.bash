@@ -127,3 +127,8 @@ mtp_remove_folder_windows_power_shell()
 	fi
 	return 0
 }
+
+mtp_finish_tests_windows_power_shell()
+{
+	return 0
+}

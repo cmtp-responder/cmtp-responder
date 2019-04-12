@@ -64,3 +64,10 @@ mtp_remove_folder()
 {
 	${mtp_remove_folder_vtbl[$MTP_VARIANT]} $@
 }
+
+mtp_finish_tests_vtbl=(mtp_finish_tests_bash_dummy mtp_finish_tests_linux_gvfs mtp_finish_tests_windows_power_shell)
+
+mtp_finish_tests()
+{
+	${mtp_finish_tests_vtbl[$MTP_VARIANT]} $@
+}

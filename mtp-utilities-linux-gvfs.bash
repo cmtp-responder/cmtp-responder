@@ -96,3 +96,8 @@ mtp_remove_folder_linux_gvfs()
 	find "$BASE"/"$STORE"/"$PARENT"/"$NAME" -type d -print0 | sort -r -z | xargs -0 gio remove -f
 	return 0
 }
+
+mtp_finish_tests_linux_gvfs()
+{
+	return 0
+}

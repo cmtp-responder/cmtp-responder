@@ -407,3 +407,8 @@ add_single_folder_to_store_and_verify()
 	run store_empty
 	[ $status -eq 0 ] || { echo "Unexpectedly store not empty"; return 1; }
 }
+
+@test "Finish test cases" {
+	run mtp_finish_tests
+	[ $status -eq 0 ]
+}
