@@ -24,7 +24,7 @@ setup()
 	device_present
 	sleep 1
 	run device_is_mtp_device
-	[ $status -eq 0 ] || echo "Device not present"
+	[ $status -eq 0 ] || echo "Device not present: $output"
 	[ $status -eq 0 ]
 }
 
@@ -37,10 +37,10 @@ setup()
 		device_connect
 		sleep 6
 		run device_present
-		[ $status -eq 0 ] || echo "Device not present"
+		[ $status -eq 0 ] || echo "Device not present: $output"
 		[ $status -eq 0 ]
 		run device_is_mtp_device
-		[ $status -eq 0 ] || echo "Not an mtp device"
+		[ $status -eq 0 ] || echo "Not an mtp device: $output"
 		[ $status -eq 0 ]
 		let count=count+1
 	done
