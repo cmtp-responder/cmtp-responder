@@ -62,12 +62,12 @@ device_is_mtp_device_linux()
 
 device_disconnect_linux()
 {
-	echo -n $MTP_DEVICE_HCD | sudo tee $MTP_DEVICE_HCD_DRIVER/unbind
+	echo -n $MTP_DEVICE_HCD | sudo tee $MTP_DEVICE_HCD_DRIVER/unbind > /dev/null
 	return 0
 }
 
 device_connect_linux()
 {
-	echo -n $MTP_DEVICE_HCD | sudo tee $MTP_DEVICE_HCD_DRIVER/bind
+	echo -n $MTP_DEVICE_HCD | sudo tee $MTP_DEVICE_HCD_DRIVER/bind > /dev/null
 	return 0
 }
