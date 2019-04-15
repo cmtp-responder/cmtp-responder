@@ -11,6 +11,7 @@ $shell = New-Object -com Shell.Application
 
 $mtpDevice = $shell.NameSpace(0x11).items() | where { $_.name -eq $mtpDeviceName }
 if ($mtpDevice -eq $null) {
+	Write-Output "Cannot find $mtpDeviceName"
 	Exit 1
 }
 
@@ -22,6 +23,7 @@ foreach ($component in $pathComponents) {
 	}
 }
 if ($storeRoot -eq $null -or -not $storeRoot.IsFolder) {
+	Write-Output "Cannot find store $storeName"
 	Exit 1
 }
 

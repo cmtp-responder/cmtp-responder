@@ -11,6 +11,7 @@ $shell = New-Object -com Shell.Application
 
 $mtpDevice = $shell.NameSpace(0x11).items() | where { $_.name -eq $mtpDeviceName }
 if ($mtpDevice -eq $null) {
+	Write-Output "Cannot find $mtpDeviceName"
 	Exit 1
 }
 
@@ -26,11 +27,13 @@ foreach ($component in $arrayList) {
 	}
 }
 if ($parent -eq $null -or -not $parent.IsFolder) {
+	Write-Output "Cannot find parent folder $parentName"
 	Exit 1
 }
 $parentFolder=$shell.Namespace($parent).self
 $victimFolder=$parentFolder.GetFolder.Items() | where { $_.Name -eq $folderName }
 if ($victimFolder -eq $null -or -not $victimFolder.IsFolder) {
+	Write-Output "Cannot find victim folder $folderName"
 	Exit 1
 }
 

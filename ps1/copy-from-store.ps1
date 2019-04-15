@@ -11,6 +11,7 @@ $shell = New-Object -com Shell.Application
 
 $mtpDevice = $shell.NameSpace(0x11).items() | where { $_.name -eq $mtpDeviceName }
 if ($mtpDevice -eq $null) {
+	Write-Output "Cannot find $mtpDeviceName"
 	Exit 1
 }
 
@@ -26,11 +27,13 @@ foreach ($component in $arrayList) {
 	}
 }
 if ($source -eq $null -or -not $source.IsFolder) {
+	Write-Output "Cannot find source folder $parentName"
 	Exit 1
 }
 $sourceFolder=$shell.Namespace($source).self
 $file = $sourceFolder.GetFolder.Items() | where { $_.Name -eq $remoteFileName }
 if ($file -eq $null) {
+	Write-Output "Cannot find source file $remoteFileName"
 	Exit 1
 }
 
@@ -42,12 +45,14 @@ if (Test-Path $tmpFilename) {
 $tmpFolder.GetFolder.CopyHere($file, 1564)
 $file = $tmpFolder.GetFolder.Items() | where { $_.Name -eq $remoteFileName }
 if ($file -eq $null) {
+	Write-Output "Cannot find file's temporary copy $tmpFilename"
 	Exit 1
 }
 
 Rename-Item -path $tmpFilename -newname $localFileName
 $file = $tmpFolder.GetFolder.Items() | where { $_.Name -eq $localFileName }
 if ($file -eq $null) {
+	Write-Output "Renaming to $localFilename failed"
 	Exit 1
 }
 

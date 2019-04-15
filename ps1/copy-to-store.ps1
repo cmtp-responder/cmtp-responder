@@ -12,11 +12,13 @@ $shell = New-Object -com Shell.Application
 $sourceFolder = $shell.Namespace($(Get-Location).toString()).self
 $file = $sourceFolder.GetFolder.Items() | where { $_.Name -eq $fileName }
 if ($file -eq $null) {
+	Write-Output "Cannot find source file $fileName"
 	Exit 1
 }
 
 $mtpDevice = $shell.NameSpace(0x11).items() | where { $_.name -eq $mtpDeviceName }
 if ($mtpDevice -eq $null) {
+	Write-Output "Cannot find $mtpDeviceName"
 	Exit 1
 }
 
@@ -32,6 +34,7 @@ foreach ($component in $arrayList) {
 	}
 }
 if ($destination -eq $null -or -not $destination.IsFolder) {
+	Write-Output "Cannot find destination folder $parentName"
 	Exit 1
 }
 $destinationFolder=$shell.Namespace($destination).self
