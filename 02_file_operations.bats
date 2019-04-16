@@ -102,12 +102,12 @@ add_single_folder_to_store_and_verify()
 }
 
 @test "Add a file to store" {
-	run add_file_to_store / test.bin
+	run add_file_to_store / "filename with spaces.bin"
 	[ $status -eq 0 ] || { echo "Adding file to store failed: $output"; return 1; }
 }
 
 @test "Remove a file from store" {
-	run remove_file_from_store / test.bin
+	run remove_file_from_store / "filename with spaces.bin"
 	[ $status -eq 0 ] || { echo "Removing a file from store failed: $output"; return 1; }
 
 	run store_empty
@@ -118,10 +118,10 @@ add_single_folder_to_store_and_verify()
 	local count=0
 
 	while [ $count -lt $ADD_REMOVE_COUNT ]; do
-		run add_file_to_store / test.bin
+		run add_file_to_store / "filename with spaces.bin"
 		[ $status -eq 0 ] || { echo "Adding file to store failed: $output"; return 1; }
 
-		run remove_file_from_store / test.bin
+		run remove_file_from_store / "filename with spaces.bin"
 		[ $status -eq 0 ] || { echo "Removing a file from store failed: $output"; return 1; }
 
 		run store_empty
@@ -133,14 +133,14 @@ add_single_folder_to_store_and_verify()
 
 @test "Add multiple files to store" {
 	for i in `seq $MULTIPLE_FILES`; do
-		run add_file_to_store / test-$i.bin
+		run add_file_to_store / "filename with spaces-$i.bin"
 		[ $status -eq 0 ] || { echo "Adding file to store failed: $output"; return 1; }
 	done
 }
 
 @test "Remove multiple files from store" {
 	for i in `seq $MULTIPLE_FILES`; do
-		run remove_file_from_store / test-$i.bin
+		run remove_file_from_store / "filename with spaces-$i.bin"
 		[ $status -eq 0 ] || { echo "Removing a file from store failed: $output"; return 1; }
 	done
 
@@ -153,12 +153,12 @@ add_single_folder_to_store_and_verify()
 
 	while [ $count -lt $MULTIPLE_ADD_REMOVE_COUNT ]; do
 		for i in `seq $MULTIPLE_FILES`; do
-			run add_file_to_store / test-$i.bin
+			run add_file_to_store / "filename with spaces-$i.bin"
 			[ $status -eq 0 ] || { echo "Adding file to store failed: $output"; return 1; }
 		done
 
 		for i in `seq $MULTIPLE_FILES`; do
-			run remove_file_from_store / test-$i.bin
+			run remove_file_from_store / "filename with spaces-$i.bin"
 			[ $status -eq 0 ] || { echo "Removing a file from store failed: $output"; return 1; }
 		done
 
@@ -201,12 +201,12 @@ add_single_folder_to_store_and_verify()
 	run add_single_folder_to_store_and_verify p:"" n:folder
 	[ $status -eq 0 ] || { echo "Adding a folder failed: $output"; return 1; }
 
-	run add_file_to_store folder test.bin
+	run add_file_to_store folder "filename with spaces.bin"
 	[ $status -eq 0 ] || { echo "Adding a file to folder failed: $output"; return 1; }
 }
 
 @test "Remove a file from a folder" {
-	run remove_file_from_store folder test.bin
+	run remove_file_from_store folder "filename with spaces.bin"
 	[ $status -eq 0 ] || { echo "Removing a file from folder failed: $output"; return 1; }
 
 	local FOLDERS=`mtp_list_folders os_cookie "$STORE_NAME" ""`
@@ -217,10 +217,10 @@ add_single_folder_to_store_and_verify()
 	local count=0
 
 	while [ $count -lt $ADD_REMOVE_COUNT ]; do
-		run add_file_to_store folder test.bin
+		run add_file_to_store folder "filename with spaces.bin"
 		[ $status -eq 0 ] || { echo "Adding a file to folder failed: $output"; return 1; }
 
-		run remove_file_from_store folder test.bin
+		run remove_file_from_store folder "filename with spaces.bin"
 		[ $status -eq 0 ] || { echo "Removing a file from folder failed: $output"; return 1; }
 
 		local FOLDERS=`mtp_list_folders os_cookie "$STORE_NAME" ""`
@@ -231,14 +231,14 @@ add_single_folder_to_store_and_verify()
 
 @test "Add multiple files to folder" {
 	for i in `seq $MULTIPLE_FILES`; do
-		run add_file_to_store folder test-$i.bin
+		run add_file_to_store folder "filename with spaces-$i.bin"
 		[ $status -eq 0 ] || { echo "Adding a file to folder failed: $output"; return 1; }
 	done
 }
 
 @test "Remove multiple files from folder" {
 	for i in `seq $MULTIPLE_FILES`; do
-		run remove_file_from_store folder test-$i.bin
+		run remove_file_from_store folder "filename with spaces-$i.bin"
 		[ $status -eq 0 ] || { echo "Removing a file from folder failed: $output"; return 1; }
 	done
 
@@ -251,12 +251,12 @@ add_single_folder_to_store_and_verify()
 
 	while [ $count -lt $MULTIPLE_ADD_REMOVE_COUNT ]; do
 		for i in `seq $MULTIPLE_FILES`; do
-			run add_file_to_store folder test-$i.bin
+			run add_file_to_store folder "filename with spaces-$i.bin"
 			[ $status -eq 0 ] || { echo "Adding a file to folder failed: $output"; return 1; }
 		done
 
 		for i in `seq $MULTIPLE_FILES`; do
-			run remove_file_from_store folder test-$i.bin
+			run remove_file_from_store folder "filename with spaces-$i.bin"
 			[ $status -eq 0 ] || { echo "Removing a file from folder failed: $output"; return 1; }
 		done
 		local FOLDERS=`mtp_list_folders os_cookie "$STORE_NAME" ""`
@@ -329,12 +329,12 @@ add_single_folder_to_store_and_verify()
 	local FOLDERS=`mtp_list_folders os_cookie "$STORE_NAME" ""`
 	[ `echo $FOLDERS | tr -d '[:blank:]'` == "folderfolder/subfolder" ] || { echo "Unexpected folders in store: $FOLDERS"; return 1; }
 
-	run add_file_to_store folder/subfolder test.bin
+	run add_file_to_store folder/subfolder "filename with spaces.bin"
 	[ $status -eq 0 ] || { echo "Adding a file to subfolder failed: $output"; return 1; }
 }
 
 @test "Remove a file from a subfolder" {
-	run remove_file_from_store folder/subfolder test.bin
+	run remove_file_from_store folder/subfolder "filename with spaces.bin"
 	[ $status -eq 0 ] || { echo "Removing a file from folder failed: $output"; return 1; }
 
 	local FOLDERS=`mtp_list_folders os_cookie "$STORE_NAME" ""`
@@ -345,10 +345,10 @@ add_single_folder_to_store_and_verify()
 	local count=0
 
 	while [ $count -lt $ADD_REMOVE_COUNT ]; do
-		run add_file_to_store folder/subfolder test.bin
+		run add_file_to_store folder/subfolder "filename with spaces.bin"
 		[ $status -eq 0 ] || { echo "Adding a file to subfolder failed: $output"; return 1; }
 
-		run remove_file_from_store folder/subfolder test.bin
+		run remove_file_from_store folder/subfolder "filename with spaces.bin"
 		[ $status -eq 0 ] || { echo "Removing a file from folder failed: $output"; return 1; }
 
 		local FOLDERS=`mtp_list_folders os_cookie "$STORE_NAME" ""`
@@ -359,14 +359,14 @@ add_single_folder_to_store_and_verify()
 
 @test "Add multiple files to subfolder" {
 	for i in `seq $MULTIPLE_FILES`; do
-		run add_file_to_store folder/subfolder test-$i.bin
+		run add_file_to_store folder/subfolder "filename with spaces-$i.bin"
 		[ $status -eq 0 ] || { echo "Adding a file to subfolder failed: $output"; return 1; }
 	done
 }
 
 @test "Remove multiple files from subfolder" {
 	for i in `seq $MULTIPLE_FILES`; do
-		run remove_file_from_store folder/subfolder test-$i.bin
+		run remove_file_from_store folder/subfolder "filename with spaces-$i.bin"
 		[ $status -eq 0 ] || { echo "Removing a file from subfolder failed: $output"; return 1; }
 	done
 
@@ -379,12 +379,12 @@ add_single_folder_to_store_and_verify()
 
 	while [ $count -lt $MULTIPLE_ADD_REMOVE_COUNT ]; do
 		for i in `seq $MULTIPLE_FILES`; do
-			run add_file_to_store folder/subfolder test-$i.bin
+			run add_file_to_store folder/subfolder "filename with spaces-$i.bin"
 			[ $status -eq 0 ] || { echo "Adding a file to folder failed: $output"; return 1; }
 		done
 
 		for i in `seq $MULTIPLE_FILES`; do
-			run remove_file_from_store folder/subfolder test-$i.bin
+			run remove_file_from_store folder/subfolder "filename with spaces-$i.bin"
 			[ $status -eq 0 ] || { echo "Removing a file from folder failed: $output"; return 1; }
 		done
 		local FOLDERS=`mtp_list_folders os_cookie "$STORE_NAME" ""`
