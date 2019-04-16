@@ -84,11 +84,9 @@ add_single_folder_to_store_and_verify()
 	run mtp_create_folder os_cookie s:"$STORE_NAME" p:"$PARENT" n:"$NAME"
 	[ $status -eq 0 ] || { echo "Creating a folder failed: $output"; return 1; }
 
-	local FILES=`mtp_list_files os_cookie "$STORE_NAME" ""`
-	[ x"$FILES" == "x" ] || { echo "Unexpected files in store"; return 1; }
-
 	local FOLDERS=`mtp_list_folders os_cookie "$STORE_NAME" ""`
-	[ `echo $FOLDERS | tr -d '[:blank:]'` == "folder" ] || { echo "Unexpected folders in store"; return 1; }
+	echo "$FOLDERS" | grep "$NAME"
+	[ $? -eq 0 ] || { echo "Can't find folder $NAME in store"; return 1; }
 }
 
 @test "Prepare tests" {
@@ -101,51 +99,21 @@ add_single_folder_to_store_and_verify()
 	[ $status -eq 0 ] || { echo "Verifying empty store failed: $output"; return 1; }
 }
 
-@test "Add a file to store" {
-	run add_file_to_store / "filename with spaces.bin"
-	[ $status -eq 0 ] || { echo "Adding file to store failed: $output"; return 1; }
-}
-
-@test "Remove a file from store" {
-	run remove_file_from_store / "filename with spaces.bin"
-	[ $status -eq 0 ] || { echo "Removing a file from store failed: $output"; return 1; }
-
-	run store_empty
-	[ $status -eq 0 ] || { echo "Unexpectedly store not empty: $output"; return 1; }
-}
-
 @test "Add and remove a file to/from store a number of times" {
 	local count=0
 
 	while [ $count -lt $ADD_REMOVE_COUNT ]; do
 		run add_file_to_store / "filename with spaces.bin"
-		[ $status -eq 0 ] || { echo "Adding file to store failed: $output"; return 1; }
+		[ $status -eq 0 ] || { echo "Adding file to store failed [$count iteration]: $output"; return 1; }
 
 		run remove_file_from_store / "filename with spaces.bin"
-		[ $status -eq 0 ] || { echo "Removing a file from store failed: $output"; return 1; }
+		[ $status -eq 0 ] || { echo "Removing file from store failed [$count iteration]: $output"; return 1; }
 
-		run store_empty
-		[ $status -eq 0 ] || { echo "Unexpectedly store not empty: $output"; return 1; }
+		local FILES=`mtp_list_files os_cookie "$STORE_NAME" "" | grep "filename with spaces.bin"`
+		[ -z "$FILES" ] || { echo "Unexpectedly store not empty: $FILES"; return 1; }
 
 		count=$(($count + 1))
 	done
-}
-
-@test "Add multiple files to store" {
-	for i in `seq $MULTIPLE_FILES`; do
-		run add_file_to_store / "filename with spaces-$i.bin"
-		[ $status -eq 0 ] || { echo "Adding file to store failed: $output"; return 1; }
-	done
-}
-
-@test "Remove multiple files from store" {
-	for i in `seq $MULTIPLE_FILES`; do
-		run remove_file_from_store / "filename with spaces-$i.bin"
-		[ $status -eq 0 ] || { echo "Removing a file from store failed: $output"; return 1; }
-	done
-
-	run store_empty
-	[ $status -eq 0 ] || { echo "Unexpectedly store not empty: $output"; return 1; }
 }
 
 @test "Add and remove multiple files to/from store a number of times" {
@@ -154,31 +122,18 @@ add_single_folder_to_store_and_verify()
 	while [ $count -lt $MULTIPLE_ADD_REMOVE_COUNT ]; do
 		for i in `seq $MULTIPLE_FILES`; do
 			run add_file_to_store / "filename with spaces-$i.bin"
-			[ $status -eq 0 ] || { echo "Adding file to store failed: $output"; return 1; }
+			[ $status -eq 0 ] || { echo "Adding file #$count to store failed: $output"; return 1; }
 		done
 
 		for i in `seq $MULTIPLE_FILES`; do
 			run remove_file_from_store / "filename with spaces-$i.bin"
-			[ $status -eq 0 ] || { echo "Removing a file from store failed: $output"; return 1; }
+			[ $status -eq 0 ] || { echo "Removing file #$count from store failed: $output"; return 1; }
 		done
 
-		run store_empty
-		[ $status -eq 0 ] || { echo "Unexpectedly store not empty: $output"; return 1; }
+		local FILES=`mtp_list_files os_cookie "$STORE_NAME" "" | grep "filename with spaces-[[:digit:]]*.bin"`
+		[ -z "$FILES" ] || { echo "Unexpectedly some files still present: $FILES"; return 1; }
 		count=$(($count + 1))
 	done
-}
-
-@test "Add a folder to store" {
-	run add_single_folder_to_store_and_verify p:"" n:folder
-	[ $status -eq 0 ] || { echo "Adding a folder failed: $output"; return 1; }
-}
-
-@test "Remove a folder from store" {
-	run mtp_remove_folder os_cookie s:"$STORE_NAME" p:"/" n:folder
-	[ $status -eq 0 ] || { echo "Removing a folder from store failed: $output"; return 1; }
-
-	run store_empty
-	[ $status -eq 0 ] || { echo "Unexpectedly store not empty: $output"; return 1; }
 }
 
 @test "Add and remove a folder to/from store a number of times" {
@@ -186,223 +141,154 @@ add_single_folder_to_store_and_verify()
 
 	while [ $count -lt $ADD_REMOVE_COUNT ]; do
 		run add_single_folder_to_store_and_verify p:"" n:folder
-		[ $status -eq 0 ] || { echo "Adding a folder failed: $output"; return 1; }
+		[ $status -eq 0 ] || { echo "Adding a folder failed [$count iteration]: $output"; return 1; }
 
 		run mtp_remove_folder os_cookie s:"$STORE_NAME" p:"/" n:folder
-		[ $status -eq 0 ] || { echo "Removing a folder from store failed: $output"; return 1; }
+		[ $status -eq 0 ] || { echo "Removing a folder from store failed [$count iteration]: $output"; return 1; }
 
-		run store_empty
-		[ $status -eq 0 ] || { echo "Unexpectedly store not empty: $output"; return 1; }
+		local FOLDERS=`mtp_list_folders os_cookie "$STORE_NAME" "" | grep "folder"`
+		[ $status -eq 0 ] || { echo "Unexpectedly folder still present: $FOLDERS"; return 1; }
 		count=$(($count + 1))
 	done
 }
 
-@test "Add a folder to store and a file to folder" {
-	run add_single_folder_to_store_and_verify p:"" n:folder
-	[ $status -eq 0 ] || { echo "Adding a folder failed: $output"; return 1; }
-
-	run add_file_to_store folder "filename with spaces.bin"
-	[ $status -eq 0 ] || { echo "Adding a file to folder failed: $output"; return 1; }
-}
-
-@test "Remove a file from a folder" {
-	run remove_file_from_store folder "filename with spaces.bin"
-	[ $status -eq 0 ] || { echo "Removing a file from folder failed: $output"; return 1; }
-
-	local FOLDERS=`mtp_list_folders os_cookie "$STORE_NAME" ""`
-	[ `echo $FOLDERS | tr -d '[:blank:]'` == "folder" ] || { echo "Unexpected folders in store: $FOLDERS"; return 1; }
-}
-
-@test "Add and remove a file to folder a number of times" {
+@test "Add and remove a file to/from folder a number of times" {
 	local count=0
 
+	run add_single_folder_to_store_and_verify p:"" n:folder2
+	[ $status -eq 0 ] || { echo "Adding a folder failed: $output"; return 1; }
+
 	while [ $count -lt $ADD_REMOVE_COUNT ]; do
-		run add_file_to_store folder "filename with spaces.bin"
-		[ $status -eq 0 ] || { echo "Adding a file to folder failed: $output"; return 1; }
+		run add_file_to_store folder2 "another one.bin"
+		[ $status -eq 0 ] || { echo "Adding a file to folder failed [$count iteration]: $output"; return 1; }
 
-		run remove_file_from_store folder "filename with spaces.bin"
-		[ $status -eq 0 ] || { echo "Removing a file from folder failed: $output"; return 1; }
+		run remove_file_from_store folder2 "another one.bin"
+		[ $status -eq 0 ] || { echo "Removing a file from folder failed [$count iteration]: $output"; return 1; }
 
-		local FOLDERS=`mtp_list_folders os_cookie "$STORE_NAME" ""`
-		[ `echo $FOLDERS | tr -d '[:blank:]'` == "folder" ] || { echo "Unexpected folders in store: $FOLDERS"; return 1; }
+		local FILES=`mtp_list_files os_cookie "$STORE_NAME" "folder2" | grep "another one.bin"`
+		[ -z "$FILES" ] || { echo "Unexpectedly file still present: $FILES"; return 1; }
 		count=$(($count + 1))
 	done
-}
-
-@test "Add multiple files to folder" {
-	for i in `seq $MULTIPLE_FILES`; do
-		run add_file_to_store folder "filename with spaces-$i.bin"
-		[ $status -eq 0 ] || { echo "Adding a file to folder failed: $output"; return 1; }
-	done
-}
-
-@test "Remove multiple files from folder" {
-	for i in `seq $MULTIPLE_FILES`; do
-		run remove_file_from_store folder "filename with spaces-$i.bin"
-		[ $status -eq 0 ] || { echo "Removing a file from folder failed: $output"; return 1; }
-	done
-
-	local FOLDERS=`mtp_list_folders os_cookie "$STORE_NAME" ""`
-	[ `echo $FOLDERS | tr -d '[:blank:]'` == "folder" ] || { echo "Unexpected folders in store: $FOLDERS"; return 1; }
 }
 
 @test "Add and remove multiple files to/from folder a number of times" {
 	local count=0
 
-	while [ $count -lt $MULTIPLE_ADD_REMOVE_COUNT ]; do
-		for i in `seq $MULTIPLE_FILES`; do
-			run add_file_to_store folder "filename with spaces-$i.bin"
-			[ $status -eq 0 ] || { echo "Adding a file to folder failed: $output"; return 1; }
-		done
-
-		for i in `seq $MULTIPLE_FILES`; do
-			run remove_file_from_store folder "filename with spaces-$i.bin"
-			[ $status -eq 0 ] || { echo "Removing a file from folder failed: $output"; return 1; }
-		done
-		local FOLDERS=`mtp_list_folders os_cookie "$STORE_NAME" ""`
-		[ `echo $FOLDERS | tr -d '[:blank:]'` == "folder" ] || { echo "Unexpected folders in store: $FOLDERS"; return 1; }
-		count=$(($count + 1))
-	done
-}
-
-@test "Remove a folder from store after transferring files to/from it" {
-	run mtp_remove_folder os_cookie s:"$STORE_NAME" p:"/" n:folder
-	[ $status -eq 0 ] || { echo "Removing a folder from store failed: $output"; return 1; }
-
-	run store_empty
-	[ $status -eq 0 ] || { echo "Unexpectedly store not empty: $output"; return 1; }
-}
-
-@test "Add a folder and a subfolder" {
-	run add_single_folder_to_store_and_verify p:"" n:folder
+	run add_single_folder_to_store_and_verify p:"" n:folder3
 	[ $status -eq 0 ] || { echo "Adding a folder failed: $output"; return 1; }
 
-	run mtp_create_folder os_cookie "$STORE_NAME" folder subfolder
-	[ $status -eq 0 ] || { echo "Creating a folder failed: $output"; return 1; }
+	while [ $count -lt $MULTIPLE_ADD_REMOVE_COUNT ]; do
+		for i in `seq $MULTIPLE_FILES`; do
+			run add_file_to_store folder3 "multiple files-$i.bin"
+			[ $status -eq 0 ] || { echo "Adding file #$count to folder failed: $output"; return 1; }
+		done
 
-	local FOLDERS=`mtp_list_folders os_cookie "$STORE_NAME" ""`
-	[ `echo $FOLDERS | tr -d '[:blank:]'` == "folderfolder/subfolder" ] || { echo "Unexpected folders in store: $FOLDERS"; return 1; }
-}
-
-@test "Remove a folder from subfolder" {
-	run mtp_remove_folder os_cookie s:"$STORE_NAME" p:folder n:subfolder
-	[ $status -eq 0 ] || { echo "Removing a folder from subfolder failed: $output"; return 1; }
-
-	local FOLDERS=`mtp_list_folders os_cookie "$STORE_NAME" ""`
-	[ `echo $FOLDERS | tr -d '[:blank:]'` == "folder" ] || { echo "Unexpected folders in store: $FOLDERS"; return 1; }
+		for i in `seq $MULTIPLE_FILES`; do
+			run remove_file_from_store folder3 "multiple files-$i.bin"
+			[ $status -eq 0 ] || { echo "Removing file #$count from folder failed: $output"; return 1; }
+		done
+		local FILES=`mtp_list_files os_cookie "$STORE_NAME" "folder3" | grep "multiple files-[[:digit:]]*.bin"`
+		[ -z "$FILES" ] || { echo "Unexpectedly some files still present: $FILES"; return 1; }
+		count=$(($count + 1))
+	done
 }
 
 @test "Add and remove a folder to/from folder a number of times" {
 	local count=0
 
-	while [ $count -lt $ADD_REMOVE_COUNT ]; do
-		run mtp_create_folder os_cookie "$STORE_NAME" folder subfolder
-		[ $status -eq 0 ] || { echo "Creating a folder failed: $output"; return 1; }
-
-		local FOLDERS=`mtp_list_folders os_cookie "$STORE_NAME" ""`
-		[ `echo $FOLDERS | tr -d '[:blank:]'` == "folderfolder/subfolder" ] || { echo "Unexpected folders in store: $FOLDERS"; return 1; }
-
-		run mtp_remove_folder os_cookie s:"$STORE_NAME" p:folder n:subfolder
-		[ $status -eq 0 ] || { echo "Removing a folder from subfolder failed: $output"; return 1; }
-
-		local FOLDERS=`mtp_list_folders os_cookie "$STORE_NAME" ""`
-		[ `echo $FOLDERS | tr -d '[:blank:]'` == "folder" ] || { echo "Unexpected folders in store: $FOLDERS"; return 1; }
-		count=$(($count + 1))
-	done
-}
-
-@test "Remove a folder from store after creating/removing subfolders" {
-	run mtp_remove_folder os_cookie s:"$STORE_NAME" p:"/" n:folder
-	[ $status -eq 0 ] || { echo "Removing a folder from store failed: $output"; return 1; }
-
-	run store_empty
-	[ $status -eq 0 ] || { echo "Unexpectedly store not empty: $output"; return 1; }
-}
-
-@test "Add a folder and a subfolder and a file to it" {
-	run add_single_folder_to_store_and_verify p:"" n:folder
+	run add_single_folder_to_store_and_verify p:"" n:folder4
 	[ $status -eq 0 ] || { echo "Adding a folder failed: $output"; return 1; }
 
-	run mtp_create_folder os_cookie "$STORE_NAME" folder subfolder
-	[ $status -eq 0 ] || { echo "Creating a folder failed: $output"; return 1; }
-
-	local FOLDERS=`mtp_list_folders os_cookie "$STORE_NAME" ""`
-	[ `echo $FOLDERS | tr -d '[:blank:]'` == "folderfolder/subfolder" ] || { echo "Unexpected folders in store: $FOLDERS"; return 1; }
-
-	run add_file_to_store folder/subfolder "filename with spaces.bin"
-	[ $status -eq 0 ] || { echo "Adding a file to subfolder failed: $output"; return 1; }
-}
-
-@test "Remove a file from a subfolder" {
-	run remove_file_from_store folder/subfolder "filename with spaces.bin"
-	[ $status -eq 0 ] || { echo "Removing a file from folder failed: $output"; return 1; }
-
-	local FOLDERS=`mtp_list_folders os_cookie "$STORE_NAME" ""`
-	[ `echo $FOLDERS | tr -d '[:blank:]'` == "folderfolder/subfolder" ] || { echo "Unexpected folders in store $FOLDERS"; return 1; }
-}
-
-@test "Add and remove a file from a subfolder a number of times" {
-	local count=0
-
 	while [ $count -lt $ADD_REMOVE_COUNT ]; do
-		run add_file_to_store folder/subfolder "filename with spaces.bin"
-		[ $status -eq 0 ] || { echo "Adding a file to subfolder failed: $output"; return 1; }
+		run add_single_folder_to_store_and_verify p:folder4 n:subfolder
+		[ $status -eq 0 ] || { echo "Creating subfolder failed [$count iteration]: $output"; return 1; }
 
-		run remove_file_from_store folder/subfolder "filename with spaces.bin"
-		[ $status -eq 0 ] || { echo "Removing a file from folder failed: $output"; return 1; }
+		run mtp_remove_folder os_cookie s:"$STORE_NAME" p:folder4 n:subfolder
+		[ $status -eq 0 ] || { echo "Removing subfolder from folder failed [$count iteration]: $output"; return 1; }
 
-		local FOLDERS=`mtp_list_folders os_cookie "$STORE_NAME" ""`
-		[ `echo $FOLDERS | tr -d '[:blank:]'` == "folderfolder/subfolder" ] || { echo "Unexpected folders in store: $FOLDERS"; return 1; }
+		local FOLDERS=`mtp_list_folders os_cookie "$STORE_NAME" "folder4" | grep "subfolder"`
+		[ $status -eq 0 ] || { echo "Unexpectedly folder still present: $FOLDERS"; return 1; }
 		count=$(($count + 1))
 	done
 }
 
-@test "Add multiple files to subfolder" {
-	for i in `seq $MULTIPLE_FILES`; do
-		run add_file_to_store folder/subfolder "filename with spaces-$i.bin"
-		[ $status -eq 0 ] || { echo "Adding a file to subfolder failed: $output"; return 1; }
-	done
-}
+@test "Add and remove a file to/from a subfolder a number of times" {
+	local count=0
 
-@test "Remove multiple files from subfolder" {
-	for i in `seq $MULTIPLE_FILES`; do
-		run remove_file_from_store folder/subfolder "filename with spaces-$i.bin"
-		[ $status -eq 0 ] || { echo "Removing a file from subfolder failed: $output"; return 1; }
-	done
+	run add_single_folder_to_store_and_verify p:"" n:folder5
+	[ $status -eq 0 ] || { echo "Adding a folder failed: $output"; return 1; }
 
-	local FOLDERS=`mtp_list_folders os_cookie "$STORE_NAME" ""`
-	[ `echo $FOLDERS | tr -d '[:blank:]'` == "folderfolder/subfolder" ] || { echo "Unexpected folders in store: $FOLDERS"; return 1; }
+	run add_single_folder_to_store_and_verify p:folder5 n:subdir
+	[ $status -eq 0 ] || { echo "Adding a subfolder failed: $output"; return 1; }
+
+	while [ $count -lt $ADD_REMOVE_COUNT ]; do
+		run add_file_to_store folder5/subdir "for subdir.bin"
+		[ $status -eq 0 ] || { echo "Adding a file to subfolder failed [$count iteration]: $output"; return 1; }
+
+		run remove_file_from_store folder5/subdir "for subdir.bin"
+		[ $status -eq 0 ] || { echo "Removing a file from folder failed [$count iteration]: $output"; return 1; }
+
+		local FILES=`mtp_list_files os_cookie "$STORE_NAME" "folder5/subdir" | grep "for subdir.bin"`
+		[ -z "$FILES" ] || { echo "Unexpectedly file still present: $FILES"; return 1; }
+		count=$(($count + 1))
+	done
 }
 
 @test "Add and remove multiple files to/from subfolder a number of times" {
 	local count=0
 
+	run add_single_folder_to_store_and_verify p:"" n:folder6
+	[ $status -eq 0 ] || { echo "Adding a folder failed: $output"; return 1; }
+
+	run add_single_folder_to_store_and_verify p:folder6 n:child
+	[ $status -eq 0 ] || { echo "Adding a subfolder failed: $output"; return 1; }
+
 	while [ $count -lt $MULTIPLE_ADD_REMOVE_COUNT ]; do
 		for i in `seq $MULTIPLE_FILES`; do
-			run add_file_to_store folder/subfolder "filename with spaces-$i.bin"
-			[ $status -eq 0 ] || { echo "Adding a file to folder failed: $output"; return 1; }
+			run add_file_to_store folder6/child "for child-$i.bin"
+			[ $status -eq 0 ] || { echo "Adding file #$count to subfolder failed: $output"; return 1; }
 		done
 
 		for i in `seq $MULTIPLE_FILES`; do
-			run remove_file_from_store folder/subfolder "filename with spaces-$i.bin"
-			[ $status -eq 0 ] || { echo "Removing a file from folder failed: $output"; return 1; }
+			run remove_file_from_store folder6/child "for child-$i.bin"
+			[ $status -eq 0 ] || { echo "Removing file #$count from folder failed: $output"; return 1; }
 		done
-		local FOLDERS=`mtp_list_folders os_cookie "$STORE_NAME" ""`
-		[ `echo $FOLDERS | tr -d '[:blank:]'` == "folderfolder/subfolder" ] || { echo "Unexpected folders in store: $FOLDERS"; return 1; }
+		local FILES=`mtp_list_files os_cookie "$STORE_NAME" "folder6/child" | grep "for child-[[:digit:]]*.bin"`
+		[ -z "$FILES" ] || { echo "Unexpectedly some files still present: $FILES"; return 1; }
 		count=$(($count + 1))
 	done
 }
 
-@test "Remove a folder and subfolder from store after transferring files " {
+@test "Remove all folders and files" {
 	run mtp_remove_folder os_cookie s:"$STORE_NAME" p:"/" n:folder
-	[ $status -eq 0 ]
+	[ $status -eq 0 ] || { echo "Cannot remove folder: $output"; return 1; }
 
-	run store_empty
-	[ $status -eq 0 ] || { echo "Unexpectedly store not empty: $output"; return 1; }
+	run mtp_remove_folder os_cookie s:"$STORE_NAME" p:"/" n:folder2
+	[ $status -eq 0 ] || { echo "Cannot remove folder: $output"; return 1; }
+
+	run mtp_remove_folder os_cookie s:"$STORE_NAME" p:"/" n:folder3
+	[ $status -eq 0 ] || { echo "Cannot remove folder: $output"; return 1; }
+
+	run mtp_remove_folder os_cookie s:"$STORE_NAME" p:"/" n:folder4
+	[ $status -eq 0 ] || { echo "Cannot remove folder: $output"; return 1; }
+
+	run mtp_remove_folder os_cookie s:"$STORE_NAME" p:"/" n:folder5
+	[ $status -eq 0 ] || { echo "Cannot remove folder: $output"; return 1; }
+
+	run mtp_remove_folder os_cookie s:"$STORE_NAME" p:"/" n:folder6
+	[ $status -eq 0 ] || { echo "Cannot remove folder: $output"; return 1; }
+
+	local FILES=`mtp_list_files os_cookie "$STORE_NAME" ""`
+	local OLD_IFS="$IFS"
+	IFS=$'\n'
+	for i in $FILES; do
+		run remove_file_from_store / "$i"
+		[ $status -eq 0 ] || { echo "Removing file from folder failed: $output"; IFS="$OLD_IFS"; return 1; }
+	done
+	IFS="$OLD_IFS"
 }
 
 @test "Verify empty store at end" {
-	mkdir -p /tmp/"$STORE_NAME"
 	run store_empty
 	[ $status -eq 0 ] || { echo "Unexpectedly store not empty: $output"; return 1; }
 }
