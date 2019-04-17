@@ -260,23 +260,15 @@ add_single_folder_to_store_and_verify()
 }
 
 @test "Remove all folders and files" {
-	run mtp_remove_folder os_cookie s:"$STORE_NAME" p:"/" n:folder
-	[ $status -eq 0 ] || { echo "Cannot remove folder: $output"; return 1; }
 
-	run mtp_remove_folder os_cookie s:"$STORE_NAME" p:"/" n:folder2
-	[ $status -eq 0 ] || { echo "Cannot remove folder: $output"; return 1; }
-
-	run mtp_remove_folder os_cookie s:"$STORE_NAME" p:"/" n:folder3
-	[ $status -eq 0 ] || { echo "Cannot remove folder: $output"; return 1; }
-
-	run mtp_remove_folder os_cookie s:"$STORE_NAME" p:"/" n:folder4
-	[ $status -eq 0 ] || { echo "Cannot remove folder: $output"; return 1; }
-
-	run mtp_remove_folder os_cookie s:"$STORE_NAME" p:"/" n:folder5
-	[ $status -eq 0 ] || { echo "Cannot remove folder: $output"; return 1; }
-
-	run mtp_remove_folder os_cookie s:"$STORE_NAME" p:"/" n:folder6
-	[ $status -eq 0 ] || { echo "Cannot remove folder: $output"; return 1; }
+	local FOLDERS=`mtp_list_folders os_cookie "$STORE_NAME" ""`
+	local OLD_IFS="$IFS"
+	IFS=$'\n'
+	for i in $FOLDERS; do
+		run mtp_remove_folder os_cookie s:"$STORE_NAME" p:"/" n:"$i"
+		[ $status -eq 0 ] || { echo "Removing a folder failed: $output"; IFS="$OLD_IFS"; return 1; }
+	done
+	IFS="$OLD_IFS"
 
 	local FILES=`mtp_list_files os_cookie "$STORE_NAME" ""`
 	local OLD_IFS="$IFS"
