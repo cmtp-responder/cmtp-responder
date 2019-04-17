@@ -27,7 +27,7 @@ extern "C" {
 #include "mtp_datatype.h"
 #include "mtp_fs.h"
 
-#define MODEL "DUMMY_MODEL"
+#define MODEL "DUMMY MODEL"
 #define DEVICE_VERSION "devv_DUMMY_VERSION"
 #define SERIAL "DUMMY_SERIAL"
 
