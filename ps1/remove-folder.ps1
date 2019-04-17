@@ -34,7 +34,7 @@ $parentFolder=$shell.Namespace($parent).self
 $victimFolder=$parentFolder.GetFolder.Items() | where { $_.Name -eq $folderName }
 if ($victimFolder -eq $null -or -not $victimFolder.IsFolder) {
 	Write-Output "Cannot find victim folder $folderName"
-	Exit 1
+	Exit 0
 }
 
 $destinationFolder = $shell.Namespace($removalsDir).self
