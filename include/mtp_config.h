@@ -53,7 +53,7 @@
 
 #define MTP_BUF_SIZE_FOR_INT		11      /* 2^32 - 1 = 4294967295 (10 digits) */
 
-#define MTP_STORAGE_DESC_EXT		"Card"
+#define MTP_STORAGE_DESC_EXT		"Card Storage"
 
 /*temporary file*/
 #define MTP_TEMP_FILE			".mtptemp.tmp"
