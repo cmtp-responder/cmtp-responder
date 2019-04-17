@@ -7,7 +7,7 @@
 
 param($store)
 
-$windows_to_close = @('child', 'folder6', 'subdir', 'folder5', 'subfolder', 'folder4', 'folder3', 'folder2', 'folder', $store)
+$windows_to_close = @('child', 'folder 6', 'subdir', 'folder 5', 'subfolder', 'folder 4', 'folder 3', 'folder 2', 'folder', $store)
 
 $windows=(New-Object -comObject Shell.Application).Windows()
 
