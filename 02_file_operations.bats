@@ -200,13 +200,13 @@ add_single_folder_to_store_and_verify()
 	[ $status -eq 0 ] || { echo "Adding a folder failed: $output"; return 1; }
 
 	while [ $count -lt $ADD_REMOVE_COUNT ]; do
-		run add_single_folder_to_store_and_verify p:"folder 4" n:subfolder
+		run add_single_folder_to_store_and_verify p:"folder 4" n:"sub folder"
 		[ $status -eq 0 ] || { echo "Creating subfolder failed [$count iteration]: $output"; return 1; }
 
-		run mtp_remove_folder os_cookie s:"$STORE_NAME" p:"folder 4" n:subfolder
+		run mtp_remove_folder os_cookie s:"$STORE_NAME" p:"folder 4" n:"sub folder"
 		[ $status -eq 0 ] || { echo "Removing subfolder from folder failed [$count iteration]: $output"; return 1; }
 
-		local FOLDERS=`mtp_list_folders os_cookie "$STORE_NAME" "folder 4" | grep "subfolder"`
+		local FOLDERS=`mtp_list_folders os_cookie "$STORE_NAME" "folder 4" | grep "sub folder"`
 		[ $status -eq 0 ] || { echo "Unexpectedly folder still present: $FOLDERS"; return 1; }
 		count=$(($count + 1))
 	done
@@ -218,17 +218,17 @@ add_single_folder_to_store_and_verify()
 	run add_single_folder_to_store_and_verify p:"" n:"folder 5"
 	[ $status -eq 0 ] || { echo "Adding a folder failed: $output"; return 1; }
 
-	run add_single_folder_to_store_and_verify p:"folder 5" n:subdir
+	run add_single_folder_to_store_and_verify p:"folder 5" n:"sub dir"
 	[ $status -eq 0 ] || { echo "Adding a subfolder failed: $output"; return 1; }
 
 	while [ $count -lt $ADD_REMOVE_COUNT ]; do
-		run add_file_to_store "folder 5"/subdir "for subdir.bin"
+		run add_file_to_store "folder 5"/"sub dir" "for subdir.bin"
 		[ $status -eq 0 ] || { echo "Adding a file to subfolder failed [$count iteration]: $output"; return 1; }
 
-		run remove_file_from_store "folder 5"/subdir "for subdir.bin"
+		run remove_file_from_store "folder 5"/"sub dir" "for subdir.bin"
 		[ $status -eq 0 ] || { echo "Removing a file from folder failed [$count iteration]: $output"; return 1; }
 
-		local FILES=`mtp_list_files os_cookie "$STORE_NAME" "folder 5/subdir" | grep "for subdir.bin"`
+		local FILES=`mtp_list_files os_cookie "$STORE_NAME" "folder 5/sub dir" | grep "for subdir.bin"`
 		[ -z "$FILES" ] || { echo "Unexpectedly file still present: $FILES"; return 1; }
 		count=$(($count + 1))
 	done
@@ -240,20 +240,20 @@ add_single_folder_to_store_and_verify()
 	run add_single_folder_to_store_and_verify p:"" n:"folder 6"
 	[ $status -eq 0 ] || { echo "Adding a folder failed: $output"; return 1; }
 
-	run add_single_folder_to_store_and_verify p:"folder 6" n:child
+	run add_single_folder_to_store_and_verify p:"folder 6" n:"deepest child"
 	[ $status -eq 0 ] || { echo "Adding a subfolder failed: $output"; return 1; }
 
 	while [ $count -lt $MULTIPLE_ADD_REMOVE_COUNT ]; do
 		for i in `seq $MULTIPLE_FILES`; do
-			run add_file_to_store "folder 6"/child "for child-$i.bin"
+			run add_file_to_store "folder 6"/"deepest child" "for child-$i.bin"
 			[ $status -eq 0 ] || { echo "Adding file #$count to subfolder failed: $output"; return 1; }
 		done
 
 		for i in `seq $MULTIPLE_FILES`; do
-			run remove_file_from_store "folder 6"/child "for child-$i.bin"
+			run remove_file_from_store "folder 6"/"deepest child" "for child-$i.bin"
 			[ $status -eq 0 ] || { echo "Removing file #$count from folder failed: $output"; return 1; }
 		done
-		local FILES=`mtp_list_files os_cookie "$STORE_NAME" "folder 6/child" | grep "for child-[[:digit:]]*.bin"`
+		local FILES=`mtp_list_files os_cookie "$STORE_NAME" "folder 6/deepest child" | grep "for child-[[:digit:]]*.bin"`
 		[ -z "$FILES" ] || { echo "Unexpectedly some files still present: $FILES"; return 1; }
 		count=$(($count + 1))
 	done
