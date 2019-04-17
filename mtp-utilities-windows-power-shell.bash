@@ -38,10 +38,10 @@ mtp_list_files_windows_power_shell()
 	local PARENT="${3}"
 
 	if [ -z $PARENT ]; then
-		powershell.exe "ps1\\find-files.ps1" -mtpDeviceName \'${__local_cookie[2]}\' -storeName \'$STORE\' -parentName \'""\' | tr -d '\015'`
+		powershell.exe "ps1\\find-files.ps1" -mtpDeviceName \'${__local_cookie[2]}\' -storeName \'$STORE\' -parentName \'""\' | tr -d '\015'
 		[ $? -eq 0 ] || { echo "Can't list files in $STORE/$PARENT"; return 1; }
 	else
-		powershell.exe "ps1\\find-files.ps1" -mtpDeviceName \'${__local_cookie[2]}\' -storeName \'$STORE\' -parentName \'$PARENT\' | tr -d '\015'`
+		powershell.exe "ps1\\find-files.ps1" -mtpDeviceName \'${__local_cookie[2]}\' -storeName \'$STORE\' -parentName \'$PARENT\' | tr -d '\015'
 		[ $? -eq 0 ] || { echo "Can't list files in $STORE/$PARENT"; return 1; }
 	fi
 
@@ -55,10 +55,10 @@ mtp_list_folders_windows_power_shell()
 	local PARENT="${3}"
 
 	if [ -z $PARENT ]; then
-		powershell.exe "ps1\\find-folders.ps1" -mtpDeviceName \'${__local_cookie[2]}\' -storeName \'$STORE\' -parentName \'""\' | tr -d '\015'`
+		powershell.exe "ps1\\find-folders.ps1" -mtpDeviceName \'${__local_cookie[2]}\' -storeName \'$STORE\' -parentName \'""\' | tr -d '\015'
 		[ $? -eq 0 ] || { echo "Can't list folders in $STORE/$PARENT"; return 1; }
 	else
-		powershell.exe "ps1\\find-folders.ps1" -mtpDeviceName \'${__local_cookie[2]}\' -storeName \'$STORE\' -parentName \'$PARENT\' | tr -d '\015'`
+		powershell.exe "ps1\\find-folders.ps1" -mtpDeviceName \'${__local_cookie[2]}\' -storeName \'$STORE\' -parentName \'$PARENT\' | tr -d '\015'
 		[ $? -eq 0 ] || { echo "Can't list folders in $STORE/$PARENT"; return 1; }
 	fi
 
