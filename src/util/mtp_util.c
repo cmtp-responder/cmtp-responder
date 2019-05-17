@@ -47,11 +47,4 @@ void _util_print_error()
 	strerror_r(errno, buff, sizeof(buff));
 	ERR("Error: [%d]:[%s]\n", errno, buff);
 }
-
-void _util_get_external_path(char *external_path)
-{
-/* LCOV_EXCL_START */
-	strncpy(external_path, MTP_EXTERNAL_PATH_CHAR, sizeof(MTP_EXTERNAL_PATH_CHAR));
-	external_path[sizeof(MTP_EXTERNAL_PATH_CHAR) - 1] = 0;
-}
 /* LCOV_EXCL_STOP */

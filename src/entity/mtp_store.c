@@ -148,11 +148,9 @@ mtp_uint32 _entity_pack_store_info(store_info_t *info, mtp_uchar *buf,
 mtp_uint32 _entity_get_store_id_by_path(const mtp_char *path_name)
 {
 	mtp_uint32 store_id = 0;
-	char ext_path[MTP_MAX_PATHNAME_SIZE + 1] = { 0 };
+	char ext_path[] = MTP_EXTERNAL_PATH_CHAR;
 
 	retv_if(NULL == path_name, FALSE);
-
-	_util_get_external_path(ext_path);
 
 	if (!strncmp(path_name, ext_path,
 				strlen(ext_path))) {

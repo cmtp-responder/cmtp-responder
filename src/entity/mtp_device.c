@@ -329,9 +329,8 @@ static mtp_bool __add_store_to_device(void)
 	mtp_char *storage_path = NULL;
 	mtp_uint32 store_id = 0;
 	file_attr_t attrs = { 0, };
-	char sto_path[MTP_MAX_PATHNAME_SIZE + 1] = { 0 };
+	char sto_path[] = MTP_EXTERNAL_PATH_CHAR;
 
-	_util_get_external_path(sto_path);
 	storage_path = (mtp_char *)sto_path;
 	store_id = MTP_EXTERNAL_STORE_ID;
 
