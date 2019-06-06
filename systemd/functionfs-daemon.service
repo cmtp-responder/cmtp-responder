@@ -4,9 +4,9 @@ StartLimitIntervalSec=0
 
 [Service]
 Type=simple
-ExecStart=/root/cmtp-responder
-USBFunctionDescriptors=/root/mtp-descriptors-hs.bin
-USBFunctionStrings=/root/mtp-strings.bin
+ExecStart=/usr/local/bin/cmtp-responder
+USBFunctionDescriptors=/etc/cmtp-responder/descs
+USBFunctionStrings=/etc/cmtp-responder/strs
 KillMode=process
 RestartSec=3
 Restart=on-failure
