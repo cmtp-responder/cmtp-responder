@@ -46,3 +46,5 @@ ENDIF ()
 
 INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/descs DESTINATION /etc/cmtp-responder)
 INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/strs DESTINATION /etc/cmtp-responder)
+
+INSTALL(FILES packaging/99-mtp-responder.rules DESTINATION /usr/lib/udev/rules.d)
