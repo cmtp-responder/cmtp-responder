@@ -46,3 +46,5 @@ ENDIF ()
 
 INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/descs DESTINATION /etc/cmtp-responder)
 INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/strs DESTINATION /etc/cmtp-responder)
+
+INSTALL(FILES mtp-responder.service mtp-responder.socket DESTINATION /usr/lib/systemd/system)
