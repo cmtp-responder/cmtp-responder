@@ -55,6 +55,9 @@
 
 #define MTP_STORAGE_DESC_EXT		"Card Storage"
 
+/* about 976kbytes for object property value like sample data*/
+#define MTP_MAX_PROP_DATASIZE          1000000
+
 /*temporary file*/
 #define MTP_TEMP_FILE			".mtptemp.tmp"
 
