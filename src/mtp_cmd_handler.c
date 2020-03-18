@@ -54,6 +54,9 @@ mtp_bool g_is_send_object = FALSE;
 #define _transport_get_control_event(...)		\
 	({mtp_uint32 event_code = g_status->ctrl_event_code; g_status->ctrl_event_code = 0; event_code;})
 
+
+static void __get_object_prop_desc(mtp_handler_t *hdlr);
+
 /*
  * FUNCTIONS
  */
@@ -93,6 +96,51 @@ static void __open_session(mtp_handler_t *hdlr)
 		hdlr->session_id = session_id;
 		_cmd_hdlr_send_response_code(hdlr, PTP_RESPONSE_OK);
 	}
+}
+
+static void __get_object_prop_desc(mtp_handler_t *hdlr)
+{
+	mtp_uint32 prop_id = 0;
+	mtp_uint32 fmt = 0;
+	obj_prop_desc_t prop = { { 0 }, };
+	data_blk_t blk = { 0, };
+	mtp_uint32 num_bytes = 0;
+	mtp_uchar *ptr = NULL;
+
+	if (_hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 2)) {
+		_cmd_hdlr_send_response_code(hdlr,
+				PTP_RESPONSE_PARAM_NOTSUPPORTED);
+		return;
+	}
+
+	prop_id = _hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 0);
+	fmt = _hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 1);
+
+	if (MTP_ERROR_NONE != _hutil_get_prop_desc(fmt, prop_id, &prop)) {
+		_cmd_hdlr_send_response_code(hdlr,
+				PTP_RESPONSE_PROP_NOTSUPPORTED);
+		return;
+	}
+
+	_hdlr_init_data_container(&blk, hdlr->usb_cmd.code, hdlr->usb_cmd.tid);
+	num_bytes = _prop_size_obj_prop_desc(&prop);
+	ptr = _hdlr_alloc_buf_data_container(&blk, num_bytes, num_bytes);
+
+	if (num_bytes == _prop_pack_obj_prop_desc(&prop, ptr, num_bytes)) {
+		_device_set_phase(DEVICE_PHASE_DATAIN);
+		if (_hdlr_send_data_container(&blk)) {
+			_cmd_hdlr_send_response_code(hdlr, PTP_RESPONSE_OK);
+		} else {
+			/* Host Cancelled data-in transfer */
+			_device_set_phase(DEVICE_PHASE_NOTREADY);
+		}
+	} else {
+		_cmd_hdlr_send_response_code(hdlr,
+				PTP_RESPONSE_GEN_ERROR);
+	}
+
+	g_free(blk.data);
+	return;
 }
 
 static void __get_device_info(mtp_handler_t *hdlr)
@@ -476,6 +524,68 @@ Done:
 
 	g_free(blk.data);
 	_cmd_hdlr_send_response_code(hdlr, resp);
+}
+
+static void __set_object_prop_value(mtp_handler_t *hdlr)
+{
+       mtp_uint32 h_obj = 0;
+       mtp_uint32 prop_id = 0;
+       mtp_uint16 resp = PTP_RESPONSE_OK;
+       data_blk_t blk = { 0 };
+       mtp_uint32 max_bytes = 0;
+       mtp_err_t ret = 0;
+
+       h_obj = _hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 0);
+       prop_id = _hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 1);
+
+       if (_hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 2)) {
+               ERR("Unsupported parameters");
+               resp = PTP_RESPONSE_PARAM_NOTSUPPORTED;
+               _cmd_hdlr_send_response_code(hdlr, resp);
+               return;
+       }
+
+       _device_set_phase(DEVICE_PHASE_DATAOUT);
+       _hdlr_init_data_container(&blk, hdlr->usb_cmd.code, hdlr->usb_cmd.tid);
+       max_bytes = MTP_MAX_PROP_DATASIZE;
+
+       if (_hdlr_rcv_data_container(&blk, max_bytes) == FALSE) {
+               ERR("_hdlr_rcv_data_container() Fail");
+               _device_set_phase(DEVICE_PHASE_IDLE);
+               _cmd_hdlr_send_response_code(hdlr, PTP_RESPONSE_INVALIDPROPVALUE);
+               g_free(blk.data);
+               return;
+       }
+
+       ret = _hutil_update_object_property(h_obj, prop_id, NULL,
+                              _hdlr_get_payload_data(&blk),
+                              _hdlr_get_payload_size(&blk), NULL);
+       switch (ret) {
+       case MTP_ERROR_ACCESS_DENIED:
+               resp = PTP_RESPONSE_ACCESSDENIED;
+               break;
+       case MTP_ERROR_INVALID_OBJECTHANDLE:
+               resp = PTP_RESPONSE_INVALID_OBJ_HANDLE;
+               break;
+       case MTP_ERROR_INVALID_OBJ_PROP_CODE:
+               resp = PTP_RESPONSE_PROP_NOTSUPPORTED;
+               break;
+       case MTP_ERROR_GENERAL:
+               resp = PTP_RESPONSE_GEN_ERROR;
+               break;
+       case MTP_ERROR_NONE:
+               resp = PTP_RESPONSE_OK;
+               break;
+       default:
+               resp = PTP_RESPONSE_INVALIDPROPVALUE;
+               break;
+       }
+
+       _cmd_hdlr_send_response_code(hdlr, resp);
+
+       g_free(blk.data);
+
+       return;
 }
 
 static void __send_object_info(mtp_handler_t *hdlr)
@@ -994,6 +1104,9 @@ static void __print_command(mtp_uint16 code)
 	case PTP_OPCODE_SENDOBJECTINFO:
 		DBG("COMMAND ======== SEND OBJECT INFO ===========\n");
 		break;
+	case MTP_OPCODE_SETOBJECTPROPVALUE:
+		DBG("COMMAND ======== SET OBJECT PROP VALUE ==========");
+		break;
 	case PTP_OPCODE_SENDOBJECT:
 		DBG("COMMAND ======== SEND OBJECT ===========\n");
 		break;
@@ -1023,6 +1136,9 @@ static void __print_command(mtp_uint16 code)
 		break;
 	case MTP_OPCODE_GETINTERDEPPROPDESC:
 		DBG("COMMAND ======== GET INTERDEP PROP DESC ==========\n");
+		break;
+	case MTP_OPCODE_GETOBJECTPROPDESC:
+		DBG("COMMAND ======== GET OBJECT PROP DESC ==========");
 		break;
 	default:
 		DBG("======== UNKNOWN COMMAND ==========\n");
@@ -1099,6 +1215,9 @@ static void __process_commands(mtp_handler_t *hdlr, cmd_blk_t *cmd)
 	case PTP_OPCODE_RESETDEVICE:
 		__reset_device(hdlr);
 		break;
+	case MTP_OPCODE_GETOBJECTPROPDESC:
+		__get_object_prop_desc(hdlr);
+		break;
 #ifdef MTP_SUPPORT_SET_PROTECTION
 	case PTP_OPCODE_SETOBJECTPROTECTION:
 		__set_object_protection(hdlr);
@@ -1116,6 +1235,7 @@ static void __process_commands(mtp_handler_t *hdlr, cmd_blk_t *cmd)
 
 	case PTP_OPCODE_SENDOBJECTINFO:
 	case PTP_OPCODE_SENDOBJECT:
+	case MTP_OPCODE_SETOBJECTPROPVALUE:
 		/* DATA_HANDLE_PHASE: Send operation will be blocked
 		 * until data packet is received
 		 */
@@ -1153,6 +1273,9 @@ static void __process_commands(mtp_handler_t *hdlr, cmd_blk_t *cmd)
 			_eh_send_event_req_to_eh_thread(EVENT_DONE_DATAOUT,
 					0, 0, NULL);
 			break;
+                case MTP_OPCODE_SETOBJECTPROPVALUE:
+                        __set_object_prop_value(hdlr);
+                        break;
 		}
 		break;
 

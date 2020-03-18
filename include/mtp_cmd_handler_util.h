@@ -29,6 +29,7 @@ typedef struct {
 	mtp_obj_t *obj;
 } obj_data_t;
 
+mtp_err_t _hutil_get_prop_desc(mtp_uint32 format, mtp_uint32 prop_code, void *data);
 mtp_err_t _hutil_get_storage_entry(mtp_uint32 store_id, store_info_t *info);
 mtp_err_t _hutil_get_storage_ids(ptp_array_t *store_ids);
 mtp_err_t _hutil_add_object_entry(obj_info_t *obj_info, mtp_char *file_name,
@@ -54,6 +55,8 @@ mtp_err_t _hutil_get_interdep_prop_config_list_size(mtp_uint32 *list_sz,
 mtp_err_t _hutil_get_interdep_prop_config_list_data(void *data,
 		mtp_uint32 list_sz, mtp_uint32 format);
 mtp_uint32 _hutil_get_storage_info_size(store_info_t *store_info);
+mtp_err_t _hutil_update_object_property(mtp_uint32 obj_handle, mtp_uint32 prop_code,
+              mtp_uint16 *data_type, void *buf, mtp_uint32 buf_sz, mtp_uint32 *prop_sz);
 
 #ifdef __cplusplus
 }
