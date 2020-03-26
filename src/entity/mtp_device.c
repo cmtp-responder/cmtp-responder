@@ -56,6 +56,10 @@ static mtp_uint16 g_ops_supported[] = {
 #ifdef MTP_SUPPORT_SET_PROTECTION
 	PTP_OPCODE_SETOBJECTPROTECTION,
 #endif /* MTP_SUPPORT_SET_PROTECTION */
+/* Android Random I/O Extensions Codes which is a part of MTP protocol events
+ * trigered  for file access operations */
+        PTP_OC_ANDROID_BEGINEDITOBJECT,
+        PTP_OC_ANDROID_ENDEDITOBJECT,
 };
 
 static mtp_uint16 g_event_supported[] = {
