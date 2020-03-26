@@ -971,6 +971,11 @@ static void __set_object_protection(mtp_handler_t *hdlr)
 }
 #endif /* MTP_SUPPORT_SET_PROTECTION */
 
+static void __begin_end_edit_object(mtp_handler_t *hdlr)
+{
+	_cmd_hdlr_send_response_code(hdlr, PTP_RESPONSE_OK);
+}
+
 static void __power_down(mtp_handler_t *hdlr)
 {
 	if (_hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 0) ||
@@ -1278,6 +1283,11 @@ static void __process_commands(mtp_handler_t *hdlr, cmd_blk_t *cmd)
                         break;
 		}
 		break;
+
+        case PTP_OC_ANDROID_BEGINEDITOBJECT:
+        case PTP_OC_ANDROID_ENDEDITOBJECT:
+                __begin_end_edit_object(hdlr);
+                break;
 
 	default:
 		_cmd_hdlr_send_response_code(hdlr,

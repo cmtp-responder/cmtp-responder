@@ -155,6 +155,10 @@
 #define	MTP_OPCODE_WMP_UNDEFINED				0x9200
 #define	MTP_OPCODE_WMP_METADATAROUNDTRIP			0x9201
 
+/* Android Random I/O Extensions Codes */
+#define PTP_OC_ANDROID_BEGINEDITOBJECT                  0x95C4
+#define PTP_OC_ANDROID_ENDEDITOBJECT                    0x95C5
+
 /*
  * standard event codes:
  */
