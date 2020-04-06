@@ -37,6 +37,10 @@ mtp_char g_last_created_dir[MTP_MAX_PATHNAME_SIZE + 1] = { 0 };
 mtp_char g_last_deleted[MTP_MAX_PATHNAME_SIZE + 1] = { 0 };
 mtp_char g_last_moved[MTP_MAX_PATHNAME_SIZE + 1] = { 0 };
 mtp_char g_last_copied[MTP_MAX_PATHNAME_SIZE + 1] = { 0 };
+mtp_char g_copy_src_file[MTP_MAX_PATHNAME_SIZE + 1] = { 0 };
+mtp_char g_copy_dst_file[MTP_MAX_PATHNAME_SIZE + 1] = { 0 };
+mtp_bool g_is_send_partial_object = FALSE;
+
 static pthread_t g_inoti_thrd;
 static mtp_int32 g_cnt_watch_folder = 0;
 static mtp_int32 g_inoti_fd;
@@ -345,6 +349,9 @@ static mtp_bool __process_inoti_event(struct inotify_event *event)
 	retvm_if(!_util_is_path_len_valid(full_path), FALSE, "path len is invalid\n");
 
 	DBG_SECURE("Event full path = %s\n", full_path);
+        memset(g_copy_dst_file, 0, MTP_MAX_PATHNAME_SIZE + 1);
+        g_snprintf(g_copy_dst_file, MTP_MAX_PATHNAME_SIZE + 1, "%s", full_path);
+
 	if (event->mask & IN_MOVED_FROM) {
 		if (!g_strcmp0(g_last_moved, full_path)) {
 			/* Ignore this case as this is generated due to MTP*/
@@ -426,7 +433,14 @@ static mtp_bool __process_inoti_event(struct inotify_event *event)
 			DBG("[%s] is copied by MTP\n", full_path);
 			memset(g_last_copied, 0,
 					MTP_MAX_PATHNAME_SIZE + 1);
-		} else {
+                } else if (g_is_send_partial_object) {
+                        UTIL_LOCK_MUTEX(&g_cmd_inoti_mutex);
+                        __process_object_added_event(full_path, event->name, parentpath);
+                        UTIL_UNLOCK_MUTEX(&g_cmd_inoti_mutex);
+
+                        g_is_send_partial_object = false;
+                        memset(g_copy_dst_file, 0, MTP_MAX_PATHNAME_SIZE + 1);
+                } else {
 			open_files_info_t *node = NULL;
 			node = __find_file_in_inoti_open_files_list(event->wd,
 					event->name);

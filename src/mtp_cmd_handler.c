@@ -39,6 +39,9 @@ extern mtp_mgr_t g_mtp_mgr;
 extern mtp_bool g_is_full_enum;
 extern pthread_mutex_t g_cmd_inoti_mutex;
 extern mtp_config_t g_conf;
+extern mtp_char g_copy_src_file[MTP_MAX_PATHNAME_SIZE + 1];
+extern mtp_char g_copy_dst_file[MTP_MAX_PATHNAME_SIZE + 1];
+extern mtp_bool g_is_send_partial_object;
 
 mtp_bool g_is_sync_estab = FALSE;
 mtp_bool g_is_send_object = FALSE;
@@ -843,6 +846,25 @@ static void __reset_device(mtp_handler_t *hdlr)
 	_cmd_hdlr_send_response_code(hdlr, PTP_RESPONSE_OK);
 }
 
+
+static void __send_partial_object(mtp_handler_t *hdlr)
+{
+	mtp_uint32 send_bytes = 0;
+	data_blk_t blk = { 0 };
+
+	if (_hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 1) ||
+			_hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 2) ||
+			_hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 0)) {
+		_hdlr_init_data_container(&blk, hdlr->usb_cmd.code, hdlr->usb_cmd.tid);
+		_hdlr_alloc_buf_data_container(&blk, send_bytes, send_bytes);
+	}
+
+	_device_set_phase(DEVICE_PHASE_DATAIN);
+	_cmd_hdlr_send_response_code(hdlr, PTP_RESPONSE_OK);
+
+	g_free(blk.data);
+}
+
 static void __get_partial_object(mtp_handler_t *hdlr)
 {
 	mtp_uint32 h_obj = 0;
@@ -1156,6 +1178,7 @@ static void __print_command(mtp_uint16 code)
 static void __process_commands(mtp_handler_t *hdlr, cmd_blk_t *cmd)
 {
 	mtp_store_t *store = NULL;
+	mtp_int32 error = 0;
 
 	/* Keep a local copy for this command */
 	_hdlr_copy_cmd_container(cmd, &(hdlr->usb_cmd));
@@ -1214,6 +1237,7 @@ static void __process_commands(mtp_handler_t *hdlr, cmd_blk_t *cmd)
 	case PTP_OPCODE_DELETEOBJECT:
 		__delete_object(hdlr);
 		break;
+	case PTP_OC_ANDROID_GETPARTIALOBJECT:
 	case PTP_OPCODE_GETPARTIALOBJECT:
 		__get_partial_object(hdlr);
 		break;
@@ -1289,6 +1313,20 @@ static void __process_commands(mtp_handler_t *hdlr, cmd_blk_t *cmd)
                 __begin_end_edit_object(hdlr);
                 break;
 
+	case PTP_OC_ANDROID_SENDPARTIALOBJECT:
+		if (g_device->phase == DEVICE_PHASE_IDLE) {
+			_eh_send_event_req_to_eh_thread(EVENT_START_DATAOUT, 0, 0, NULL);
+			_device_set_phase(DEVICE_PHASE_DATAOUT);
+			return;
+		}
+		_util_file_copy(g_copy_src_file, g_copy_dst_file, &error);
+		__send_partial_object(hdlr);
+
+		g_is_send_object = FALSE;
+		g_is_send_partial_object = TRUE;
+		_eh_send_event_req_to_eh_thread(EVENT_DONE_DATAOUT, 0, 0, NULL);
+
+		break;
 	default:
 		_cmd_hdlr_send_response_code(hdlr,
 				PTP_RESPONSE_OP_NOT_SUPPORTED);
@@ -1436,7 +1474,6 @@ static mtp_bool __receive_temp_file_first_packet(mtp_char *data,
 			_util_file_close(g_mtp_mgr.ftemp_st.fhandle);
 			g_mtp_mgr.ftemp_st.fhandle = NULL;	/* initialize */
 		}
-
 		if (remove(t->filepath) < 0) {
 			ERR_SECURE("remove(%s) Fail\n", t->filepath);
 			__finish_receiving_file_packets(data, data_len);
