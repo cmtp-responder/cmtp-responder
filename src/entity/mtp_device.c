@@ -60,6 +60,8 @@ static mtp_uint16 g_ops_supported[] = {
  * trigered  for file access operations */
         PTP_OC_ANDROID_BEGINEDITOBJECT,
         PTP_OC_ANDROID_ENDEDITOBJECT,
+        PTP_OC_ANDROID_GETPARTIALOBJECT,
+        PTP_OC_ANDROID_SENDPARTIALOBJECT,
 };
 
 static mtp_uint16 g_event_supported[] = {

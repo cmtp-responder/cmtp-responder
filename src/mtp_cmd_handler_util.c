@@ -33,6 +33,7 @@ extern mtp_char g_last_created_dir[MTP_MAX_PATHNAME_SIZE + 1];
 extern mtp_char g_last_moved[MTP_MAX_PATHNAME_SIZE + 1];
 extern mtp_char g_last_copied[MTP_MAX_PATHNAME_SIZE + 1];
 extern mtp_char g_last_deleted[MTP_MAX_PATHNAME_SIZE + 1];
+extern mtp_char g_copy_src_file[MTP_MAX_PATHNAME_SIZE + 1];
 extern mtp_uint32 g_next_obj_handle;
 extern phone_state_t *g_ph_status;
 
@@ -680,6 +681,7 @@ mtp_err_t _hutil_read_file_data_from_offset(mtp_uint32 obj_handle, off_t offset,
 			MTP_ERROR_GENERAL, "protection data, NONTRANSFERABLE_OBJECT\n");
 
 	g_strlcpy(fname, obj->file_path, MTP_MAX_PATHNAME_SIZE + 1);
+        g_strlcpy(g_copy_src_file, fname, MTP_MAX_PATHNAME_SIZE + 1);
 	h_file = _util_file_open(fname, MTP_FILE_READ, &error);
 	retvm_if(!h_file, MTP_ERROR_GENERAL, "file open Fail[%s]\n", fname);
 
