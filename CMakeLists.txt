@@ -42,7 +42,6 @@ IF (BUILD_DESCRIPTORS)
 		COMMAND ./extract_descs_strs
 		DEPENDS extract_descs_strs)
 	ADD_CUSTOM_TARGET(descs_strs ALL DEPENDS descs strs)
+	INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/descs DESTINATION /etc/cmtp-responder)
+	INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/strs DESTINATION /etc/cmtp-responder)
 ENDIF ()
-
-INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/descs DESTINATION /etc/cmtp-responder)
-INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/strs DESTINATION /etc/cmtp-responder)
