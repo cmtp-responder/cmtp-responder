@@ -433,11 +433,9 @@ mtp_bool _util_is_path_len_valid(const mtp_char *path)
 	static mtp_bool is_initialized = FALSE;
 	static mtp_uint32 external_store_len = 0;
 
-	char ext_path[MTP_MAX_PATHNAME_SIZE + 1] = { 0 };
+	char ext_path[] = MTP_EXTERNAL_PATH_CHAR;
 
 	retv_if(path == NULL, FALSE);
-
-	_util_get_external_path(ext_path);
 
 	if (!is_initialized) {
 		is_initialized = TRUE;

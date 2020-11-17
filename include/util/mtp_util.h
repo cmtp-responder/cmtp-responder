@@ -124,7 +124,6 @@ typedef struct {
 } usb_status_req_t;
 
 void _util_print_error();
-void _util_get_external_path(char *external_path);
 
 #ifdef __cplusplus
 }

@@ -354,8 +354,7 @@ void _mtp_init(void)
 	/* External Storage */
 	{
 	/* LCOV_EXCL_START */
-		char ext_path[MTP_MAX_PATHNAME_SIZE + 1] = { 0 };
-		_util_get_external_path(ext_path);
+		char ext_path[] = MTP_EXTERNAL_PATH_CHAR;
 		if (access(ext_path, F_OK) < 0) {
 			if (FALSE == _util_dir_create((const mtp_char *)ext_path, &error)) {
 				ERR("Cannot make directory!! [%s]\n",
