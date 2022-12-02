@@ -27,10 +27,6 @@ extern "C" {
 #include "mtp_datatype.h"
 #include "mtp_fs.h"
 
-#define MODEL "DUMMY MODEL"
-#define DEVICE_VERSION "devv_DUMMY_VERSION"
-#define SERIAL "DUMMY_SERIAL"
-
 #define DBG(format, args...) FLOGD(format, ##args)
 #define ERR(format, args...) FLOGD(format, ##args)
 #define DBG_SECURE(format, args...) FLOGD(format, ##args)
