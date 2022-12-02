@@ -31,6 +31,7 @@
  */
 static mtp_device_t _g_device = { 0 };
 mtp_device_t *g_device = &_g_device;
+extern mtp_config_t g_conf;
 
 /*
  * STATIC VARIABLES
@@ -146,19 +147,19 @@ void _init_mtp_device(void)
 	_prop_copy_char_to_ptpstring(&(info->vendor_extn_desc), wtemp, WCHAR_TYPE);
 
 	info->manufacturer.num_chars = 0;
-	_util_utf8_to_utf16(wtemp, sizeof(wtemp) / WCHAR_SIZ, MTP_MANUFACTURER_CHAR);
+	_util_utf8_to_utf16(wtemp, sizeof(wtemp) / WCHAR_SIZ, g_conf.device_manufacturer);
 	_prop_copy_char_to_ptpstring(&(info->manufacturer), wtemp, WCHAR_TYPE);
 
 	info->model.num_chars = 0;
-	_util_utf8_to_utf16(wtemp, sizeof(wtemp) / WCHAR_SIZ, MODEL);
+	_util_utf8_to_utf16(wtemp, sizeof(wtemp) / WCHAR_SIZ, g_conf.device_model);
 	_prop_copy_char_to_ptpstring(&(info->model), wtemp, WCHAR_TYPE);
 
 	info->device_version.num_chars = 0;
-	_util_utf8_to_utf16(wtemp, sizeof(wtemp) / WCHAR_SIZ, DEVICE_VERSION);
+	_util_utf8_to_utf16(wtemp, sizeof(wtemp) / WCHAR_SIZ, g_conf.device_version);
 	_prop_copy_char_to_ptpstring(&(info->device_version), wtemp, WCHAR_TYPE);
 
 	info->serial_no.num_chars = 0;
-	_util_utf8_to_utf16(wtemp, sizeof(wtemp) / WCHAR_SIZ, SERIAL);
+	_util_utf8_to_utf16(wtemp, sizeof(wtemp) / WCHAR_SIZ, g_conf.device_serial);
 	_prop_copy_char_to_ptpstring(&(info->serial_no), wtemp, WCHAR_TYPE);
 }
 
