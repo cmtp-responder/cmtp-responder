@@ -157,6 +157,9 @@ typedef struct {
 	char device_serial[USB_DEVICE_SERIAL_LEN];
 	char device_version[USB_DEVICE_VERSION_LEN];
 
+	/* Storage path */
+	char storage_path[MTP_MAX_PATHNAME_SIZE];
+
 	bool is_init;
 } mtp_config_t;
 
