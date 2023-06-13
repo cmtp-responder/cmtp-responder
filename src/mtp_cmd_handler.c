@@ -873,7 +873,7 @@ static void __get_partial_object(mtp_handler_t *hdlr)
 
 	h_obj = _hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 0);
 
-	if (hdlr->usb_cmd.code == PTP_OC_ANDROID_GETPARTIALOBJECT) {
+	if (hdlr->usb_cmd.code == PTP_OC_ANDROID_GETPARTIALOBJECT64) {
 		offset = _hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 2);
 		offset <<= 32;
 		offset |= _hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 1);
@@ -1152,7 +1152,7 @@ static void __print_command(mtp_uint16 code)
 	case PTP_OPCODE_TERMINATECAPTURE:
 		DBG("COMMAND ======== TERMINATE CAPTURE ===========\n");
 		break;
-	case PTP_OC_ANDROID_GETPARTIALOBJECT:
+	case PTP_OC_ANDROID_GETPARTIALOBJECT64:
 		DBG("COMMAND ======== GET PARTIAL OBJECT (ANDROID) ==========\n");
 		break;
 	case PTP_OPCODE_GETPARTIALOBJECT:
@@ -1246,7 +1246,7 @@ static void __process_commands(mtp_handler_t *hdlr, cmd_blk_t *cmd)
 	case PTP_OPCODE_DELETEOBJECT:
 		__delete_object(hdlr);
 		break;
-	case PTP_OC_ANDROID_GETPARTIALOBJECT:
+	case PTP_OC_ANDROID_GETPARTIALOBJECT64:
 	case PTP_OPCODE_GETPARTIALOBJECT:
 		__get_partial_object(hdlr);
 		break;
