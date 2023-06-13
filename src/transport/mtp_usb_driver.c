@@ -187,10 +187,6 @@ void *_transport_thread_usb_write(void *arg)
 			status = write(g_usb_ep_status, mtp_buf, len);
 			g_free(mtp_buf);
 			mtp_buf = NULL;
-		} else if (MTP_ZLP_PACKET == mtype) {
-			char dummy_buf;
-			DBG("Send ZLP data to kerne via g_usb_ep_in\n");
-			status = write(g_usb_ep_in, &dummy_buf, 0);
 		} else {
 			DBG("mtype = %d is not valid\n", mtype);
 			status = -1;
@@ -566,24 +562,5 @@ mtp_bool _transport_mq_deinit(msgq_id_t *rx_mqid, msgq_id_t *tx_mqid)
 	}
 
 	return res;
-}
-
-mtp_uint32 _transport_get_usb_packet_len(void)
-{
-	mtp_int32 status = -1;
-	static mtp_int32 usb_speed = 0;
-
-	if (usb_speed == 0) {
-
-		//status = ioctl(g_usb_fd, MTP_GET_HIGH_FULL_SPEED, &usb_speed);
-		retvm_if(status < 0, MTP_MAX_PACKET_SIZE_SEND_FS,
-			"MTP_GET_HIGH_FULL_SPEED Failed [%d]\n", status);
-	}
-
-	if (usb_speed % MTP_MAX_PACKET_SIZE_SEND_HS) {
-		return MTP_MAX_PACKET_SIZE_SEND_FS;
-	}
-
-	return MTP_MAX_PACKET_SIZE_SEND_HS;
 }
 /* LCOV_EXCL_STOP */

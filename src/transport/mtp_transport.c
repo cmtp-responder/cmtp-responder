@@ -258,22 +258,6 @@ mtp_uint32 _transport_send_bulk_pkt_to_tx_mq(const mtp_byte *buf,
 	return sent_len;
 }
 
-void _transport_send_zlp(void)
-{
-	msgq_ptr_t pkt = { 0 };
-	mtp_bool resp = FALSE;
-
-	pkt.mtype = MTP_ZLP_PACKET;
-	pkt.signal = 0x0000;
-	pkt.length = 0;
-	pkt.buffer = NULL;
-
-	resp = _util_msgq_send(mtp_to_usb_mqid, (void *)&pkt,
-			sizeof(msgq_ptr_t) - sizeof(long), 0);
-	if (resp == FALSE)
-		ERR("_util_msgq_send() Fail\n");
-}
-
 static mtp_err_t __transport_init_io()
 {
 	mtp_int32 res = 0;

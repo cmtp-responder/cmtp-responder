@@ -43,7 +43,6 @@ void *_transport_thread_usb_read(void *arg);
 void *_transport_thread_usb_control(void *arg);
 mtp_int32 _transport_mq_init(msgq_id_t *rx_mqid, msgq_id_t *tx_mqid);
 mtp_bool _transport_mq_deinit(msgq_id_t *rx_mqid, msgq_id_t *tx_mqid);
-mtp_uint32 _transport_get_usb_packet_len(void);
 
 #ifdef __cplusplus
 }

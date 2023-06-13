@@ -40,11 +40,6 @@
  */
 #define MTP_SUPPORT_PRINT_COMMAND
 
-/*
- * Transport related configuration
- */
-#define MTP_SEND_ZLP_FROM_GET_PARTIAL_OBJECT
-
 /* External Storage */
 #define MTP_EXTERNAL_PATH_CHAR		"/media/card"
 
