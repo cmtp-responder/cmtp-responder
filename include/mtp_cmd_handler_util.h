@@ -39,7 +39,7 @@ mtp_err_t _hutil_get_object_entry(mtp_uint32 obj_handle, mtp_obj_t **obj_ptr);
 mtp_err_t _hutil_copy_object_entries(mtp_uint32 dst_store_id,
 		mtp_uint32 src_store_id, mtp_uint32 h_parent, mtp_uint32 obj_handle,
 		mtp_uint32 *new_hobj, mtp_bool keep_handle);
-mtp_err_t _hutil_read_file_data_from_offset(mtp_uint32 obj_handle, off_t offset,
+mtp_err_t _hutil_read_file_data_from_offset(mtp_uint32 obj_handle, mtp_uint64 offset,
 		void *data, mtp_uint32 *data_sz);
 mtp_err_t _hutil_write_file_data(mtp_uint32 store_id, mtp_obj_t *obj,
 		mtp_char *fpath);

@@ -863,7 +863,7 @@ static void __send_partial_object(mtp_handler_t *hdlr)
 static void __get_partial_object(mtp_handler_t *hdlr)
 {
 	mtp_uint32 h_obj = 0;
-	off_t offset = 0;
+	mtp_uint64 offset = 0;
 	mtp_uint32 data_sz = 0;
 	mtp_uint32 send_bytes = 0;
 	data_blk_t blk = { 0 };
@@ -871,9 +871,17 @@ static void __get_partial_object(mtp_handler_t *hdlr)
 	mtp_uint16 resp = 0;
 	mtp_uint64 f_size = 0;
 
-	offset = _hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 1);
-	data_sz = _hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 2);
 	h_obj = _hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 0);
+
+	if (hdlr->usb_cmd.code == PTP_OC_ANDROID_GETPARTIALOBJECT) {
+		offset = _hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 2);
+		offset <<= 32;
+		offset |= _hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 1);
+		data_sz = _hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 3);
+	} else {
+		offset = _hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 1);
+		data_sz = _hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 2);
+	}
 
 	switch (_hutil_get_object_entry_size(h_obj, &f_size)) {
 

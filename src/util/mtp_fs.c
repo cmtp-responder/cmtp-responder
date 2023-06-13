@@ -137,7 +137,7 @@ mtp_int32 _util_file_close(FILE* fhandle)
  * @param[in]	whence		Specifies the setting value
  * @return	Returns TRUE in case of success or FALSE on Failure.
  */
-mtp_bool _util_file_seek(FILE* handle, off_t offset, mtp_int32 whence)
+mtp_bool _util_file_seek(FILE* handle, mtp_uint64 offset, mtp_int32 whence)
 {
 	mtp_int64 ret_val = 0;
 

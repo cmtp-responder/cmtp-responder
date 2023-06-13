@@ -661,7 +661,7 @@ mtp_err_t _hutil_copy_object_entries(mtp_uint32 dst_store_id,
 }
 /* LCOV_EXCL_STOP */
 
-mtp_err_t _hutil_read_file_data_from_offset(mtp_uint32 obj_handle, off_t offset,
+mtp_err_t _hutil_read_file_data_from_offset(mtp_uint32 obj_handle, mtp_uint64 offset,
 		void *data, mtp_uint32 *data_sz)
 {
 	mtp_obj_t *obj = NULL;

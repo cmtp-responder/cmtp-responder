@@ -73,7 +73,7 @@ void _util_file_read(FILE* fhandle, void *bufptr, mtp_uint32 size,
 		mtp_uint32 *read_count);
 mtp_uint32 _util_file_write(FILE* fhandle, void *bufptr, mtp_uint32 size);
 mtp_int32 _util_file_close(FILE* fhandle);
-mtp_bool _util_file_seek(FILE* fhandle, off_t offset, mtp_int32 whence);
+mtp_bool _util_file_seek(FILE* fhandle, mtp_uint64 offset, mtp_int32 whence);
 mtp_bool _util_file_copy(const mtp_char *origpath, const mtp_char *newpath,
 		mtp_int32 *error);
 mtp_bool _util_copy_dir_children_recursive(const mtp_char *origpath,
