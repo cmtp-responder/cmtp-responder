@@ -1137,6 +1137,9 @@ static void __print_command(mtp_uint16 code)
 	case PTP_OPCODE_SENDOBJECT:
 		DBG("COMMAND ======== SEND OBJECT ===========\n");
 		break;
+	case PTP_OC_ANDROID_SENDPARTIALOBJECT:
+		DBG("COMMAND ======== SEND PARTIAL OBJECT (ANDROID) ==========\n");
+		break;
 	case PTP_OPCODE_INITIATECAPTURE:
 		DBG("COMMAND ======== INITIATE CAPTURE ===========\n");
 		break;
@@ -1152,6 +1155,9 @@ static void __print_command(mtp_uint16 code)
 	case PTP_OPCODE_TERMINATECAPTURE:
 		DBG("COMMAND ======== TERMINATE CAPTURE ===========\n");
 		break;
+	case PTP_OC_ANDROID_GETPARTIALOBJECT:
+		DBG("COMMAND ======== GET PARTIAL OBJECT (ANDROID) ==========\n");
+		break;
 	case PTP_OPCODE_GETPARTIALOBJECT:
 		DBG("COMMAND ======== GET PARTIAL OBJECT ===========\n");
 		break;
@@ -1165,7 +1171,13 @@ static void __print_command(mtp_uint16 code)
 		DBG("COMMAND ======== GET INTERDEP PROP DESC ==========\n");
 		break;
 	case MTP_OPCODE_GETOBJECTPROPDESC:
-		DBG("COMMAND ======== GET OBJECT PROP DESC ==========");
+		DBG("COMMAND ======== GET OBJECT PROP DESC ==========\n");
+		break;
+        case PTP_OC_ANDROID_BEGINEDITOBJECT:
+		DBG("COMMAND ======== BEGIN EDIT OBJECT (ANDROID) ==========\n");
+		break;
+        case PTP_OC_ANDROID_ENDEDITOBJECT:
+		DBG("COMMAND ======== END EDIT OBJECT (ANDROID) ==========\n");
 		break;
 	default:
 		DBG("======== UNKNOWN COMMAND ==========\n");
