@@ -62,6 +62,7 @@ static mtp_uint16 g_ops_supported[] = {
         PTP_OC_ANDROID_ENDEDITOBJECT,
         PTP_OC_ANDROID_GETPARTIALOBJECT64,
         PTP_OC_ANDROID_SENDPARTIALOBJECT,
+        PTP_OC_ANDROID_TRUNCATEOBJECT,
 };
 
 static mtp_uint16 g_event_supported[] = {

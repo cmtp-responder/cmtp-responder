@@ -773,6 +773,32 @@ mtp_err_t _hutil_get_object_entry_size(mtp_uint32 obj_handle,
 	return MTP_ERROR_NONE;
 }
 
+mtp_err_t _hutil_truncate_file(mtp_uint32 obj_handle, mtp_uint64 length)
+{
+	mtp_char fname[MTP_MAX_PATHNAME_SIZE + 1];
+	mtp_bool result;
+	mtp_obj_t *obj;
+
+	obj = _device_get_object_with_handle(obj_handle);
+	retvm_if(!obj, MTP_ERROR_INVALID_OBJECTHANDLE,
+		"_device_get_object_with_handle returned Null object\n");
+
+	if (obj->obj_info->association_type == PTP_ASSOCIATIONTYPE_FOLDER)
+		return MTP_ERROR_INVALID_OBJECT_INFO;
+
+	g_strlcpy(fname, obj->file_path, MTP_MAX_PATHNAME_SIZE + 1);
+
+	result = _util_file_truncate(fname, length);
+	if (result == FALSE) {
+		ERR("file truncate Fail [%d]\n", errno);
+		return MTP_ERROR_GENERAL;
+	}
+
+	obj->obj_info->file_size = length;
+
+	return MTP_ERROR_NONE;
+}
+
 #ifdef MTP_SUPPORT_SET_PROTECTION
 mtp_err_t _hutil_set_protection(mtp_uint32 obj_handle, mtp_uint16 prot_status)
 {

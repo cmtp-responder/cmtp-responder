@@ -995,6 +995,34 @@ static void __begin_end_edit_object(mtp_handler_t *hdlr)
 	_cmd_hdlr_send_response_code(hdlr, PTP_RESPONSE_OK);
 }
 
+static void __truncate_object(mtp_handler_t *hdlr)
+{
+	mtp_uint64 length;
+	mtp_uint32 h_obj;
+	mtp_uint16 resp;
+
+	h_obj = _hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 0);
+	length = _hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 2);
+	length <<= 32;
+	length |= _hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 1);
+
+	switch (_hutil_truncate_file(h_obj, length)) {
+	case MTP_ERROR_INVALID_OBJECTHANDLE:
+		resp = PTP_RESPONSE_INVALID_OBJ_HANDLE;
+		break;
+	case MTP_ERROR_NONE:
+		resp = PTP_RESPONSE_OK;
+		break;
+	case MTP_ERROR_INVALID_OBJECT_INFO:
+		resp = PTP_RESPONSE_NOVALID_OBJINFO;
+		break;
+	default:
+		resp = PTP_RESPONSE_GEN_ERROR;
+	}
+
+	_cmd_hdlr_send_response_code(hdlr, resp);
+}
+
 static void __power_down(mtp_handler_t *hdlr)
 {
 	if (_hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 0) ||
@@ -1176,6 +1204,9 @@ static void __print_command(mtp_uint16 code)
         case PTP_OC_ANDROID_ENDEDITOBJECT:
 		DBG("COMMAND ======== END EDIT OBJECT (ANDROID) ==========\n");
 		break;
+	case PTP_OC_ANDROID_TRUNCATEOBJECT:
+		DBG("COMMAND ======== TRUNCATE OBJECT (ANDROID) ==========\n");
+                break;
 	default:
 		DBG("======== UNKNOWN COMMAND ==========\n");
 		break;
@@ -1320,6 +1351,10 @@ static void __process_commands(mtp_handler_t *hdlr, cmd_blk_t *cmd)
         case PTP_OC_ANDROID_BEGINEDITOBJECT:
         case PTP_OC_ANDROID_ENDEDITOBJECT:
                 __begin_end_edit_object(hdlr);
+                break;
+
+	case PTP_OC_ANDROID_TRUNCATEOBJECT:
+		__truncate_object(hdlr);
                 break;
 
 	case PTP_OC_ANDROID_SENDPARTIALOBJECT:

@@ -147,6 +147,28 @@ mtp_bool _util_file_seek(FILE* handle, mtp_uint64 offset, mtp_int32 whence)
 	return TRUE;
 }
 
+/*
+ * This function truncates a file.
+ *
+ * @param[in]	handle		Specifies the handle of file to seek.
+ * @param[in]	length		Specifies the new file length.
+ * @return	Returns TRUE in case of success or FALSE on Failure.
+ */
+mtp_bool _util_file_truncate(const mtp_char *filename, mtp_uint64 length)
+{
+	mtp_int32 ret_val;
+	struct stat st;
+
+	ret_val = stat(filename, &st);
+	retvm_if(ret_val != 0, FALSE, "Error while stat [%d]\n", errno);
+	retvm_if(!(S_IWUSR & st.st_mode), FALSE, "Wrong privilege, missing S_IWUSR\n");
+
+	ret_val = truncate(filename, length);
+	retvm_if(ret_val != 0, FALSE, "Truncate error [%d]\n", errno);
+
+	return TRUE;
+}
+
 mtp_bool _util_file_copy(const mtp_char *origpath, const mtp_char *newpath,
 		mtp_int32 *error)
 {
