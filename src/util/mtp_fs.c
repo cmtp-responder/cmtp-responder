@@ -33,6 +33,7 @@
 #include "mtp_device.h"
 
 extern mtp_uint32 g_next_obj_handle;
+extern mtp_config_t g_conf;
 
 /*
  * FUNCTIONS
@@ -690,7 +691,10 @@ mtp_bool _util_ifind_next(mtp_char *dir_name, DIR *dirp, dir_entry_t *dir_info)
 mtp_bool _util_get_filesystem_info(mtp_char *storepath,
 	fs_info_t *fs_info)
 {
-	if (!g_strcmp0(storepath, MTP_EXTERNAL_PATH_CHAR)) {
+	GString *path = g_string_new(storepath);
+	mtp_bool ret = FALSE;
+
+	if (g_string_equal(g_conf.external_path, path)) {
 		struct statfs buf = { 0 };
 		mtp_uint64 avail_size = 0;
 		mtp_uint64 capacity = 0;
@@ -708,10 +712,11 @@ mtp_bool _util_get_filesystem_info(mtp_char *storepath,
 		fs_info->reserved_size = used_size;
 		fs_info->avail_size = avail_size;
 
-		return TRUE;
+		ret = TRUE;
 	}
 
-	return FALSE;
+	g_string_free(path, TRUE);
+	return ret;
 }
 
 /* LCOV_EXCL_START */

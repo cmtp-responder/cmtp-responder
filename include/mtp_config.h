@@ -19,6 +19,7 @@
 #define _MTP_CONFIG_H_
 
 #include <stdbool.h>
+#include <glib.h>
 
 /* Set write-protection for read-only files */
 /*#define MTP_SUPPORT_SET_PROTECTION*/
@@ -138,6 +139,7 @@ typedef struct {
 	/* Speed related config (End) */
 
 	/* MTP Features */
+	GString *external_path;
 	/* MTP Features (End) */
 
 	/* Vendor Features */
