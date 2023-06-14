@@ -39,8 +39,6 @@ extern mtp_mgr_t g_mtp_mgr;
 extern mtp_bool g_is_full_enum;
 extern pthread_mutex_t g_cmd_inoti_mutex;
 extern mtp_config_t g_conf;
-extern mtp_char g_copy_src_file[MTP_MAX_PATHNAME_SIZE + 1];
-extern mtp_char g_copy_dst_file[MTP_MAX_PATHNAME_SIZE + 1];
 extern mtp_bool g_is_send_partial_object;
 
 mtp_bool g_is_sync_estab = FALSE;
@@ -844,13 +842,39 @@ static void __reset_device(mtp_handler_t *hdlr)
 
 static void __send_partial_object(mtp_handler_t *hdlr)
 {
+	mtp_uint32 obj_handle;
+	mtp_int32 error = 0;
+	mtp_uint16 resp;
+	mtp_obj_t *obj;
+
+	obj_handle = _hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 0);
+	obj = _device_get_object_with_handle(obj_handle);
+	if (obj == NULL) {
+		resp = PTP_RESPONSE_INVALID_OBJ_HANDLE;
+		goto out;
+	}
+
+	if (!obj->file_path || obj->file_path[0] == '\0') {
+		ERR("Object file_path was not set!\n");
+		resp = PTP_RESPONSE_GEN_ERROR;
+		goto out;
+	}
+
 	g_is_send_object = FALSE;
 	g_is_send_partial_object = TRUE;
 
-	_util_file_copy(g_copy_src_file, g_copy_dst_file, &error);
+	_util_file_copy(g_mtp_mgr.ftemp_st.filepath, obj->file_path, &error);
+	if (error) {
+		ERR("Failed to copy %s to %s [%d]\n",
+		    g_mtp_mgr.ftemp_st.filepath, obj->file_path, error);
+		resp = PTP_RESPONSE_GEN_ERROR;
+		goto out;
+	}
 
+	resp = PTP_RESPONSE_OK;
+out:
 	_device_set_phase(DEVICE_PHASE_DATAIN);
-	_cmd_hdlr_send_response_code(hdlr, PTP_RESPONSE_OK);
+	_cmd_hdlr_send_response_code(hdlr, resp);
 }
 
 static void __get_partial_object(mtp_handler_t *hdlr)
