@@ -847,6 +847,11 @@ static void __send_partial_object(mtp_handler_t *hdlr)
 	mtp_uint32 send_bytes = 0;
 	data_blk_t blk = { 0 };
 
+	g_is_send_object = FALSE;
+	g_is_send_partial_object = TRUE;
+
+	_util_file_copy(g_copy_src_file, g_copy_dst_file, &error);
+
 	if (_hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 1) ||
 			_hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 2) ||
 			_hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 0)) {
@@ -1369,14 +1374,10 @@ static void __process_commands(mtp_handler_t *hdlr, cmd_blk_t *cmd)
 			_device_set_phase(DEVICE_PHASE_DATAOUT);
 			return;
 		}
-		_util_file_copy(g_copy_src_file, g_copy_dst_file, &error);
 		__send_partial_object(hdlr);
-
-		g_is_send_object = FALSE;
-		g_is_send_partial_object = TRUE;
 		_eh_send_event_req_to_eh_thread(EVENT_DONE_DATAOUT, 0, 0, NULL);
-
 		break;
+
 	default:
 		_cmd_hdlr_send_response_code(hdlr,
 				PTP_RESPONSE_OP_NOT_SUPPORTED);
