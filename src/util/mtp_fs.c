@@ -169,52 +169,74 @@ mtp_bool _util_file_truncate(const mtp_char *filename, mtp_uint64 length)
 	return TRUE;
 }
 
-mtp_bool _util_file_copy(const mtp_char *origpath, const mtp_char *newpath,
-		mtp_int32 *error)
+mtp_bool _util_file_append(const mtp_char *srcpath, const mtp_char *dstpath,
+			   mtp_int64 ofs, mtp_int32 *error)
 {
-	int fold, fnew;
+	int oflags;
+	int src, dst;
 	mtp_int32 ret;
 	struct stat sb;
 	ssize_t written_bytes;
 	off_t bytes_to_send;
 
-	if ((fold = open(origpath, O_RDONLY)) < 0) {
+	if ((src = open(srcpath, O_RDONLY)) < 0) {
 		ERR("In-file open Fail errno [%d]\n", errno);
 		*error = errno;
 		return FALSE;
 	}
 
-	ret = fstat(fold, &sb);
+	ret = fstat(src, &sb);
 	if (ret) {
 		ERR("In-file stat failed errno [%d]\n", errno);
-		close(fold);
+		close(src);
+		return FALSE;
 	}
 
-	if ((fnew = open(newpath, O_WRONLY | O_CREAT | O_TRUNC, sb.st_mode)) < 0) {
+	oflags = O_WRONLY | O_CREAT;
+	if (ofs == 0)
+		oflags |= O_TRUNC;
+
+	if ((dst = open(dstpath, oflags, sb.st_mode)) < 0) {
 		ERR("Out-file open Fail errno [%d]\n", errno);
 		*error = errno;
-		close(fold);
+		close(src);
 		return FALSE;
+	}
+
+	if (ofs > 0) {
+		if (lseek(dst, ofs, SEEK_SET) != ofs) {
+			ERR("Failed to set file offset to 0x%x\n", ofs);
+			*error = errno;
+			close(dst);
+			close(src);
+			return FALSE;
+		}
 	}
 
 	bytes_to_send = sb.st_size;
 	do {
-		written_bytes = sendfile(fnew, fold, NULL, bytes_to_send);
+		written_bytes = sendfile(dst, src, NULL, bytes_to_send);
 		if (written_bytes < 0) {
 			ERR("Failed to copy file %s to %s errno[%d]",
-			    origpath, newpath, errno);
-			close(fold);
-			close(fnew);
-			remove(newpath);
+			    srcpath, dstpath, errno);
+			close(dst);
+			close(src);
+			remove(dstpath);
 			return FALSE;
 		}
 		bytes_to_send -= written_bytes;
 	} while (written_bytes != sb.st_size);
 
-	close(fnew);
-	close(fold);
+	close(dst);
+	close(src);
 
 	return TRUE;
+}
+
+mtp_bool _util_file_copy(const mtp_char *origpath, const mtp_char *newpath,
+			 mtp_int32 *error)
+{
+	return _util_file_append(origpath, newpath, 0, error);
 }
 
 /*

@@ -77,6 +77,8 @@ mtp_bool _util_file_seek(FILE* fhandle, mtp_uint64 offset, mtp_int32 whence);
 mtp_bool _util_file_truncate(const mtp_char *filename, mtp_uint64 length);
 mtp_bool _util_file_copy(const mtp_char *origpath, const mtp_char *newpath,
 		mtp_int32 *error);
+mtp_bool _util_file_append(const mtp_char *srcpath, const mtp_char *dstpath,
+			   mtp_int64 ofs, mtp_int32 *error);
 mtp_bool _util_copy_dir_children_recursive(const mtp_char *origpath,
 		const mtp_char *newpath, mtp_uint32 store_id, mtp_int32 *error);
 mtp_bool _util_file_move(const mtp_char *origpath, const mtp_char *newpath,
