@@ -172,51 +172,47 @@ mtp_bool _util_file_truncate(const mtp_char *filename, mtp_uint64 length)
 mtp_bool _util_file_copy(const mtp_char *origpath, const mtp_char *newpath,
 		mtp_int32 *error)
 {
-	FILE *fold = NULL;
-	FILE *fnew = NULL;
-	size_t nmemb = 0;
-	mtp_int32 ret = 0;
-	mtp_char buf[BUFSIZ] = { 0 };
+	int fold, fnew;
+	mtp_int32 ret;
+	struct stat sb;
+	ssize_t written_bytes;
+	off_t bytes_to_send;
 
-	if ((fold = fopen(origpath, "rb")) == NULL) {
+	if ((fold = open(origpath, O_RDONLY)) < 0) {
 		ERR("In-file open Fail errno [%d]\n", errno);
 		*error = errno;
 		return FALSE;
 	}
 
-	if ((fnew = fopen(newpath, "wb")) == NULL) {
+	ret = fstat(fold, &sb);
+	if (ret) {
+		ERR("In-file stat failed errno [%d]\n", errno);
+		close(fold);
+	}
+
+	if ((fnew = open(newpath, O_WRONLY | O_CREAT | O_TRUNC, sb.st_mode)) < 0) {
 		ERR("Out-file open Fail errno [%d]\n", errno);
 		*error = errno;
-		fclose(fold);
+		close(fold);
 		return FALSE;
 	}
 
+	bytes_to_send = sb.st_size;
 	do {
-		nmemb = fread(buf, sizeof(mtp_char), BUFSIZ, fold);
-		if (nmemb < BUFSIZ && ferror(fold)) {
-			ERR("fread Fail errno [%d]\n", errno);
-			*error = errno;
-			fclose(fnew);
-			fclose(fold);
-			if (remove(newpath) < 0)
-				ERR("Remove Fail\n");
+		written_bytes = sendfile(fnew, fold, NULL, bytes_to_send);
+		if (written_bytes < 0) {
+			ERR("Failed to copy file %s to %s errno[%d]",
+			    origpath, newpath, errno);
+			close(fold);
+			close(fnew);
+			remove(newpath);
 			return FALSE;
 		}
+		bytes_to_send -= written_bytes;
+	} while (written_bytes != sb.st_size);
 
-		ret = fwrite(buf, sizeof(mtp_char), nmemb, fnew);
-		if (ret < nmemb && ferror(fnew)) {
-			ERR("fwrite Fail errno [%d]\n", errno);
-			*error = errno;
-			fclose(fnew);
-			fclose(fold);
-			if (remove(newpath) < 0)
-				ERR("Remove Fail\n");
-			return FALSE;
-		}
-	} while (!feof(fold));
-
-	fclose(fnew);
-	fclose(fold);
+	close(fnew);
+	close(fold);
 
 	return TRUE;
 }
