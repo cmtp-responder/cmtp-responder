@@ -844,6 +844,7 @@ static void __send_partial_object(mtp_handler_t *hdlr)
 {
 	mtp_uint32 obj_handle;
 	mtp_int32 error = 0;
+	mtp_uint64 offset;
 	mtp_uint16 resp;
 	mtp_obj_t *obj;
 
@@ -854,6 +855,10 @@ static void __send_partial_object(mtp_handler_t *hdlr)
 		goto out;
 	}
 
+	offset = _hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 2);
+	offset <<= 32;
+	offset |= _hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 1);
+
 	if (!obj->file_path || obj->file_path[0] == '\0') {
 		ERR("Object file_path was not set!\n");
 		resp = PTP_RESPONSE_GEN_ERROR;
@@ -863,7 +868,10 @@ static void __send_partial_object(mtp_handler_t *hdlr)
 	g_is_send_object = FALSE;
 	g_is_send_partial_object = TRUE;
 
-	_util_file_copy(g_mtp_mgr.ftemp_st.filepath, obj->file_path, &error);
+	if (offset == 0)
+		_util_file_copy(g_mtp_mgr.ftemp_st.filepath, obj->file_path, &error);
+	else
+		_util_file_append(g_mtp_mgr.ftemp_st.filepath, obj->file_path, offset, &error);
 	if (error) {
 		ERR("Failed to copy %s to %s [%d]\n",
 		    g_mtp_mgr.ftemp_st.filepath, obj->file_path, error);
