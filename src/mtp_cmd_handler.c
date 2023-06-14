@@ -1123,94 +1123,103 @@ void __close_session(mtp_handler_t *hdlr)
 /* LCOV_EXCL_STOP */
 
 #ifdef MTP_SUPPORT_PRINT_COMMAND
-static void __print_command(mtp_uint16 code)
+static void __print_command(cmd_container_t *usb_cmd)
 {
-	switch (code) {
+	const mtp_char *cmdstr;
+	mtp_uint32 i;
+
+	switch (usb_cmd->code) {
 	case PTP_OPCODE_GETDEVICEINFO:
-		DBG("COMMAND ======== GET DEVICE INFO===========\n");
+		cmdstr = "GET DEVICE INFO";
 		break;
 	case PTP_OPCODE_OPENSESSION:
-		DBG("COMMAND ======== OPEN SESSION ===========\n");
+		cmdstr = "OPEN SESSION";
 		break;
 	case PTP_OPCODE_CLOSESESSION:
-		DBG("COMMAND ======== CLOSE SESSION ===========\n");
+		cmdstr = "CLOSE SESSION";
 		break;
 	case PTP_OPCODE_GETSTORAGEIDS:
-		DBG("COMMAND ======== GET STORAGE IDS ===========\n");
+		cmdstr = "GET STORAGE IDS";
 		break;
 	case PTP_OPCODE_GETSTORAGEINFO:
-		DBG("COMMAND ======== GET STORAGE INFO ===========\n");
+		cmdstr = "GET STORAGE INFO";
 		break;
 	case PTP_OPCODE_GETOBJECTHANDLES:
-		DBG("COMMAND ======== GET OBJECT HANDLES ===========\n");
+		cmdstr = "GET OBJECT HANDLES";
 		break;
 	case PTP_OPCODE_GETOBJECTINFO:
-		DBG("COMMAND ======== GET OBJECT INFO ===========\n");
+		cmdstr = "GET OBJECT INFO";
 		break;
 	case PTP_OPCODE_GETOBJECT:
-		DBG("COMMAND ======== GET OBJECT ===========\n");
+		cmdstr = "GET OBJECT";
 		break;
 	case PTP_OPCODE_DELETEOBJECT:
-		DBG("COMMAND ======== DELETE OBJECT ===========\n");
+		cmdstr = "DELETE OBJECT";
 		break;
 	case PTP_OPCODE_SENDOBJECTINFO:
-		DBG("COMMAND ======== SEND OBJECT INFO ===========\n");
+		cmdstr = "SEND OBJECT INFO";
 		break;
 	case MTP_OPCODE_SETOBJECTPROPVALUE:
-		DBG("COMMAND ======== SET OBJECT PROP VALUE ==========");
+		cmdstr = "SET OBJECT PROP VALUE";
 		break;
 	case PTP_OPCODE_SENDOBJECT:
-		DBG("COMMAND ======== SEND OBJECT ===========\n");
+		cmdstr = "SEND OBJECT";
 		break;
 	case PTP_OC_ANDROID_SENDPARTIALOBJECT:
-		DBG("COMMAND ======== SEND PARTIAL OBJECT (ANDROID) ==========\n");
+		cmdstr = "SEND PARTIAL OBJECT (ANDROID)";
 		break;
 	case PTP_OPCODE_INITIATECAPTURE:
-		DBG("COMMAND ======== INITIATE CAPTURE ===========\n");
+		cmdstr = "INITIATE CAPTURE";
 		break;
 	case PTP_OPCODE_RESETDEVICE:
-		DBG("COMMAND ======== RESET DEVICE ===========\n");
+		cmdstr = "RESET DEVICE";
 		break;
 	case PTP_OPCODE_SETOBJECTPROTECTION:
-		DBG("COMMAND ======== SET OBJECT PROTECTION ===========\n");
+		cmdstr = "SET OBJECT PROTECTION";
 		break;
 	case PTP_OPCODE_POWERDOWN:
-		DBG("COMMAND ======== POWER DOWN ===========\n");
+		cmdstr = "POWER DOWN";
 		break;
 	case PTP_OPCODE_TERMINATECAPTURE:
-		DBG("COMMAND ======== TERMINATE CAPTURE ===========\n");
+		cmdstr = "TERMINATE CAPTURE";
 		break;
 	case PTP_OC_ANDROID_GETPARTIALOBJECT64:
-		DBG("COMMAND ======== GET PARTIAL OBJECT (ANDROID) ==========\n");
+		cmdstr = "GET PARTIAL OBJECT (ANDROID)";
 		break;
 	case PTP_OPCODE_GETPARTIALOBJECT:
-		DBG("COMMAND ======== GET PARTIAL OBJECT ===========\n");
+		cmdstr = "GET PARTIAL OBJECT";
 		break;
 	case PTP_OPCODE_INITIATEOPENCAPTURE:
-		DBG("COMMAND ======== INITIATE OPEN CAPTURE ===========\n");
+		cmdstr = "INITIATE OPEN CAPTURE";
 		break;
 	case MTP_OPCODE_WMP_UNDEFINED:
-		DBG("COMMAND ======== WMP UNDEFINED ==========\n");
+		cmdstr = "WMP UNDEFINED";
 		break;
 	case MTP_OPCODE_GETINTERDEPPROPDESC:
-		DBG("COMMAND ======== GET INTERDEP PROP DESC ==========\n");
+		cmdstr = "GET INTERDEP PROP DESC";
 		break;
 	case MTP_OPCODE_GETOBJECTPROPDESC:
-		DBG("COMMAND ======== GET OBJECT PROP DESC ==========\n");
+		cmdstr = "GET OBJECT PROP DESC";
 		break;
         case PTP_OC_ANDROID_BEGINEDITOBJECT:
-		DBG("COMMAND ======== BEGIN EDIT OBJECT (ANDROID) ==========\n");
+		cmdstr = "BEGIN EDIT OBJECT (ANDROID)";
 		break;
         case PTP_OC_ANDROID_ENDEDITOBJECT:
-		DBG("COMMAND ======== END EDIT OBJECT (ANDROID) ==========\n");
+		cmdstr = "END EDIT OBJECT (ANDROID)";
 		break;
 	case PTP_OC_ANDROID_TRUNCATEOBJECT:
-		DBG("COMMAND ======== TRUNCATE OBJECT (ANDROID) ==========\n");
+		cmdstr = "TRUNCATE OBJECT (ANDROID)";
                 break;
 	default:
-		DBG("======== UNKNOWN COMMAND ==========\n");
+		cmdstr = "UNKNOWN COMMAND";
 		break;
 	}
+
+	DBG("======= %s - [0x%4X] =======\n", cmdstr, usb_cmd->code);
+	DBG("\ttype:\t\t0x%x\n", usb_cmd->type);
+	DBG("\tlen:\t\t%u\n", usb_cmd->len);
+	for (i = 0; i < usb_cmd->no_param; i++)
+		DBG("\tparam[%u]:\t0x%x\n", i, usb_cmd->params[i]);
 }
 #endif /*MTP_SUPPORT_PRINT_COMMAND*/
 
@@ -1224,9 +1233,8 @@ static void __process_commands(mtp_handler_t *hdlr, cmd_blk_t *cmd)
 	_hdlr_copy_cmd_container(cmd, &(hdlr->usb_cmd));
 
 	if (hdlr->usb_cmd.code == PTP_OPCODE_GETDEVICEINFO) {
-		DBG("COMMAND CODE = [0x%4x]!!\n", hdlr->usb_cmd.code);
 #ifdef MTP_SUPPORT_PRINT_COMMAND
-		__print_command(hdlr->usb_cmd.code);
+		__print_command(&hdlr->usb_cmd);
 #endif /*MTP_SUPPORT_PRINT_COMMAND*/
 		__get_device_info(hdlr);
 		goto DONE;
@@ -1234,9 +1242,8 @@ static void __process_commands(mtp_handler_t *hdlr, cmd_blk_t *cmd)
 
 	/*  Process OpenSession Command */
 	if (hdlr->usb_cmd.code == PTP_OPCODE_OPENSESSION) {
-		DBG("COMMAND CODE = [0x%4X]!!\n", hdlr->usb_cmd.code);
 #ifdef MTP_SUPPORT_PRINT_COMMAND
-		__print_command(hdlr->usb_cmd.code);
+		__print_command(&hdlr->usb_cmd);
 #endif /*MTP_SUPPORT_PRINT_COMMAND*/
 		__open_session(hdlr);
 		goto DONE;
@@ -1248,9 +1255,8 @@ static void __process_commands(mtp_handler_t *hdlr, cmd_blk_t *cmd)
 		_device_set_phase(DEVICE_PHASE_IDLE);
 		goto DONE;
 	}
-	DBG("COMMAND CODE = [0x%4x]!!\n", hdlr->usb_cmd.code);
 #ifdef MTP_SUPPORT_PRINT_COMMAND
-	__print_command(hdlr->usb_cmd.code);
+	__print_command(&hdlr->usb_cmd);
 #endif /* MTP_SUPPORT_PRINT_COMMAND */
 
 	switch (hdlr->usb_cmd.code) {
