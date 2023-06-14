@@ -844,25 +844,13 @@ static void __reset_device(mtp_handler_t *hdlr)
 
 static void __send_partial_object(mtp_handler_t *hdlr)
 {
-	mtp_uint32 send_bytes = 0;
-	data_blk_t blk = { 0 };
-
 	g_is_send_object = FALSE;
 	g_is_send_partial_object = TRUE;
 
 	_util_file_copy(g_copy_src_file, g_copy_dst_file, &error);
 
-	if (_hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 1) ||
-			_hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 2) ||
-			_hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 0)) {
-		_hdlr_init_data_container(&blk, hdlr->usb_cmd.code, hdlr->usb_cmd.tid);
-		_hdlr_alloc_buf_data_container(&blk, send_bytes, send_bytes);
-	}
-
 	_device_set_phase(DEVICE_PHASE_DATAIN);
 	_cmd_hdlr_send_response_code(hdlr, PTP_RESPONSE_OK);
-
-	g_free(blk.data);
 }
 
 static void __get_partial_object(mtp_handler_t *hdlr)
