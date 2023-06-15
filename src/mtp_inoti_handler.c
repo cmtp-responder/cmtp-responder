@@ -98,7 +98,6 @@ static open_files_info_t *__find_file_in_inoti_open_files_list(mtp_int32 wd,
 		current_node = current_node->previous;
 	}
 
-	ERR("Cannot find file in open file's list\n");
 	return NULL;
 }
 
@@ -106,6 +105,10 @@ static mtp_bool __add_file_to_inoti_open_files_list(mtp_int32 wd,
 		mtp_char *event_name)
 {
 	open_files_info_t *new_node = NULL;
+
+	/* Check if already added and return early */
+	if (__find_file_in_inoti_open_files_list(wd, event_name))
+		return TRUE;
 
 	new_node = (open_files_info_t *)g_malloc(sizeof(open_files_info_t));
 	retvm_if(!new_node, FALSE, "new_node is null malloc fail\n");
@@ -440,7 +443,9 @@ static mtp_bool __process_inoti_event(struct inotify_event *event)
 			node = __find_file_in_inoti_open_files_list(event->wd,
 					event->name);
 
-			if (node != NULL) {
+			if (node == NULL) {
+				ERR("Cannot find file in open file's list\n");
+			} else {
 				UTIL_LOCK_MUTEX(&g_cmd_inoti_mutex);
 				__process_object_added_event(full_path,
 						event->name, parentpath);
