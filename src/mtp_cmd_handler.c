@@ -1252,7 +1252,6 @@ static void __print_command(cmd_container_t *usb_cmd)
 static void __process_commands(mtp_handler_t *hdlr, cmd_blk_t *cmd)
 {
 	mtp_store_t *store = NULL;
-	mtp_int32 error = 0;
 
 	/* Keep a local copy for this command */
 	_hdlr_copy_cmd_container(cmd, &(hdlr->usb_cmd));
