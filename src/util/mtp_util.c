@@ -25,6 +25,7 @@
 #include "mtp_util.h"
 #include "mtp_support.h"
 #include "mtp_fs.h"
+#include "mtp_property.h"
 #include <sys/stat.h>
 #include <systemd/sd-login.h>
 #include <sys/types.h>
@@ -56,3 +57,11 @@ void _util_get_external_path(char *external_path)
 	external_path[g_conf.external_path->len + 1] = 0;
 }
 /* LCOV_EXCL_STOP */
+
+void _util_ptp_pack_string(ptp_string_t *string, char *data)
+{
+	mtp_wchar wtemp[MAX_PTP_STRING_CHARS + 1] = { 0 };
+
+	_util_utf8_to_utf16(wtemp, sizeof(wtemp) / WCHAR_SIZ, data);
+	_prop_copy_char_to_ptpstring(string, wtemp, WCHAR_TYPE);
+}

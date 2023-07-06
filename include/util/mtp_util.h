@@ -26,6 +26,7 @@ extern "C" {
 #include "mtp_config.h"
 #include "mtp_datatype.h"
 #include "mtp_fs.h"
+#include "ptp_datacodes.h"
 
 #define MODEL "DUMMY MODEL"
 #define DEVICE_VERSION "devv_DUMMY_VERSION"
@@ -124,6 +125,7 @@ typedef struct {
 
 void _util_print_error();
 void _util_get_external_path(char *external_path);
+void _util_ptp_pack_string(ptp_string_t *string, char *data);
 
 #ifdef __cplusplus
 }
