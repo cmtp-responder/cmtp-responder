@@ -135,6 +135,11 @@ typedef struct {
 
 	/* MTP Features */
 	GString *external_path;
+	GString *device_info_vendor_extension_desc;
+	GString *device_info_manufacturer;
+	GString *device_info_model;
+	GString *device_info_device_version;
+	GString *device_info_serial_number;
 	/* MTP Features (End) */
 
 	/* Vendor Features */

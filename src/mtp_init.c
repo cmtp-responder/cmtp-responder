@@ -103,6 +103,12 @@ static void __read_mtp_conf(void)
 	g_conf.read_file_delay = MTP_READ_FILE_DELAY;
 
 	g_conf.external_path = g_string_new(MTP_EXTERNAL_PATH_CHAR);
+	g_conf.device_info_manufacturer = g_string_new(MTP_MANUFACTURER_CHAR);
+	g_conf.device_info_model = g_string_new(MODEL);
+	g_conf.device_info_device_version = g_string_new(DEVICE_VERSION);
+	g_conf.device_info_serial_number = g_string_new(SERIAL);
+	g_conf.device_info_vendor_extension_desc =
+		g_string_new(MTP_VENDOR_EXTENSIONDESC_CHAR);
 
 	if (MTP_SUPPORT_PTHREAD_SCHED) {
 		g_conf.support_pthread_sched = MTP_SUPPORT_PTHREAD_SCHED;
@@ -259,6 +265,41 @@ static void __read_mtp_conf(void)
 
 			g_string_assign(g_conf.external_path, token);
 
+		} else if (strcasecmp(token, "device_info_vendor_extension_desc") == 0) {
+			token = strtok_r(NULL, "=", &saveptr);
+			if (token == NULL)
+				continue;	//	LCOV_EXCL_LINE
+
+			g_string_assign(g_conf.device_info_vendor_extension_desc, token);
+
+		} else if (strcasecmp(token, "device_info_manufacturer") == 0) {
+			token = strtok_r(NULL, "=", &saveptr);
+			if (token == NULL)
+				continue;	//	LCOV_EXCL_LINE
+
+			g_string_assign(g_conf.device_info_manufacturer, token);
+
+		} else if (strcasecmp(token, "device_info_model") == 0) {
+			token = strtok_r(NULL, "=", &saveptr);
+			if (token == NULL)
+				continue;	//	LCOV_EXCL_LINE
+
+			g_string_assign(g_conf.device_info_model, token);
+
+		} else if (strcasecmp(token, "device_info_device_version") == 0) {
+			token = strtok_r(NULL, "=", &saveptr);
+			if (token == NULL)
+				continue;	//	LCOV_EXCL_LINE
+
+			g_string_assign(g_conf.device_info_device_version, token);
+
+		} else if (strcasecmp(token, "device_info_serial_number") == 0) {
+			token = strtok_r(NULL, "=", &saveptr);
+			if (token == NULL)
+				continue;	//	LCOV_EXCL_LINE
+
+			g_string_assign(g_conf.device_info_serial_number, token);
+
 		/* LCOV_EXCL_STOP */
 		} else {
 			ERR("Unknown option : %s\n", buf);
@@ -407,6 +448,11 @@ void _mtp_deinit(void)
 	g_mgr->ftemp_st.temp_buff = NULL;
 
 	g_string_free(g_conf.external_path, TRUE);
+	g_string_free(g_conf.device_info_vendor_extension_desc, TRUE);
+	g_string_free(g_conf.device_info_manufacturer, TRUE);
+	g_string_free(g_conf.device_info_model, TRUE);
+	g_string_free(g_conf.device_info_device_version, TRUE);
+	g_string_free(g_conf.device_info_serial_number, TRUE);
 
 #ifdef MTP_SUPPORT_OBJECTADDDELETE_EVENT
 	_inoti_deinit_filesystem_events();

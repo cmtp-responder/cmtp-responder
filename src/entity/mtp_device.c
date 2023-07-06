@@ -31,6 +31,7 @@
  */
 static mtp_device_t _g_device = { 0 };
 mtp_device_t *g_device = &_g_device;
+extern mtp_config_t g_conf;
 
 /*
  * STATIC VARIABLES
@@ -141,11 +142,16 @@ void _init_mtp_device(void)
 	info->vendor_extn_version = MTP_VENDOR_EXTN_VERSION;
 	info->functional_mode = PTP_FUNCTIONMODE_SLEEP;
 
-	_util_ptp_pack_string(&(info->vendor_extn_desc), MTP_VENDOR_EXTENSIONDESC_CHAR);
-	_util_ptp_pack_string(&(info->manufacturer), MTP_MANUFACTURER_CHAR);
-	_util_ptp_pack_string(&(info->model), MODEL);
-	_util_ptp_pack_string(&(info->device_version), DEVICE_VERSION);
-	_util_ptp_pack_string(&(info->serial_no), SERIAL)
+	_util_ptp_pack_string(&(info->vendor_extn_desc),
+			     g_conf.device_info_vendor_extension_desc->str);
+	_util_ptp_pack_string(&(info->manufacturer),
+			      g_conf.device_info_manufacturer->str);
+	_util_ptp_pack_string(&(info->model),
+			      g_conf.device_info_model->str);
+	_util_ptp_pack_string(&(info->device_version),
+			      g_conf.device_info_device_version->str);
+	_util_ptp_pack_string(&(info->serial_no),
+			     g_conf.device_info_serial_number->str);
 }
 
 /* LCOV_EXCL_START */
