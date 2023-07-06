@@ -142,23 +142,18 @@ void _init_mtp_device(void)
 	info->vendor_extn_version = MTP_VENDOR_EXTN_VERSION;
 	info->functional_mode = PTP_FUNCTIONMODE_SLEEP;
 
-	info->vendor_extn_desc.num_chars = 0;
 	_util_utf8_to_utf16(wtemp, sizeof(wtemp) / WCHAR_SIZ, MTP_VENDOR_EXTENSIONDESC_CHAR);
 	_prop_copy_char_to_ptpstring(&(info->vendor_extn_desc), wtemp, WCHAR_TYPE);
 
-	info->manufacturer.num_chars = 0;
 	_util_utf8_to_utf16(wtemp, sizeof(wtemp) / WCHAR_SIZ, MTP_MANUFACTURER_CHAR);
 	_prop_copy_char_to_ptpstring(&(info->manufacturer), wtemp, WCHAR_TYPE);
 
-	info->model.num_chars = 0;
 	_util_utf8_to_utf16(wtemp, sizeof(wtemp) / WCHAR_SIZ, MODEL);
 	_prop_copy_char_to_ptpstring(&(info->model), wtemp, WCHAR_TYPE);
 
-	info->device_version.num_chars = 0;
 	_util_utf8_to_utf16(wtemp, sizeof(wtemp) / WCHAR_SIZ, DEVICE_VERSION);
 	_prop_copy_char_to_ptpstring(&(info->device_version), wtemp, WCHAR_TYPE);
 
-	info->serial_no.num_chars = 0;
 	_util_utf8_to_utf16(wtemp, sizeof(wtemp) / WCHAR_SIZ, SERIAL);
 	_prop_copy_char_to_ptpstring(&(info->serial_no), wtemp, WCHAR_TYPE);
 }
