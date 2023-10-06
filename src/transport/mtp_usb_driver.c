@@ -73,17 +73,21 @@ static void __handle_control_request(mtp_int32 request);
 /* LCOV_EXCL_START */
 mtp_bool _transport_init_usb_device(void)
 {
-	int msg_size;
+	int n, msg_size;
 
 	if (g_usb_ep0 > 0) {
 		DBG("Device Already open\n");
 		return TRUE;
 	}
 
-	if (sd_listen_fds(0) < 4) {
+	n = sd_listen_fds(0);
+	if (n < 1) {
 		char error[256];
 		ERR("Inheriting FunctionFS descriptors from systemd failed, errno [%s]\n",
 		    strerror_r(errno, error, sizeof(error)));
+		return FALSE;
+	} else if (n < 4) {
+		ERR("Expected 4 FunctionFS descriptors from systemd but received %d\n", n);
 		return FALSE;
 	}
 	DBG("socket-activated\n");
