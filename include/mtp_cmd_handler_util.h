@@ -39,10 +39,11 @@ mtp_err_t _hutil_get_object_entry(mtp_uint32 obj_handle, mtp_obj_t **obj_ptr);
 mtp_err_t _hutil_copy_object_entries(mtp_uint32 dst_store_id,
 		mtp_uint32 src_store_id, mtp_uint32 h_parent, mtp_uint32 obj_handle,
 		mtp_uint32 *new_hobj, mtp_bool keep_handle);
-mtp_err_t _hutil_read_file_data_from_offset(mtp_uint32 obj_handle, off_t offset,
+mtp_err_t _hutil_read_file_data_from_offset(mtp_uint32 obj_handle, mtp_uint64 offset,
 		void *data, mtp_uint32 *data_sz);
 mtp_err_t _hutil_write_file_data(mtp_uint32 store_id, mtp_obj_t *obj,
 		mtp_char *fpath);
+mtp_err_t _hutil_truncate_file(mtp_uint32 obj_handle, mtp_uint64 length);
 mtp_err_t _hutil_get_object_entry_size(mtp_uint32 obj_handle, mtp_uint64 *obj_sz);
 mtp_err_t _hutil_set_protection(mtp_uint32 obj_handle, mtp_uint16 prot_status);
 mtp_err_t _hutil_get_object_handles(mtp_uint32 store_id, mtp_uint32 format,

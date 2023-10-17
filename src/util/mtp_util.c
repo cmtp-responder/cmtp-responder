@@ -25,6 +25,7 @@
 #include "mtp_util.h"
 #include "mtp_support.h"
 #include "mtp_fs.h"
+#include "mtp_property.h"
 #include <sys/stat.h>
 #include <systemd/sd-login.h>
 #include <sys/types.h>
@@ -36,6 +37,7 @@
 
 static phone_state_t _g_ph_status = { 0 };
 phone_state_t *g_ph_status = &_g_ph_status;
+extern mtp_config_t g_conf;
 
 /* LCOV_EXCL_START */
 void _util_print_error()
@@ -51,7 +53,15 @@ void _util_print_error()
 void _util_get_external_path(char *external_path)
 {
 /* LCOV_EXCL_START */
-	strncpy(external_path, MTP_EXTERNAL_PATH_CHAR, sizeof(MTP_EXTERNAL_PATH_CHAR));
-	external_path[sizeof(MTP_EXTERNAL_PATH_CHAR) - 1] = 0;
+	strncpy(external_path, g_conf.external_path->str, g_conf.external_path->len);
+	external_path[g_conf.external_path->len + 1] = 0;
 }
 /* LCOV_EXCL_STOP */
+
+void _util_ptp_pack_string(ptp_string_t *string, char *data)
+{
+	mtp_wchar wtemp[MAX_PTP_STRING_CHARS + 1] = { 0 };
+
+	_util_utf8_to_utf16(wtemp, sizeof(wtemp) / WCHAR_SIZ, data);
+	_prop_copy_char_to_ptpstring(string, wtemp, WCHAR_TYPE);
+}

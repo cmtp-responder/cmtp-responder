@@ -19,6 +19,7 @@
 #define _MTP_CONFIG_H_
 
 #include <stdbool.h>
+#include <glib.h>
 
 /* Set write-protection for read-only files */
 /*#define MTP_SUPPORT_SET_PROTECTION*/
@@ -38,11 +39,6 @@
  *This needs to be diabled later before commercial binary release
  */
 #define MTP_SUPPORT_PRINT_COMMAND
-
-/*
- * Transport related configuration
- */
-#define MTP_SEND_ZLP_FROM_GET_PARTIAL_OBJECT
 
 /* External Storage */
 #define MTP_EXTERNAL_PATH_CHAR		"/media/card"
@@ -138,6 +134,12 @@ typedef struct {
 	/* Speed related config (End) */
 
 	/* MTP Features */
+	GString *external_path;
+	GString *device_info_vendor_extension_desc;
+	GString *device_info_manufacturer;
+	GString *device_info_model;
+	GString *device_info_device_version;
+	GString *device_info_serial_number;
 	/* MTP Features (End) */
 
 	/* Vendor Features */

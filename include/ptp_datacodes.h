@@ -156,10 +156,11 @@
 #define	MTP_OPCODE_WMP_METADATAROUNDTRIP			0x9201
 
 /* Android Random I/O Extensions Codes */
+#define PTP_OC_ANDROID_GETPARTIALOBJECT64               0x95C1
+#define PTP_OC_ANDROID_SENDPARTIALOBJECT                0x95C2
+#define PTP_OC_ANDROID_TRUNCATEOBJECT                   0x95C3
 #define PTP_OC_ANDROID_BEGINEDITOBJECT                  0x95C4
 #define PTP_OC_ANDROID_ENDEDITOBJECT                    0x95C5
-#define PTP_OC_ANDROID_GETPARTIALOBJECT                 0x95C1
-#define PTP_OC_ANDROID_SENDPARTIALOBJECT                0x95C2
 
 /*
  * standard event codes:

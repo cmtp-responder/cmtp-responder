@@ -31,6 +31,7 @@
  */
 static mtp_device_t _g_device = { 0 };
 mtp_device_t *g_device = &_g_device;
+extern mtp_config_t g_conf;
 
 /*
  * STATIC VARIABLES
@@ -60,8 +61,9 @@ static mtp_uint16 g_ops_supported[] = {
  * trigered  for file access operations */
         PTP_OC_ANDROID_BEGINEDITOBJECT,
         PTP_OC_ANDROID_ENDEDITOBJECT,
-        PTP_OC_ANDROID_GETPARTIALOBJECT,
+        PTP_OC_ANDROID_GETPARTIALOBJECT64,
         PTP_OC_ANDROID_SENDPARTIALOBJECT,
+        PTP_OC_ANDROID_TRUNCATEOBJECT,
 };
 
 static mtp_uint16 g_event_supported[] = {
@@ -122,7 +124,6 @@ static mtp_err_t __clear_store_data(mtp_uint32 store_id)
 void _init_mtp_device(void)
 {
 	device_info_t *info = &(g_device->device_info);
-	mtp_wchar wtemp[MAX_PTP_STRING_CHARS + 1] = { 0 };
 
 	g_device->status = DEVICE_STATUSOK;
 	g_device->phase = DEVICE_PHASE_IDLE;
@@ -141,25 +142,16 @@ void _init_mtp_device(void)
 	info->vendor_extn_version = MTP_VENDOR_EXTN_VERSION;
 	info->functional_mode = PTP_FUNCTIONMODE_SLEEP;
 
-	info->vendor_extn_desc.num_chars = 0;
-	_util_utf8_to_utf16(wtemp, sizeof(wtemp) / WCHAR_SIZ, MTP_VENDOR_EXTENSIONDESC_CHAR);
-	_prop_copy_char_to_ptpstring(&(info->vendor_extn_desc), wtemp, WCHAR_TYPE);
-
-	info->manufacturer.num_chars = 0;
-	_util_utf8_to_utf16(wtemp, sizeof(wtemp) / WCHAR_SIZ, MTP_MANUFACTURER_CHAR);
-	_prop_copy_char_to_ptpstring(&(info->manufacturer), wtemp, WCHAR_TYPE);
-
-	info->model.num_chars = 0;
-	_util_utf8_to_utf16(wtemp, sizeof(wtemp) / WCHAR_SIZ, MODEL);
-	_prop_copy_char_to_ptpstring(&(info->model), wtemp, WCHAR_TYPE);
-
-	info->device_version.num_chars = 0;
-	_util_utf8_to_utf16(wtemp, sizeof(wtemp) / WCHAR_SIZ, DEVICE_VERSION);
-	_prop_copy_char_to_ptpstring(&(info->device_version), wtemp, WCHAR_TYPE);
-
-	info->serial_no.num_chars = 0;
-	_util_utf8_to_utf16(wtemp, sizeof(wtemp) / WCHAR_SIZ, SERIAL);
-	_prop_copy_char_to_ptpstring(&(info->serial_no), wtemp, WCHAR_TYPE);
+	_util_ptp_pack_string(&(info->vendor_extn_desc),
+			     g_conf.device_info_vendor_extension_desc->str);
+	_util_ptp_pack_string(&(info->manufacturer),
+			      g_conf.device_info_manufacturer->str);
+	_util_ptp_pack_string(&(info->model),
+			      g_conf.device_info_model->str);
+	_util_ptp_pack_string(&(info->device_version),
+			      g_conf.device_info_device_version->str);
+	_util_ptp_pack_string(&(info->serial_no),
+			     g_conf.device_info_serial_number->str);
 }
 
 /* LCOV_EXCL_START */

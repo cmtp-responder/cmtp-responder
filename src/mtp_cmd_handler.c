@@ -39,8 +39,6 @@ extern mtp_mgr_t g_mtp_mgr;
 extern mtp_bool g_is_full_enum;
 extern pthread_mutex_t g_cmd_inoti_mutex;
 extern mtp_config_t g_conf;
-extern mtp_char g_copy_src_file[MTP_MAX_PATHNAME_SIZE + 1];
-extern mtp_char g_copy_dst_file[MTP_MAX_PATHNAME_SIZE + 1];
 extern mtp_bool g_is_send_partial_object;
 
 mtp_bool g_is_sync_estab = FALSE;
@@ -517,11 +515,6 @@ static void __get_object(mtp_handler_t *hdlr)
 		sent += read_len;
 	}
 
-#ifdef MTP_SEND_ZLP_FROM_GET_OBJECT
-	if (total_len % ((mtp_uint64)_transport_get_usb_packet_len()) == 0)
-		_transport_send_zlp();
-#endif
-
 Done:
 	_util_file_close(h_file);
 
@@ -849,37 +842,71 @@ static void __reset_device(mtp_handler_t *hdlr)
 
 static void __send_partial_object(mtp_handler_t *hdlr)
 {
-	mtp_uint32 send_bytes = 0;
-	data_blk_t blk = { 0 };
+	mtp_uint32 obj_handle;
+	mtp_int32 error = 0;
+	mtp_uint64 offset;
+	mtp_uint16 resp;
+	mtp_obj_t *obj;
 
-	if (_hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 1) ||
-			_hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 2) ||
-			_hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 0)) {
-		_hdlr_init_data_container(&blk, hdlr->usb_cmd.code, hdlr->usb_cmd.tid);
-		_hdlr_alloc_buf_data_container(&blk, send_bytes, send_bytes);
+	obj_handle = _hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 0);
+	obj = _device_get_object_with_handle(obj_handle);
+	if (obj == NULL) {
+		resp = PTP_RESPONSE_INVALID_OBJ_HANDLE;
+		goto out;
 	}
 
-	_device_set_phase(DEVICE_PHASE_DATAIN);
-	_cmd_hdlr_send_response_code(hdlr, PTP_RESPONSE_OK);
+	offset = _hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 2);
+	offset <<= 32;
+	offset |= _hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 1);
 
-	g_free(blk.data);
+	if (!obj->file_path || obj->file_path[0] == '\0') {
+		ERR("Object file_path was not set!\n");
+		resp = PTP_RESPONSE_GEN_ERROR;
+		goto out;
+	}
+
+	g_is_send_object = FALSE;
+	g_is_send_partial_object = TRUE;
+
+	if (offset == 0)
+		_util_file_copy(g_mtp_mgr.ftemp_st.filepath, obj->file_path, &error);
+	else
+		_util_file_append(g_mtp_mgr.ftemp_st.filepath, obj->file_path, offset, &error);
+	if (error) {
+		ERR("Failed to copy %s to %s [%d]\n",
+		    g_mtp_mgr.ftemp_st.filepath, obj->file_path, error);
+		resp = PTP_RESPONSE_GEN_ERROR;
+		goto out;
+	}
+
+	resp = PTP_RESPONSE_OK;
+out:
+	_device_set_phase(DEVICE_PHASE_DATAIN);
+	_cmd_hdlr_send_response_code(hdlr, resp);
 }
 
 static void __get_partial_object(mtp_handler_t *hdlr)
 {
 	mtp_uint32 h_obj = 0;
-	off_t offset = 0;
+	mtp_uint64 offset = 0;
 	mtp_uint32 data_sz = 0;
 	mtp_uint32 send_bytes = 0;
 	data_blk_t blk = { 0 };
 	mtp_uchar *ptr = NULL;
 	mtp_uint16 resp = 0;
 	mtp_uint64 f_size = 0;
-	mtp_uint64 total_sz = 0;
 
-	offset = _hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 1);
-	data_sz = _hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 2);
 	h_obj = _hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 0);
+
+	if (hdlr->usb_cmd.code == PTP_OC_ANDROID_GETPARTIALOBJECT64) {
+		offset = _hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 2);
+		offset <<= 32;
+		offset |= _hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 1);
+		data_sz = _hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 3);
+	} else {
+		offset = _hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 1);
+		data_sz = _hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 2);
+	}
 
 	switch (_hutil_get_object_entry_size(h_obj, &f_size)) {
 
@@ -924,11 +951,6 @@ static void __get_partial_object(mtp_handler_t *hdlr)
 	if (PTP_RESPONSE_OK == resp) {
 		_device_set_phase(DEVICE_PHASE_DATAIN);
 		if (_hdlr_send_data_container(&blk)) {
-			total_sz = send_bytes + sizeof(header_container_t);
-#ifdef MTP_SEND_ZLP_FROM_GET_PARTIAL_OBJECT
-			if (total_sz % _transport_get_usb_packet_len() == 0)
-				_transport_send_zlp();
-#endif
 			_cmd_hdlr_send_response(hdlr, resp, 1, &send_bytes);
 			g_free(blk.data);
 			return;
@@ -996,6 +1018,34 @@ static void __set_object_protection(mtp_handler_t *hdlr)
 static void __begin_end_edit_object(mtp_handler_t *hdlr)
 {
 	_cmd_hdlr_send_response_code(hdlr, PTP_RESPONSE_OK);
+}
+
+static void __truncate_object(mtp_handler_t *hdlr)
+{
+	mtp_uint64 length;
+	mtp_uint32 h_obj;
+	mtp_uint16 resp;
+
+	h_obj = _hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 0);
+	length = _hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 2);
+	length <<= 32;
+	length |= _hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 1);
+
+	switch (_hutil_truncate_file(h_obj, length)) {
+	case MTP_ERROR_INVALID_OBJECTHANDLE:
+		resp = PTP_RESPONSE_INVALID_OBJ_HANDLE;
+		break;
+	case MTP_ERROR_NONE:
+		resp = PTP_RESPONSE_OK;
+		break;
+	case MTP_ERROR_INVALID_OBJECT_INFO:
+		resp = PTP_RESPONSE_NOVALID_OBJINFO;
+		break;
+	default:
+		resp = PTP_RESPONSE_GEN_ERROR;
+	}
+
+	_cmd_hdlr_send_response_code(hdlr, resp);
 }
 
 static void __power_down(mtp_handler_t *hdlr)
@@ -1098,79 +1148,103 @@ void __close_session(mtp_handler_t *hdlr)
 /* LCOV_EXCL_STOP */
 
 #ifdef MTP_SUPPORT_PRINT_COMMAND
-static void __print_command(mtp_uint16 code)
+static void __print_command(cmd_container_t *usb_cmd)
 {
-	switch (code) {
+	const mtp_char *cmdstr;
+	mtp_uint32 i;
+
+	switch (usb_cmd->code) {
 	case PTP_OPCODE_GETDEVICEINFO:
-		DBG("COMMAND ======== GET DEVICE INFO===========\n");
+		cmdstr = "GET DEVICE INFO";
 		break;
 	case PTP_OPCODE_OPENSESSION:
-		DBG("COMMAND ======== OPEN SESSION ===========\n");
+		cmdstr = "OPEN SESSION";
 		break;
 	case PTP_OPCODE_CLOSESESSION:
-		DBG("COMMAND ======== CLOSE SESSION ===========\n");
+		cmdstr = "CLOSE SESSION";
 		break;
 	case PTP_OPCODE_GETSTORAGEIDS:
-		DBG("COMMAND ======== GET STORAGE IDS ===========\n");
+		cmdstr = "GET STORAGE IDS";
 		break;
 	case PTP_OPCODE_GETSTORAGEINFO:
-		DBG("COMMAND ======== GET STORAGE INFO ===========\n");
+		cmdstr = "GET STORAGE INFO";
 		break;
 	case PTP_OPCODE_GETOBJECTHANDLES:
-		DBG("COMMAND ======== GET OBJECT HANDLES ===========\n");
+		cmdstr = "GET OBJECT HANDLES";
 		break;
 	case PTP_OPCODE_GETOBJECTINFO:
-		DBG("COMMAND ======== GET OBJECT INFO ===========\n");
+		cmdstr = "GET OBJECT INFO";
 		break;
 	case PTP_OPCODE_GETOBJECT:
-		DBG("COMMAND ======== GET OBJECT ===========\n");
+		cmdstr = "GET OBJECT";
 		break;
 	case PTP_OPCODE_DELETEOBJECT:
-		DBG("COMMAND ======== DELETE OBJECT ===========\n");
+		cmdstr = "DELETE OBJECT";
 		break;
 	case PTP_OPCODE_SENDOBJECTINFO:
-		DBG("COMMAND ======== SEND OBJECT INFO ===========\n");
+		cmdstr = "SEND OBJECT INFO";
 		break;
 	case MTP_OPCODE_SETOBJECTPROPVALUE:
-		DBG("COMMAND ======== SET OBJECT PROP VALUE ==========");
+		cmdstr = "SET OBJECT PROP VALUE";
 		break;
 	case PTP_OPCODE_SENDOBJECT:
-		DBG("COMMAND ======== SEND OBJECT ===========\n");
+		cmdstr = "SEND OBJECT";
+		break;
+	case PTP_OC_ANDROID_SENDPARTIALOBJECT:
+		cmdstr = "SEND PARTIAL OBJECT (ANDROID)";
 		break;
 	case PTP_OPCODE_INITIATECAPTURE:
-		DBG("COMMAND ======== INITIATE CAPTURE ===========\n");
+		cmdstr = "INITIATE CAPTURE";
 		break;
 	case PTP_OPCODE_RESETDEVICE:
-		DBG("COMMAND ======== RESET DEVICE ===========\n");
+		cmdstr = "RESET DEVICE";
 		break;
 	case PTP_OPCODE_SETOBJECTPROTECTION:
-		DBG("COMMAND ======== SET OBJECT PROTECTION ===========\n");
+		cmdstr = "SET OBJECT PROTECTION";
 		break;
 	case PTP_OPCODE_POWERDOWN:
-		DBG("COMMAND ======== POWER DOWN ===========\n");
+		cmdstr = "POWER DOWN";
 		break;
 	case PTP_OPCODE_TERMINATECAPTURE:
-		DBG("COMMAND ======== TERMINATE CAPTURE ===========\n");
+		cmdstr = "TERMINATE CAPTURE";
+		break;
+	case PTP_OC_ANDROID_GETPARTIALOBJECT64:
+		cmdstr = "GET PARTIAL OBJECT (ANDROID)";
 		break;
 	case PTP_OPCODE_GETPARTIALOBJECT:
-		DBG("COMMAND ======== GET PARTIAL OBJECT ===========\n");
+		cmdstr = "GET PARTIAL OBJECT";
 		break;
 	case PTP_OPCODE_INITIATEOPENCAPTURE:
-		DBG("COMMAND ======== INITIATE OPEN CAPTURE ===========\n");
+		cmdstr = "INITIATE OPEN CAPTURE";
 		break;
 	case MTP_OPCODE_WMP_UNDEFINED:
-		DBG("COMMAND ======== WMP UNDEFINED ==========\n");
+		cmdstr = "WMP UNDEFINED";
 		break;
 	case MTP_OPCODE_GETINTERDEPPROPDESC:
-		DBG("COMMAND ======== GET INTERDEP PROP DESC ==========\n");
+		cmdstr = "GET INTERDEP PROP DESC";
 		break;
 	case MTP_OPCODE_GETOBJECTPROPDESC:
-		DBG("COMMAND ======== GET OBJECT PROP DESC ==========");
+		cmdstr = "GET OBJECT PROP DESC";
 		break;
+        case PTP_OC_ANDROID_BEGINEDITOBJECT:
+		cmdstr = "BEGIN EDIT OBJECT (ANDROID)";
+		break;
+        case PTP_OC_ANDROID_ENDEDITOBJECT:
+		cmdstr = "END EDIT OBJECT (ANDROID)";
+		break;
+	case PTP_OC_ANDROID_TRUNCATEOBJECT:
+		cmdstr = "TRUNCATE OBJECT (ANDROID)";
+                break;
 	default:
-		DBG("======== UNKNOWN COMMAND ==========\n");
+		cmdstr = "UNKNOWN COMMAND";
 		break;
 	}
+
+	DBG("======= %s - [0x%4X] =======\n", cmdstr, usb_cmd->code);
+	DBG("\ttype:\t\t0x%x\n", usb_cmd->type);
+	DBG("\tlen:\t\t%u\n", usb_cmd->len);
+	for (i = 0; i < usb_cmd->no_param; i++)
+		DBG("\tparam[%u]:\t0x%x\n", i, usb_cmd->params[i]);
 }
 #endif /*MTP_SUPPORT_PRINT_COMMAND*/
 
@@ -1178,15 +1252,13 @@ static void __print_command(mtp_uint16 code)
 static void __process_commands(mtp_handler_t *hdlr, cmd_blk_t *cmd)
 {
 	mtp_store_t *store = NULL;
-	mtp_int32 error = 0;
 
 	/* Keep a local copy for this command */
 	_hdlr_copy_cmd_container(cmd, &(hdlr->usb_cmd));
 
 	if (hdlr->usb_cmd.code == PTP_OPCODE_GETDEVICEINFO) {
-		DBG("COMMAND CODE = [0x%4x]!!\n", hdlr->usb_cmd.code);
 #ifdef MTP_SUPPORT_PRINT_COMMAND
-		__print_command(hdlr->usb_cmd.code);
+		__print_command(&hdlr->usb_cmd);
 #endif /*MTP_SUPPORT_PRINT_COMMAND*/
 		__get_device_info(hdlr);
 		goto DONE;
@@ -1194,9 +1266,8 @@ static void __process_commands(mtp_handler_t *hdlr, cmd_blk_t *cmd)
 
 	/*  Process OpenSession Command */
 	if (hdlr->usb_cmd.code == PTP_OPCODE_OPENSESSION) {
-		DBG("COMMAND CODE = [0x%4X]!!\n", hdlr->usb_cmd.code);
 #ifdef MTP_SUPPORT_PRINT_COMMAND
-		__print_command(hdlr->usb_cmd.code);
+		__print_command(&hdlr->usb_cmd);
 #endif /*MTP_SUPPORT_PRINT_COMMAND*/
 		__open_session(hdlr);
 		goto DONE;
@@ -1208,9 +1279,8 @@ static void __process_commands(mtp_handler_t *hdlr, cmd_blk_t *cmd)
 		_device_set_phase(DEVICE_PHASE_IDLE);
 		goto DONE;
 	}
-	DBG("COMMAND CODE = [0x%4x]!!\n", hdlr->usb_cmd.code);
 #ifdef MTP_SUPPORT_PRINT_COMMAND
-	__print_command(hdlr->usb_cmd.code);
+	__print_command(&hdlr->usb_cmd);
 #endif /* MTP_SUPPORT_PRINT_COMMAND */
 
 	switch (hdlr->usb_cmd.code) {
@@ -1237,7 +1307,7 @@ static void __process_commands(mtp_handler_t *hdlr, cmd_blk_t *cmd)
 	case PTP_OPCODE_DELETEOBJECT:
 		__delete_object(hdlr);
 		break;
-	case PTP_OC_ANDROID_GETPARTIALOBJECT:
+	case PTP_OC_ANDROID_GETPARTIALOBJECT64:
 	case PTP_OPCODE_GETPARTIALOBJECT:
 		__get_partial_object(hdlr);
 		break;
@@ -1313,20 +1383,20 @@ static void __process_commands(mtp_handler_t *hdlr, cmd_blk_t *cmd)
                 __begin_end_edit_object(hdlr);
                 break;
 
+	case PTP_OC_ANDROID_TRUNCATEOBJECT:
+		__truncate_object(hdlr);
+                break;
+
 	case PTP_OC_ANDROID_SENDPARTIALOBJECT:
 		if (g_device->phase == DEVICE_PHASE_IDLE) {
 			_eh_send_event_req_to_eh_thread(EVENT_START_DATAOUT, 0, 0, NULL);
 			_device_set_phase(DEVICE_PHASE_DATAOUT);
 			return;
 		}
-		_util_file_copy(g_copy_src_file, g_copy_dst_file, &error);
 		__send_partial_object(hdlr);
-
-		g_is_send_object = FALSE;
-		g_is_send_partial_object = TRUE;
 		_eh_send_event_req_to_eh_thread(EVENT_DONE_DATAOUT, 0, 0, NULL);
-
 		break;
+
 	default:
 		_cmd_hdlr_send_response_code(hdlr,
 				PTP_RESPONSE_OP_NOT_SUPPORTED);

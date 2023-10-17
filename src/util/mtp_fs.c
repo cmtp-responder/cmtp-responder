@@ -33,6 +33,7 @@
 #include "mtp_device.h"
 
 extern mtp_uint32 g_next_obj_handle;
+extern mtp_config_t g_conf;
 
 /*
  * FUNCTIONS
@@ -136,7 +137,7 @@ mtp_int32 _util_file_close(FILE* fhandle)
  * @param[in]	whence		Specifies the setting value
  * @return	Returns TRUE in case of success or FALSE on Failure.
  */
-mtp_bool _util_file_seek(FILE* handle, off_t offset, mtp_int32 whence)
+mtp_bool _util_file_seek(FILE* handle, mtp_uint64 offset, mtp_int32 whence)
 {
 	mtp_int64 ret_val = 0;
 
@@ -146,56 +147,96 @@ mtp_bool _util_file_seek(FILE* handle, off_t offset, mtp_int32 whence)
 	return TRUE;
 }
 
-mtp_bool _util_file_copy(const mtp_char *origpath, const mtp_char *newpath,
-		mtp_int32 *error)
+/*
+ * This function truncates a file.
+ *
+ * @param[in]	handle		Specifies the handle of file to seek.
+ * @param[in]	length		Specifies the new file length.
+ * @return	Returns TRUE in case of success or FALSE on Failure.
+ */
+mtp_bool _util_file_truncate(const mtp_char *filename, mtp_uint64 length)
 {
-	FILE *fold = NULL;
-	FILE *fnew = NULL;
-	size_t nmemb = 0;
-	mtp_int32 ret = 0;
-	mtp_char buf[BUFSIZ] = { 0 };
+	mtp_int32 ret_val;
+	struct stat st;
 
-	if ((fold = fopen(origpath, "rb")) == NULL) {
+	ret_val = stat(filename, &st);
+	retvm_if(ret_val != 0, FALSE, "Error while stat [%d]\n", errno);
+	retvm_if(!(S_IWUSR & st.st_mode), FALSE, "Wrong privilege, missing S_IWUSR\n");
+
+	ret_val = truncate(filename, length);
+	retvm_if(ret_val != 0, FALSE, "Truncate error [%d]\n", errno);
+
+	return TRUE;
+}
+
+mtp_bool _util_file_append(const mtp_char *srcpath, const mtp_char *dstpath,
+			   mtp_int64 ofs, mtp_int32 *error)
+{
+	int oflags;
+	int src, dst;
+	mtp_int32 ret;
+	struct stat sb;
+	ssize_t written_bytes;
+	off_t bytes_to_send;
+
+	if ((src = open(srcpath, O_RDONLY)) < 0) {
 		ERR("In-file open Fail errno [%d]\n", errno);
 		*error = errno;
 		return FALSE;
 	}
 
-	if ((fnew = fopen(newpath, "wb")) == NULL) {
-		ERR("Out-file open Fail errno [%d]\n", errno);
-		*error = errno;
-		fclose(fold);
+	ret = fstat(src, &sb);
+	if (ret) {
+		ERR("In-file stat failed errno [%d]\n", errno);
+		close(src);
 		return FALSE;
 	}
 
+	oflags = O_WRONLY | O_CREAT;
+	if (ofs == 0)
+		oflags |= O_TRUNC;
+
+	if ((dst = open(dstpath, oflags, sb.st_mode)) < 0) {
+		ERR("Out-file open Fail errno [%d]\n", errno);
+		*error = errno;
+		close(src);
+		return FALSE;
+	}
+
+	if (ofs > 0) {
+		if (lseek(dst, ofs, SEEK_SET) != ofs) {
+			ERR("Failed to set file offset to 0x%x\n", ofs);
+			*error = errno;
+			close(dst);
+			close(src);
+			return FALSE;
+		}
+	}
+
+	bytes_to_send = sb.st_size;
 	do {
-		nmemb = fread(buf, sizeof(mtp_char), BUFSIZ, fold);
-		if (nmemb < BUFSIZ && ferror(fold)) {
-			ERR("fread Fail errno [%d]\n", errno);
-			*error = errno;
-			fclose(fnew);
-			fclose(fold);
-			if (remove(newpath) < 0)
-				ERR("Remove Fail\n");
+		written_bytes = sendfile(dst, src, NULL, bytes_to_send);
+		if (written_bytes < 0) {
+			ERR("Failed to copy file %s to %s errno[%d]",
+			    srcpath, dstpath, errno);
+			close(dst);
+			close(src);
+			remove(dstpath);
 			return FALSE;
 		}
+		bytes_to_send -= written_bytes;
+	} while (written_bytes != sb.st_size);
 
-		ret = fwrite(buf, sizeof(mtp_char), nmemb, fnew);
-		if (ret < nmemb && ferror(fnew)) {
-			ERR("fwrite Fail errno [%d]\n", errno);
-			*error = errno;
-			fclose(fnew);
-			fclose(fold);
-			if (remove(newpath) < 0)
-				ERR("Remove Fail\n");
-			return FALSE;
-		}
-	} while (!feof(fold));
-
-	fclose(fnew);
-	fclose(fold);
+	close(dst);
+	close(src);
 
 	return TRUE;
+}
+
+mtp_bool _util_file_copy(const mtp_char *origpath, const mtp_char *newpath,
+			 mtp_int32 *error)
+{
+	return _util_file_append(origpath, newpath, 0, error);
 }
 
 /*
@@ -690,7 +731,10 @@ mtp_bool _util_ifind_next(mtp_char *dir_name, DIR *dirp, dir_entry_t *dir_info)
 mtp_bool _util_get_filesystem_info(mtp_char *storepath,
 	fs_info_t *fs_info)
 {
-	if (!g_strcmp0(storepath, MTP_EXTERNAL_PATH_CHAR)) {
+	GString *path = g_string_new(storepath);
+	mtp_bool ret = FALSE;
+
+	if (g_string_equal(g_conf.external_path, path)) {
 		struct statfs buf = { 0 };
 		mtp_uint64 avail_size = 0;
 		mtp_uint64 capacity = 0;
@@ -708,10 +752,11 @@ mtp_bool _util_get_filesystem_info(mtp_char *storepath,
 		fs_info->reserved_size = used_size;
 		fs_info->avail_size = avail_size;
 
-		return TRUE;
+		ret = TRUE;
 	}
 
-	return FALSE;
+	g_string_free(path, TRUE);
+	return ret;
 }
 
 /* LCOV_EXCL_START */

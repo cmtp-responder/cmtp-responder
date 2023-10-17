@@ -33,7 +33,6 @@ extern mtp_char g_last_created_dir[MTP_MAX_PATHNAME_SIZE + 1];
 extern mtp_char g_last_moved[MTP_MAX_PATHNAME_SIZE + 1];
 extern mtp_char g_last_copied[MTP_MAX_PATHNAME_SIZE + 1];
 extern mtp_char g_last_deleted[MTP_MAX_PATHNAME_SIZE + 1];
-extern mtp_char g_copy_src_file[MTP_MAX_PATHNAME_SIZE + 1];
 extern mtp_uint32 g_next_obj_handle;
 extern phone_state_t *g_ph_status;
 
@@ -661,7 +660,7 @@ mtp_err_t _hutil_copy_object_entries(mtp_uint32 dst_store_id,
 }
 /* LCOV_EXCL_STOP */
 
-mtp_err_t _hutil_read_file_data_from_offset(mtp_uint32 obj_handle, off_t offset,
+mtp_err_t _hutil_read_file_data_from_offset(mtp_uint32 obj_handle, mtp_uint64 offset,
 		void *data, mtp_uint32 *data_sz)
 {
 	mtp_obj_t *obj = NULL;
@@ -681,7 +680,6 @@ mtp_err_t _hutil_read_file_data_from_offset(mtp_uint32 obj_handle, off_t offset,
 			MTP_ERROR_GENERAL, "protection data, NONTRANSFERABLE_OBJECT\n");
 
 	g_strlcpy(fname, obj->file_path, MTP_MAX_PATHNAME_SIZE + 1);
-        g_strlcpy(g_copy_src_file, fname, MTP_MAX_PATHNAME_SIZE + 1);
 	h_file = _util_file_open(fname, MTP_FILE_READ, &error);
 	retvm_if(!h_file, MTP_ERROR_GENERAL, "file open Fail[%s]\n", fname);
 
@@ -770,6 +768,32 @@ mtp_err_t _hutil_get_object_entry_size(mtp_uint32 obj_handle,
 		"_device_get_object_with_handle returned Null object\n");
 
 	*obj_sz = obj->obj_info->file_size;
+	return MTP_ERROR_NONE;
+}
+
+mtp_err_t _hutil_truncate_file(mtp_uint32 obj_handle, mtp_uint64 length)
+{
+	mtp_char fname[MTP_MAX_PATHNAME_SIZE + 1];
+	mtp_bool result;
+	mtp_obj_t *obj;
+
+	obj = _device_get_object_with_handle(obj_handle);
+	retvm_if(!obj, MTP_ERROR_INVALID_OBJECTHANDLE,
+		"_device_get_object_with_handle returned Null object\n");
+
+	if (obj->obj_info->association_type == PTP_ASSOCIATIONTYPE_FOLDER)
+		return MTP_ERROR_INVALID_OBJECT_INFO;
+
+	g_strlcpy(fname, obj->file_path, MTP_MAX_PATHNAME_SIZE + 1);
+
+	result = _util_file_truncate(fname, length);
+	if (result == FALSE) {
+		ERR("file truncate Fail [%d]\n", errno);
+		return MTP_ERROR_GENERAL;
+	}
+
+	obj->obj_info->file_size = length;
+
 	return MTP_ERROR_NONE;
 }
 

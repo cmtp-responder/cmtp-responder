@@ -47,7 +47,6 @@ mtp_err_t _transport_send_event(mtp_byte *buf, mtp_uint32 size, mtp_uint32 *coun
 mtp_uint32 _transport_send_pkt_to_tx_mq(const mtp_byte *buf, mtp_uint32 pkt_len);
 mtp_uint32 _transport_send_bulk_pkt_to_tx_mq(const mtp_byte *buf,
 		mtp_uint32 pkt_len);
-void _transport_send_zlp(void);
 mtp_bool _transport_init_interfaces(_cmd_handler_cb func);
 void _transport_usb_finalize(void);
 void _transport_init_status_info(void);
