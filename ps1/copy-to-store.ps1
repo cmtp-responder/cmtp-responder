@@ -9,7 +9,7 @@ param($mtpDeviceName,$storeName,$parentName,$fileName)
 
 $shell = New-Object -com Shell.Application
 
-$sourceFolder = $shell.Namespace($(Get-Location).toString()).self
+$sourceFolder = $shell.Namespace($($(Get-Location).toString() -split ':')[2]).self
 $file = $sourceFolder.GetFolder.Items() | where { $_.Name -eq $fileName }
 if ($file -eq $null) {
 	Write-Output "Cannot find source file $fileName"

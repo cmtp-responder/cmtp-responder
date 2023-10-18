@@ -26,31 +26,36 @@ foreach ($component in $arrayList) {
 		$source = $source.GetFolder.items() | where { $_.Name -eq $component }
 	}
 }
+
 if ($source -eq $null -or -not $source.IsFolder) {
 	Write-Output "Cannot find source folder $parentName"
 	Exit 1
 }
-$sourceFolder=$shell.Namespace($source).self
-$file = $sourceFolder.GetFolder.Items() | where { $_.Name -eq $remoteFileName }
+$sourceFolder=$shell.Namespace($source)
+$file = $sourceFolder.Items() | where { $_.Name -eq "$remoteFileName" }
 if ($file -eq $null) {
 	Write-Output "Cannot find source file $remoteFileName"
 	Exit 1
 }
 
 $tmpFolder = $shell.Namespace($tmpDir).self
-$tmpFilename = $tmpDir + '\' + $remoteFileName
+$tmpFilename = "$tmpDir" + '\' + "$remoteFileName"
 if (Test-Path $tmpFilename) {
 	Remove-Item -Confirm:$false $tmpFilename -Force | Out-Null
 }
-$tmpFolder.GetFolder.CopyHere($file, 1564)
-$file = $tmpFolder.GetFolder.Items() | where { $_.Name -eq $remoteFileName }
+if ($tmpFolder -eq $null -or -not $tmpFolder.IsFolder) {
+	Write-Output "Cannot find tmp folder: $tmpFolder"
+	Exit 1
+}
+$tmpFolder.GetFolder().CopyHere($file, 1564)
+$file = $tmpFolder.GetFolder().Items() | where { $_.Name -eq "$remoteFileName" }
 if ($file -eq $null) {
 	Write-Output "Cannot find file's temporary copy $tmpFilename"
 	Exit 1
 }
 
 Rename-Item -path $tmpFilename -newname $localFileName
-$file = $tmpFolder.GetFolder.Items() | where { $_.Name -eq $localFileName }
+$file = $tmpFolder.GetFolder().Items() | where { $_.Name -eq $localFileName }
 if ($file -eq $null) {
 	Write-Output "Renaming to $localFilename failed"
 	Exit 1
@@ -59,5 +64,5 @@ if ($file -eq $null) {
 if (Test-Path $localFileName) {
 	Remove-Item -Confirm:$false $localFileName -Force | Out-Null
 }
-$destinationFolder = $shell.Namespace($(Get-Location).toString()).self
-$destinationFolder.GetFolder.MoveHere($file, 1564)
+$destinationFolder = $shell.Namespace($($(Get-Location).toString() -split ':')[2])
+$destinationFolder.MoveHere($file, 1564)
