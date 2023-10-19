@@ -9,7 +9,7 @@ os_setup_windows_power_shell()
 {
 	local -n __local_cookie=${1}
 
-	TMP_DIR=`powershell.exe "ps1\\get-windows-tmp.ps1" | tr -d '\015'`
+	TMP_DIR=`powershell.exe -ExecutionPolicy Bypass "ps1\\get-windows-tmp.ps1" | tr -d '\015'`
 
 	__local_cookie+=("$TMP_DIR""\\cmtp-responder-tests\\")
 	__local_cookie+=("$TMP_DIR""\\cmtp-responder-tests-removals\\")
