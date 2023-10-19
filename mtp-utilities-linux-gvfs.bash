@@ -53,7 +53,7 @@ mtp_copy_to_store_linux_gvfs()
 	local NAME="${4}"
 	local BASE=${__local_cookie[2]}
 
-	[ -d "$BASE"/"$STORE"/"$PARENT" ] || { echo "$PARENT does not exist"; return 1; }
+	[ -d "$BASE"/"$STORE"/"$PARENT" ] || { echo "$BASE"/"$STORE"/"$PARENT does not exist"; return 1; }
 	gio copy "$NAME" "$BASE"/"$STORE"/"$PARENT"
 
 	return $?
