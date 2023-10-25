@@ -34,4 +34,5 @@ directories, "product" string as seen by the Windows OS and MTP store name.
 The tests are run like this:
 
 bats 01_enum.bats
+
 bats 02_file_operations.bats
