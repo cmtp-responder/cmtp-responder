@@ -9,4 +9,4 @@ USBFunctionDescriptors=/etc/cmtp-responder/descs
 USBFunctionStrings=/etc/cmtp-responder/strs
 KillMode=process
 RestartSec=3
-Restart=on-failure
+Restart=always
