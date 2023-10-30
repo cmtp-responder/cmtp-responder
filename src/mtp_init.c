@@ -82,6 +82,7 @@ static void __read_mtp_conf(void)
 	char buf[256];
 	char *token;
 	char *saveptr = NULL;
+	bool storage_path_is_specified = false;
 
 	g_conf.mmap_threshold = MTP_MMAP_THRESHOLD;
 
@@ -247,12 +248,55 @@ static void __read_mtp_conf(void)
 				continue;	//	LCOV_EXCL_LINE
 
 			g_conf.usb_schedparam = atoi(token);
+
+		} else if (strcasecmp(token, "usb_device_manufacturer") == 0) {
+			token = strtok_r(NULL, "=", &saveptr);
+			if (token == NULL)
+				continue;	//	LCOV_EXCL_LINE
+
+			strncpy(g_conf.device_manufacturer, token, USB_DEVICE_MANUFACTURER_LEN);
+
+		} else if (strcasecmp(token, "usb_device_model") == 0) {
+			token = strtok_r(NULL, "=", &saveptr);
+			if (token == NULL)
+				continue;	//	LCOV_EXCL_LINE
+
+			strncpy(g_conf.device_model, token, USB_DEVICE_MODEL_LEN);
+
+		} else if (strcasecmp(token, "usb_device_serial") == 0) {
+			token = strtok_r(NULL, "=", &saveptr);
+			if (token == NULL)
+				continue;	//	LCOV_EXCL_LINE
+
+			strncpy(g_conf.device_serial, token, USB_DEVICE_SERIAL_LEN);
+
+		} else if (strcasecmp(token, "usb_device_version") == 0) {
+			token = strtok_r(NULL, "=", &saveptr);
+			if (token == NULL)
+				continue;	//	LCOV_EXCL_LINE
+
+			strncpy(g_conf.device_version, token, USB_DEVICE_VERSION_LEN);
+
+		} else if (strcasecmp(token, "storage_path") == 0) {
+			token = strtok_r(NULL, "=", &saveptr);
+			if (token == NULL)
+				continue;	//	LCOV_EXCL_LINE
+
+			strncpy(g_conf.storage_path, token, MTP_MAX_PATHNAME_SIZE);
+			storage_path_is_specified = true;
+
 		/* LCOV_EXCL_STOP */
 		} else {
 			ERR("Unknown option : %s\n", buf);
 		}
 	}
 	fclose(fp);
+
+	if (!storage_path_is_specified) {
+		strncpy(g_conf.storage_path, MTP_EXTERNAL_PATH_CHAR, sizeof(MTP_EXTERNAL_PATH_CHAR));
+		storage_path_is_specified = true;
+	}
+
 	g_conf.is_init = true;
 
 	__print_mtp_conf();

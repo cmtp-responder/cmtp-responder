@@ -108,6 +108,14 @@
 
 #define MTP_CONFIG_FILE_PATH		"/etc/cmtp-responder.conf"
 
+/* Standard says that these fields can have variable length,
+ * so I decided to use 32
+ */
+#define USB_DEVICE_MANUFACTURER_LEN	32
+#define USB_DEVICE_VERSION_LEN		32
+#define USB_DEVICE_SERIAL_LEN		32
+#define USB_DEVICE_MODEL_LEN		32
+
 typedef struct {
 	/* Speed related config */
 	int mmap_threshold;	/* Max. 512KB. If requested memory is lesser than this, malloc is used. Otherwise, mmap is used */
@@ -142,6 +150,15 @@ typedef struct {
 
 	/* Vendor Features */
 	/* Features (End) */
+
+	/* USB Device Data */
+	char device_manufacturer[USB_DEVICE_MANUFACTURER_LEN];
+	char device_model[USB_DEVICE_MODEL_LEN];
+	char device_serial[USB_DEVICE_SERIAL_LEN];
+	char device_version[USB_DEVICE_VERSION_LEN];
+
+	/* Storage path */
+	char storage_path[MTP_MAX_PATHNAME_SIZE];
 
 	bool is_init;
 } mtp_config_t;
