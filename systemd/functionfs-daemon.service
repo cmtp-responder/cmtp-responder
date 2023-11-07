@@ -4,7 +4,7 @@ StartLimitIntervalSec=0
 
 [Service]
 Type=simple
-ExecStart=/usr/local/bin/cmtp-responder
+ExecStart=/usr/bin/cmtp-responder
 USBFunctionDescriptors=/etc/cmtp-responder/descs
 USBFunctionStrings=/etc/cmtp-responder/strs
 KillMode=process
