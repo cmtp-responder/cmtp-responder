@@ -7,7 +7,7 @@ DefaultDependencies=no
 [Socket]
 ListenUSBFunction=/run/ffs_mtp
 Service=functionfs-daemon.service
-ExecStartPost=/bin/gt enable mtp-ffs
+ExecStartPost=/usr/bin/gt enable mtp-ffs
 TriggerLimitIntervalSec=0
 
 [Install]
