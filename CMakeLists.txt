@@ -1,23 +1,30 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.0)
+
 PROJECT(cmtp-responder C)
 
-OPTION(BUILD_DESCRIPTORS "Build descriptors" OFF)
+include(GNUInstallDirs)
 
-INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/include)
-INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/include/entity)
-INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/include/transport)
-INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/include/util)
+OPTION(BUILD_DESCRIPTORS "Build USB descriptors binary blobs" OFF)
 
-AUX_SOURCE_DIRECTORY(${CMAKE_SOURCE_DIR}/src SRCS)
-AUX_SOURCE_DIRECTORY(${CMAKE_SOURCE_DIR}/src/entity SRCS)
-AUX_SOURCE_DIRECTORY(${CMAKE_SOURCE_DIR}/src/transport SRCS)
-AUX_SOURCE_DIRECTORY(${CMAKE_SOURCE_DIR}/src/util SRCS)
+INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/include)
+INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/include/entity)
+INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/include/transport)
+INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/include/util)
 
+SET(CONFDIR "${CMAKE_INSTALL_FULL_SYSCONFDIR}/cmtp-responder")
+SET(CONFFILE "cmtp-responder.conf")
+SET(CONFPATH "${CONFDIR}/${CONFFILE}")
+ADD_DEFINITIONS("-DMTP_CONFIG_FILE_PATH=\"${CONFPATH}\"")
 string(LENGTH "${CMAKE_SOURCE_DIR}/" SRC_PATH_LEN)
 add_definitions("-DSRC_PATH_LEN=${SRC_PATH_LEN}")
 
+SET(PKG_MODULES
+	glib-2.0
+	libsystemd
+)
+
 INCLUDE(FindPkgConfig)
-pkg_check_modules(pkgs REQUIRED glib-2.0 libsystemd)
+pkg_check_modules(pkgs REQUIRED ${PKG_MODULES})
 
 FOREACH(flag ${pkgs_CFLAGS})
 	SET(EXTRA_CFLAGS "${EXTRA_CFLAGS} ${flag}")
@@ -29,11 +36,24 @@ SET(EXTRA_CFLAGS "${EXTRA_CFLAGS} -fexceptions -fvisibility=hidden -fprofile-arc
 SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${EXTRA_CFLAGS} -fPIE")
 SET(CMAKE_EXE_LINKER_FLAGS " -Wl,--as-needed -pie -Wl,--hash-style=both")
 
-ADD_EXECUTABLE(${PROJECT_NAME} ${SRCS})
-TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${pkgs_LDFLAGS} pthread rt)
+ADD_SUBDIRECTORY(src/util)
+ADD_SUBDIRECTORY(src/transport)
+ADD_SUBDIRECTORY(src/entity)
 
-INSTALL(TARGETS ${PROJECT_NAME} DESTINATION bin)
-INSTALL(FILES cmtp-responder.conf DESTINATION etc)
+ADD_EXECUTABLE(${PROJECT_NAME} src/mtp_cmd_handler.c src/mtp_cmd_handler_util.c src/mtp_event_handler.c src/mtp_init.c src/mtp_inoti_handler.c src/ptp_container.c)
+
+TARGET_LINK_LIBRARIES(${PROJECT_NAME}
+	entity
+	transport
+	util
+	${pkgs_LDFLAGS}
+	pthread
+	rt
+)
+
+INSTALL(FILES ${CONFFILE} DESTINATION ${CONFDIR})
+
+INSTALL(TARGETS ${PROJECT_NAME} RUNTIME)
 
 IF (BUILD_DESCRIPTORS)
 	ADD_EXECUTABLE(extract_descs_strs ${CMAKE_SOURCE_DIR}/src/extract_descs/mtp_extract_descs_strs.c
@@ -44,5 +64,5 @@ IF (BUILD_DESCRIPTORS)
 	ADD_CUSTOM_TARGET(descs_strs ALL DEPENDS descs strs)
 ENDIF ()
 
-INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/descs DESTINATION etc/cmtp-responder)
-INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/strs DESTINATION etc/cmtp-responder)
+INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/descs DESTINATION ${CONFDIR})
+INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/strs DESTINATION ${CONFDIR})
