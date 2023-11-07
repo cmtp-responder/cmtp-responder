@@ -17,8 +17,13 @@ AUX_SOURCE_DIRECTORY(${CMAKE_SOURCE_DIR}/src/util SRCS)
 string(LENGTH "${CMAKE_SOURCE_DIR}/" SRC_PATH_LEN)
 add_definitions("-DSRC_PATH_LEN=${SRC_PATH_LEN}")
 
+SET(PKG_MODULES
+	glib-2.0
+	libsystemd
+)
+
 INCLUDE(FindPkgConfig)
-pkg_check_modules(pkgs REQUIRED glib-2.0 libsystemd)
+pkg_check_modules(pkgs REQUIRED ${PKG_MODULES})
 
 FOREACH(flag ${pkgs_CFLAGS})
 	SET(EXTRA_CFLAGS "${EXTRA_CFLAGS} ${flag}")
