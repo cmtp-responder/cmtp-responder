@@ -1,4 +1,5 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.0)
+
 PROJECT(cmtp-responder C)
 
 OPTION(BUILD_DESCRIPTORS "Build descriptors" OFF)
