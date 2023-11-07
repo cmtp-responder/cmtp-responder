@@ -9,11 +9,6 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/include/entity)
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/include/transport)
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/include/util)
 
-AUX_SOURCE_DIRECTORY(${CMAKE_SOURCE_DIR}/src SRCS)
-AUX_SOURCE_DIRECTORY(${CMAKE_SOURCE_DIR}/src/entity SRCS)
-AUX_SOURCE_DIRECTORY(${CMAKE_SOURCE_DIR}/src/transport SRCS)
-AUX_SOURCE_DIRECTORY(${CMAKE_SOURCE_DIR}/src/util SRCS)
-
 string(LENGTH "${CMAKE_SOURCE_DIR}/" SRC_PATH_LEN)
 add_definitions("-DSRC_PATH_LEN=${SRC_PATH_LEN}")
 
@@ -35,8 +30,20 @@ SET(EXTRA_CFLAGS "${EXTRA_CFLAGS} -fexceptions -fvisibility=hidden -fprofile-arc
 SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${EXTRA_CFLAGS} -fPIE")
 SET(CMAKE_EXE_LINKER_FLAGS " -Wl,--as-needed -pie -Wl,--hash-style=both")
 
-ADD_EXECUTABLE(${PROJECT_NAME} ${SRCS})
-TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${pkgs_LDFLAGS} pthread rt)
+ADD_SUBDIRECTORY(src/util)
+ADD_SUBDIRECTORY(src/transport)
+ADD_SUBDIRECTORY(src/entity)
+
+ADD_EXECUTABLE(${PROJECT_NAME} src/mtp_cmd_handler.c src/mtp_cmd_handler_util.c src/mtp_event_handler.c src/mtp_init.c src/mtp_inoti_handler.c src/ptp_container.c)
+
+TARGET_LINK_LIBRARIES(${PROJECT_NAME}
+	entity
+	transport
+	util
+	${pkgs_LDFLAGS}
+	pthread
+	rt
+)
 
 INSTALL(TARGETS ${PROJECT_NAME} DESTINATION bin)
 INSTALL(FILES cmtp-responder.conf DESTINATION etc)
