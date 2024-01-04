@@ -13,7 +13,7 @@ case "${1}" in
 			cmtp-responder-build:aarch64
 		;;
 	build)
-		docker buildx --target cmtp-responder-build-aarch64 \
+		docker buildx build --target cmtp-responder-build-aarch64 \
 			-t cmtp-responder-build:aarch64 \
 			.
 		;;
