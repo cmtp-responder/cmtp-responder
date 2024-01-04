@@ -13,7 +13,7 @@ case "${1}" in
 			cmtp-responder-build:armhf
 		;;
 	build)
-		docker buildx --target cmtp-responder-build-armhf \
+		docker buildx build --target cmtp-responder-build-armhf \
 			-t cmtp-responder-build:armhf \
 			.
 		;;

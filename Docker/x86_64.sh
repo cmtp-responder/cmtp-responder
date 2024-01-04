@@ -13,7 +13,7 @@ case "${1}" in
 			cmtp-responder-build:x86_64
 		;;
 	build)
-		docker buildx --target cmtp-responder-build-x86_64 \
+		docker buildx build --target cmtp-responder-build-x86_64 \
 			-t cmtp-responder-build:x86_64 \
 			.
 		;;
