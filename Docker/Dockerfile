@@ -11,8 +11,7 @@ RUN apt-get update && apt-get -y upgrade && apt-get -y dist-upgrade && \
 		git \
 		autoconf \
 		libtool \
-		pkg-config \
-		asciidoc-base
+		pkg-config
 
 WORKDIR /opt/src
 RUN git clone https://github.com/libusbgx/libusbgx.git && cd libusbgx && autoreconf -i
@@ -33,6 +32,7 @@ RUN apt-get update && \
 		libconfig-dev \
 		libglib2.0-dev \
 		libsystemd-dev
+RUN apt-get -y install asciidoc-base
 WORKDIR /opt/src/libusbgx
 RUN ./configure --prefix=/usr && \
 	make && make install
@@ -49,6 +49,7 @@ RUN dpkg --add-architecture armhf && apt-get update && \
 		libconfig-dev:armhf \
 		libglib2.0-dev:armhf \
 		libsystemd-dev:armhf
+RUN apt-get -y install asciidoc-base
 WORKDIR /opt/src/libusbgx
 RUN PKG_CONFIG_PATH=/usr/lib/arm-linux-gnueabihf/pkgconfig ./configure --host=arm-linux-gnueabihf --prefix=/usr/arm-linux-gnueabihf && \
 	make && make install
@@ -67,6 +68,7 @@ RUN dpkg --add-architecture arm64 && apt-get update && \
 		libconfig-dev:arm64 \
 		libglib2.0-dev:arm64 \
 		libsystemd-dev:arm64
+RUN apt-get -y install asciidoc-base
 WORKDIR /opt/src/libusbgx
 RUN PKG_CONFIG_PATH=/usr/lib/aarch64-linux-gnu/pkgconfig ./configure --host=aarch64-linux-gnu --prefix=/usr/aarch64-linux-gnu && \
 	make && make install
