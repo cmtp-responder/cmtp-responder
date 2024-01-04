@@ -106,8 +106,6 @@
 #define MTP_FILE_SCHEDPARAM		0
 #define MTP_USB_SCHEDPARAM		0
 
-#define MTP_CONFIG_FILE_PATH		"/etc/cmtp-responder.conf"
-
 typedef struct {
 	/* Speed related config */
 	int mmap_threshold;	/* Max. 512KB. If requested memory is lesser than this, malloc is used. Otherwise, mmap is used */

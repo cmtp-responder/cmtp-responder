@@ -66,3 +66,6 @@ with "major rework:".
 
 If a change refers to the project build files (e.g. CMakeLists.txt), then
 use the name "build:".
+
+Any new functionality needs its accompanying test(s) which must be added
+together with it and must pass.

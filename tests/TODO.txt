@@ -1,0 +1,8 @@
+SPDX-License-Identifier: CC-BY-SA-4.0
+
+- The Windows Power Shell variant is not great, we can probably do better, but I don't know
+  Power Shell and Windows enough
+- The Linux gvfs variant is ok, but perhaps a bit convoluted, a more straightforward backend
+  would use mtp-tools without having to mount/unmount with gvfs (but then in exchange
+  handling mtp-tools output properly would be complex)
+- There is no Mac variant
