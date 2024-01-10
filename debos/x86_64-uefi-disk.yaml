@@ -1,0 +1,79 @@
+{{- $image := or .image "x86_64-uefi-disk.img" -}}
+
+architecture: amd64
+
+actions:
+  - action: debootstrap
+    suite: trixie
+    components:
+      - main
+      - non-free-firmware
+    mirror: https://deb.debian.org/debian
+    variant: minbase
+
+  - action: apt
+    packages: [ sudo, openssh-server, adduser, systemd-sysv, systemd-resolved, gpgv2, udev, vim, libconfig9, libglib2.0-0, net-tools, iproute2, iputils-ping, console-setup ]
+
+  - action: run
+    chroot: true
+    command: mkdir -p /etc/systemd/network && echo "[Match]" > /etc/systemd/network/wired.network && echo "Name=e*" >> /etc/systemd/network/wired.network && echo "[Network]" >> /etc/systemd/network/wired.network && echo "DHCP=yes" >> /etc/systemd/network/wired.network
+
+  - action: run
+    chroot: true
+    command: echo debian > /etc/hostname
+
+  - action: run
+    chroot: true
+    command: systemctl enable systemd-networkd
+
+  - action: run
+    chroot: true
+    command: systemctl enable systemd-resolved
+
+  - action: run
+    chroot: true
+    command: useradd --comment "cmtp-responder" --create-home --shell /bin/bash cmtp-responder && echo "cmtp-responder:cmtp-responder" | chpasswd && adduser cmtp-responder sudo
+
+  - action: apt
+    packages: [ gvfs, libmtp9, mtp-tools, gvfs-backends, gvfs-fuse, libglib2.0-bin, git, bats, usbutils ]
+
+  - action: image-partition
+    imagename: {{ $image }}
+    imagesize: 2.5GB
+    partitiontype: gpt
+    partitions:
+      - name: efi
+        fs: vfat
+        start: 0%
+        end: 50MB
+        options: [ x-systemd.automount ]
+      - name: root
+        fs: ext4
+        start: 50MB
+        end: 100%
+    mountpoints:
+      - mountpoint: /
+        partition: root
+      - mountpoint: /boot/efi
+        partition: efi
+        flags: [ boot ]
+
+  - action: filesystem-deploy
+
+  - action: apt
+    packages:
+      - grub-efi
+      - initramfs-tools
+      - linux-image-amd64
+
+  - action: run
+    chroot: true
+    command: update-grub
+
+  - action: run
+    chroot: true
+    command: grub-install --target=x86_64-efi --no-nvram
+
+  - action: run
+    chroot: true
+    command: mkdir -p /boot/efi/EFI/BOOT && cp /boot/efi/EFI/debian/grubx64.efi /boot/efi/EFI/BOOT/BOOTX64.EFI
