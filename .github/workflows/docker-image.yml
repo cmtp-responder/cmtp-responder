@@ -15,4 +15,4 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Build the Docker image for aarch64
-      run: docker build Docker --file Dockerfile --tag cmtp-responder-build:aarch64-$(date +%s)
+      run: docker build ./Docker --file ./Docker/Dockerfile --tag cmtp-responder-build:aarch64-$(date +%s)
