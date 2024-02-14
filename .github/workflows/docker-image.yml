@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Build the Docker image for aarch64
       run: docker build ./Docker --file ./Docker/Dockerfile --target cmtp-responder-build-aarch64 --tag cmtp-responder-build:aarch64-$(date +%s)
 
@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Build the Docker image for armhf
       run: docker build ./Docker --file ./Docker/Dockerfile --target cmtp-responder-build-armhf --tag cmtp-responder-build:armhf-$(date +%s)
 
@@ -31,6 +31,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Build the Docker image for x86_64
       run: docker build ./Docker --file ./Docker/Dockerfile --target cmtp-responder-build-x86_64 --tag cmtp-responder-build:x86_64-$(date +%s)
