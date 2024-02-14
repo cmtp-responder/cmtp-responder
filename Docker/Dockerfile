@@ -1,4 +1,7 @@
-# A single Dockerfile to generate either of 3 targets
+# A single Dockerfile to generate either of 3 targets:
+# - cmtp-responder-build-x86_64
+# - cmtp-responder-build-armhf
+# - cmtp-responder-build-aarch64
 # base tools + libusbgx sources
 FROM debian:trixie AS cmtp-responder-build-base
 ENV LANG=C.UTF-8
