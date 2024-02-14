@@ -1,3 +1,4 @@
+# A single Dockerfile to generate either of 3 targets
 # base tools + libusbgx sources
 FROM debian:trixie AS cmtp-responder-build-base
 ENV LANG=C.UTF-8
