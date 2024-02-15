@@ -68,7 +68,7 @@ jobs:
         with:
           context: ./Docker/
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ env.IMAGE_NAME }}:aarch64
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:aarch64
           labels: ${{ steps.meta.outputs.labels }}
           target: 'cmtp-responder-build-aarch64'
           cache-from: type=gha
