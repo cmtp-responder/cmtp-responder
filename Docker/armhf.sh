@@ -2,6 +2,13 @@
 
 WORKDIR="${WORKDIR:-${HOME}}"
 
+# must be ghcr.io/cmtp-responder or empty
+REGISTRY="${REGISTRY:-}"
+
+if [[ -n "${REGISTRY}" ]]; then
+	REGISTRY=${REGISTRY}/
+fi
+
 case "${1}" in
 	run)
 		docker run -it \
@@ -10,7 +17,7 @@ case "${1}" in
 			-w /home/build \
 			-u $(id -u):$(id -g) \
 			--hostname cmtp-responder-build \
-			cmtp-responder-build:armhf
+			${REGISTRY}cmtp-responder-build:armhf
 		;;
 	build)
 		docker buildx build --target cmtp-responder-build-armhf \
