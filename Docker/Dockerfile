@@ -1,5 +1,4 @@
 # A single Dockerfile to generate either of 3 targets:
-#
 # - cmtp-responder-build-x86_64
 # - cmtp-responder-build-armhf
 # - cmtp-responder-build-aarch64
