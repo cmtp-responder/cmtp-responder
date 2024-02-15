@@ -9,7 +9,6 @@ on:
   push:
     paths:
       'Docker/**'
-    tags: [ 'v*.*.*' ]
   pull_request:
     paths:
       'Docker/**'
