@@ -49,13 +49,17 @@ static mtp_uint16 g_ops_supported[] = {
 	PTP_OPCODE_DELETEOBJECT,
 	PTP_OPCODE_SENDOBJECTINFO,
 	PTP_OPCODE_SENDOBJECT,
-	PTP_OPCODE_GETPARTIALOBJECT,
-        MTP_OPCODE_GETOBJECTPROPDESC,
-	MTP_OPCODE_GETOBJECTPROPVALUE,
-	MTP_OPCODE_SETOBJECTPROPVALUE,
+
 #ifdef MTP_SUPPORT_SET_PROTECTION
 	PTP_OPCODE_SETOBJECTPROTECTION,
 #endif /* MTP_SUPPORT_SET_PROTECTION */
+
+        PTP_OPCODE_GETPARTIALOBJECT,
+        MTP_OPCODE_GETOBJECTPROPSUPPORTED, // windows 11 needs this to be able to handle >4GB files
+        MTP_OPCODE_GETOBJECTPROPDESC,
+        MTP_OPCODE_GETOBJECTPROPVALUE,     // windows 11 needs this to be able to handle >4GB files
+        MTP_OPCODE_SETOBJECTPROPVALUE,
+
 /* Android Random I/O Extensions Codes which is a part of MTP protocol events
  * trigered  for file access operations */
         PTP_OC_ANDROID_BEGINEDITOBJECT,
@@ -69,12 +73,15 @@ static mtp_uint16 g_event_supported[] = {
 	PTP_EVENTCODE_OBJECTREMOVED,
 };
 
+static mtp_uint16 g_device_prop_supported[] = {
+};
+
 static mtp_uint16 g_capture_fmts[] = {
-	0
 };
 
 static mtp_uint16 g_object_fmts[] = {
-	PTP_FMT_ASSOCIATION,
+	PTP_FMT_UNDEF,       // this is for any file which is not explicitly listed as PTP_FMT_xyz
+	PTP_FMT_ASSOCIATION, // this is for folders
 };
 
 /*
@@ -133,13 +140,19 @@ void _init_mtp_device(void)
 
 	_prop_build_supp_props_default();
 	info->ops_supported = g_ops_supported;
+	info->ops_supported_cnt = (sizeof(g_ops_supported) / sizeof(mtp_uint16));
 	info->events_supported = g_event_supported;
+	info->events_supported_cnt = (sizeof(g_event_supported) / sizeof(mtp_uint16));
+	info->device_prop_supported = g_device_prop_supported;
+	info->device_prop_supported_cnt = (sizeof(g_device_prop_supported) / sizeof(mtp_uint16));
 	info->capture_fmts = g_capture_fmts;
+	info->capture_fmts_cnt = (sizeof(g_capture_fmts) / sizeof(mtp_uint16));
 	info->object_fmts = g_object_fmts;
+	info->object_fmts_cnt = (sizeof(g_object_fmts) / sizeof(mtp_uint16));
 	info->std_version = MTP_STANDARD_VERSION;
 	info->vendor_extn_id = MTP_VENDOR_EXTN_ID;
 	info->vendor_extn_version = MTP_VENDOR_EXTN_VERSION;
-	info->functional_mode = PTP_FUNCTIONMODE_SLEEP;
+	info->functional_mode = PTP_FUNCTIONMODE_STANDARD;
 
 	info->vendor_extn_desc.num_chars = 0;
 	_util_utf8_to_utf16(wtemp, sizeof(wtemp) / WCHAR_SIZ, MTP_VENDOR_EXTENSIONDESC_CHAR);
@@ -173,20 +186,26 @@ mtp_uint32 _get_device_info_size(void)
 	size += sizeof(info->vendor_extn_version);
 	size += _prop_size_ptpstring(&(info->vendor_extn_desc));
 	size += sizeof(info->functional_mode);
-	size += sizeof(mtp_uint32);	/*for number of supported ops*/
+
+	size += sizeof(mtp_uint32);	/* will be populated by the array size of supported ops*/
 	size += sizeof(g_ops_supported);
-	size += sizeof(mtp_uint32);
+
+	size += sizeof(mtp_uint32);	/* will be populated by the array size of supported events*/
 	size += sizeof(g_event_supported);
-	size += sizeof(mtp_uint32);
-	size += sizeof(mtp_uint32);
+
+	size += sizeof(mtp_uint32); /* will be populated by the array size of device properties*/
+	size += sizeof(g_device_prop_supported);
+
+	size += sizeof(mtp_uint32); /* will be populated by the array size of capture formats*/
 	size += sizeof(g_capture_fmts);
-	size += sizeof(mtp_uint32);
+
+	size += sizeof(mtp_uint32);	/* will be populated by the array size of object formats*/
 	size += sizeof(g_object_fmts);
+
 	size += _prop_size_ptpstring(&(info->manufacturer));
 	size += _prop_size_ptpstring(&(info->model));
 	size += _prop_size_ptpstring(&(info->device_version));
 	size += _prop_size_ptpstring(&(info->serial_no));
-
 	return size;
 }
 
@@ -230,7 +249,8 @@ mtp_uint32 _pack_device_info(mtp_uchar *buf, mtp_uint32 buf_sz)
 #endif /*__BIG_ENDIAN__*/
 	ptr += sizeof(info->functional_mode);
 
-	count = (sizeof(g_ops_supported) / sizeof(mtp_uint16));
+
+	count = info->ops_supported_cnt;
 	memcpy(ptr, &count, sizeof(count));
 
 #ifdef __BIG_ENDIAN__
@@ -246,7 +266,8 @@ mtp_uint32 _pack_device_info(mtp_uchar *buf, mtp_uint32 buf_sz)
 		ptr += sizeof(mtp_uint16);
 	}
 
-	count = (sizeof(g_event_supported) / sizeof(mtp_uint16));
+
+	count = info->events_supported_cnt;
 	memcpy(ptr, &count, sizeof(count));
 
 #ifdef __BIG_ENDIAN__
@@ -262,14 +283,25 @@ mtp_uint32 _pack_device_info(mtp_uchar *buf, mtp_uint32 buf_sz)
 		ptr += sizeof(mtp_uint16);
 	}
 
-	count = 0;
+
+	count = info->device_prop_supported_cnt;
 	memcpy(ptr, &count, sizeof(count));
+
 #ifdef __BIG_ENDIAN__
 	_util_conv_byte_order(ptr, sizeof(count));
 #endif /*__BIG_ENDIAN__*/
 	ptr += sizeof(count);
+	for (ii = 0; ii < count; ii++) {
+		memcpy(ptr, (void *)&(info->device_prop_supported[ii]),
+				sizeof(mtp_uint16));
+#ifdef __BIG_ENDIAN__
+		_util_conv_byte_order(ptr, sizeof(mtp_uint16));
+#endif /*__BIG_ENDIAN__*/
+		ptr += sizeof(mtp_uint16);
+	}
 
-	count = (sizeof(g_capture_fmts) / sizeof(mtp_uint16));
+
+	count = info->capture_fmts_cnt;
 	memcpy(ptr, &count, sizeof(count));
 #ifdef __BIG_ENDIAN__
 	_util_conv_byte_order(ptr, sizeof(count));
@@ -285,7 +317,8 @@ mtp_uint32 _pack_device_info(mtp_uchar *buf, mtp_uint32 buf_sz)
 		ptr += sizeof(mtp_uint16);
 	}
 
-	count = (sizeof(g_object_fmts) / sizeof(mtp_uint16));
+	
+	count = info->object_fmts_cnt;
 	memcpy(ptr, &count, sizeof(count));
 #ifdef __BIG_ENDIAN__
 	_util_conv_byte_order(ptr, sizeof(count));
@@ -299,6 +332,7 @@ mtp_uint32 _pack_device_info(mtp_uchar *buf, mtp_uint32 buf_sz)
 #endif /*__BIG_ENDIAN__*/
 		ptr += sizeof(mtp_uint16);
 	}
+
 
 	ptr += _prop_pack_ptpstring(&(info->manufacturer), ptr,
 			_prop_size_ptpstring(&(info->manufacturer)));

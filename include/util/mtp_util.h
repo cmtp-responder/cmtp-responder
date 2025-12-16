@@ -39,7 +39,7 @@ extern "C" {
 #define ret_if(expr) \
 	do { \
 		if (expr) { \
-			ERR("(%s)", #expr); \
+			ERR("(%s)\n", #expr); \
 			return; \
 		} \
 	} while (0)
@@ -47,7 +47,7 @@ extern "C" {
 #define retv_if(expr, val) \
 	do { \
 		if (expr) { \
-			ERR("(%s)", #expr); \
+			ERR("(%s)\n", #expr); \
 			return (val); \
 		} \
 	} while (0)

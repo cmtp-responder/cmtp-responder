@@ -213,6 +213,7 @@ mtp_bool _prop_grow_ptparray(ptp_array_t *parray, mtp_uint32 new_size)
 		g_realloc(parray->array_entry, size * new_size);
 	if (parray->array_entry == NULL) {
 		parray->arr_size = 0;
+		DBG("Unable to grow the array!\n");	
 		return FALSE;
 	}
 	parray->arr_size = new_size;
@@ -275,6 +276,8 @@ mtp_bool _prop_append_ele_ptparray(ptp_array_t *parray, mtp_uint32 element)
 				parray->num_ele, parray->arr_size);
 		if (FALSE == _prop_grow_ptparray(parray,
 					((parray->arr_size * 3) >> 1) + 2))
+
+			DBG("Unable to append to the array!\n");	
 			return FALSE;
 	}
 
@@ -297,6 +300,7 @@ mtp_bool _prop_append_ele_ptparray(ptp_array_t *parray, mtp_uint32 element)
 		break;
 
 	default:
+		ERR("Not implemented for type: %d\n", parray->type);
 		break;
 	}
 
@@ -1103,6 +1107,42 @@ mtp_uint32 _prop_size_obj_propval(obj_prop_val_t *pval)
 	return size;
 }
 
+mtp_uint32 _prop_pack_obj_propval(obj_prop_val_t *pval, mtp_uchar *buf,
+                                     mtp_uint32 size)
+{
+    mtp_uchar *temp = buf;
+    mtp_uint32 bytes_to_write = 0;
+
+    bytes_to_write = _prop_size_obj_propval(pval);
+
+    if (!buf || size < bytes_to_write)
+        return 0;
+
+    if (pval == NULL || pval->prop == NULL)
+        return 0;
+
+    if (pval->prop->propinfo.data_type == PTP_DATATYPE_STRING) {
+        if (pval->current_val.str == NULL)
+            return 0;
+        else
+            temp += _prop_pack_ptpstring(pval->current_val.str, temp, bytes_to_write);
+
+    } else if ((pval->prop->propinfo.data_type & PTP_DATATYPE_ARRAYMASK) ==
+            PTP_DATATYPE_ARRAY) {
+        temp += _prop_pack_ptparray(pval->current_val.array, temp, bytes_to_write);
+
+    } else if ((pval->prop->propinfo.data_type & PTP_DATATYPE_VALUEMASK) ==
+            PTP_DATATYPE_VALUE) {
+        memcpy(temp, &(pval->current_val.integer), bytes_to_write);
+    #ifdef __BIG_ENDIAN__
+        _util_conv_byte_order(temp, bytes_to_write);
+    #endif /* __BIG_ENDIAN__ */
+        temp += bytes_to_write;
+    }
+
+    return (mtp_uint32)(temp - buf);
+}
+
 void _prop_destroy_obj_propval(obj_prop_val_t *pval)
 {
 	if (pval == NULL)
@@ -1462,6 +1502,21 @@ mtp_uint32 _prop_pack_obj_prop_desc(obj_prop_desc_t *prop, mtp_uchar *buf,
 	return (mtp_uint32)(temp - buf);
 }
 /* LCOV_EXCL_STOP */
+
+mtp_uint32 _prop_size_supp_obj_props(mtp_uint32 list_len)
+{
+	mtp_uint32 size = sizeof(mtp_uint32) + list_len * sizeof(mtp_uint16);
+	return size;
+}
+
+mtp_uint32 _prop_pack_supp_obj_props(ptp_array_t *supp_props, mtp_uchar *buf, mtp_uint32 size)
+{
+	mtp_uchar *ptr = buf;
+	retv_if(NULL == buf, 0);
+
+    ptr += _prop_pack_ptparray(supp_props, ptr, size);
+	return (mtp_uint32)(ptr - buf);
+}
 
 obj_prop_desc_t *_prop_get_obj_prop_desc(mtp_uint32 format_code,
 		mtp_uint32 propcode)
@@ -1847,7 +1902,7 @@ mtp_bool _prop_build_supp_props_default(void)
 			NONE,
 			MTP_PROP_GROUPCODE_GENERAL);
 
-	_prop_add_supp_integer_val(&(props_list_default[i].propinfo), 0x0);
+	_prop_add_supp_integer_val(&(props_list_default[i].propinfo), 0x0); // ToDo this silently fails!
 	i++;
 
 	/*

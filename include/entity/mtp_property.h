@@ -206,7 +206,9 @@ mtp_uint32 _prop_parse_rawstring(ptp_string_t *pstring, mtp_uchar *buf,
  */
 obj_prop_val_t *_prop_alloc_obj_propval(obj_prop_desc_t *prop);
 obj_prop_val_t *_prop_get_prop_val(mtp_obj_t *obj, mtp_uint32 prop_code);
-mtp_uint32 _prop_size_obj_propval(obj_prop_val_t *val);
+mtp_uint32 _prop_size_obj_propval(obj_prop_val_t *pval);
+mtp_uint32 _prop_pack_obj_propval(obj_prop_val_t *pval, mtp_uchar *buf,
+        mtp_uint32 size);
 void _prop_destroy_obj_propval(obj_prop_val_t *pval);
 mtp_bool _prop_set_default_integer(prop_info_t *prop_info, mtp_uchar *value);
 mtp_bool _prop_set_default_string(prop_info_t *prop_info, mtp_wchar *val);
@@ -243,6 +245,10 @@ mtp_uint32 _prop_get_obj_proplist(mtp_obj_t *pObject, mtp_uint32 prop_code,
 mtp_uint32 _prop_get_supp_obj_props(mtp_uint32 format_code,
 		ptp_array_t *supp_props);
 mtp_bool _prop_build_supp_props_default(void);
+
+mtp_uint32 _prop_size_supp_obj_props(mtp_uint32 list_len);
+mtp_uint32 _prop_pack_supp_obj_props(ptp_array_t *supp_props, mtp_uchar *buf,
+        mtp_uint32 size);
 
 /*
  *Interdependent Prop Functions
