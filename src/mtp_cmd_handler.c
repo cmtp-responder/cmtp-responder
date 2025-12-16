@@ -58,8 +58,6 @@ mtp_bool g_is_send_object = FALSE;
 	({mtp_uint32 event_code = g_status->ctrl_event_code; g_status->ctrl_event_code = 0; event_code;})
 
 
-static void __get_object_prop_desc(mtp_handler_t *hdlr);
-
 /*
  * FUNCTIONS
  */
@@ -143,7 +141,111 @@ static void __get_object_prop_desc(mtp_handler_t *hdlr)
 	}
 
 	g_free(blk.data);
-	return;
+}
+
+static void __get_object_props_supp(mtp_handler_t *hdlr)
+{
+    mtp_uint32 format_id = 0;
+	ptp_array_t supp_props[NUM_OBJECT_PROP_DESC_DEFAULT]; // will be a subset of props_list_default 
+	mtp_uint32 list_cnt = 0;
+	data_blk_t blk = { 0, };
+	mtp_uint32 num_bytes = 0;
+	mtp_uchar *ptr = NULL;
+    mtp_uint32 i;
+    mtp_bool format_is_supported = FALSE;
+
+    if (hdlr->usb_cmd.no_param != 1) {
+        _cmd_hdlr_send_response_code(hdlr,
+                PTP_RESPONSE_PARAM_NOTSUPPORTED);
+        return;
+    }
+
+    format_id = _hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 0);
+    for (i=0; i<g_device->device_info.object_fmts_cnt; ++i) {
+        if (g_device->device_info.object_fmts[i] == format_id) {
+            format_is_supported = TRUE;
+            break;
+        }
+    }
+
+    if (!format_is_supported) {
+        _cmd_hdlr_send_response_code(hdlr,
+                MTP_RESPONSE_INVALIDOBJPROPFORMAT);
+        return;
+    }
+
+    _prop_init_ptparray(supp_props, UINT16_TYPE);
+    list_cnt = _prop_get_supp_obj_props(format_id, supp_props);
+    _hdlr_init_data_container(&blk, hdlr->usb_cmd.code, hdlr->usb_cmd.tid);
+    num_bytes = _prop_size_supp_obj_props(list_cnt);
+    ptr = _hdlr_alloc_buf_data_container(&blk, num_bytes, num_bytes);
+
+    if (num_bytes == _prop_pack_supp_obj_props(supp_props, ptr, num_bytes)) {
+        _device_set_phase(DEVICE_PHASE_DATAIN);
+        if (_hdlr_send_data_container(&blk)) {
+            _cmd_hdlr_send_response_code(hdlr, PTP_RESPONSE_OK);
+        } else {
+            /* Host Cancelled data-in transfer */
+            _device_set_phase(DEVICE_PHASE_NOTREADY);
+        }
+    } else {
+        _cmd_hdlr_send_response_code(hdlr, PTP_RESPONSE_GEN_ERROR);
+    }
+
+    g_free(blk.data);
+    _prop_deinit_ptparray(supp_props);
+}
+
+static void __get_object_prop_value(mtp_handler_t *hdlr)
+{
+    mtp_err_t result;
+    data_blk_t blk = { 0, };
+    mtp_uint32 num_bytes = 0;
+    mtp_uchar *ptr = NULL;
+    mtp_uint32 obj_handle;
+    mtp_uint32 prop_code;
+    obj_prop_val_t prop_val;
+    mtp_obj_t *obj;
+
+    if (hdlr->usb_cmd.no_param != 2) {
+        _cmd_hdlr_send_response_code(hdlr,
+                PTP_RESPONSE_PARAM_NOTSUPPORTED);
+        return;
+    }
+
+    obj_handle = _hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 0);
+    prop_code = _hdlr_get_param_cmd_container(&(hdlr->usb_cmd), 1);
+
+    DBG("Handle: 0x%08X - Prop code: 0x%4X\n", obj_handle, prop_code);
+    result = _hutil_get_object_prop_value(obj_handle, prop_code, &prop_val, &obj);
+
+    if (result == MTP_ERROR_INVALID_OBJECTHANDLE) {
+        _cmd_hdlr_send_response_code(hdlr,
+                PTP_RESPONSE_INVALID_OBJ_HANDLE);
+        return;
+    } else if (result != MTP_ERROR_NONE) {
+        _cmd_hdlr_send_response_code(hdlr,
+                PTP_RESPONSE_GEN_ERROR);
+        return;
+    }
+
+    _hdlr_init_data_container(&blk, hdlr->usb_cmd.code, hdlr->usb_cmd.tid);
+    num_bytes = _prop_size_obj_propval(&prop_val);
+    ptr = _hdlr_alloc_buf_data_container(&blk, num_bytes, num_bytes);
+
+    if (num_bytes == _prop_pack_obj_propval(&prop_val, ptr, num_bytes)) {
+        _device_set_phase(DEVICE_PHASE_DATAIN);
+        if (_hdlr_send_data_container(&blk)) {
+            _cmd_hdlr_send_response_code(hdlr, PTP_RESPONSE_OK);
+        } else {
+            /* Host Cancelled data-in transfer */
+            _device_set_phase(DEVICE_PHASE_NOTREADY);
+        }
+    } else {
+        _cmd_hdlr_send_response_code(hdlr, PTP_RESPONSE_GEN_ERROR);
+    }
+
+    g_free(blk.data);
 }
 
 static void __get_device_info(mtp_handler_t *hdlr)
@@ -179,6 +281,7 @@ static void __get_device_info(mtp_handler_t *hdlr)
 	_hdlr_init_data_container(&blk, hdlr->usb_cmd.code, hdlr->usb_cmd.tid);
 	num_bytes = _get_device_info_size();
 	buf_ptr = _hdlr_alloc_buf_data_container(&blk, num_bytes, num_bytes);
+
 	if (num_bytes == _pack_device_info(buf_ptr, num_bytes)) {
 		_device_set_phase(DEVICE_PHASE_DATAIN);
 		if (_hdlr_send_data_container(&blk)) {
@@ -189,6 +292,7 @@ static void __get_device_info(mtp_handler_t *hdlr)
 			DBG("Device phase is set to DEVICE_PHASE_NOTREADY\n");
 		}
 	} else {
+		ERR("PTP_RESPONSE_GEN_ERROR -> sizes don't match\n");
 		_cmd_hdlr_send_response_code(hdlr, PTP_RESPONSE_GEN_ERROR);
 	}
 
@@ -587,8 +691,6 @@ static void __set_object_prop_value(mtp_handler_t *hdlr)
        _cmd_hdlr_send_response_code(hdlr, resp);
 
        g_free(blk.data);
-
-       return;
 }
 
 static void __send_object_info(mtp_handler_t *hdlr)
@@ -1132,7 +1234,7 @@ static void __print_command(mtp_uint16 code)
 		DBG("COMMAND ======== SEND OBJECT INFO ===========\n");
 		break;
 	case MTP_OPCODE_SETOBJECTPROPVALUE:
-		DBG("COMMAND ======== SET OBJECT PROP VALUE ==========");
+		DBG("COMMAND ======== SET OBJECT PROP VALUE ==========\n");
 		break;
 	case PTP_OPCODE_SENDOBJECT:
 		DBG("COMMAND ======== SEND OBJECT ===========\n");
@@ -1165,7 +1267,13 @@ static void __print_command(mtp_uint16 code)
 		DBG("COMMAND ======== GET INTERDEP PROP DESC ==========\n");
 		break;
 	case MTP_OPCODE_GETOBJECTPROPDESC:
-		DBG("COMMAND ======== GET OBJECT PROP DESC ==========");
+		DBG("COMMAND ======== GET OBJECT PROP DESC ==========\n");
+		break;
+	case MTP_OPCODE_GETOBJECTPROPSUPPORTED:
+		DBG("COMMAND ======== GET OBJECT PROPS SUPP ==========\n");
+		break;
+	case MTP_OPCODE_GETOBJECTPROPVALUE:
+		DBG("COMMAND ======== GET OBJECT PROP VALUE ==========\n");
 		break;
 	default:
 		DBG("======== UNKNOWN COMMAND ==========\n");
@@ -1247,6 +1355,13 @@ static void __process_commands(mtp_handler_t *hdlr, cmd_blk_t *cmd)
 	case MTP_OPCODE_GETOBJECTPROPDESC:
 		__get_object_prop_desc(hdlr);
 		break;
+	case MTP_OPCODE_GETOBJECTPROPSUPPORTED:
+		__get_object_props_supp(hdlr);
+		break;
+	case MTP_OPCODE_GETOBJECTPROPVALUE:
+		__get_object_prop_value(hdlr);
+		break;
+
 #ifdef MTP_SUPPORT_SET_PROTECTION
 	case PTP_OPCODE_SETOBJECTPROTECTION:
 		__set_object_protection(hdlr);

@@ -57,11 +57,18 @@ typedef struct {
 	mtp_uint16 vendor_extn_version;	/* Vendor extension version */
 	ptp_string_t vendor_extn_desc;	/* Vendor extension description */
 	mtp_uint16 functional_mode;	/* Funtional mode. */
+
 	mtp_uint16 *ops_supported;	/* Array of operations supported */
+	mtp_uint32 ops_supported_cnt;
 	mtp_uint16 *events_supported;	/* Array of events supported */
+	mtp_uint32 events_supported_cnt;
 	mtp_uint16 *device_prop_supported;/* Array of device prop supported */
+	mtp_uint32 device_prop_supported_cnt;
 	mtp_uint16 *capture_fmts;	/* Array of captured fmts supported */
+	mtp_uint32 capture_fmts_cnt;
 	mtp_uint16 *object_fmts;	/* Array of file fmts supported */
+	mtp_uint32 object_fmts_cnt;
+
 	ptp_string_t manufacturer;	/* The manufacturer's name. */
 	ptp_string_t model;		/* model name string */
 	ptp_string_t device_version;	/* Device version string */

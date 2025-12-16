@@ -57,6 +57,8 @@ mtp_err_t _hutil_get_interdep_prop_config_list_data(void *data,
 mtp_uint32 _hutil_get_storage_info_size(store_info_t *store_info);
 mtp_err_t _hutil_update_object_property(mtp_uint32 obj_handle, mtp_uint32 prop_code,
               mtp_uint16 *data_type, void *buf, mtp_uint32 buf_sz, mtp_uint32 *prop_sz);
+mtp_err_t _hutil_get_object_prop_value(mtp_uint32 obj_handle, mtp_uint32 prop_code,
+              obj_prop_val_t *prop_val, mtp_obj_t **obj);
 
 #ifdef __cplusplus
 }
