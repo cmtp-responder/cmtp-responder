@@ -67,6 +67,7 @@ static mtp_uint16 g_ops_supported[] = {
 static mtp_uint16 g_event_supported[] = {
 	PTP_EVENTCODE_OBJECTADDED,
 	PTP_EVENTCODE_OBJECTREMOVED,
+	PTP_EVENTCODE_OBJECTINFOCHANGED,
 };
 
 static mtp_uint16 g_capture_fmts[] = {

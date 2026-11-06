@@ -163,8 +163,18 @@ static void __process_object_added_event(mtp_char *fullpath,
 	store_id = _entity_get_store_id_by_path(fullpath);
 	store = _device_get_store(store_id);
 	retm_if(!store, "store is NULL so return\n");
-	/* a folder scan may have listed it already */
-	retm_if(_entity_get_object_from_store_by_path(store, fullpath), "already listed\n");
+	/* listed already: by a folder scan, or a file written again on the device */
+	obj = _entity_get_object_from_store_by_path(store, fullpath);
+	if (obj) {
+		retm_if(obj->obj_info->obj_fmt == PTP_FMT_ASSOCIATION, "folder listed already\n");
+		retm_if(stat(fullpath, &stat_buf) < 0, "stat() Fail\n");
+		obj->obj_info->file_size = (mtp_uint64)stat_buf.st_size;
+		if (obj->propval_list.nnodes > 0)
+			_prop_update_property_values_list(obj);
+		_eh_send_event_req_to_eh_thread(EVENT_OBJECT_INFO_CHANGED,
+				obj->obj_handle, 0, NULL);
+		return;
+	}
 
 	parent_obj = _entity_get_object_from_store_by_path(store, parent_path);
 	if (NULL == parent_obj) {
@@ -451,13 +461,13 @@ static mtp_bool __process_inoti_event(struct inotify_event *event)
 			node = __find_file_in_inoti_open_files_list(event->wd,
 					event->name);
 
-			if (node != NULL) {
-				UTIL_LOCK_MUTEX(&g_cmd_inoti_mutex);
-				__process_object_added_event(full_path,
-						event->name, parentpath);
-				UTIL_UNLOCK_MUTEX(&g_cmd_inoti_mutex);
+			/* also a file that existed before (no IN_CREATE): its new size */
+			UTIL_LOCK_MUTEX(&g_cmd_inoti_mutex);
+			__process_object_added_event(full_path,
+					event->name, parentpath);
+			UTIL_UNLOCK_MUTEX(&g_cmd_inoti_mutex);
+			if (node != NULL)
 				__remove_file_from_inoti_open_files_list(node);
-			}
 		}
 	} else {
 		DBG("This case is ignored\n");
