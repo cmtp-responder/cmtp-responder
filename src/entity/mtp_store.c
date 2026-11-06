@@ -924,6 +924,33 @@ void _entity_destroy_mtp_store(mtp_store_t *store)
 }
 /* LCOV_EXCL_STOP */
 
+/* the parent is at hand: no search of the whole object list for it */
+static mtp_obj_t *__enum_add_object(mtp_store_t *store, mtp_obj_t *pobj,
+		mtp_uint32 h_parent, mtp_char *file_name, dir_entry_t *entry)
+{
+	mtp_obj_t *obj = _entity_alloc_mtp_object();
+
+	retvm_if(!obj, NULL, "Memory allocation Fail\n");
+
+	if (_entity_init_mtp_object_params(obj, store->store_id, h_parent,
+				entry->filename, file_name, entry) == FALSE) {
+		ERR("_entity_init_mtp_object_params Fail\n");
+		g_free(obj);
+		return NULL;
+	}
+
+	if (!_util_add_node(&(store->obj_list), obj)) {
+		ERR("Node add to list Fail\n");
+		_entity_dealloc_mtp_obj(obj);
+		return NULL;
+	}
+
+	if (pobj)
+		_entity_add_reference_child_array(pobj, obj->obj_handle);
+
+	return obj;
+}
+
 void _entity_store_recursive_enum_folder_objects(mtp_store_t *store,
 		mtp_obj_t *pobj)
 {
@@ -970,8 +997,8 @@ void _entity_store_recursive_enum_folder_objects(mtp_store_t *store,
 		if (file_name[0] == '.') {
 			DBG_SECURE("Hidden file [%s]\n", entry.filename);
 		} else if (entry.type == MTP_DIR_TYPE) {
-			obj = _entity_add_folder_to_store(store, h_parent,
-					entry.filename, file_name, &entry);
+			obj = __enum_add_object(store, pobj, h_parent,
+					file_name, &entry);
 
 			if (NULL == obj) {
 				ERR("pObject is NULL\n");
@@ -980,8 +1007,7 @@ void _entity_store_recursive_enum_folder_objects(mtp_store_t *store,
 
 			_entity_store_recursive_enum_folder_objects(store, obj);
 		} else if (entry.type == MTP_FILE_TYPE) {
-			_entity_add_file_to_store(store, h_parent,
-					entry.filename, file_name, &entry);
+			__enum_add_object(store, pobj, h_parent, file_name, &entry);
 		} else {
 			DBG("UNKNOWN TYPE\n");
 		}
