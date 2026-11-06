@@ -161,6 +161,8 @@ static void __process_object_added_event(mtp_char *fullpath,
 	store_id = _entity_get_store_id_by_path(fullpath);
 	store = _device_get_store(store_id);
 	retm_if(!store, "store is NULL so return\n");
+	/* a folder scan may have listed it already */
+	retm_if(_entity_get_object_from_store_by_path(store, fullpath), "already listed\n");
 
 	parent_obj = _entity_get_object_from_store_by_path(store, parent_path);
 	if (NULL == parent_obj) {
@@ -215,6 +217,8 @@ static void __process_object_added_event(mtp_char *fullpath,
 		obj = _entity_add_folder_to_store(store, h_parent, fullpath,
 				file_name, &dir_info);
 		retm_if(!obj, "_entity_add_folder_to_store fail.\n");
+		/* watch it and list what is already in it */
+		_entity_store_recursive_enum_folder_objects(store, obj);
 	} else {
 		ERR("%s type is neither DIR nor FILE.\n", fullpath);
 		return;
@@ -565,6 +569,10 @@ void _inoti_add_watch_for_fs_events(mtp_char *path)
 	mtp_int32 i = 0;
 
 	ret_if(path == NULL);
+
+	for (i = 0; i < g_cnt_watch_folder; i++)
+		retm_if(g_inoti_watches[i].wd > 0 && !g_strcmp0(g_inoti_watches[i].forlder_name, path),
+			"already watched\n");
 
 	if (g_cnt_watch_folder == INOTI_FOLDER_COUNT_MAX) {
 		/* find empty cell */
