@@ -948,6 +948,11 @@ void _entity_store_recursive_enum_folder_objects(mtp_store_t *store,
 	retm_if(folder_name == NULL || folder_name[0] != '/',
 		"foldername has no root slash!!\n");
 
+#ifdef MTP_SUPPORT_OBJECTADDDELETE_EVENT
+	/* before reading it: an empty folder is watched too, and nothing made meanwhile is missed */
+	_inoti_add_watch_for_fs_events(folder_name);
+#endif /*MTP_SUPPORT_OBJECTADDDELETE_EVENT*/
+
 	retm_if(!_util_ifind_first(folder_name, &h_dir, &entry), "No more files\n");
 
 	do {
@@ -992,10 +997,6 @@ NEXT:
 
 	if (closedir(h_dir) < 0)
 		ERR("close directory fail\n");
-
-#ifdef MTP_SUPPORT_OBJECTADDDELETE_EVENT
-	_inoti_add_watch_for_fs_events(folder_name);
-#endif /*MTP_SUPPORT_OBJECTADDDELETE_EVENT*/
 }
 
 /* LCOV_EXCL_START */

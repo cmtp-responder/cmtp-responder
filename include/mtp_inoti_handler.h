@@ -32,7 +32,7 @@ extern "C" {
 
 #define INOTI_EVENT_SIZE	(sizeof(struct inotify_event))
 #define INOTI_BUF_LEN		(INOTI_EVENT_SIZE + NAME_MAX + 1)
-#define INOTI_FOLDER_COUNT_MAX	(1024)
+#define INOTI_FOLDER_COUNT_MAX	(8192)
 
 typedef struct {
 	mtp_int32 wd;
