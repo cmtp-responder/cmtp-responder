@@ -15,6 +15,8 @@
  */
 
 #include <unistd.h>
+#include <errno.h>
+#include <string.h>
 #include <sys/types.h>
 #include <sys/syscall.h>
 #include <sys/stat.h>
@@ -567,47 +569,40 @@ void *_thread_inoti(void *arg)
 void _inoti_add_watch_for_fs_events(mtp_char *path)
 {
 	mtp_int32 i = 0;
+	mtp_int32 wd = 0;
+	mtp_int32 slot = -1;
 
 	ret_if(path == NULL);
 
-	for (i = 0; i < g_cnt_watch_folder; i++)
-		retm_if(g_inoti_watches[i].wd > 0 && !g_strcmp0(g_inoti_watches[i].forlder_name, path),
-			"already watched\n");
-
-	if (g_cnt_watch_folder == INOTI_FOLDER_COUNT_MAX) {
-		/* find empty cell */
-		/* LCOV_EXCL_START */
-		for (i = 0; i < INOTI_FOLDER_COUNT_MAX; i++) {
-			/* If not empty */
-			if (g_inoti_watches[i].wd != 0)
-				continue;
-			else
-				break;
-		}
-
-		retm_if(i == INOTI_FOLDER_COUNT_MAX,
-			"no empty space for a new inotify watch.\n");
-
-		DBG("g_watch_folders[%d] add watch : %s\n", i, path);
-		g_inoti_watches[i].forlder_name = g_strdup(path);
-		g_inoti_watches[i].wd = inotify_add_watch(g_inoti_fd,
-				g_inoti_watches[i].forlder_name,
-				IN_CLOSE_WRITE | IN_CREATE |
-				IN_DELETE | IN_MOVED_FROM |
-				IN_MOVED_TO);
+	wd = inotify_add_watch(g_inoti_fd, path, IN_CLOSE_WRITE | IN_CREATE |
+			IN_DELETE | IN_MOVED_FROM | IN_MOVED_TO);
+	if (wd < 0) {
+		char error[256];
+		ERR("inotify_add_watch(%s) failed: %s\n", path,
+		    strerror_r(errno, error, sizeof(error)));
 		return;
-		/* LCOV_EXCL_STOP */
 	}
 
-	DBG("g_watch_folders[%d] add watch : %s\n", g_cnt_watch_folder, path);
-	g_inoti_watches[g_cnt_watch_folder].forlder_name = g_strdup(path);
-	g_inoti_watches[g_cnt_watch_folder].wd = inotify_add_watch(g_inoti_fd,
-			g_inoti_watches[g_cnt_watch_folder].forlder_name,
-			IN_CLOSE_WRITE |
-			IN_CREATE | IN_DELETE |
-			IN_MOVED_FROM |
-			IN_MOVED_TO);
-	g_cnt_watch_folder++;
+	/* the kernel gives a folder watched already its old descriptor */
+	for (i = 0; i < g_cnt_watch_folder; i++) {
+		if (g_inoti_watches[i].wd == wd)
+			return;
+		if (slot < 0 && g_inoti_watches[i].wd == 0)
+			slot = i;
+	}
+
+	if (slot < 0) {
+		if (g_cnt_watch_folder == INOTI_FOLDER_COUNT_MAX) {
+			ERR("no empty space for a new inotify watch.\n");
+			inotify_rm_watch(g_inoti_fd, wd);
+			return;
+		}
+		slot = g_cnt_watch_folder++;
+	}
+
+	DBG("g_watch_folders[%d] add watch : %s\n", slot, path);
+	g_inoti_watches[slot].forlder_name = g_strdup(path);
+	g_inoti_watches[slot].wd = wd;
 }
 
 mtp_bool _inoti_init_filesystem_evnts()
