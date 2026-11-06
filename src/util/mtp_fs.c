@@ -727,6 +727,7 @@ void _FLOGD(const char *file, const char *fmt, ...)
 {
 	static mtp_int64 written_bytes = 0;
 	FILE *fp = NULL;
+	const char *slash;
 	va_list ap;
 
 	if (written_bytes == 0 || written_bytes > MTP_LOG_MAX_SIZE) {
@@ -739,7 +740,8 @@ void _FLOGD(const char *file, const char *fmt, ...)
 	if (fp == NULL)
 		return;
 
-	written_bytes += fprintf(fp, "%s ", file + SRC_PATH_LEN) - SRC_PATH_LEN;
+	slash = strrchr(file, '/');
+	written_bytes += fprintf(fp, "%s ", slash ? slash + 1 : file);
 	va_start(ap, fmt);
 	written_bytes += vfprintf(fp, fmt, ap);
 	va_end(ap);
