@@ -64,7 +64,7 @@ static mtp_uint32 tx_mq_sz;
 static mtp_int32 __handle_usb_read_err(mtp_int32 err,
 		mtp_uchar *buf, mtp_int32 buf_len);
 static void __clean_up_msg_queue(void *param);
-static void __handle_control_request(mtp_int32 request);
+static void __handle_control_request(mtp_int32 request, __u16 wLength);
 
 /*
  * FUNCTIONS
@@ -244,7 +244,7 @@ static int __setup(int ep0, struct usb_ctrlrequest *ctrl)
 			rc = -EINVAL;
 			goto stall;
 		}
-		__handle_control_request(ctrl->bRequest);
+		__handle_control_request(ctrl->bRequest, wLength);
 		break;
 
 	case ((USB_DIR_IN << 8) | USB_PTPREQUEST_GETSTATUS):
@@ -252,7 +252,7 @@ static int __setup(int ep0, struct usb_ctrlrequest *ctrl)
 
 		DBG(__FILE__ "(%s):%d: USB_PTPREQUEST_%s\n",
 		    __func__, __LINE__, requests[ctrl->bRequest-0x64]);
-		__handle_control_request(ctrl->bRequest);
+		__handle_control_request(ctrl->bRequest, wLength);
 		break;
 
 	case ((USB_DIR_IN << 8) | USB_PTPREQUEST_GETEVENT):
@@ -338,7 +338,7 @@ void *_transport_thread_usb_control(void *arg)
 
 	pthread_cleanup_push(__clean_up_msg_queue, mqid);
 
-	do {
+	for (;;) {
 		pthread_testcancel();
 
 		status = read(g_usb_ep0, &event, sizeof(event));
@@ -346,8 +346,13 @@ void *_transport_thread_usb_control(void *arg)
 			char error[256];
 			ERR("read from ep0 failed: %s\n",
 			    strerror_r(errno, error, sizeof(error)));
-			continue;
+			/* a setup the host gave up on: keep serving ep0 */
+			if (errno == EINTR || errno == EL2HLT || errno == EAGAIN)
+				continue;
+			break;
 		}
+		if (status == 0)
+			break;
 		DBG("FUNCTIONFS event received: %d\n", event.type);
 
 		switch (event.type) {
@@ -370,7 +375,7 @@ void *_transport_thread_usb_control(void *arg)
 			_eh_send_event_req_to_eh_thread(EVENT_USB_REMOVED, 0, 0, NULL);
 			break;
 		}
-	} while (status > 0);
+	}
 
 	DBG("status[%d] errno[%d]\n", status, errno);
 	pthread_cleanup_pop(1);
@@ -441,7 +446,7 @@ static void __clean_up_msg_queue(void *mq_id)
 	return;
 }
 
-static void __handle_control_request(mtp_int32 request)
+static void __handle_control_request(mtp_int32 request, __u16 wLength)
 {
 	static mtp_bool kernel_reset = FALSE;
 	static mtp_bool host_cancel = FALSE;
@@ -501,7 +506,7 @@ static void __handle_control_request(mtp_int32 request)
 				PTP_RESPONSE_TRANSACTIONCANCELLED;
 			DBG("PTP_RESPONSE_TRANSACTIONCANCELLED\n");
 			statusreq_data.len = (mtp_word)(sizeof(usb_status_req_t) +
-							(num_param - 2) * sizeof(mtp_dword));
+							num_param * sizeof(mtp_dword) - sizeof(mtp_dword));
 		} else if (g_device->status == DEVICE_STATUSOK) {
 			DBG("PTP_RESPONSE_OK\n");
 			statusreq_data.len = 0x08;
@@ -521,12 +526,14 @@ static void __handle_control_request(mtp_int32 request)
 			sent_busy = FALSE;
 		}
 
-		/* status = ioctl(g_usb_fd, MTP_SET_SETUP_DATA, &statusreq_data);
+		/* the data stage: without it the host waits on ep0, which every function of the gadget shares */
+		status = write(g_usb_ep0, &statusreq_data,
+			       MIN(statusreq_data.len, wLength));
 		if (status < 0) {
-			DBG("IOCTL MTP_SET_SETUP_DATA Fail [%d]\n",
-					status);
-			return;
-		} */
+			char error[256];
+			ERR("Failed to send the GETSTATUS data: %s\n",
+			    strerror_r(errno, error, sizeof(error)));
+		}
 
 		break;
 
